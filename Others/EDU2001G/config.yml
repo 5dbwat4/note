@@ -1,0 +1,6 @@
+key: EDU2001G
+title: '军事理论'
+leaf: true
+
+nav:
+  - 'postexam': '-postexam.md'

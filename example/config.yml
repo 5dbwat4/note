@@ -1,0 +1,9 @@
+key: example
+title: '测试'
+leaf: true
+
+
+nav:
+  - test
+  - test-plugin-custom
+  - test-toc

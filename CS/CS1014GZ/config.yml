@@ -1,0 +1,13 @@
+key: CS1014GZ
+title: '程序设计与算法基础'
+leaf: true
+aliases: 
+  - CS1014GZ
+  - CS/CS1014GZ
+  - CS/CBasis
+
+nav:
+  - 'note-final': '-Note-final-.md'
+  - 'exam-final': '-final-exms-.md'
+  - 'prog-final': '-final-prog.md'
+

@@ -1,0 +1,10 @@
+key: CS
+title: '计算机科学'
+leaf: false
+aliases: 
+  - 'cs'
+
+sub:
+  - GAMES101
+  - CS1014GZ
+  - C-Format-guide

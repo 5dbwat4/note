@@ -1,0 +1,11 @@
+
+key: GAMES101
+title: '现代计算机图形学入门'
+leaf: true
+aliases: 
+  - GAMES101
+
+
+nav:
+  - 'note-l01'
+  - 'note-l02'

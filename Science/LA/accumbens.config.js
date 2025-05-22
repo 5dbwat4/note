@@ -1,0 +1,21 @@
+export default {
+    "dir":import.meta.url,
+    "path":{
+        "default":false,
+        "aliases":["Schoolwork/LA1","Schoolwork/MATH1261GH"],
+    },
+    "entries":[
+        {
+            "file":"menu.md",
+            "pathonly":true
+        },{
+            file:"thx.md",
+            title:"定义定理表"
+        },{
+            file:"fill-hole.md",
+            title:"补天"
+        }
+    ],
+    "name":"线性代数I",
+    "show":true,
+}

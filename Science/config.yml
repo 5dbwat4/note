@@ -1,0 +1,9 @@
+key: Science
+title: '数理'
+leaf: false
+aliases: 
+  - 'sci'
+
+sub:
+  - LA
+  - MA
