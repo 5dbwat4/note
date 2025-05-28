@@ -1,8 +1,8 @@
 ---
 title: 函数题&程序题补天
-createAt: 2025-01-02 16:53:55
+createdAt: 2025-01-02 16:53:55
+updatedAt: 2025-01-03 21:00:00
 ---
-
 # 7-1 二分查找法之过程
 
 本题要求使用二分查找法，在给定的n个升序排列的整数中查找x，并输出查找过程中每一步的中间结果。如果数组a中的元素与x的值相同，输出相应的下标（下标从0开始）；如果没有找到，输出“Not Found”。如果输入的n个整数没有按照从小到大的顺序排列，或者出现了相同的数，则输出“Invalid Value”。
@@ -81,7 +81,7 @@ int binary_search(int a[], int n, int x) {
         } else {
             right = mid - 1;
         }
-      
+    
     }
     return -1;
 }
@@ -149,7 +149,6 @@ int main() {
 1 5 6 7
 ```
 
-
 ```c
 #include <stdio.h>
 
@@ -192,7 +191,6 @@ int main() {
 }
 ```
 
-
 # 7-3 冒泡法排序之过程
 
 本题要求使用冒泡法排序，将给定的n个整数从小到大排序后输出，并输出排序过程中每一步的中间结果。
@@ -203,7 +201,7 @@ int main() {
 
 第2步：在剩下未排序的n−1个数（a[0] 〜 a[n−2]）中，从a[0]起，依次比较相邻的两个数，若邻接元素不符合次序要求，则对它们进行交换。本次操作后，a[0] 〜 a[n−2]中的最大元素“冒泡”到a[n−2]；
 
- ……
+……
 
 第i步：在剩下未排序的n−k个数（a[0]〜a[n−i]）中，从a[0]起，依次比较相邻的两个数，若邻接元素不符合次序要求，则对它们进行交换。本次操作后，a[0] 〜 a[n−i]中的最大元素“冒泡”到a[n−i]；
 
@@ -225,7 +223,6 @@ int main() {
 6 0 1 7 8
 0 1 6 7 8
 0 1 6 7 8
-
 
 ```c
 #include <stdio.h>
@@ -261,24 +258,26 @@ int main() {
 }
 ```
 
-
 # 6-2 归并排序
 
 本题要求实现二路归并排序中的归并操作，待排序列的长度1<=n<=1000。
 
 函数接口定义：
+
 ```c
 void Merge(SqList L,int low,int m,int high);
 ```
+
 其中L是待排序表，使排序后的数据从小到大排列。
 ###类型定义：
+
 ```c
 #include<stdio.h>
 #include<stdlib.h>
 typedef  int  KeyType;
-typedef  struct {                      
-  KeyType *elem; /*elem[0]一般作哨兵或缓冲区*/                       
-  int Length;      
+typedef  struct {                    
+  KeyType *elem; /*elem[0]一般作哨兵或缓冲区*/                     
+  int Length;    
 }SqList;
 void  CreatSqList(SqList *L);/*待排序列建立，由裁判实现，细节不表*/ 
 void  MergeSort(SqList L,int low,int high);
@@ -290,17 +289,17 @@ int main()
   CreatSqList(&L);
   MergeSort(L,1,L.Length);
   for(i=1;i<=L.Length;i++)
-   {        
+   {      
       printf("%d ",L.elem[i]);
    }
   return 0;
 }
 void MergeSort(SqList L,int low,int high)  
-{     
+{   
     /*用分治法进行二路归并排序*/  
     int mid;  
     if(low<high)  /*区间长度大于1*/
-    {      
+    {    
         mid=(low+high)/2;               /*分解*/
         MergeSort(L,low,mid);           /*递归地对low到mid序列排序 */ 
         MergeSort(L,mid+1,high);        /*递归地对mid+1到high序列排序 */ 
@@ -309,18 +308,21 @@ void MergeSort(SqList L,int low,int high)
 }
 /*你的代码将被嵌在这里 */
 ```
+
 输入样例：
 第一行整数表示参与排序的关键字个数。第二行是关键字值 例如：
+
 ```in
 10
 5 2 4 1 8 9 10 12 3 6
 ```
+
 输出样例：
 输出由小到大的有序序列，每一个关键字之间由空格隔开，最后一个关键字后有一个空格。
+
 ```out
 1 2 3 4 5 6 8 9 10 12 
 ```
-
 
 ```c
 void Merge(SqList L, int low, int m, int high) {
@@ -371,28 +373,33 @@ void Merge(SqList L, int low, int m, int high) {
 本题要求实现快速排序的一趟划分函数，待排序列的长度1<=n<=1000。
 
 函数接口定义：
+
 ```c
 int Partition ( SqList L, int low,  int high )；
 ```
+
 其中L是待排序表，使排序后的数据从小到大排列。
 ###类型定义：
+
 ```c
 typedef  int  KeyType;
 typedef  struct 
-{                      
-  KeyType *elem; /*elem[0]一般作哨兵或缓冲区*/                       
-  int Length;      
+{                    
+  KeyType *elem; /*elem[0]一般作哨兵或缓冲区*/                     
+  int Length;    
 }SqList;
 ```
+
 裁判测试程序样例：
+
 ```c
 #include<stdio.h>
 #include<stdlib.h>
 typedef  int  KeyType;
 typedef  struct 
-{                      
-  KeyType *elem; /*elem[0]一般作哨兵或缓冲区*/                     
-  int Length;      
+{                    
+  KeyType *elem; /*elem[0]一般作哨兵或缓冲区*/                   
+  int Length;    
 }SqList;
 void  CreatSqList(SqList *L);/*待排序列建立，由裁判实现，细节不表*/ 
 int Partition ( SqList  L,int low,  int  high );
@@ -419,14 +426,18 @@ void Qsort ( SqList  L,int low,  int  high )
 }
 /*你的代码将被嵌在这里 */
 ```
+
 输入样例：
 第一行整数表示参与排序的关键字个数。第二行是关键字值 例如：
+
 ```in
 10
 5 2 4 1 8 9 10 12 3 6
 ```
+
 输出样例：
 输出由小到大的有序序列，每一个关键字之间由空格隔开，最后一个关键字后有一个空格。
+
 ```out
 1 2 3 4 5 6 8 9 10 12 
 ```

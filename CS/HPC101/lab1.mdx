@@ -1,0 +1,199 @@
+---
+title: Lab1 简单集群搭建
+---
+
+import Asciinema from '@/components/md-comp/AsciinemaWrapper.vue'
+
+# 任务一：从源码构建 OpenMPI 和 HPL
+
+源码构建也是不得不吃的一环了
+
+## 编译OpenMPI
+
+import cast1URL from "./casts/lab1-1.cast?url";
+
+<Asciinema url={cast1URL} />
+
+import cast2URL from "./casts/lab1-2.cast?url";
+
+<Asciinema url={cast2URL} />
+
+编译大成功
+
+import cast9URL from "./casts/lab1-9.cast?url";
+
+<Asciinema url={cast9URL} />
+
+## 编译BLAS和CBLAS
+
+import cast11URL from "./casts/lab1-11.cast?url";
+
+<Asciinema url={cast11URL} />
+
+编译BLAS的过程同样是畅通无阻
+
+import cast12URL from "./casts/lab1-12.cast?url";
+
+<Asciinema url={cast12URL} />
+
+编译CBLAS的过程遇到了`Rank mismatch in argument ‘strue1’ at (1) (scalar and rank-1)`，小改一下`FFLAGS`(视频4:07处)就过了，整体上仍然畅通无阻
+
+## 编译HPL
+
+import cast6URL from "./casts/lab1-6.cast?url";
+
+<Asciinema url={cast6URL} />
+
+该录屏中展示了我们从忘改g99一直到最终编译成功的过程（虽然结尾的xhpl运行报错了 ~~（废话docker还没配呢能运行起来就有鬼了）~~ ）
+
+# 任务二：搭建集群并使用 HPL 测试性能
+
+## 配置集群！
+
+
+```dockerfile
+FROM dockerhub.zjusct.io/library/ubuntu:25.10 AS build
+# 安装依赖
+RUN apt-get update  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    build-essential \
+    wget \
+    openssh-server \
+    openmpi-bin \
+    libopenmpi-dev \
+    libopenblas-dev \
+        iputils-ping \
+    net-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# 安装 HPL
+WORKDIR /opt
+COPY ./hpl-2.3.tar.gz .
+RUN tar xvf hpl-2.3.tar.gz && rm hpl-2.3.tar.gz
+
+# 编译 HPL
+WORKDIR /opt/hpl-2.3
+RUN ./configure --prefix=/usr/local/hpl LDFLAGS="-lm" LIBS="-lm" 
+RUN make && make install
+
+# 新用户
+RUN useradd -m hpl && echo "hpl:hpl" | chpasswd
+RUN chown -R hpl:hpl /usr/local/hpl
+
+# 创建工作目录
+WORKDIR /home/hpl
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh #entrypoint将会处理ssh服务
+
+COPY ./ssh /home/hpl/.ssh
+RUN chmod 700 /home/hpl/.ssh && chmod 600 /home/hpl/.ssh/* && chown -R hpl:hpl /home/hpl/.ssh
+
+EXPOSE 22
+ENTRYPOINT ["./entrypoint.sh"]
+```
+
+当然还有我们的`docker-compose.yml`文件：
+
+```yaml
+version: '3'
+services:
+  node01:
+    image: ${APPLIED_IMAGE}
+    hostname: node01
+    environment:
+      - HOSTS=${HOSTS} 
+    networks:
+      hpl_net:
+        ipv4_address: 172.20.0.2
+
+  node02:
+    image: ${APPLIED_IMAGE}
+    hostname: node02
+    environment:
+      - HOSTS=${HOSTS} 
+    networks:
+      hpl_net:
+        ipv4_address: 172.20.0.3
+
+  node03:
+    image: ${APPLIED_IMAGE}
+    hostname: node03
+    environment:
+      - HOSTS=${HOSTS} 
+    networks:
+      hpl_net:
+        ipv4_address: 172.20.0.4
+
+  node04:
+    image: ${APPLIED_IMAGE}
+    hostname: node04
+    environment:
+      - HOSTS=${HOSTS} 
+    networks:
+      hpl_net:
+        ipv4_address: 172.20.0.5
+
+networks:
+  hpl_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+```
+
+按照实验文档给的方案，每个node都是`build: .`~~虽然我们知道docker有层缓存不会每次都重新编译，但启动的时候还是膈应的慌~~，总之我们先`docker build -t "5dbwat4/hpc101-lab1-hpl-openblas:1.0" . `（而且导出和分享也方便），名字配置到`.env`里面，然后再`docker-compose up -d`。
+
+import cast14URL from "./casts/lab1-14.cast?url";
+
+<Asciinema url={cast14URL} />
+
+当然还有我们不得不提的权限问题（一开始忘了给`/home/hpl/.ssh`给权限了 ~~（相关片段已裁剪（其实上面那个录屏的后续就是`ssh node02`以及`cannot open directory '.ssh': Permission denied`））~~ ）
+
+以及，我们试图将`ssh-keyscan node01 node02 node03 node04 > ~/.ssh/known_hosts`放到`entrypoint.sh`中，然而疑似由于`entrypoint.sh`执行时节点还没全部启动，导致输出的known_hosts不全，所以最终还是进入节点后手动执行了`ssh-keyscan node01 node02 node03 node04 > ~/.ssh/known_hosts`（似乎可以用`wait-for-it`（？）。
+
+import cast15URL from "./casts/lab1-15.cast?url";
+
+<Asciinema url={cast15URL} />
+
+测试连通性！虽然过程不太顺利，但还是成功了
+
+import cast16URL from "./casts/lab1-16.cast?url";
+
+<Asciinema url={cast16URL} />
+
+在虚拟机集群上使用 OpenMPI 运行 HPL 性能测试
+
+
+## 性能调优
+
+前面的测试用的`N`是29
+
+首先尝试增大`N`也就是问题规模，按照LLM的说法，《N值通常在数万到百万级》，所以选择32000测试结果是WSL直接炸了闪退了（我们的WSL套docker性能疑似有点太差了）
+
+从较小的数字往上升
+
+```plain
+================================================================================
+T/V                N    NB     P     Q               Time                 Gflops
+--------------------------------------------------------------------------------
+WR00L2L2         320    16     2     2              17.68             1.2443e-03
+```
+
+```plain
+================================================================================
+T/V                N    NB     P     Q               Time                 Gflops
+--------------------------------------------------------------------------------
+WR00L2L2        1024    64     2     2              32.22             2.2264e-02
+```
+
+到这里电脑已经开始发烫了，不敢跑了（按说应该至少N再乘个2把时间拉到1~2分钟才有参考价值）
+
+
+# 顺便把其它几个库也试一下
+
+## LAPACK
+
+import cast4URL from "./casts/lab1-4.cast?url";
+
+<Asciinema url={cast4URL} />
+
+编译倒不是很困难，但是最后跑出来的CBLAS用到HPL的`Makefile`中直接炸了，没整明白:(

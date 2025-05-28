@@ -15,3 +15,9 @@
 ## Section 11.2
 
 - [ ]  树的应用，需要了解一下huffman编码
+
+## Section 11.3
+
+## Section 11.4
+
+## Section 11.5

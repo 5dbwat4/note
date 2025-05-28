@@ -1,3 +1,5 @@
+![1748244933073](images/Note-C10/1748244933073.png)
+
 ## Chapter 10.7 Planar Graphs
 
 - **Kuratowski’s theorem**: A graph is nonplanar if and only if it contains a subgraph homeomorphic to $K_{3,3}$ or $K_5$.
@@ -5,10 +7,7 @@
 
 $K_5$:![1747591945926](images/Note-C10/1747591945926.png)
 
-
 $K_{3,3}$: ![1747592091321](images/Note-C10/1747592091321.png)
-
-
 
 ## Chapter 10.8 Graph Coloring
 
