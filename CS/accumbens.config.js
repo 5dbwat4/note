@@ -3,6 +3,7 @@ export default {
     "path":"CS",
     name:"CS",
     "subcategories":[
+        "./CTF",
         "./CS1014GZ",
         "./CS1018F",
         "./CTF101",

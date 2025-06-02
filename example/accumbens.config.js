@@ -5,7 +5,8 @@ export default {
         "default":true,
     },
     "entries":[
-        "test.md"
+        "test.md",
+        "test-encryption.mdx"
     ],
     "name":"example",
     "show":false,

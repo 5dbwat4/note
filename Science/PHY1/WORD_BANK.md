@@ -92,7 +92,7 @@ In flows that are sharply curved, *centrifugal*（离心的） effects are *appr
 
 we go from the *concave*（凹面） to the *convex*（凸面） side of the streamline
 
-the length of a simple *pendulum*（单摆） 
+the length of a simple *pendulum*（单摆）
 
 A 2500-kg *demolition*（拆除用的） *ball swings*（摆锤） from the end of a *crane*（起重机）
 
@@ -101,3 +101,8 @@ The period of *oscillation*（振荡周期）
 Sketch the *trajectory*（轨迹） of the particle
 
 Determine the *amplitude*（振幅） of the resulting simple *harmonic*（简谐） motion
+
+
+An \*aluminum\*（铝制的） electric \*kettle\*（水壶） of mass 0.560 kg contains a 2.40- kW  \*heating element\*（加热元件）.
+
+the two are allowed to come to \*thermal equilibrium\*（热平衡）.

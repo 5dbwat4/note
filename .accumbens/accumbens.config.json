@@ -15,6 +15,26 @@
             "subcategories": [
                 {
                     "path": [
+                        "CS/CTF",
+                        "CTF"
+                    ],
+                    "show": true,
+                    "name": "CTF",
+                    "leaf": true,
+                    "index": "78bb0717e5b85c9908969726fba84cd18ebe6fb061a448632b977fb449af2297",
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1748545807069,
+                            "wordcount": 33,
+                            "unikey": "78bb0717e5b85c9908969726fba84cd18ebe6fb061a448632b977fb449af2297",
+                            "pathonly": true,
+                            "path": "index"
+                        }
+                    ]
+                },
+                {
+                    "path": [
                         "CS/CS1014GZ",
                         "Schoolwork/C-Basis",
                         "Schoolwork/CS1014GZ"
@@ -107,7 +127,7 @@
                         "CS/CS1264M",
                         "CS/CTF101"
                     ],
-                    "show": true,
+                    "show": false,
                     "name": "CTF101",
                     "leaf": true,
                     "index": "2e51ef24fc6d51dc78cb5e2817b5c710a703357d71f18637da40a3f6d892b152",
@@ -127,6 +147,14 @@
                             "unikey": "f4a26a318a2f98388f6e1cdf91efb9cd3d6ccb6421252b14ddddcfd22e34b78e",
                             "pathonly": false,
                             "path": "lab0"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1748696924418,
+                            "wordcount": 0,
+                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "pathonly": false,
+                            "path": "lab1"
                         }
                     ]
                 },
@@ -159,9 +187,9 @@
                         },
                         {
                             "title": "Lab1 简单集群搭建",
-                            "updatedAt": 1748410855228,
-                            "wordcount": 335,
-                            "unikey": "0c97d6bbc6ce0a4895f7eb19a556fcfdc70b1734d4d73e934d7e5c7a4f42aeb5",
+                            "updatedAt": 1748421002634,
+                            "wordcount": 977,
+                            "unikey": "d1601f003a80cd15321f3303422119049ac9c6c35e74a9fc949df146fecab7fa",
                             "pathonly": false,
                             "path": "lab1"
                         }
@@ -311,13 +339,13 @@
                     "show": true,
                     "name": "普通物理学I",
                     "leaf": true,
-                    "index": "9f95884063398fcc229170b111c1f7dc78e3b16b37db87a2728ebd144d272836",
+                    "index": "28d889aa411ab66df50045efa3faea15ef0b778312d479dd62378798d14848e4",
                     "entries": [
                         {
                             "title": "",
-                            "updatedAt": 1746579933421,
-                            "wordcount": 7,
-                            "unikey": "9f95884063398fcc229170b111c1f7dc78e3b16b37db87a2728ebd144d272836",
+                            "updatedAt": 1748806157092,
+                            "wordcount": 141,
+                            "unikey": "28d889aa411ab66df50045efa3faea15ef0b778312d479dd62378798d14848e4",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -379,11 +407,35 @@
                         },
                         {
                             "title": "",
+                            "updatedAt": 1748845456367,
+                            "wordcount": 2,
+                            "unikey": "e18bbb2d433ae81598cf4247848e2a01fe8fa8ea71998d1fbcb63c8000871e6d",
+                            "pathonly": false,
+                            "path": "PHY-bt-x8-thermodynamics"
+                        },
+                        {
+                            "title": "",
                             "updatedAt": 1748267386469,
                             "wordcount": 1625,
                             "unikey": "49d97ec3b5d5f896e1131ecac05ae97c5947980f38fe0c39573f2101d19062b4",
                             "pathonly": false,
-                            "path": "PHY-ds4r-ch21"
+                            "path": "PHY-ds4r-ch22"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1748801818348,
+                            "wordcount": 5101,
+                            "unikey": "a9f99617b3d06e9fdf92b4e5497faa32e79268abb5833a74cd2135679ed47866",
+                            "pathonly": false,
+                            "path": "PHY-ds4r-ch23"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1748802390356,
+                            "wordcount": 2020,
+                            "unikey": "08f312da0301411fae3345d0767bda4965bd5ef8a3393bb20f47923936fdf818",
+                            "pathonly": false,
+                            "path": "PHY-ds4r-ch24"
                         },
                         {
                             "title": "",
@@ -463,7 +515,7 @@
                             "wordcount": 767,
                             "unikey": "1730a10e06b582632a7b34a6ca611942f8c4e14c144a84a91b80a50a4d9e925f",
                             "pathonly": false,
-                            "path": "WORD BANK"
+                            "path": "WORD_BANK"
                         }
                     ]
                 },
@@ -1215,6 +1267,14 @@
                     "unikey": "9e48a36480facad25ff0d2cd30a1f5bb4be8c1c8232d4972fde3bdde13708728",
                     "pathonly": false,
                     "path": "test"
+                },
+                {
+                    "title": "测试加密功能",
+                    "updatedAt": 1748701218808,
+                    "wordcount": 0,
+                    "unikey": "fa6958eac1a448a1b27385618f19b86a88b7319d18365028a78c374a39f15ce5",
+                    "pathonly": false,
+                    "path": "test-encryption"
                 }
             ]
         }
