@@ -1,0 +1,516 @@
+import { NCollapse, NCollapseItem } from 'naive-ui'
+
+# 求扩展二项式系数（Extended Binomial Coefficients）
+
+允许 $n$ 是**任意实数**（甚至负数或分数），而 $k$ 仍然是非负整数。
+
+
+$$
+\boxed{\binom{\alpha}{k} = \frac{\alpha^{\underline{k}}}{k!} = \frac{\alpha (\alpha - 1) (\alpha - 2) \cdots (\alpha - k + 1)}{k!}}
+$$
+
+其中：
+- $\alpha^{\underline{k}}$ 是下降阶乘：从 $\alpha$ 开始，连乘 $k$ 项，每项减 1（例如，$\alpha^{\underline{3}} = \alpha (\alpha - 1)(\alpha - 2)$）。
+- $k!$ 是 $k$ 的阶乘（$k! = 1 \times 2 \times \cdots \times k$）。
+- 当 $k = 0$ 时，定义 $\binom{\alpha}{0} = 1$（任何数的“选 0 个”都是 1）。
+
+<NCollapse>
+<NCollapseItem title="步骤" display-directive="show">
+
+#### 计算步骤（通俗版）：
+1. **确认 $k$**：$k$ 必须是非负整数（0, 1, 2, ...）。如果 $k$ 不是整数，扩展二项式系数未定义。
+2. **处理分子**：计算下降阶乘：
+   - 分子 = $\alpha \times (\alpha - 1) \times (\alpha - 2) \times \cdots \times (\alpha - k + 1)$。
+   - 这有 $k$ 个因子（例如，当 $k=3$ 时，分子是 $\alpha \cdot (\alpha-1) \cdot (\alpha-2)$）。
+3. **处理分母**：计算 $k!$（例如，当 $k=3$ 时，$k! = 6$）。
+4. **相除**：分子除以分母。
+5. **特殊情况**：如果 $\alpha$ 是负数，结果可能包含符号变化（常见公式：$\binom{-\alpha}{k} = (-1)^k \binom{\alpha + k - 1}{k}$)，但上述通用公式仍适用。
+
+</NCollapseItem>
+<NCollapseItem title="例子"  display-directive="show">
+
+### 例子（手把手计算）
+我举几个例子帮你理解（用实数、负数和分数）：
+
+#### 例 1：正实数 $\alpha = 2.5$，$k = 2$
+- 公式：$\binom{2.5}{2} = \frac{2.5 \times (2.5 - 1)}{2!}$
+- 分子：$2.5 \times 1.5 = 3.75$
+- 分母：$2! = 2 \times 1 = 2$
+- 结果：$\frac{3.75}{2} = 1.875$
+- **解释**：这相当于“从 2.5 个物品中选 2 个”的抽象概念，结果是实数。
+
+#### 例 2：负数 $\alpha = -3$，$k = 2$
+- 公式：$\binom{-3}{2} = \frac{-3 \times (-3 - 1)}{2!}$
+- 分子：$-3 \times (-4) = 12$（注意：负负得正）
+- 分母：$2! = 2$
+- 结果：$\frac{12}{2} = 6$
+- **特殊技巧**：负数时可用 $\binom{-n}{k} = (-1)^k \binom{n + k - 1}{k}$ 验证：
+  - 这里 $n=3$，所以 $\binom{-3}{2} = (-1)^2 \binom{3 + 2 - 1}{2} = 1 \times \binom{4}{2} = 6$（一致）。
+
+#### 例 3：分数 $\alpha = \frac{1}{2}$，$k = 3$
+- 公式：$\binom{\frac{1}{2}}{3} = \frac{\frac{1}{2} \times (\frac{1}{2} - 1) \times (\frac{1}{2} - 2)}{3!}$
+- 分子：$\frac{1}{2} \times (-\frac{1}{2}) \times (-\frac{3}{2}) = \frac{1}{2} \times -\frac{1}{2} \times -\frac{3}{2} = \frac{3}{8}$（负负得正）
+- 分母：$3! = 6$
+- 结果：$\frac{3/8}{6} = \frac{3}{48} = \frac{1}{16} = 0.0625$
+
+#### 例 4：$k = 0$（任何 $\alpha$）
+- 公式：$\binom{\alpha}{0} = 1$
+- 例如，$\binom{5.7}{0} = 1$ 或 $\binom{-2}{0} = 1$（定义如此）。
+
+</NCollapseItem>
+</NCollapse>
+
+# 图论重要公式
+
+import ReciteHidden from "@/components/md-comp/Recite_Hidden.vue";
+
+握手定理：如果$G = (V, E)$是一个有$m$条边的无向图，那么 <ReciteHidden>$2m = \sum_{v \in V} \text{deg}(v)$</ReciteHidden>。
+
+欧拉公式：<ReciteHidden>$r = e - v + 2$</ReciteHidden>，其中$r$、$e$和$v$分别是连通平面图的平面表示的区域数、边数和顶点数。
+
+# 哈密顿回路？欧拉回路？
+
+- **Euler path**: a path that contains every edge of a graph exactly once
+
+  欧拉路径：包含图中每条边恰好一次的路径。
+- **Hamilton path**: a path in a graph that passes through each vertex exactly once
+
+  哈密顿路径：图中恰好经过每个顶点一次的路径。
+
+# 如何将递归关系（recurrence relation）转化为显式公式（explicit formula）
+
+
+常系数线性齐次递归关系:$a_n = c_1 a_{n-1} + c_2 a_{n-2} + \cdots + c_k a_{n-k}$
+1. **写特征方程**$r^k - c_1 r^{k-1} - c_2 r^{k-2} - \cdots - c_k = 0$
+2. **求特征根**$r_1, r_2, \dots, r_m$（可能有重根或复根）
+3. **$a_n = A_1 r_1^n + A_2 r_2^n + \cdots + A_k r_k^n$**
+   
+   如果有**重根**，则$a_n = (A_1 + A_2 n + \cdots + A_s n^{s-1}) r_1^n + \cdots$
+4. 用初始条件定常数$A_i$。
+
+
+
+
+<NCollapse>
+<NCollapseItem title="详细一点" display-directive="show">
+## 常系数线性齐次递归关系
+
+要将递归关系（recurrence relation）转化为显式公式（explicit formula），需根据递归关系的类型采用不同方法。以下是针对两类常见情况的详细步骤和示例：
+
+---
+
+### **一、常系数线性齐次递归关系（Homogeneous Linear Recurrence Relations with Constant Coefficients）**
+**形式**：  
+$$
+a_n = c_1 a_{n-1} + c_2 a_{n-2} + \cdots + c_k a_{n-k}
+$$  
+其中 $c_i$ 是常数，且等式右侧无非齐次项（如 $f(n)$）。
+
+#### **求解步骤**：
+1. **写特征方程（Characteristic Equation）**：  
+   $$
+   r^k - c_1 r^{k-1} - c_2 r^{k-2} - \cdots - c_k = 0
+   $$
+
+2. **求特征根（Roots）**：  
+   解特征方程，得到根 $r_1, r_2, \dots, r_m$（可能有重根或复根）。
+
+3. **根据根的类型写通解**：
+   - **根互不相同**：  
+     $$
+     a_n = A_1 r_1^n + A_2 r_2^n + \cdots + A_k r_k^n
+     $$
+   - **重根**（例如 $r_1$ 重数 $s$）：  
+     $$
+     a_n = (A_1 + A_2 n + \cdots + A_s n^{s-1}) r_1^n + \cdots
+     $$
+   - **复根**（例如 $r = \alpha \pm \beta i$）：  
+     转化为三角形式：  
+     $$
+     a_n = r^n (A \cos n\theta + B \sin n\theta), \quad \text{其中 } r = \sqrt{\alpha^2 + \beta^2}, \ \theta = \tan^{-1}(\beta / \alpha)
+     $$
+
+4. **用初始条件定常数**：  
+   代入初始值（如 $a_0, a_1, \dots$）解出系数 $A_i$。
+
+</NCollapseItem>
+<NCollapseItem title="举例" display-directive="show">
+#### **示例：斐波那契数列**
+**递归关系**：  
+$$
+F_n = F_{n-1} + F_{n-2}, \quad F_0 = 0, \ F_1 = 1
+$$
+
+1. **特征方程**：  
+   $$
+   r^2 - r - 1 = 0
+   $$
+2. **特征根**：  
+   $$
+   r_1 = \frac{1 + \sqrt{5}}{2}, \quad r_2 = \frac{1 - \sqrt{5}}{2}
+   $$
+3. **通解**：  
+   $$
+   F_n = A \left( \frac{1 + \sqrt{5}}{2} \right)^n + B \left( \frac{1 - \sqrt{5}}{2} \right)^n
+   $$
+4. **代入初始条件**：  
+   - $n=0$：$A + B = 0$  
+   - $n=1$：$A \frac{1+\sqrt{5}}{2} + B \frac{1-\sqrt{5}}{2} = 1$  
+   解得：  
+   $$
+   A = \frac{1}{\sqrt{5}}, \quad B = -\frac{1}{\sqrt{5}}
+   $$
+5. **显式公式（Binet公式）**：  
+   $$
+   F_n = \frac{1}{\sqrt{5}} \left[ \left( \frac{1 + \sqrt{5}}{2} \right)^n - \left( \frac{1 - \sqrt{5}}{2} \right)^n \right]
+   $$
+
+</NCollapseItem>
+</NCollapse>
+
+**常系数线性非齐次递归关系**：$a_n = c_1 a_{n-1} + \cdots + c_k a_{n-k} + f(n)$
+
+1. **求齐次解 $a_n^{(h)}$**：  忽略 $f(n)$，按齐次递归关系求解（同上）。
+
+2. **求特解 $a_n^{(p)}$**：  
+   根据 $f(n)$ 的形式假设特解形式：
+   - **多项式**：若 $f(n) = n^t$，设 $a_n^{(p)} = b_0 + b_1 n + \cdots + b_t n^t$（若与齐次解冲突，乘 $n^s$）。  
+   - **指数函数**：若 $f(n) = k \cdot d^n$，设 $a_n^{(p)} = c \cdot d^n$（若 $d$ 是特征根，乘 $n^s$）。  
+   - **组合形式**：拆分后分别求解。
+
+3. **代入原递归关系定系数**：  
+   将 $a_n^{(p)}$ 代入原方程，解出待定系数。
+
+4. **通解 = 齐次解 + 特解**：  
+   $$
+   a_n = a_n^{(h)} + a_n^{(p)}
+   $$
+
+5. **用初始条件定常数**：  
+   代入初始值确定齐次解中的系数。
+
+<NCollapse>
+<NCollapseItem title="举例" display-directive="show">
+下面我将通过多个例子详细讲解如何将**常系数线性非齐次递归关系**转化为显式公式，覆盖三种典型情况：  
+1. $f(n)$ 为常数  
+2. $f(n)$ 为多项式  
+3. $f(n)$ 为多项式与指数函数的乘积  
+
+---
+
+### **通用求解步骤回顾**
+1. **求齐次解** $a_n^{(h)}$：  
+   解齐次方程 $a_n - c_1 a_{n-1} - \cdots - c_k a_{n-k} = 0$（特征方程法）。
+2. **求特解** $a_n^{(p)}$：  
+   根据 $f(n)$ 的形式设定特解（见下表），代入原方程定系数。
+3. **通解**： $a_n = a_n^{(h)} + a_n^{(p)}$。
+4. **用初始条件定常数**。
+
+#### **特解设定规则表**
+| $f(n)$ 形式          | 特解形式（当 $r$ 不是特征根） | 特解形式（当 $r$ 是特征根，重数 $m$） |
+|------------------------|--------------------------------|--------------------------------------------|
+| **常数** $C$        | $A$                        | $A \cdot n^m$                          |
+| **多项式** $P_t(n)$ | $Q_t(n)$（同次多项式）      | $n^m \cdot Q_t(n)$                     |
+| **指数** $C \cdot r^n$ | $A \cdot r^n$              | $A \cdot n^m \cdot r^n$                |
+| **混合** $P_t(n) \cdot r^n$ | $Q_t(n) \cdot r^n$         | $n^m \cdot Q_t(n) \cdot r^n$           |
+
+---
+
+### **例 1：$f(n)$ 为常数**
+**递归关系**：  
+$$
+a_n = 4a_{n-1} - 3, \quad a_1 = 2
+$$
+
+#### **步骤**：
+1. **齐次解**：  
+   - 齐次方程： $a_n^{(h)} = 4a_{n-1}^{(h)}$  
+   - 特征方程： $r - 4 = 0 \implies r = 4$  
+   - 齐次解： $a_n^{(h)} = A \cdot 4^n$
+
+2. **特解**：  
+   - $f(n) = -3$（常数），且 **1 不是特征根**（特征根为 4）。  
+   - 设特解： $a_n^{(p)} = B$  
+   - 代入原方程：  
+     $$
+     B = 4B - 3 \implies -3B = -3 \implies B = 1
+     $$  
+   - 特解： $a_n^{(p)} = 1$
+
+3. **通解**：  
+   $$
+   a_n = A \cdot 4^n + 1
+   $$
+
+4. **初始条件**：  
+   - $n=1$： $A \cdot 4^1 + 1 = 2 \implies 4A = 1 \implies A = \frac{1}{4}$  
+   - 显式公式：  
+     $$
+     \boxed{a_n = \frac{1}{4} \cdot 4^n + 1 = 4^{n-1} + 1}
+     $$
+
+---
+
+### **例 2：$f(n)$ 为多项式（二次）**
+**递归关系**：  
+$$
+a_n = 2a_{n-1} + n^2, \quad a_0 = 0
+$$
+
+#### **步骤**：
+1. **齐次解**：  
+   - 齐次方程： $a_n^{(h)} = 2a_{n-1}^{(h)}$  
+   - 特征方程： $r - 2 = 0 \implies r = 2$  
+   - 齐次解： $a_n^{(h)} = A \cdot 2^n$
+
+2. **特解**：  
+   - $f(n) = n^2$（二次多项式），且 **1 不是特征根**（特征根为 2）。  
+   - 设特解： $a_n^{(p)} = Bn^2 + Cn + D$  
+   - 代入原方程：  
+     $$
+     Bn^2 + Cn + D = 2\left[ B(n-1)^2 + C(n-1) + D \right] + n^2
+     $$  
+     展开右边：  
+     $$
+     = 2\left[ B(n^2 - 2n + 1) + C(n - 1) + D \right] + n^2 = (2B + 1)n^2 + (-4B + 2C)n + (2B - 2C + 2D)
+     $$  
+     比较系数：  
+     $$
+     \begin{cases}
+     B = 2B + 1 & \implies B = -1 \\
+     C = -4B + 2C & \implies C = -4(-1) + 2C \implies -C = 4 \implies C = -4 \\
+     D = 2B - 2C + 2D & \implies D = 2(-1) - 2(-4) + 2D \implies -D = 6 \implies D = -6
+     \end{cases}
+    $$  
+   - 特解： $a_n^{(p)} = -n^2 - 4n - 6$
+
+3. **通解**：  
+   $$
+   a_n = A \cdot 2^n - n^2 - 4n - 6
+   $$
+
+4. **初始条件**：  
+   - $n=0$： $A \cdot 1 - 0 - 0 - 6 = 0 \implies A = 6$  
+   - 显式公式：  
+     $$
+     \boxed{a_n = 6 \cdot 2^n - n^2 - 4n - 6}
+     $$
+
+---
+
+### **例 3：$f(n)$ 为多项式与指数函数的乘积**
+**递归关系**：  
+$$
+a_n = 3a_{n-1} + (2n + 1) \cdot 2^n, \quad a_0 = 1
+$$
+
+#### **步骤**：
+1. **齐次解**：  
+   - 齐次方程： $a_n^{(h)} = 3a_{n-1}^{(h)}$  
+   - 特征方程： $r - 3 = 0 \implies r = 3$  
+   - 齐次解： $a_n^{(h)} = A \cdot 3^n$
+
+2. **特解**：  
+   - $f(n) = (2n + 1) \cdot 2^n$（一次多项式 × 指数），且 **2 不是特征根**（特征根为 3）。  
+   - 设特解： $a_n^{(p)} = (Bn + C) \cdot 2^n$  
+   - 代入原方程：  
+     $$
+     (Bn + C) \cdot 2^n = 3 \left[ B(n-1) + C \right] \cdot 2^{n-1} + (2n + 1) \cdot 2^n
+     $$  
+     两边除以 $2^{n-1}$：  
+     $$
+     (Bn + C) \cdot 2 = 3 \left[ B(n-1) + C \right] + (2n + 1) \cdot 2
+     $$  
+     展开：  
+     $$
+     2Bn + 2C = 3Bn - 3B + 3C + 4n + 2
+     $$  
+     比较系数：  
+     $$
+     \begin{cases}
+     n^1: & 2B = 3B + 4 \implies -B = 4 \implies B = -4 \\
+     n^0: & 2C = -3(-4) + 3C + 2 \implies 2C = 12 + 3C + 2 \implies -C = 14 \implies C = -14
+     \end{cases}
+    $$  
+   - 特解： $a_n^{(p)} = (-4n - 14) \cdot 2^n$
+
+3. **通解**：  
+   $$
+   a_n = A \cdot 3^n + (-4n - 14) \cdot 2^n
+   $$
+
+4. **初始条件**：  
+   - $n=0$： $A \cdot 1 + (-14) \cdot 1 = 1 \implies A - 14 = 1 \implies A = 15$  
+   - 显式公式：  
+     $$
+     \boxed{a_n = 15 \cdot 3^n - 2(2n + 7) \cdot 2^n}
+     $$
+
+---
+
+### **例 4：特征根冲突时的处理（重根）**
+**递归关系**：  
+$$
+a_n = 4a_{n-1} - 4a_{n-2} + n \cdot 2^n, \quad a_0 = 0, \ a_1 = 1
+$$
+
+#### **步骤**：
+1. **齐次解**：  
+   - 齐次方程： $a_n^{(h)} - 4a_{n-1}^{(h)} + 4a_{n-2}^{(h)} = 0$  
+   - 特征方程： $r^2 - 4r + 4 = 0 \implies (r-2)^2 = 0 \implies r = 2$（重根，重数 2）  
+   - 齐次解： $a_n^{(h)} = (A + Bn) \cdot 2^n$
+
+2. **特解**：  
+   - $f(n) = n \cdot 2^n$（一次多项式 × 指数），且 **2 是特征根（重数 2）**。  
+   - 设特解： $a_n^{(p)} = n^2 (Cn + D) \cdot 2^n = (Cn^3 + Dn^2) \cdot 2^n$（乘以 $n^2$ 因重数 2）  
+   - 代入原方程（过程略，直接给结果）：  
+     解得 $C = \frac{1}{6}, \ D = 0$  
+   - 特解： $a_n^{(p)} = \frac{1}{6} n^3 \cdot 2^n$
+
+3. **通解**：  
+   $$
+   a_n = (A + Bn) \cdot 2^n + \frac{1}{6} n^3 \cdot 2^n
+   $$
+
+4. **初始条件**：  
+   - $n=0$： $A = 0$  
+   - $n=1$： $(0 + B \cdot 1) \cdot 2 + \frac{1}{6} \cdot 1 \cdot 2 = 1 \implies 2B + \frac{1}{3} = 1 \implies B = \frac{1}{3}$  
+   - 显式公式：  
+     $$
+     \boxed{a_n = \left( \frac{1}{3}n + \frac{1}{6}n^3 \right) 2^n}
+     $$
+
+</NCollapseItem></NCollapse>
+
+# 二元关系的计数问题
+
+例如：
+
+> The number of reflexive and symmetric relations on a set A with 5 elements is (    )
+
+**概念**
+
+- **reflexive**: **自反的**：对于所有 $a \in A$，都有 $(a, a) \in R$，
+- **symmetric**: **对称的**：对于所有 $(a, b) \in R$，都有 $(b, a) \in R$，
+- **antisymmetric**: **反对称的**：如果对于所有 $(a, b) \in R$ 和 $(b, a) \in R$，都有 $a = b$
+- **transitive**: **传递的**：如果对于所有 $(a, b) \in R$ 和 $(b, c) \in R$，都有 $(a, c) \in R$
+
+
+1. 自反关系 (Reflexive Relations)：必须包含所有 $n$ 个对角元素。
+2. 对称关系 (Symmetric Relations)
+  - **对角元素**：$n$ 个元素 $(a, a)$，每个可独立选择（包含或不包含）。
+  - **非对角元素**：无序对 $\{a, b\}$（$a \neq b$) 对应两个有序对 $(a, b)$ 和 $(b, a)$，每组必须**同时包含**或**同时不包含**。
+3. 反对称关系 (Antisymmetric Relations)
+  - **对角元素**：$n$ 个元素 $(a, a)$，每个可独立选择（包含或不包含）。
+  - **非对角元素**：无序对 $\{a, b\}$（$a \neq b$) 对应两个有序对 $(a, b)$ 和 $(b, a)$，每组有 3 种选择：
+    1. 同时不包含。
+    2. 包含 $(a, b)$ 但不包含 $(b, a)$。
+    3. 包含 $(b, a)$ 但不包含 $(a, b)$。
+4. 传递关系 (Transitive Relations)
+
+   没有公式，穷举或[OEIS A006905 Number of transitive relations on n labeled nodes.](https://oeis.org/A006905)
+
+   $2(n=1), 13(n=2), 171 (n = 3)$
+
+# 单射 满射 一一映射
+
+$f : A \to B$
+
+- 满射 onto function, surjection 每个$B$都有对应的$A$
+- 单射 one-to-one function, injection 每个$A$都有对应的$B$
+- 一一映射 one-to-one correspondence, bijection 双
+
+# 逻辑学
+
+$\land$,AND (Conjunction)
+
+$\lor$,OR(Disjunction)
+
+DNF, 析取范式, <ReciteHidden>$(\land)\lor(\land)$</ReciteHidden>
+
+CNF, 合取范式, <ReciteHidden>$(\lor)\land(\lor)$</ReciteHidden>
+
+$p \to q \equiv \neg p \lor q$
+
+$p \leftrightarrow q \equiv (p \to q) \land (q \to p)$
+
+<NCollapse>
+<NCollapseItem title="展开全部">
+
+# 表6 逻辑等价式
+| 等价式 | 名称 |
+| ---- | ---- |
+| $p \land T = p$ | 恒等律 |
+| $p \lor F = p$ | 恒等律 |
+| $p \lor T \equiv T$ | 支配律 |
+| $p \land F = F$ | 支配律 |
+| $p \lor p \equiv p$ | 幂等律 |
+| $p \land p \equiv p$ | 幂等律 |
+| $\neg(\neg p) \equiv p$ | 双重否定律 |
+| $p \lor q \equiv q \lor p$ | 交换律 |
+| $p \land q \equiv q \land p$ | 交换律 |
+| $(p \lor q) \lor r \equiv p \lor (q \lor r)$ | 结合律 |
+| $(p \land q) \land r \equiv p \land (q \land r)$ | 结合律 |
+| $p \lor (q \land r) \equiv (p \lor q) \land (p \lor r)$ | 分配律 |
+| $p \land (q \lor r) \equiv (p \land q) \lor (p \land r)$ | 分配律 |
+| $\neg(p \land q) \equiv \neg p \lor \neg q$ | 德·摩根律 |
+| $\neg(p \lor q) \equiv \neg p \land \neg q$ | 德·摩根律 |
+| $p \lor (p \land q) \equiv p$ | 吸收律 |
+| $p \land (p \lor q) \equiv p$ | 吸收律 |
+| $p \lor \neg p \equiv T$ | 否定律 |
+| $p \land \neg p \equiv F$ | 否定律 |
+
+# 表7 条件命题的逻辑等价式
+| 等价式 |
+| ---- |
+| $p \to q \equiv \neg p \lor q$ |
+| $p \to q \equiv \neg q \to \neg p$ |
+| $p \lor q \equiv \neg p \to q$ |
+| $p \land q \equiv \neg(p \to \neg q)$ |
+| $\neg(p \to q) \equiv p \land \neg q$ |
+| $(p \to q) \land (p \to r) \equiv p \to (q \land r)$ |
+| $(p \to r) \land (q \to r) \equiv (p \lor q) \to r$ |
+| $(p \to q) \lor (p \to r) \equiv p \to (q \lor r)$ |
+| $(p \to r) \lor (q \to r) \equiv (p \land q) \to r$ |
+
+# 表8 双条件命题的逻辑等价式
+| 等价式 |
+| ---- |
+| $p \leftrightarrow q \equiv (p \to q) \land (q \to p)$ |
+| $p \leftrightarrow q \equiv \neg p \leftrightarrow \neg q$ |
+| $p \leftrightarrow q \equiv (p \land q) \lor (\neg p \land \neg q)$ |
+| $\neg(p \leftrightarrow q) \equiv p \leftrightarrow \neg q$ |
+
+</NCollapseItem>
+</NCollapse>
+
+-----
+
+未能覆盖的内容：
+
+# Generating Functions
+
+# 表 1 有用的生成函数
+
+| $G(x)$ | $a_k$ |
+| --- | --- |
+| $(1+x)^n = \sum_{k=0}^{n} C(n,k)x^k = 1 + C(n,1)x + C(n,2)x^2 + \cdots + x^n$ | $C(n,k)$ |
+| $(1+ax)^n = \sum_{k=0}^{n} C(n,k)a^kx^k = 1 + C(n,1)ax + C(n,2)a^2x^2 + \cdots + a^nx^n$ | $C(n,k)a^k$ |
+| $(1+x^r)^n = \sum_{k=0}^{n} C(n,k)x^{rk} = 1 + C(n,1)x^r + C(n,2)x^{2r} + \cdots + x^{rn}$ | 如果 $r|k$，则 $C(n,k/r)$；否则为 $0$ |
+| $\frac{1-x^{n+1}}{1-x} = \sum_{k=0}^{n} x^k = 1 + x + x^2 + \cdots + x^n$ | 如果 $k \leq n$，则为 $1$；否则为 $0$ |
+| $\frac{1}{1-x} = \sum_{k=0}^{\infty} x^k = 1 + x + x^2 + \cdots$ | $1$ |
+| $\frac{1}{1-ax} = \sum_{k=0}^{\infty} a^kx^k = 1 + ax + a^2x^2 + \cdots$ | $a^k$ |
+| $\frac{1}{(1-x)^2} = \sum_{k=0}^{\infty} (k+1)x^k = 1 + 2x + 3x^2 + \cdots$ | $k+1$ |
+| $\frac{1}{(1-x)^n} = \sum_{k=0}^{\infty} C(n+k-1,k)x^k = 1 + C(n,1)x + C(n+1,2)x^2 + \cdots$ | $C(n+k-1,k) = C(n+k-1,n-1)$ |
+| $\frac{1}{(1+x)^n} = \sum_{k=0}^{\infty} C(n+k-1,k)(-1)^kx^k = 1 - C(n,1)x + C(n+1,2)x^2 - \cdots$ | $(-1)^kC(n+k-1,k) = (-1)^kC(n+k-1,n-1)$ |
+| $\frac{1}{(1-ax)^n} = \sum_{k=0}^{\infty} C(n+k-1,k)a^kx^k = 1 + C(n,1)ax + C(n+1,2)a^2x^2 + \cdots$ | $C(n+k-1,k)a^k = C(n+k-1,n-1)a^k$ |
+| $e^x = \sum_{k=0}^{\infty} \frac{x^k}{k!} = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \cdots$ | $1/k!$ |
+| $\ln(1+x) = \sum_{k=0}^{\infty} \frac{(-1)^{k+1}}{k}x^k = x - \frac{x^2}{2} + \frac{x^3}{3} - \frac{x^4}{4} + \cdots$ | $(-1)^{k+1}/k$ |
+
+注：当讨论幂级数时，在大多数微积分的书中可以找到关于最后两个生成函数的级数。
+
+# Primitive root
+
+- **Primitive root of a prime $p$**: An integer $r$ in $Z_p$ such that every integer not divisible by $p$ is congruent modulo $p$ to a power of $r$.  
+- **素数 $p$ 的原根**：在 $Z_p$ 中的整数 $r$，使得每一个不能被 $p$ 整除的整数都模 $p$ 同余于 $r$ 的某个幂。
+

@@ -103,6 +103,6 @@ Sketch the *trajectory*（轨迹） of the particle
 Determine the *amplitude*（振幅） of the resulting simple *harmonic*（简谐） motion
 
 
-An \*aluminum\*（铝制的） electric \*kettle\*（水壶） of mass 0.560 kg contains a 2.40- kW  \*heating element\*（加热元件）.
+An *aluminum*（铝制的） electric *kettle*（水壶） of mass 0.560 kg contains a 2.40- kW  *heating element*（加热元件）.
 
-the two are allowed to come to \*thermal equilibrium\*（热平衡）.
+the two are allowed to come to *thermal equilibrium*（热平衡）.

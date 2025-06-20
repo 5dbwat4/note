@@ -5,6 +5,7 @@ export default {
     "path":"",
     "name":"ROOT",
     "subcategories":[
+        // require("./schoolwork.accumbens").default,
         "./CS",
         "./Science",
         "./Others",

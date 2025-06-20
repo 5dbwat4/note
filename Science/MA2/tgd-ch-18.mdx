@@ -1,0 +1,89 @@
+# 第十八章 隐函数定理及其应用
+
+## 隐函数
+
+| 名称 | 定义 | 备注 |
+| --- | --- | --- |
+| 隐函数 | 设 $X \subset \mathbb{R}, Y \subset \mathbb{R}, F: X \times Y \to \mathbb{R}$，对于方程 $F(x, y) = 0$，若存在集合 $I \subset X$ 与 $J \subset Y$，使得对于任何 $x \in I$，恒有唯一确定的 $y \in J$，它与 $x$ 一起满足方程，则称由方程 $F(x, y) = 0$ 确定了一个定义在 $I$ 上，值域含于 $J$ 的隐函数 |  |
+| 隐函数存在唯一性定理 | 若满足下列条件：<br />(1) 函数 $F$ 在以 $P_0(x_0, y_0)$ 为内点的某一区域 $D \subset \mathbb{R}^2$ 上连续。<br />(2) $F(x_0, y_0) = 0$（通常称为初始条件）。<br />(3) 在 $D$ 内存在连续的偏导数 $F_y(x, y)$。<br />(4) $F_y(x_0, y_0) \neq 0$，则在点 $P_0$ 的某邻域 $U(P_0) \subset D$ 内，方程 $F(x, y) = 0$ 唯一地确定了一个定义在某区间 $(x_0 - a, x_0 + a)$ 内的隐函数 $y = f(x)$，使得 $f(x_0) = y_0, x \in (x_0 - a, x_0 + a)$ 时 $(x, f(x)) \in U(P_0)$ 且 $F(x, f(x)) \equiv 0, f(x)$ 在 $(x_0 - a, x_0 + a)$ 内连续 | 定理的条件仅仅是充分的，非充要条件 |
+| 隐函数定理 | 设二元函数 $f(x, y)$ 在以点 $P_0(x_0, y_0)$ 为内点的某个区域 $D \subset \mathbb{R}^2$ 上有定义，如果满足如下条件：<br />① $F(x, y)$ 在 $D$ 内连续且有连续的一阶偏导数 $F_y(x, y)$ 与 $F_x(x, y)$; <br />② $F(x_0, y_0) = 0$; <br />③ $F_y(x_0, y_0) \neq 0$，<br />则在点 $P_0$ 的某邻域 $U(P_0) \subset D$ 内，由方程 $F(x, y) = 0$ 唯一确定了一个定义在某区间 $(x_0 - a, x_0 + a)$ 内的隐函数 $y = f(x)$，使得 <br />① $f(x_0) = y_0$; <br />② 当 $x \in (x_0 - a, x_0 + a)$ 时，$(x, f(x)) \in U(P)$ 且 $f(x) \equiv 0$; <br />③ $y = f(x)$ 在 $(x_0 - a, x_0 + a)$ 内有连续的导函数，且 $f'(x) = -\frac{F_x}{F_y}$ | 如果 $F(x, y)$ 在 $D$ 内还有连续二阶偏导数，则隐函数在 $(x_0 - a, x_0 + a)$ 内有连续的二阶导数：$f'' = \frac{F_{xx}F_y^2 + F_{xy}F_x^2 - 2F_{xy}F_xF_y}{F_y^3}$ |
+| 多元隐函数定理 | 设函数 $F(x_1, x_2, \cdots, x_n, y)$ 在以点 $P_0(x_1^0, x_2^0, \cdots, x_n^0, y^0)$ 为内点的某个区域 $D \subset \mathbb{R}^{n+1}$ 内有定义，如果满足如下条件：① $F(x_1, x_2, \cdots, x_n, y)$ 在 $D$ 内连续且关于每个自变量都有连续的一阶偏导数；② $F(x_1^0, x_2^0, \cdots, x_n^0, y^0) = 0$; ③ $F_y(x_1^0, x_2^0, \cdots, x_n^0, y^0) \neq 0$，则在点 $P_0$ 的某邻域内，由方程 $F(x_1, x_2, \cdots, x_n, y) = 0$ 唯一确定了一个定义在某点 $Q_0(x_1^0, x_2^0, \cdots, x_n^0)$ 的某个邻域内的 $n$ 元隐函数 $y = f(x_1, x_2, \cdots, x_n)$，使得 <br />① $y_0 = f(x_1^0, x_2^0, \cdots, x_n^0)$; ② 当 $(x_1, x_2, \cdots, x_n) \in U(Q_0)$ 时，$(x_1, x_2, \cdots, x_n, f) \in U(P_0)$ 且 $F(x_1, x_2, \cdots, x_n, f) = 0$; ③ $y = f(x_1, x_2, \cdots, x_n)$ 在 $U(Q_0)$ 内连续且有连续的偏导数 $f_{x_1}, f_{x_2}, \cdots, f_{x_n}$，并且 $f_{x_i} = -\frac{F_{x_i}}{F_y}, i = 1, 2, \cdots, n$ |  |
+
+
+## 隐函数组与隐函数组定理
+
+| 名称 | 内容 | 
+| --- | --- | 
+| 隐函数组 | 隐函数组是由一组方程所确定的函数组，当方程组中出现的变量个数大于方程组中方程的个数时，就可由此方程组确定出一组隐函数 |  
+| 隐函数组定理 | 设 $F(x, y, u, v)$ 与 $G(x, y, u, v)$ 为两个定义在区域 $V \subset \mathbb{R}^4$ 上的函数，点 $P_0(x_0, y_0, u_0, v_0)$ 为 $V$ 的内点，如果满足以下条件：<br />(1) $F(x, y, u, v)$ 与 $G(x, y, u, v)$ 在 $V$ 上连续。<br />(2) $F(x_0, y_0, u_0, v_0) = G(x_0, y_0, u_0, v_0) = 0$。<br />(3) $F$ 与 $G$ 在 $V$ 上有连续的一阶偏导数。<br />(4) $ J\bigg\verticleLine_{P_0} = \frac{\partial(F, G)}{\partial(u, v)} \bigg\verticleLine_{P_0} = \left\verticleLine\begin{matrix} F_u && F_v \\ G_u && G_v \end{matrix}\right\verticleLine \neq 0$。<br />则在点 $P_0$ 的某个邻域 $U(P_0) \subset V$ 内，方程组 $\begin{cases} F(x, y, u, v) = 0 \\ G(x, y, u, v) = 0 \end{cases}$ 唯一地确定了定义在点 $Q_0(x_0, y_0)$ 的某个二维邻域 $U(Q_0)$ 内的两个隐函数 $u = f(x, y), v = g(x, y)$，使得<br />(1) $u_0 = f(x_0, y_0), v_0 = g(x_0, y_0)$，且当 $(x, y) \in U(Q_0)$ 时，$(x, y, f(x, y), g(x, y)) \in U(P_0)$ 以及 $F(x, y, f(x, y), g(x, y)) \equiv 0, G(x, y, f(x, y), g(x, y)) \equiv 0$。<br />(2) $f(x, y), g(x, y)$ 在 $U(Q_0)$ 内连续。<br />(3) $f(x, y), g(x, y)$ 在 $U(Q_0)$ 内有连续的一阶偏导数，且 $\begin{cases} \frac{\partial u}{\partial x} = -\frac{1}{J} \frac{\partial(F, G)}{\partial(x, v)} \frac{\partial u}{\partial x} = -\frac{1}{J} \frac{\partial(F, G)}{\partial(u, v)} \\ \frac{\partial u}{\partial y} = -\frac{1}{J} \frac{\partial(F, G)}{\partial(y, v)} \frac{\partial u}{\partial y} = -\frac{1}{J} \frac{\partial(F, G)}{\partial(u, v)} \end{cases}$ |  
+| 反函数组定理 | 设函数 $u(x, y), v(x, y)$ 在某个以点 $P_0(x_0, y_0)$ 为内点的区域 $D \subset \mathbb{R}^2$ 上有连续的区域一阶偏导数，如果函数组 $\begin{cases} u = u(x, y) \\ v = v(x, y) \end{cases}$ 还满足 $u_0 = u(x_0, y_0), v_0 = v(x_0, y_0), J\bigg\verticleLine_{P_0} = \frac{\partial(u, v)}{\partial(x, y)} \bigg\verticleLine_{P_0} \neq 0$，<br />则在点 $P'_0(u_0, v_0)$ 的某邻域 $U(P'_0)$ 内存在唯一的一组反函数 $\begin{cases} x = x(u, v) \\ y = y(u, v) \end{cases}$ 使得 $x_0 = x(u_0, v_0), y_0 = y(u_0, v_0)$ 且当 $(u, v) \in U(P'_0)$ 时，$(x(u, v), y(u, v)) \in U(P_0)$，并有恒等式 $u = u(x(u, v), y(u, v)), v = v(x(u, v), y(u, v))$，其计算公式为 $\begin{cases} \frac{\partial x}{\partial u} = \frac{1}{J} \frac{\partial v}{\partial y}, \frac{\partial x}{\partial v} = -\frac{1}{J} \frac{\partial u}{\partial y} \\ \frac{\partial y}{\partial u} = -\frac{1}{J} \frac{\partial v}{\partial x}, \frac{\partial y}{\partial v} = \frac{1}{J} \frac{\partial u}{\partial x} \end{cases}$ |  
+
+
+## 几何应用
+
+| 名称 | 内容 |
+| --- | --- |
+| 平面曲线的切线与法线 | 曲线 $L: F(x, y) = 0$<br />条件：$P_0(x_0, y_0)$ 为 $L$ 上一点，$F(x, y)$ 在点 $P_0$ 的近旁满足隐函数定理的条件。<br />法向量：$n = (F_x(P_0), F_y(P_0))$。<br />切线方程：$F_x(P_0)(x - x_0) + F_y(P_0)(y - y_0) = 0$。<br />法线方程：$F_y(P_0)(x - x_0) - F_x(P_0)(y - y_0) = 0$。 |
+| 空间曲线的切线与法平面 | (1) 参数方程。设空间曲线的参数方程为 $\begin{cases} x = x(t), \\ y = y(t), \\ z = z(t) \end{cases} t \in T$<br /> $x(t), y(t), z(t)$ 都是 $t$ 的可微函数，设 $M_0(x_0, y_0, z_0)$ 为曲线上一点，而 $x_0 = x(t_0), y_0 = y(t_0), z_0 = z(t_0), x'(t_0), y'(t_0), z'(t_0)$ 不全为 0，则在 $M_0$ 处切线方程为 $\frac{x - x_0}{x'(t_0)} = \frac{y - y_0}{y'(t_0)} = \frac{z - z_0}{z'(t_0)}$，法平面方程为 $x'(t_0)(x - x_0) + y'(t_0)(y - y_0) + z'(t_0)(z - z_0) = 0$。<br />(2) 一般方程。设空间曲线方程为 $\begin{cases} F(x, y, z) = 0 \\ G(x, y, z) = 0 \end{cases}$<br />则在点 $M_0(x_0, y_0, z_0)$ 处的切线方程为 $\frac{x - x_0}{\left\verticleLine \begin{array}{cc} F_y & F_z \\ G_y & G_z \end{array} \right\verticleLine_{M_0}} = \frac{y - y_0}{\left\verticleLine \begin{array}{cc} F_z & F_x \\ G_z & G_x \end{array} \right\verticleLine_{M_0}} = \frac{z - z_0}{\left\verticleLine \begin{array}{cc} F_x & F_y \\ G_x & G_y \end{array} \right\verticleLine_{M_0}}$，法平面方程为 $\left\verticleLine \begin{array}{cc} F_y & F_z \\ G_y & G_z \end{array} \right\verticleLine_{M_0} (x - x_0) + \left\verticleLine \begin{array}{cc} F_z & F_x  \\ G_z & G_x \end{array} \right\verticleLine_{M_0} (y - y_0) + \left\verticleLine \begin{array}{cc} F_x  & F_y \\ G_x  & G_y \end{array} \right\verticleLine_{M_0} (z - z_0) = 0$。 |
+| 空间曲面的切平面与法线 | (1) 曲面方程为 $z = f(x, y)$，在点 $M_0(x_0, y_0, z_0)$ 处切平面的方程为 $z - z_0 = f'_x(x_0, y_0)(x - x_0) + f'_y(x_0, y_0)(y - y_0)$，法线方程为 $\frac{x - x_0}{f'_x(x_0, y_0)} = \frac{y - y_0}{f'_y(x_0, y_0)} = \frac{z - z_0}{-1}$。<br />(2) 曲面方程 $F(x, y, z) = 0$，则在点 $M_0(x_0, y_0, z_0)$ 处切平面方程为 $F_x(x_0, y_0, z_0)(x - x_0) + F_y(x_0, y_0, z_0)(y - y_0) + F_z(x_0, y_0, z_0)(z - z_0) = 0$，法线方程为 $\frac{x - x_0}{F_x(x_0, y_0, z_0)} = \frac{y - y_0}{F_y(x_0, y_0, z_0)} = \frac{z - z_0}{F_z(x_0, y_0, z_0)}$。 |
+
+
+## 条件极值
+
+1. 条件极值问题
+
+   求目标函数 $y = f(x_1, x_2, \cdots, x_n)$ 在条件组 $\varphi_k(x_1, x_2, \cdots, x_n) = 0, k = 1, 2, \cdots, m (m < n)$ 限制下的极值问题称为条件极值问题。
+
+2. 拉格朗日函数
+
+   拉格朗日乘数法将求函数（目标函数）在条件组限制下的条件极值问题转化为求函数
+   $$
+   L(x_1, x_2, \cdots, x_n, \lambda_1, \lambda_2, \cdots, \lambda_m) = f + \sum_{k=1}^{m} \lambda_k \varphi_k
+   $$
+   的简单极值问题。变量 $\lambda_1, \lambda_2, \cdots, \lambda_m$ 称为拉格朗日乘数，函数 $L$ 称为拉格朗日函数。
+
+3. 定理
+
+   设在条件组的限制下，求目标函数的极值问题，其中 $f$ 与 $\varphi_k (k = 1, 2, \cdots, m)$ 在区域 $D$ 内有连续一阶偏导数。若 $D$ 的内点 $P_0(x_1^{(0)}, \cdots, x_n^{(0)})$ 是上述问题的极值点，且雅可比矩阵
+   $$
+   \begin{bmatrix}
+   \frac{\partial \varphi_1}{\partial x_1} & \frac{\partial \varphi_1}{\partial x_2} & \cdots & \frac{\partial \varphi_1}{\partial x_n} \\
+   \frac{\partial \varphi_2}{\partial x_1} & \frac{\partial \varphi_2}{\partial x_2} & \cdots & \frac{\partial \varphi_2}{\partial x_n} \\
+   \vdots & \vdots & \ddots & \vdots \\
+   \frac{\partial \varphi_m}{\partial x_1} & \frac{\partial \varphi_m}{\partial x_2} & \cdots & \frac{\partial \varphi_m}{\partial x_n}
+   \end{bmatrix}_{P_0}
+   $$
+   的秩为 $m$，则存在 $m$ 个常数 $\lambda_1^{(0)}, \lambda_2^{(0)}, \cdots, \lambda_m^{(0)}$，使得 $(x_1^{(0)}, x_2^{(0)}, \cdots, x_n^{(0)}, \lambda_1^{(0)}, \lambda_2^{(0)}, \cdots, \lambda_m^{(0)})$ 为拉格朗日函数 $L$ 的稳定点，即 $(x_1^{(0)}, x_2^{(0)}, \cdots, x_n^{(0)}, \lambda_1^{(0)}, \lambda_2^{(0)}, \cdots, \lambda_m^{(0)})$ 为下述方程的解
+   $$
+   \begin{cases}
+   L_{x_1} = \frac{\partial f}{\partial x_1} + \sum_{k=1}^{m} \lambda_k \frac{\partial \varphi_k}{\partial x_1} = 0 \\
+   \cdots \cdots \\
+   L_{x_n} = \frac{\partial f}{\partial x_n} + \sum_{k=1}^{m} \lambda_k \frac{\partial \varphi_k}{\partial x_n} = 0 \\
+   L_{\lambda_1} = \varphi_1(x_1, \cdots, x_n) = 0 \\
+   \cdots \cdots \\
+   L_{\lambda_n} = \varphi_m(x_1, \cdots, x_n) = 0
+   \end{cases}
+   $$
+
+4. 一般步骤
+
+   拉格朗日乘数法求解条件极值问题的一般步骤如下：
+
+   (1) 根据问题意义确立目标函数与条件组；
+
+   (2) 作拉格朗日函数 $L(x_1, x_2, \cdots, x_n, \lambda_1, \lambda_2, \cdots, \lambda_m) = f + \sum_{k=1}^{m} \lambda_k \varphi_k$；
+
+   (3) 求拉格朗日函数的稳定点，即通过令
+   $$
+   \frac{\partial L}{\partial x_i} = \frac{\partial f}{\partial x_i} + \sum_{k=1}^{m} \lambda_k \frac{\partial \varphi_k}{\partial x_i} = 0, \frac{\partial L}{\partial \lambda_j} = \varphi_j = 0,
+   $$
+   求出所有的稳定点，这些稳定点就是可能的条件极值点；
+   
+   (4) 对每一个可能的条件极值点，说明它是否确实为条件极值点。
+
+
+
+
+
+
+小提示：拉格朗日乘数法固然可以求出稳定点，但该方法无法判断是否是极值点，还需用二阶导数或者一阶导数左右形态来判断.值得提醒的是，这一步是不能忽略的，即使只求出一个稳定点，也应该判断一下.

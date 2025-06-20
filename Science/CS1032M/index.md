@@ -8,6 +8,8 @@
 
 # 笔记列表
 
+[单词默写](./remember-terms) · [关键知识点补天](./fill-hole)
+
 ## List of Key Terms & Results
 
 - [Chapter 1  : The Foundations: Logic and Proofs                                     ](./C1-TR)

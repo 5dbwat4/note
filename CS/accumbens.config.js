@@ -5,9 +5,11 @@ export default {
     "subcategories":[
         "./CTF",
         "./CS1014GZ",
+        "./CS1028M",
         "./CS1018F",
-        "./CTF101",
         "./HPC101",
+        "./SYS1-labs",
+        "./CTF101",
     ],
     "entries":[ ]
 }

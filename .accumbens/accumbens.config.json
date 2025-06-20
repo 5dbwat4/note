@@ -71,6 +71,98 @@
                 },
                 {
                     "path": [
+                        "Schoolwork/CS1028M",
+                        "CS/CS1028M"
+                    ],
+                    "show": true,
+                    "name": "计算机系统 I",
+                    "leaf": true,
+                    "index": "99fb631de4d0693411f993cdc3896ffb4d2c8cd87710ccffbfa759e3f7542bfe",
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1750345666508,
+                            "wordcount": 0,
+                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "pathonly": false,
+                            "path": "cheetsheet"
+                        },
+                        {
+                            "title": "8小时速通系统一",
+                            "updatedAt": 1750355669155,
+                            "wordcount": 173,
+                            "unikey": "f496df57ffc1f608623a3ad5241cc491b51600fc413f7e65438c67e440c700d1",
+                            "pathonly": false,
+                            "path": "finalsky"
+                        },
+                        {
+                            "title": "课后作业",
+                            "updatedAt": 1750344235170,
+                            "wordcount": 1413,
+                            "unikey": "2329b0d2d0956369e541633039f7f9794218e0d9685b09c4f1c42d35e2e7d1ca",
+                            "pathonly": false,
+                            "path": "homework"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1750345656377,
+                            "wordcount": 21,
+                            "unikey": "99fb631de4d0693411f993cdc3896ffb4d2c8cd87710ccffbfa759e3f7542bfe",
+                            "pathonly": true,
+                            "path": "index"
+                        },
+                        {
+                            "title": "计算机系统 I 补天笔记",
+                            "updatedAt": 1749138048706,
+                            "wordcount": 531,
+                            "unikey": "a7bfdc267c2e358956cb60350383da515a582e53eeedb9719690619509605168",
+                            "pathonly": false,
+                            "path": "main"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749052539369,
+                            "wordcount": 4664,
+                            "unikey": "8c2770a7fa0e2e6a71d81e9667977ed0a1ffc35102a635306bb9eb814710b911",
+                            "pathonly": false,
+                            "path": "rc1"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749125286935,
+                            "wordcount": 5256,
+                            "unikey": "40991262e0706c83363f0395324c22cab0bdfd76dfdd47ddd34c412272ea53c6",
+                            "pathonly": false,
+                            "path": "rc2"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749126544804,
+                            "wordcount": 3965,
+                            "unikey": "358753a91d610413a81092f712dc0cb99f99b3d74f81df05cc1d3665da97b246",
+                            "pathonly": false,
+                            "path": "rc3"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749127590996,
+                            "wordcount": 5092,
+                            "unikey": "9bb1fbd8b2c85b593d84a31c1ae3b8881bfbdce9fa81650b16cedc6ab015ccb0",
+                            "pathonly": false,
+                            "path": "rc4"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749128159125,
+                            "wordcount": 1655,
+                            "unikey": "c1a92501d85d7f93a816d16547330ffacb1987a802c1d2497d4dde94ca71acb2",
+                            "pathonly": false,
+                            "path": "rc5"
+                        }
+                    ]
+                },
+                {
+                    "path": [
                         "Schoolwork/CS1018F",
                         "CS/CS1018F",
                         "CS/FDS"
@@ -79,6 +171,14 @@
                     "name": "数据结构基础",
                     "leaf": true,
                     "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1749578321396,
+                            "wordcount": 743,
+                            "unikey": "d6087753b7184d4dd5441a37cc33bf34ec07cdbd2f8da371312c444e78cd09fd",
+                            "pathonly": false,
+                            "path": "courseware-e"
+                        },
                         {
                             "title": "",
                             "updatedAt": 1744380670242,
@@ -118,43 +218,38 @@
                             "unikey": "1ad73f72c733e21649e8a8c469288b8615f2f172cd41b6b2c29c753c4d13957a",
                             "pathonly": false,
                             "path": "om5+time-complexity"
-                        }
-                    ]
-                },
-                {
-                    "path": [
-                        "Schoolwork/CS1264M",
-                        "CS/CS1264M",
-                        "CS/CTF101"
-                    ],
-                    "show": false,
-                    "name": "CTF101",
-                    "leaf": true,
-                    "index": "2e51ef24fc6d51dc78cb5e2817b5c710a703357d71f18637da40a3f6d892b152",
-                    "entries": [
-                        {
-                            "title": "",
-                            "updatedAt": 1747622836762,
-                            "wordcount": 28,
-                            "unikey": "2e51ef24fc6d51dc78cb5e2817b5c710a703357d71f18637da40a3f6d892b152",
-                            "pathonly": true,
-                            "path": "index"
-                        },
-                        {
-                            "title": "Lab 0 Report",
-                            "updatedAt": 1747761212501,
-                            "wordcount": 1782,
-                            "unikey": "f4a26a318a2f98388f6e1cdf91efb9cd3d6ccb6421252b14ddddcfd22e34b78e",
-                            "pathonly": false,
-                            "path": "lab0"
                         },
                         {
                             "title": "",
-                            "updatedAt": 1748696924418,
+                            "updatedAt": 1749542641276,
                             "wordcount": 0,
                             "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                             "pathonly": false,
-                            "path": "lab1"
+                            "path": "om6+sort-of-all"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749631680452,
+                            "wordcount": 933,
+                            "unikey": "400dce1486bcdf166cce6915158af5eee61ce39fac41374fb980428021ded257",
+                            "pathonly": false,
+                            "path": "om7+hash-and-rehash"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749587348101,
+                            "wordcount": 228,
+                            "unikey": "e8c1aeefc6b98ff244cd12a7443e335a110536a05e80997c5f0b8856c21a9f88",
+                            "pathonly": false,
+                            "path": "pta-x2-fill-in-blank"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749632194564,
+                            "wordcount": 1986,
+                            "unikey": "a949083648da5eb9b0606619468fd6a967bbee8323a4f9337e582f313edcdc18",
+                            "pathonly": false,
+                            "path": "pta-x9-hash"
                         }
                     ]
                 },
@@ -190,6 +285,61 @@
                             "updatedAt": 1748421002634,
                             "wordcount": 977,
                             "unikey": "d1601f003a80cd15321f3303422119049ac9c6c35e74a9fc949df146fecab7fa",
+                            "pathonly": false,
+                            "path": "lab1"
+                        }
+                    ]
+                },
+                {
+                    "path": [
+                        "CS/SYS1-labs"
+                    ],
+                    "show": true,
+                    "name": "SYS-labs",
+                    "leaf": true,
+                    "entries": [
+                        {
+                            "title": "project: 单周期 CPU 设计",
+                            "updatedAt": 1749245056371,
+                            "wordcount": 3176,
+                            "unikey": "1475503aaf5e18e1762ebcf6e9835527feadd271a000b9117e2460cb29e38a22",
+                            "pathonly": false,
+                            "path": "report"
+                        }
+                    ]
+                },
+                {
+                    "path": [
+                        "Schoolwork/CS1264M",
+                        "CS/CS1264M",
+                        "CS/CTF101"
+                    ],
+                    "show": false,
+                    "name": "CTF101",
+                    "leaf": true,
+                    "index": "2e51ef24fc6d51dc78cb5e2817b5c710a703357d71f18637da40a3f6d892b152",
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1747622836762,
+                            "wordcount": 28,
+                            "unikey": "2e51ef24fc6d51dc78cb5e2817b5c710a703357d71f18637da40a3f6d892b152",
+                            "pathonly": true,
+                            "path": "index"
+                        },
+                        {
+                            "title": "Lab 0 Report",
+                            "updatedAt": 1747761212501,
+                            "wordcount": 1782,
+                            "unikey": "f4a26a318a2f98388f6e1cdf91efb9cd3d6ccb6421252b14ddddcfd22e34b78e",
+                            "pathonly": false,
+                            "path": "lab0"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1748696924418,
+                            "wordcount": 0,
+                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                             "pathonly": false,
                             "path": "lab1"
                         }
@@ -248,14 +398,31 @@
                     "show": true,
                     "name": "线性代数II",
                     "leaf": true,
+                    "index": "ea63743b6dde630cc03bead2952af9aa75667677b032908449b202e992ebf406",
                     "entries": [
                         {
                             "title": "线代补天记录（1）",
-                            "updatedAt": 1748399109501,
-                            "wordcount": 275,
-                            "unikey": "37257acc3a41b6762725a19b7c6023806b7c4007ff904126da67f7b7317e7682",
+                            "updatedAt": 1750249088876,
+                            "wordcount": 4648,
+                            "unikey": "142586765f86c9788eacecc6527f20481e07e5aa4f423bd0615b32ff7fddae75",
                             "pathonly": false,
                             "path": "fill-sky-1"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1750178107140,
+                            "wordcount": 2727,
+                            "unikey": "3a4ea8a13779dc168e0fba07c784aa4947952cd1344e435069aaaf01448bf4e7",
+                            "pathonly": false,
+                            "path": "final2"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1750178005195,
+                            "wordcount": 285,
+                            "unikey": "ea63743b6dde630cc03bead2952af9aa75667677b032908449b202e992ebf406",
+                            "pathonly": true,
+                            "path": "index"
                         },
                         {
                             "title": "平面方程与空间直线方程",
@@ -264,6 +431,38 @@
                             "unikey": "3f2a1f9b492de6cb74508391d7feb994d959866ecd72a3c94f514676e0aa2d9a",
                             "pathonly": false,
                             "path": "line-and-plane"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749916073153,
+                            "wordcount": 1935,
+                            "unikey": "5a1234b30d1abbc3270137bbea9f49535ff973ce215bed0bddf75172607904ae",
+                            "pathonly": false,
+                            "path": "llms-ow01"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749924797587,
+                            "wordcount": 942,
+                            "unikey": "d7d6927ae1ae497b4f53f056a5043f5ba0f4454f4432dd1f44f404f2027d5fe5",
+                            "pathonly": false,
+                            "path": "llms-ow02"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749925113906,
+                            "wordcount": 4425,
+                            "unikey": "a1d0d0a0716952dd6ee4c01348145bd4c4c3954fe5aac2ddf8ff4fc67414eef6",
+                            "pathonly": false,
+                            "path": "llms-ow03"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1750179779210,
+                            "wordcount": 2035,
+                            "unikey": "252792419709e4306fe27f36bbede5d029801504f20e6888fb191fdf669bf3f3",
+                            "pathonly": false,
+                            "path": "llms-ow04"
                         },
                         {
                             "title": "",
@@ -323,9 +522,17 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1747295406714,
-                            "wordcount": 1339,
-                            "unikey": "4218719e5a97d4b0b5be0cfdea57df3ea75211c842aa53e829574466888ce72d",
+                            "updatedAt": 1749925031760,
+                            "wordcount": 5157,
+                            "unikey": "4aaebd773f9a2db2a534f2c3148ad02ed202f2a53f318502ee22cf154eb0cb41",
+                            "pathonly": false,
+                            "path": "y-Raw-c7"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749923505509,
+                            "wordcount": 2471,
+                            "unikey": "2bc70390aae5c7f875c91dd00b4c66b0ce39aa549c94f45aa961e1908942d652",
                             "pathonly": false,
                             "path": "y-Raw-c8"
                         }
@@ -339,13 +546,13 @@
                     "show": true,
                     "name": "普通物理学I",
                     "leaf": true,
-                    "index": "28d889aa411ab66df50045efa3faea15ef0b778312d479dd62378798d14848e4",
+                    "index": "e40b3234f2e6123f7ab2e002add63fe41390c14590e32a052d0ec761663703cc",
                     "entries": [
                         {
                             "title": "",
-                            "updatedAt": 1748806157092,
-                            "wordcount": 141,
-                            "unikey": "28d889aa411ab66df50045efa3faea15ef0b778312d479dd62378798d14848e4",
+                            "updatedAt": 1749844413291,
+                            "wordcount": 166,
+                            "unikey": "e40b3234f2e6123f7ab2e002add63fe41390c14590e32a052d0ec761663703cc",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -407,9 +614,9 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1748845456367,
-                            "wordcount": 2,
-                            "unikey": "e18bbb2d433ae81598cf4247848e2a01fe8fa8ea71998d1fbcb63c8000871e6d",
+                            "updatedAt": 1748868979974,
+                            "wordcount": 501,
+                            "unikey": "c7369a04d1ab2bd2ca72268b95a32caf77ade942193e58f483606ebebc0e4bdd",
                             "pathonly": false,
                             "path": "PHY-bt-x8-thermodynamics"
                         },
@@ -503,17 +710,33 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1747678119618,
-                            "wordcount": 740,
-                            "unikey": "7e1690e92352afa8d50076f278c17774ec1b639b6d7c1df213bdc5cf9c9b5fbc",
+                            "updatedAt": 1749931466557,
+                            "wordcount": 1432,
+                            "unikey": "20144ad864472a69b1922a414b81af931c6280bd107ba49cf9845c5dd14552ba",
+                            "pathonly": false,
+                            "path": "PHY-ds4r-x9-systems-of-variable-mass"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749988362675,
+                            "wordcount": 647,
+                            "unikey": "42475d5372c0792418cf4e6b55ef824f33de54008cf707c3537a8cf06ec64079",
+                            "pathonly": false,
+                            "path": "quiz-es"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1750022495995,
+                            "wordcount": 980,
+                            "unikey": "75aef2a3d28fbd187da42a20572310dfba1726cc1438453bd7a9f03f06ba6544",
                             "pathonly": false,
                             "path": "recite-it-1"
                         },
                         {
                             "title": "",
-                            "updatedAt": 1746958841817,
-                            "wordcount": 767,
-                            "unikey": "1730a10e06b582632a7b34a6ca611942f8c4e14c144a84a91b80a50a4d9e925f",
+                            "updatedAt": 1749843631197,
+                            "wordcount": 804,
+                            "unikey": "3b339e7ae5a8f2832bfe70c48d1254bf88e35279ea8d79e703bfa6b1b7a4d212",
                             "pathonly": false,
                             "path": "WORD_BANK"
                         }
@@ -527,13 +750,37 @@
                     "show": true,
                     "name": "数学分析II",
                     "leaf": true,
-                    "index": "ea52ee7cbbbb7e5ae3436f8546c4f0c69801a88e115c692d538a07b3adc35b86",
+                    "index": "a01c58e7f3f9777317b485522e4a9119d4c57b779e5fc4a75d57b1e52062b45b",
                     "entries": [
                         {
+                            "title": "期末复习课",
+                            "updatedAt": 1749540769268,
+                            "wordcount": 837,
+                            "unikey": "d260027fc5b7ce1e7e62056bfb5330ea0a0b402b9d0600401d440b656716c6d2",
+                            "pathonly": false,
+                            "path": "final1"
+                        },
+                        {
+                            "title": "补天课笔记详细版",
+                            "updatedAt": 1749541099083,
+                            "wordcount": 1479,
+                            "unikey": "4162209356c3d516b3b97a49cb14333a7b821bbc13d4a3b93cda88ffaf16c848",
+                            "pathonly": false,
+                            "path": "final2"
+                        },
+                        {
                             "title": "",
-                            "updatedAt": 1747664029991,
-                            "wordcount": 306,
-                            "unikey": "ea52ee7cbbbb7e5ae3436f8546c4f0c69801a88e115c692d538a07b3adc35b86",
+                            "updatedAt": 1749659611274,
+                            "wordcount": 4441,
+                            "unikey": "d89f54a9ed7fbd568e424af772a890c34ce0332f5db32d4bf867b63cb79c890c",
+                            "pathonly": false,
+                            "path": "final3"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749843497093,
+                            "wordcount": 309,
+                            "unikey": "a01c58e7f3f9777317b485522e4a9119d4c57b779e5fc4a75d57b1e52062b45b",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -611,19 +858,27 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1747669940101,
-                            "wordcount": 1449,
-                            "unikey": "b024a769d5acc00820adddcfc7fb0323fc0ffa48c6f3d076ab7a2e4e9b3812e5",
+                            "updatedAt": 1749554077046,
+                            "wordcount": 3442,
+                            "unikey": "1567256ed64d3b107fb34257f0f04f83c1d39e5f78baebbca906534372ed0c6a",
                             "pathonly": false,
                             "path": "l-ch-21"
                         },
                         {
                             "title": "",
-                            "updatedAt": 1746633773102,
-                            "wordcount": 0,
-                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "updatedAt": 1749555117573,
+                            "wordcount": 2064,
+                            "unikey": "55422b0d25278202dfc39ec5e07f3856f518aef9fc79e86b8bfbea6c310ec9d9",
                             "pathonly": false,
-                            "path": "ntn-ch-16-17-18"
+                            "path": "l-ch-22"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749744304102,
+                            "wordcount": 263,
+                            "unikey": "5461ceb68f8aa8c7ca62141e63b9c51ea1b51fc055e74b4a7f24e1a1fed9159f",
+                            "pathonly": false,
+                            "path": "recite"
                         },
                         {
                             "title": "",
@@ -635,6 +890,38 @@
                         },
                         {
                             "title": "",
+                            "updatedAt": 1749722379814,
+                            "wordcount": 2016,
+                            "unikey": "0896bc2d520ad1bef304a994c244a015084ec9e2c06416755519f545ae80815e",
+                            "pathonly": false,
+                            "path": "tgd-ch-12"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749722369825,
+                            "wordcount": 1364,
+                            "unikey": "57951048e61e3a3504a534414301b1cb855d908100287fa12cc353f8956fc9e5",
+                            "pathonly": false,
+                            "path": "tgd-ch-13"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749722392910,
+                            "wordcount": 1315,
+                            "unikey": "85ca90e4d4e42b37a2fa5c08eb659e3456873c287f1ca68b71cb0cf3b6435547",
+                            "pathonly": false,
+                            "path": "tgd-ch-14"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749744229254,
+                            "wordcount": 1349,
+                            "unikey": "69ed856f9a9c1c48821390ef89a60af6acf5688730ebb2ec1fa41ed4772a99da",
+                            "pathonly": false,
+                            "path": "tgd-ch-15"
+                        },
+                        {
+                            "title": "",
                             "updatedAt": 1746634077753,
                             "wordcount": 2757,
                             "unikey": "5624b21e02f389d9f0fc28a2d6ce7bd3956bd1d875f94b90e2e17cfffbbc96de",
@@ -643,27 +930,51 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1746687402247,
-                            "wordcount": 752,
-                            "unikey": "e29081eb45d396515c7cb356996247f8e25fa536c982b588a7db8a32745e6de9",
+                            "updatedAt": 1749722288757,
+                            "wordcount": 2317,
+                            "unikey": "68a827e3b3abbc732ba07c440095f077eb8c9020de460b98b2c3560517964455",
                             "pathonly": false,
                             "path": "tgd-ch-17"
                         },
                         {
                             "title": "",
-                            "updatedAt": 1746630013335,
-                            "wordcount": 764,
-                            "unikey": "9e957a6b3fe57500595da90eba50ad388251b27ab55ae24b65fb47a4904ac5f7",
+                            "updatedAt": 1749843018514,
+                            "wordcount": 2586,
+                            "unikey": "74aa662bcb2d36ede35884b0ad7208b9334d954a1332198b6da8d0be24667f26",
                             "pathonly": false,
                             "path": "tgd-ch-18"
                         },
                         {
                             "title": "",
-                            "updatedAt": 1747327855573,
-                            "wordcount": 1843,
-                            "unikey": "1c1a3380d3782488c22e8cd4bccf98af3747803393911d95416ebdb280a4ac89",
+                            "updatedAt": 1749722317730,
+                            "wordcount": 1913,
+                            "unikey": "266f3fff72e6accc7e7993209be5b65b19575ce718c566ad5b878fc7635fcebf",
+                            "pathonly": false,
+                            "path": "tgd-ch-19"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749552575756,
+                            "wordcount": 1739,
+                            "unikey": "69d94ba6b16e65cb2eaece8498d0ebf75f71bc69f095e5fb5960c36c97f85077",
                             "pathonly": false,
                             "path": "tgd-ch-20"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749556332704,
+                            "wordcount": 2915,
+                            "unikey": "30920d424b9f63af7ffb77266e66176458b93a04dcfa9a2215b5985d3c7a77e8",
+                            "pathonly": false,
+                            "path": "tgd-ch-21"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1749722347780,
+                            "wordcount": 1848,
+                            "unikey": "53223df516cc3730e1afb8efc8ab69208666e96899ac66d3b3a913d6a5c4353c",
+                            "pathonly": false,
+                            "path": "tgd-ch-22"
                         }
                     ]
                 },
@@ -674,7 +985,7 @@
                     "show": true,
                     "name": "离散数学理论基础",
                     "leaf": true,
-                    "index": "11a7073ed932a8674f10d33f125680dca694d77a2a55133288df8487e9e3ffb6",
+                    "index": "d6efcae7c60b4d0e0c3f7f8438668353fb4f31f8e096b66c919aed89f123ee9c",
                     "entries": [
                         {
                             "title": "",
@@ -734,9 +1045,9 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1744786825558,
-                            "wordcount": 366,
-                            "unikey": "ad16f5e7a2093d04bcd53a68d21039fedbb8604ee1ee558b0ddd261ef9613262",
+                            "updatedAt": 1750110932223,
+                            "wordcount": 1242,
+                            "unikey": "d8a7a629bf4e2f47dddc5e681c7c22acfd45f174a0b83e6a98bed20d93db3531",
                             "pathonly": false,
                             "path": "C5-TR"
                         },
@@ -766,9 +1077,17 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1747594181922,
-                            "wordcount": 118,
-                            "unikey": "11a7073ed932a8674f10d33f125680dca694d77a2a55133288df8487e9e3ffb6",
+                            "updatedAt": 1750169362355,
+                            "wordcount": 3900,
+                            "unikey": "04d0aef06d566bf869bbd7ec7506acac2147b635033173eddaa467178917082e",
+                            "pathonly": false,
+                            "path": "fill-hole"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1750111159527,
+                            "wordcount": 131,
+                            "unikey": "d6efcae7c60b4d0e0c3f7f8438668353fb4f31f8e096b66c919aed89f123ee9c",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -854,9 +1173,9 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1745080290814,
-                            "wordcount": 141,
-                            "unikey": "8cd84e782f991d482e572c1838d7d1c72731938c13857749d9d6f90353409e91",
+                            "updatedAt": 1750098869177,
+                            "wordcount": 339,
+                            "unikey": "ab69ca9d3f3b5652a62b490bbf164b99f29fcbdad59f07cbfd80eeb0b1756f03",
                             "pathonly": false,
                             "path": "PROMPTS"
                         },
@@ -867,6 +1186,14 @@
                             "unikey": "39922ea84295c7edda7de7eba9ea09ea8dbb1b41c401e77bda30cf048a765634",
                             "pathonly": false,
                             "path": "Proving-u-r-stupid"
+                        },
+                        {
+                            "title": "你就默吧活爹（单词部分）",
+                            "updatedAt": 1750110932222,
+                            "wordcount": 1839,
+                            "unikey": "553c0059968cff1c3333cc399a359d8650dbbba0adc5d084c8eb50d6e31d50a8",
+                            "pathonly": false,
+                            "path": "remember-terms"
                         },
                         {
                             "title": "",
@@ -1178,6 +1505,49 @@
                             "unikey": "465004d70ecfb8d91d6c5a039268b5a974c64b82aac9a5c6b7acd59f6ae09a31",
                             "pathonly": true,
                             "path": "index"
+                        }
+                    ]
+                },
+                {
+                    "path": [
+                        "Schoolwork/ADMN1002G",
+                        "Others/ADMN1002G"
+                    ],
+                    "show": true,
+                    "name": "形势与政策 I",
+                    "leaf": true,
+                    "entries": [
+                        {
+                            "title": "2024-2025学年《形势与政策Ⅰ》课程内容复习资料（RAW）",
+                            "updatedAt": 1749306861770,
+                            "wordcount": 18243,
+                            "unikey": "a927c413a3435fdad14334dc7b25438a3bda8e884b797a63d5ccbed65b1a3149",
+                            "pathonly": false,
+                            "path": "af1"
+                        },
+                        {
+                            "title": "2024-2025学年《形势与政策Ⅰ》时事复习资料",
+                            "updatedAt": 1748789195400,
+                            "wordcount": 14525,
+                            "unikey": "2e24d7aad96daaddef4c904973e26f5afef72298a83bc64ee6e988dacbdcd6bc",
+                            "pathonly": false,
+                            "path": "af2"
+                        },
+                        {
+                            "title": "2024-2025学年秋冬学期《形势与政策I》时事专题",
+                            "updatedAt": 1748790513218,
+                            "wordcount": 2582,
+                            "unikey": "db94705521dff312070433a99554bcb546e853593b1941062b11cc460b98bae2",
+                            "pathonly": false,
+                            "path": "af3"
+                        },
+                        {
+                            "title": "开背！！",
+                            "updatedAt": 1749364092824,
+                            "wordcount": 1317,
+                            "unikey": "09c24f193b6991defd89bb9a8ce9aa2f946123872fa24dd9e9d5937d7264dc30",
+                            "pathonly": false,
+                            "path": "gl"
                         }
                     ]
                 }
