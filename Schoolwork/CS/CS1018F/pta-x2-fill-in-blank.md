@@ -53,3 +53,34 @@ A[ j ] = Tmp;
 
 answer：The first blank: increment = Inc [k]
 The second blank: a [J] = a [J - increment]
+
+
+## 39911.
+The function `Unweighted` is to find the unweighted shortest path from `Vertex S` to every other vertices in a given `Graph`. The distances are stored in `dist[]`, and `path[]` records the paths. The `Graph` is defined as the following:
+```c
+typedef struct GNode *PtrToGNode;
+struct GNode{
+int Nv;          /*  Number of vertices */
+int Ne;          /*  Number of edges    */
+AdjList List;    /*  adjacency matrix */
+};
+typedef PtrToGNode Graph;
+void Unweighted( Graph G, Queue Q, int dist[], int path[], Vertex S )
+{
+    Vertex V, W;
+    NodePtr ptr;
+    dist[S] = 0;
+    Enqueue(S, Q);
+    while ( ! IsEmpty(Q) ) {
+    V = Dequeue( Q );
+    for ( ptr=G->List[V].FirstEdge;  ptr;  ptr=ptr->Next) {
+    W = ptr->AdjV;
+    if ( dist[W] == INFINITY ) {
+    @@[dist[W] = dist[V] + 1](3);
+    path[W] = V;
+    @@[Enqueue(W, Q)](3);
+}
+```
+
+answer：The first empty: dist [w] = dist [v] + 1
+The second empty: enqueue (W, q)

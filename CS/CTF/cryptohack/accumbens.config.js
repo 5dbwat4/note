@@ -2,12 +2,9 @@ export default {
     "dir":import.meta.url,
     "path":{
         "default":false,
-        "aliases":["CS/CTF","CTF"], 
+        "aliases":["CS/CTF/Cryptohack","CTF/Cryptohack"], 
     },
     "entries":"auto",
-    "subcategories":[
-        "./cryptohack",
-    ],
-    "name":"CTF",
+    "name":"Learn Cryptohack",
     "show":true,
 }

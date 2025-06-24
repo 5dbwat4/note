@@ -1,0 +1,250 @@
+---
+title: Modular Arithmetic
+---
+
+import Card from "@md-components/card.vue";
+
+# Greatest Common Divisor (GCD)
+
+<Card type="code" title="Python Code">
+```python
+def gcd(a,b):
+    while b:
+        a, b = b, a % b
+    return a
+```
+</Card>
+
+# Extended Euclidean Algorithm
+
+The extended Euclidean algorithm is an efficient way to find integers $x$ and $y$ such that:
+$$
+ax + by = \text{gcd}(a, b)
+$$
+
+<Card type="reference" title="Extended Euclidean Algorithm" collapsed>
+# The Extended Euclidean Algorithm
+
+As we know from grade school, when we divide one integer by another (nonzero) integer we get an integer *quotient* (the "answer") plus a *remainder* (generally a rational number). For instance,
+
+    13/5 = 2 (*"the quotient"*) + 3/5 (*"the remainder"*).
+
+We can rephrase this division, totally in terms of integers, without reference to the division operation:
+
+    13 = *2*(5) + *3*.
+
+Note that this expression is obtained from the one above it by multiplying through by the divisor 5.
+
+We refer to this way of writing a division of integers as the **Division Algorithm for Integers**. More formally stated:
+
+If $a$ and $b$ are positive integers, there exist integers unique non-negative integers $q$ and $r$ so that
+
+$$
+a = qb + r,\quad \text{where}\ 0 \leq r < b.
+$$
+
+ $q$ is called the *quotient* and $r$ the *remainder*.
+
+The *greatest common divisor* of integers $a$ and $b$, denoted by *gcd(a,b)*, is the largest integer that divides (without remainder) both $a$ and $b$. So, for example:
+
+| Expression | Result |
+|:-----------|:-------|
+| gcd(15, 5) | 5      |
+| gcd(7, 9)  | 1      |
+| gcd(12, 9) | 3      |
+| gcd(81, 57)| 3      |
+
+The gcd of two integers can be found by repeated application of the division algorithm, this is known as the **Euclidean Algorithm**. You repeatedly divide the divisor by the remainder until the remainder is 0. The gcd is the last non-zero remainder in this algorithm. The following example shows the algorithm.
+
+Finding the gcd of 81 and 57 by the Euclidean Algorithm:
+
+    81 = 1(*57*) + *24*
+    57 = 2(*24*) + *9*
+    24 = 2(*9*) + *6*
+    9 = 1(*6*) + *3*
+    6 = 2(*3*) + 0
+
+It is well known that if the gcd(a, b) = r then there exist integers p and s so that:
+
+$$
+p(a) + s(b) = r.
+$$
+
+By reversing the steps in the Euclidean Algorithm, it is possible to find these integers $p$ and $s$. We shall do this with the above example:
+
+Starting with the next to last line, we have:
+
+    *3* = 9 - 1(*6*)
+
+From the line before that, we see that *6* = 24 - 2(*9*), so:
+
+    *3* = 9 - 1(24 - 2(*9*)) = 3(*9*) - 1(24)
+
+From the line before that, we have *9* = 57 - 2(*24*), so:
+
+    *3* = 3( 57 - 2(*24*)) - 1(24) = 3(57) - 7(*24*)
+
+And, from the line before that *24* = 81 - 1(*57*), giving us:
+
+    *3* = 3(57) - 7( 81 - 1(*57*)) = 10(57) -7(81)
+
+So we have found $p = -7$ and $s = 10$.
+
+The procedure we have followed above is a bit messy because of all the back substitutions we have to make. It is possible to reduce the amount of computation involved in finding $p$ and $s$ by doing some auxillary computations as we go forward in the Euclidean algorithm (and no back substitutions will be necessary). This is known as the **extended Euclidean Algorithm**.
+
+Before presenting this extended Euclidean algorithm, we shall look at a special application that is the most common usage of the algorithm. We will give a form of the algorithm which only solves this special case, although the general algorithm is not much more difficult.
+
+Consider the problem of setting up the Hill cryptosystem. We were forced to do arithmetic modulo 26, and sometimes we had to find the inverse of a number mod 26. This turned out to be a difficult task (and not always possible). We observed that a number $x$ had an inverse mod 26 (i.e., a number $y$ so that $xy = 1 \mod 26$) if and only if gcd(x, 26) = 1. There is nothing special about 26 here, so let us consider the general case of finding inverses of numbers modulo $n$. The inverse of $x$ exists if and only if gcd(x, n) = 1. We now know that if this is true, there exist integers $p$ and $s$ so that
+
+$$
+px + sn = 1.
+$$
+
+But this says that $px = 1 + (-s)n$, or in other words, $px \equiv 1 \mod n$. So, $p$ (reduced mod $n$ if need be) is the inverse of $x$ mod $n$. The extended Euclidean algorithm will give us a method for calculating $p$ efficiently (note that in this application we do not care about the value for $s$, so we will simply ignore it).
+
+## The Extended Euclidean Algorithm for finding the inverse of a number mod n
+
+We will number the steps of the Euclidean algorithm starting with step 0. The quotient obtained at step $i$ will be denoted by $q_i$. As we carry out each step of the Euclidean algorithm, we will also calculate an auxillary number, $p_i$. For the first two steps, the value of this number is given: $p_0 = 0$ and $p_1 = 1$. For the remainder of the steps, we recursively calculate $p_i = p_{i-2} - p_{i-1} q_{i-2} \mod n$. Continue this calculation for one step beyond the last step of the Euclidean algorithm.
+
+The algorithm starts by "dividing" $n$ by $x$. If the last non-zero remainder occurs at step $k$, then if this remainder is 1, $x$ has an inverse and it is $p_{k+2}$. (If the remainder is not 1, then $x$ does not have an inverse.) Here is an example:
+
+### Find the inverse of 15 mod 26
+
+| Step | Expression | $p_i$ Calculation |
+|:-----|:-----------|:--------------------|
+| 0    | 26 = 1(15) + 11 | $p_0 = 0$        |
+| 1    | 15 = 1(11) + 4  | $p_1 = 1$        |
+| 2    | 11 = 2(4) + 3   | $p_2 = 0 - 1(1) \mod 26 = 25$ |
+| 3    | 4 = 1(3) + 1    | $p_3 = 1 - 25(1) \mod 26 = -24 \mod 26 = 2$ |
+| 4    | 3 = 3(1) + 0    | $p_4 = 25 - 2(2) \mod 26 = 21$ |
+|      |               | $p_5 = 2 - 21(1) \mod 26 = -19 \mod 26 = 7$ |
+
+Notice that $15(7) = 105 = 1 + 4(26) \equiv 1 \mod 26$.
+</Card>
+
+<Card type="code" title="Python Code">
+```python
+def extended_gcd(a, b):
+    if a == 0:
+        return b, 0, 1
+    gcd, x1, y1 = extended_gcd(b % a, a)
+    x = y1 - (b // a) * x1
+    y = x1
+    return gcd, x, y
+```
+</Card>
+
+# Fermat's little theorem 费马小定理
+
+$$
+a^{p-1} \equiv 1 \mod p
+$$
+
+以及
+
+$$
+a^{p} \equiv a \mod p
+$$
+
+# Modular Inverting 模逆元
+
+Working within a finite field $\mathbb{F}_p$, For all elements  $a \in \mathbb{F}_p$, there exists a unique element $b \in \mathbb{F}_p$ such that:
+$$
+a \cdot b \equiv 1 \mod p
+$$
+This element $b$ is called the **modular inverse** of $a$ modulo $p$, and it can be computed using Fermat's little theorem:
+$$
+b \equiv a^{p-2} \mod p
+$$
+
+# Quadratic Residues  二次剩余 & Legendre Symbol  勒让德符号
+
+We say that an integer $x$ is a **Quadratic Residue** if there exists an $a$ such that 
+$$
+a^2 \equiv x \mod p
+$$
+If there is no such solution, then the integer is a **Quadratic Non-Residue**.
+
+
+如何判断是否是二次剩余？
+
+Legendre's Symbol: $(a/p) \equiv a^{(p-1)/2} \mod p$ obeys:
+
+- $(a/p) = 1 $ if  $a$ is a quadratic residue and  $a$ \not\equiv 0 \mod p $
+- $(a/p) = -1 $ if  $a$ is a quadratic non-residue $\mod p$
+- $(a/p) = 0 $ if  $a \equiv 0 \mod p $
+
+Which means given any integer $a$, calculating $a^{(p-1)/2} \mod p$ is enough to determine if $a$ is a quadratic residue.
+
+这意味着对于任何整数 $a$，计算 $a^{(p-1)/2} \mod p$ 就足够确定 $a$ 是否是二次剩余。
+
+<Card type="note" title="一些性质">
+<center>
+
+Quadratic Residue * Quadratic Residue = Quadratic Residue
+
+Quadratic Residue * Quadratic Non-residue = Quadratic Non-residue
+
+Quadratic Non-residue * Quadratic Non-residue = Quadratic Residue
+
+</center>
+</Card>
+
+<Card type="thinking" title="A Cryptohack Challenge" collapsed>
+
+[Legendre Symbol](https://cryptohack.org/courses/modular/root1/)
+
+所以，我们已经找到了一个数，且这个数是二次剩余。
+
+> So Legendre's symbol tells us which integer is a quadratic residue, but how do we find the square root?! The prime supplied obeys $p = 3 \mod 4$ , which allows us easily compute the square root. The answer is online, but you can figure it out yourself if you think about Fermat's little theorem.
+
+由欧拉准则，若 $a$ 是二次剩余，则 $a^{(p-1)/2} \equiv 1 \pmod{p}$。于是：
+$$
+\left( a^{(p+1)/4} \right)^2 = a^{(p+1)/2} = a^{(p-1)/2 + 1} = a^{(p-1)/2} \cdot a \equiv 1 \cdot a \equiv a \pmod{p}.
+$$
+因此 $\pm a^{(p+1)/4}$ 就是 $a$ 的平方根。
+
+</Card>
+
+# Modular Square Root 模平方根 (Tonelli-Shanks 算法)
+
+所有不是 2 的素数都是 $p \equiv 1 \mod 4$ 或 $p \equiv 3 \mod 4$ 的形式
+
+对于 $p \equiv 3 \mod 4$ 的素数，平方根可以通过以下公式计算：
+$$
+x \equiv a^{(p+1)/4} \mod p
+$$
+
+对于 $p \equiv 1 \mod 4$ 的素数，Tonelli-Shanks 算法可以用来计算平方根。
+
+<Card type="code" title="Use SageMath to find square roots">
+SageMath 可以直接计算模平方根，其内部会选用对应的算法：
+```python
+a=...
+p=...
+Mod(a, p).sqrt()
+```
+</Card>
+
+
+# Chinese Remainder Theorem 中国剩余定理
+
+设有 $n$ 个互质的正整数 $m_1, m_2, \ldots, m_n$，以及任意整数 $a_1, a_2, \ldots, a_n$，则存在唯一的整数 $x$，使得：
+$$
+x \equiv a_i \mod m_i \quad (1 \leq i \leq n)
+$$
+并且 $0 \leq x < M$，其中 $M = m_1 m_2 \cdots m_n$。
+
+中国剩余定理的一个常见应用是解线性同余方程组。
+
+<Card type="code" title="Using SymPy">
+```python
+from sympy.ntheory.modular import solve_congruence
+
+# 示例
+congruences = [(2, 3), (3, 4), (2, 5)]
+x = solve_congruence(*congruences)
+print(x)  # 输出解
+```
+</Card>
+
