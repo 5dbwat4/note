@@ -1,0 +1,173 @@
+---
+title: 任意文件读 利用手段
+---
+import Card from "@md-components/card.vue";
+
+# 常见读取的敏感文件路径
+
+
+Windows:
+
+```plain
+C:\boot.ini //查看系统版本
+C:\Windows\System32\inetsrv\MetaBase.xml //IIS配置文件
+C:\Windows\repair\sam //存储系统初次安装的密码
+C:\Program Files\mysql\my.ini //Mysql配置
+C:\Program Files\mysql\data\mysql\user.MYD //Mysql root
+C:\Windows\php.ini //php配置信息
+C:\Windows\my.ini //Mysql配置信息
+......
+```
+
+Linux(主要)：
+
+```plain
+/etc/passwd // 账户信息
+/etc/shadow // 账户密码文件
+/etc/my.cnf //mysql 配置文件
+/etc/httpd/conf/httpd.conf // Apache配置文件
+/etc/redhat-release 系统版本 
+/etc/issue 系统版本
+/etc/hosts //主机名和IP地址映射
+/etc/hostname //主机名
+```
+
+# 主要利用：proc目录
+
+Linux系统中/proc目录下存放着系统的内核信息和进程信息，利用该目录可以读取到一些敏感信息。
+
+
+运行`ls /proc/self/ -al`
+```plain
+-r--r--r--   1 root root 0 Jun 27 02:46 arch_status
+dr-xr-xr-x   2 root root 0 Jun 27 02:46 attr
+-r--------   1 root root 0 Jun 27 02:46 auxv
+-r--r--r--   1 root root 0 Jun 27 02:46 cgroup
+--w-------   1 root root 0 Jun 27 02:46 clear_refs
+-r--r--r--   1 root root 0 Jun 27 02:46 cmdline
+-rw-r--r--   1 root root 0 Jun 27 02:46 comm
+-rw-r--r--   1 root root 0 Jun 27 02:46 coredump_filter
+-r--r--r--   1 root root 0 Jun 27 02:46 cpuset
+lrwxrwxrwx   1 root root 0 Jun 27 02:46 cwd -> /mnt/e/Projects/ctf-test/xctf--web
+-r--------   1 root root 0 Jun 27 02:46 environ
+lrwxrwxrwx   1 root root 0 Jun 27 02:46 exe -> /usr/bin/ls
+dr-x------   2 root root 0 Jun 27 02:46 fd
+dr-xr-xr-x   2 root root 0 Jun 27 02:46 fdinfo
+-rw-r--r--   1 root root 0 Jun 27 02:46 gid_map
+-r--------   1 root root 0 Jun 27 02:46 io
+-r--r--r--   1 root root 0 Jun 27 02:46 limits
+-rw-r--r--   1 root root 0 Jun 27 02:46 loginuid
+dr-x------   2 root root 0 Jun 27 02:46 map_files
+-r--r--r--   1 root root 0 Jun 27 02:46 maps
+-rw-------   1 root root 0 Jun 27 02:46 mem
+-r--r--r--   1 root root 0 Jun 27 02:46 mountinfo
+-r--r--r--   1 root root 0 Jun 27 02:46 mounts
+-r--------   1 root root 0 Jun 27 02:46 mountstats
+dr-xr-xr-x  65 root root 0 Jun 27 02:46 net
+dr-x--x--x   2 root root 0 Jun 27 02:46 ns
+-rw-r--r--   1 root root 0 Jun 27 02:46 oom_adj
+-r--r--r--   1 root root 0 Jun 27 02:46 oom_score
+-rw-r--r--   1 root root 0 Jun 27 02:46 oom_score_adj
+-r--------   1 root root 0 Jun 27 02:46 pagemap
+-r--------   1 root root 0 Jun 27 02:46 personality
+-rw-r--r--   1 root root 0 Jun 27 02:46 projid_map
+lrwxrwxrwx   1 root root 0 Jun 27 02:46 root -> /
+-rw-r--r--   1 root root 0 Jun 27 02:46 sched
+-r--r--r--   1 root root 0 Jun 27 02:46 schedstat
+-r--r--r--   1 root root 0 Jun 27 02:46 sessionid
+-rw-r--r--   1 root root 0 Jun 27 02:46 setgroups
+-r--r--r--   1 root root 0 Jun 27 02:46 smaps
+-r--r--r--   1 root root 0 Jun 27 02:46 smaps_rollup
+-r--------   1 root root 0 Jun 27 02:46 stack
+-r--r--r--   1 root root 0 Jun 27 02:46 stat
+-r--r--r--   1 root root 0 Jun 27 02:46 statm
+-r--r--r--   1 root root 0 Jun 27 02:46 status
+-r--------   1 root root 0 Jun 27 02:46 syscall
+dr-xr-xr-x   3 root root 0 Jun 27 02:46 task
+-rw-r--r--   1 root root 0 Jun 27 02:46 timens_offsets
+-r--r--r--   1 root root 0 Jun 27 02:46 timers
+-rw-rw-rw-   1 root root 0 Jun 27 02:46 timerslack_ns
+-rw-r--r--   1 root root 0 Jun 27 02:46 uid_map
+-r--r--r--   1 root root 0 Jun 27 02:46 wchan
+```
+
+### **极高风险（直接泄露敏感数据）**
+1. **`cmdline`**  
+   - **泄露内容**：进程启动的完整命令行参数（包括敏感参数如密码、密钥）。  
+   - **示例**：若进程是 `./server --db-password=123456`，此处会明文显示密码。
+
+2. **`environ`**  
+   - **泄露内容**：进程的所有环境变量（可能含 API 密钥、数据库连接字符串等）。  
+   - **风险**：环境变量中常见的 `AWS_SECRET`、`DB_PASS` 等会被直接暴露。
+
+3. **`mem`**  
+   - **泄露内容**：进程的**完整内存映射**（需读权限）。  
+   - **风险**：可从中提取密码、加密密钥、会话 Cookie 等运行时数据（类似 `Heartbleed` 漏洞）。
+
+4. **`fd/` 目录**  
+   - **泄露内容**：进程打开的所有文件描述符（包括敏感文件、套接字）。  
+   - **示例**：若进程打开了 `/etc/shadow`，可通过 `/proc/self/fd/3` 读取内容。
+
+5. **`exe`**  
+   - **泄露内容**：进程的**可执行文件路径**（符号链接指向实际二进制文件）。  
+   - **风险**：攻击者可下载该二进制进行逆向分析，挖掘漏洞。
+
+6. **`cwd`**  
+   - **泄露内容**：进程的**当前工作目录路径**（如包含项目敏感路径 `/app/config/`）。  
+   - **风险**：辅助定位配置文件、源码等。
+
+<Card type="secondary" title="剩下来的不太重要">
+### **高风险（泄露内存/代码细节）**
+7. **`maps`** & **`smaps`**  
+   - **泄露内容**：进程的内存映射布局（含加载的共享库、堆栈地址、权限）。  
+   - **风险**：辅助构造内存攻击（如 Ret2libc），或通过 `smaps` 分析敏感内存区域。
+
+8. **`stack`**  
+   - **泄露内容**：进程主线程的**栈内存**（需读权限）。  
+   - **风险**：可提取返回地址、局部变量中的敏感数据。
+
+9. **`pagemap`**  
+   - **泄露内容**：虚拟内存到物理页的映射（需配合 `mem` 实现完整内存转储）。  
+   - **风险**：内核级攻击的跳板。
+
+10. **`auxv`**  
+    - **泄露内容**：ELF 进程的辅助向量（含程序入口地址、随机化偏移）。  
+    - **风险**：绕过 ASLR 的关键信息。
+
+### **中风险（泄露系统/状态信息）**
+11. **`status`** & **`stat`** & **`statm`**  
+    - **泄露内容**：进程状态（UID/GID、内存用量、信号掩码、线程数等）。  
+    - **风险**：识别特权进程（如 `root` 权限）、资源使用模式。
+
+12. **`io`**  
+    - **泄露内容**：进程的 I/O 统计（读写字节数）。  
+    - **风险**：推断敏感操作（如大量文件读写可能涉及加密）。
+
+13. **`net/` 目录**  
+    - **泄露内容**：进程的网络命名空间信息（如 TCP/UDP 连接）。  
+    - **风险**：暴露内部网络拓扑、开放端口。
+
+14. **`mounts`** & **`mountinfo`**  
+    - **泄露内容**：进程可见的文件系统挂载点。  
+    - **风险**：发现敏感目录（如 Docker 卷挂载路径）。
+
+### **低风险（有限信息利用）**
+15. **`cgroup`** & **`cpuset`**  
+    - **泄露内容**：进程所属的 cgroup 信息（容器环境下可能泄露容器 ID）。  
+    - **风险**：识别容器化环境。
+
+16. **`sessionid`** & **`loginuid`**  
+    - **泄露内容**：进程的登录会话 ID 和初始登录用户 UID。  
+    - **风险**：辅助追踪用户来源。
+
+17. **`wchan`**  
+    - **泄露内容**：进程阻塞时所在的内核函数名。  
+    - **风险**：推断进程行为（如 `poll_schedule_timeout` 可能表示网络等待）。
+
+18. **`syscall`**  
+    - **泄露内容**：进程当前执行的系统调用号（需实时读取）。  
+    - **风险**：监控进程活动（如检测 `execve` 调用）。
+
+</Card>
+
+# 

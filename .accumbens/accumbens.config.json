@@ -47,6 +47,14 @@
                                     "path": "modular"
                                 },
                                 {
+                                    "title": "RSA",
+                                    "updatedAt": 1751352374183,
+                                    "wordcount": 0,
+                                    "unikey": "63fffd0541a4580a5f1ca91d3a1e2e9cbcb562c07704b2357de6330277fd7a50",
+                                    "pathonly": false,
+                                    "path": "rsa"
+                                },
+                                {
                                     "title": "Symmetric Cryptography",
                                     "updatedAt": 1750690698042,
                                     "wordcount": 5,
@@ -66,6 +74,22 @@
                             "unikey": "78bb0717e5b85c9908969726fba84cd18ebe6fb061a448632b977fb449af2297",
                             "pathonly": true,
                             "path": "index"
+                        },
+                        {
+                            "title": "SSTI - Server-Side Template Injection",
+                            "updatedAt": 1750974540189,
+                            "wordcount": 5712,
+                            "unikey": "eab65ae7bf3b50a3760a4ba2f5cb85f62e83259c911ae7f009ed1b684cd756fd",
+                            "pathonly": false,
+                            "path": "ssti-server-side-template-injection"
+                        },
+                        {
+                            "title": "任意文件读 利用手段",
+                            "updatedAt": 1750967160446,
+                            "wordcount": 1520,
+                            "unikey": "707558fd72eefcf3df4b5984260d4b6b83e1f85dfb6da634a74853b4f95bb6b7",
+                            "pathonly": false,
+                            "path": "use-arbitrary-file-read"
                         }
                     ]
                 }
@@ -537,9 +561,7 @@
                 },
                 {
                     "path": [
-                        "Schoolwork/CS1264M",
-                        "CS/CS1264M",
-                        "CS/CTF101"
+                        "Schoolwork/CS/CTF101"
                     ],
                     "show": false,
                     "name": "CTF101",
@@ -592,18 +614,18 @@
                             "path": "index"
                         },
                         {
-                            "title": "",
-                            "updatedAt": 1747632721564,
+                            "title": "Lab 0: Linux Crash Course",
+                            "updatedAt": 1750964694845,
                             "wordcount": 0,
-                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "unikey": "8af5efac528976fe80ee173528e1d0285dee1d9b7dd2e074a4d251d381efb8a3",
                             "pathonly": false,
                             "path": "lab0"
                         },
                         {
-                            "title": "Lab1 简单集群搭建",
-                            "updatedAt": 1748421002634,
-                            "wordcount": 977,
-                            "unikey": "d1601f003a80cd15321f3303422119049ac9c6c35e74a9fc949df146fecab7fa",
+                            "title": "Lab 1: 简单集群搭建",
+                            "updatedAt": 1751340915650,
+                            "wordcount": 2407,
+                            "unikey": "558154de003841bf4014b5eaf473300cf78addb8189d711f167ed3a2e48218b4",
                             "pathonly": false,
                             "path": "lab1"
                         }
@@ -1614,13 +1636,13 @@
                     ]
                 }
             ],
-            "index": "4e06129c9f21aed44b857b73cdd3aedeb03c742d89bdc0b9434b347188eafc8c",
+            "index": "972049388b7f51eb84994b17a2cdfab484a4c832b474ac552b96663cec5c99c4",
             "entries": [
                 {
                     "title": "学在浙大",
-                    "updatedAt": 1750722745277,
-                    "wordcount": 78,
-                    "unikey": "4e06129c9f21aed44b857b73cdd3aedeb03c742d89bdc0b9434b347188eafc8c",
+                    "updatedAt": 1750813185187,
+                    "wordcount": 178,
+                    "unikey": "972049388b7f51eb84994b17a2cdfab484a4c832b474ac552b96663cec5c99c4",
                     "pathonly": true,
                     "path": "index"
                 }
