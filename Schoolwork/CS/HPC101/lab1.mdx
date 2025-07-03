@@ -244,7 +244,7 @@ import cast14URL from "./casts/lab1-14.cast?url";
 
 当然还有我们不得不提的权限问题（一开始忘了给`/home/hpl/.ssh`给权限了 ~~（相关片段已裁剪（其实上面那个录屏的后续就是`ssh node02`以及`cannot open directory '.ssh': Permission denied`））~~ ）
 
-以及，我们试图将`ssh-keyscan node01 node02 node03 node04 > ~/.ssh/known_hosts`放到`entrypoint.sh`中，然而疑似由于`entrypoint.sh`执行时节点还没全部启动，导致输出的known_hosts不全，所以最终还是进入节点后手动执行了`ssh-keyscan node01 node02 node03 node04 > ~/.ssh/known_hosts`（似乎可以用`wait-for-it`（？）。
+
 
 import cast15URL from "./casts/lab1-15.cast?url";
 
@@ -320,13 +320,33 @@ WR00R2C4       20480    32     4     4             126.13             4.5409e+01
 
 **对优化方法的理解**：
 
-参考文档，
+**1. 调整问题规模 N 以充分利用内存**
+
+为了找出系统的最佳性能，应该选择适合内存的最大问题规模。如果选择的问题规模过大，就会发生交换，性能会下降。
+
+通常来说，应该选择总内存的80%作为问题规模的上限。
+
+> In order to find out the best performance of your system, the largest problem size fitting in memory is what you should aim for. The amount of memory used by HPL is essentially the size of the coefficient matrix. So for example, if you have 4 nodes with 256 Mb of memory on each, this corresponds to 1 Gb total, i.e., 125 M double precision (8 bytes) elements. The square root of that number is 11585. One definitely needs to leave some memory for the OS as well as for other things, so a problem size of 10000 is likely to fit. As a rule of thumb, 80 % of the total amount of memory is a good guess. If the problem size you pick is too large, swapping will occur, and the performance will drop. If multiple processes are spawn on each node (say you have 2 processors per node), what counts is the available amount of memory to each process. ([ref](https://www.netlib.org/benchmark/hpl/faqs.html#pbsize))
+
+**2. 调整分块大小 $NB$ 以优化计算效率**  
+
+NB是HPL中数据分布和计算粒度的关键参数。过小会导致计算性能受限（内存层次结构无数据重用），消息数量也会增加；过大则会影响负载均衡的效果。
+
+> HPL uses the block size NB for the data distribution as well as for the computational granularity. From a data distribution point of view, the smallest NB, the better the load balance. You definitely want to stay away from very large values of NB. From a computation point of view, a too small value of NB may limit the computational performance by a large factor because almost no data reuse will occur in the highest level of the memory hierarchy. The number of messages will also increase. Efficient matrix-multiply routines are often internally blocked. Small multiples of this blocking factor are likely to be good block sizes for HPL. The bottom line is that "good" block sizes are almost always in the [32 .. 256] interval. The best values depend on the computation / communication performance ratio of your system. To a much less extent, the problem size matters as well. Say for example, you emperically found that 44 was a good block size with respect to performance. 88 or 132 are likely to give slightly better results for large problem sizes because of a slighlty higher flop rate.([ref](https://www.netlib.org/benchmark/hpl/faqs.html#blsize))
+
+
+**3. 调整 PxQ 进程网格布局以匹配集群拓扑**
+
+
+进程网格的 PxQ 比例直接影响通信效率。P 和 Q 应该大致相等，Q 略大于 P。（除了4x4的布局，也尝试了1x16的极端布局，可以显著看出性能的下降）
+> This depends on the physical interconnection network you have. Assuming a mesh or a switch HPL "likes" a 1:k ratio with k in [1..3]. In other words, P and Q should be approximately equal, with Q slightly larger than P. Examples: 2 x 2, 2 x 4, 2 x 5, 3 x 4, 4 x 4, 4 x 6, 5 x 6, 4 x 8 ... If you are running on a simple Ethernet network, there is only one wire through which all the messages are exchanged. On such a network, the performance and scalability of HPL is strongly limited and very flat process grids are likely to be the best choices: 1 x 4, 1 x 8, 2 x 4 ... (  [ref](https://www.netlib.org/benchmark/hpl/faqs.html#grid) )
+
 
 ### 尝试更换 BLAS 库
 
 换用OpenBLAS编译HPL
 
-结果是：运行速度快多了，但是跑出来的Gflops反而有所下降
+结果是：运行速度快多了，跑出来的Gflops更是直接上了个数量级
 
 ```plain
 ================================================================================
@@ -372,8 +392,7 @@ services:
 ref: [Volumes | Docker Docs](https://docs.docker.com/engine/storage/volumes/)
 
 
-
-## 选择你喜欢的节点指标，日志收集，监控等方法，并利用 grafana 等工具进行可视化
+## (*)选择你喜欢的节点指标，日志收集，监控等方法，并利用 grafana 等工具进行可视化
 
 <Card type="info" title="Note 👉👈">
 这个任务是在hpc101集群上完成的
@@ -432,5 +451,5 @@ ref: [Grafana support for Prometheus | Prometheus](https://prometheus.io/docs/vi
 
 ![此时有人在用xhpl炸节点](./assets/lab1-pr-1.png)
 
-*\*此时有人在用xhpl炸节点（x\**
+<center> *\*此时有人在用xhpl炸节点（x\** </center>
 
