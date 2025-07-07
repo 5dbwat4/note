@@ -68,6 +68,14 @@
                     "index": "78bb0717e5b85c9908969726fba84cd18ebe6fb061a448632b977fb449af2297",
                     "entries": [
                         {
+                            "title": "一些编码的对照表",
+                            "updatedAt": 1751613498943,
+                            "wordcount": 65,
+                            "unikey": "bc5cd22d7b298b047a002f607b8da7e29420e0a57cb5a7332c699f34347cc126",
+                            "pathonly": false,
+                            "path": "encodeings-table"
+                        },
+                        {
                             "title": "",
                             "updatedAt": 1748545807069,
                             "wordcount": 33,
@@ -77,9 +85,9 @@
                         },
                         {
                             "title": "SSTI - Server-Side Template Injection",
-                            "updatedAt": 1750974540189,
-                            "wordcount": 5712,
-                            "unikey": "eab65ae7bf3b50a3760a4ba2f5cb85f62e83259c911ae7f009ed1b684cd756fd",
+                            "updatedAt": 1751505677945,
+                            "wordcount": 0,
+                            "unikey": "7edef2fc260c3f5631ab54436fa4805bb2384b36bfc0a607ee4d6fb9912b40f7",
                             "pathonly": false,
                             "path": "ssti-server-side-template-injection"
                         },
@@ -578,19 +586,35 @@
                         },
                         {
                             "title": "Lab 0 Report",
-                            "updatedAt": 1747761212501,
-                            "wordcount": 1782,
-                            "unikey": "f4a26a318a2f98388f6e1cdf91efb9cd3d6ccb6421252b14ddddcfd22e34b78e",
+                            "updatedAt": 1751518332774,
+                            "wordcount": 1852,
+                            "unikey": "0fac1021a0ea886c11c2cc963e6df521131d09a4ec2078acf24f58a17199847a",
                             "pathonly": false,
                             "path": "lab0"
                         },
                         {
+                            "title": "Misc Lab 1：编解码及流量取证",
+                            "updatedAt": 1751615624798,
+                            "wordcount": 1512,
+                            "unikey": "7a9f44066b9ee9c650ba0ff54358fb46d8c937932a060125999c48560c966bb9",
+                            "pathonly": false,
+                            "path": "misc-lab1"
+                        },
+                        {
                             "title": "",
-                            "updatedAt": 1748696924418,
+                            "updatedAt": 1751609219513,
                             "wordcount": 0,
                             "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                             "pathonly": false,
-                            "path": "lab1"
+                            "path": "rev-lab1"
+                        },
+                        {
+                            "title": "Web Lab 1：计算机网络基础",
+                            "updatedAt": 1751608039303,
+                            "wordcount": 256,
+                            "unikey": "953f6d871e4f9834f5814ac9e7cb0935037c28e683e396895585a2876bfc66fa",
+                            "pathonly": false,
+                            "path": "web-lab1"
                         }
                     ]
                 },
@@ -623,9 +647,9 @@
                         },
                         {
                             "title": "Lab 1: 简单集群搭建",
-                            "updatedAt": 1751340915650,
-                            "wordcount": 2407,
-                            "unikey": "558154de003841bf4014b5eaf473300cf78addb8189d711f167ed3a2e48218b4",
+                            "updatedAt": 1751514832931,
+                            "wordcount": 3148,
+                            "unikey": "6514a0003a6cfa4acd3b346dba757d416c963b847e711cb63c242928dc779209",
                             "pathonly": false,
                             "path": "lab1"
                         }

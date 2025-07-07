@@ -1,0 +1,42 @@
+---
+title: Rev Lab 1：Rev 基础
+---
+
+import Card from '@md-components/card.vue';
+
+## Task 1：编译流程 (30%)
+
+<Card type="task" title="任务">
+复现课上hello.c的编译执行流程，并撰写操作报告
+
+- 需要体现预处理、编译、汇编、链接的流程
+- 可以使用课上所说的file / readelf 命令行工具查看文件信息并记录
+</Card>
+
+*hello.c*
+
+```c
+#include <stdio.h>
+
+int main(int argc, char *argv[]) {
+    printf("Hello, World!\n");
+    return 0;
+}
+```
+
+```bash 
+# 仅预处理； 不要编译、汇编或链接
+gcc -E hello.c -o hello.c.i
+
+# 只编译； 不要汇编或链接
+gcc -S hello.c
+
+# 编译和汇编，但不链接。
+gcc -c hello.c
+
+# 编译、汇编和链接
+gcc hello.c -o hello
+```
+
+运行结果：
+

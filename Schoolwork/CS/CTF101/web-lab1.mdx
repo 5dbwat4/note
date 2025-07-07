@@ -1,0 +1,48 @@
+---
+title: Web Lab 1：计算机网络基础
+---
+
+import Card from '@md-components/card.vue';
+
+# Task 1: 网络基础 (30%)
+
+<Card type="task" title="任务">
+
+请探索如下问题的答案：
+
+- 使用 `nslookup` 命令，用校内 DNS 服务器查询`www.zju.edu.cn`的 IP 地址。给出完整的命令和查询结果。
+- 使用 `nslookup` 命令，用公网 DNS 服务器查询`www.zju.edu.cn`的 IP 地址。给出完整的命令和查询结果。
+
+</Card>
+
+import castL1 from './casts/web-lab1-a-1.cast?raw'
+
+import Asciinema from '@md-components/AsciinemaWrapper.vue';
+
+<Asciinema cast={castL1} />
+
+<Card type="task" title="任务">
+
+- 分别直接访问用校内 DNS 和校外 DNS 查询到的 IP 地址，能否访问成功？访问结果有何区别？这些地址是服务器的真实地址吗？试分析造成这种现象的原因。
+  - 提示：可以对比用域名和用 IP 访问的 HTTP 请求包区别，理解问题出在哪一层
+</Card>
+
+`403 Forbidden` 成功不了一点。
+
+不过访问`10.203.4.70`的响应来自`server: nginx`
+
+# 
+
+
+# 
+
+```http
+POST https://0a8e00a20322da9480d8621f00650051.web-security-academy.net/ HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 6
+Transfer-Encoding: chunked
+
+0
+
+G
+```
