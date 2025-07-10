@@ -450,8 +450,72 @@ P字上没有白色尖角遮挡表示露天停车场，有白色尖角遮挡表�
 
 # 英文缩写
 
-![alt text](image-14.png)
+# 科目一必考英文缩写
 
-![alt text](image-15.png)
 
-![alt text](image-16.png)
+
+1. 巡字像C
+
+- **ACC** (Adaptive Cruise Control)
+  - 车辆至适应巡航系统
+
+- **CCS** (Cruise Control System)
+  - 定速巡航系统
+
+
+2. 前B（Blind）盲点
+
+- **BSD** (Blind Spot Detection)
+  - 车辆盲点检测系统
+
+- **BSA** (Blind Spot Assist)
+  - 车辆盲点辅助系统
+
+
+3. 后B（Brake）刹车、制动
+
+- **AEB** (Autonomous Emergency Braking)
+  - 车辆自动刹车辅助系统
+
+- **EBA** (Electronic control Brake Assist system)
+  - 车辆紧急制动辅助系统
+
+- **EBD** (Electric Brake force Distribution)
+  - 车辆电子制动力分配系
+
+4. 预警找W（Warning）
+
+- **FCW** (Forward Collision Warning)
+  - 车辆前方碰撞预警系统
+
+- **LDW** (Lane Departure Warning)
+  - 车道偏离预警系统
+
+5. 交通找T（Traffic）
+
+- **TMC** (Traffic Message Channel)
+  - 实时交通信息
+
+- **TSR** (Traffic Sign Recognition)
+  - 车辆交通标志识别系统
+
+6. 看到牵引力就选最长
+
+- **TCS/ASR/TRC**
+  - 车辆牵引力控制系统
+
+7. 看到稳定就找P（停）
+
+- **ESP** (Electronic Stability Program)
+  - 车辆车身稳定控制系统
+
+8. 靠记背
+
+- **AFS** (Adaptive Front lighting System)
+  - 车辆随动转向前照灯系统
+
+- **ALC** (Auto Lane Change)
+  - 车辆自动变道辅助系统
+
+- **GPS** (Global Positioning System)
+  - 车辆导航（全球定位系统）

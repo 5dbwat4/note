@@ -577,6 +577,30 @@
                     "index": "2e51ef24fc6d51dc78cb5e2817b5c710a703357d71f18637da40a3f6d892b152",
                     "entries": [
                         {
+                            "title": "Crypto Lab 1：消息加密和数字签名",
+                            "updatedAt": 1751954705963,
+                            "wordcount": 0,
+                            "unikey": "34a1299aec4cafae3a47cf3211a5953ce0e573577922c7f17470ad846993c715",
+                            "pathonly": false,
+                            "path": "crypto-lab1"
+                        },
+                        {
+                            "title": "Crypto Lab2",
+                            "updatedAt": 1751955552610,
+                            "wordcount": 2,
+                            "unikey": "69263641f5cf83f6701ff59b0fd34213077d0e132a47ff03eaf8d9b2c8cfde56",
+                            "pathonly": false,
+                            "path": "crypto-lab2"
+                        },
+                        {
+                            "title": "Crypto Lab3",
+                            "updatedAt": 1751955560635,
+                            "wordcount": 2,
+                            "unikey": "1838839e20f9e07143bf35a6f8b2c39ef70d1bb5aefca8ff04b94b079320c646",
+                            "pathonly": false,
+                            "path": "crypto-lab3"
+                        },
+                        {
                             "title": "",
                             "updatedAt": 1747622836762,
                             "wordcount": 28,
@@ -586,35 +610,107 @@
                         },
                         {
                             "title": "Lab 0 Report",
-                            "updatedAt": 1751518332774,
-                            "wordcount": 1852,
-                            "unikey": "0fac1021a0ea886c11c2cc963e6df521131d09a4ec2078acf24f58a17199847a",
+                            "updatedAt": 1751940416017,
+                            "wordcount": 4645,
+                            "unikey": "d74dcc2b0e90e64b46c281c78a9254de59e731f3b7ddf02dbca82caaa244a7ac",
                             "pathonly": false,
                             "path": "lab0"
                         },
                         {
                             "title": "Misc Lab 1：编解码及流量取证",
-                            "updatedAt": 1751615624798,
-                            "wordcount": 1512,
-                            "unikey": "7a9f44066b9ee9c650ba0ff54358fb46d8c937932a060125999c48560c966bb9",
+                            "updatedAt": 1751893249953,
+                            "wordcount": 1701,
+                            "unikey": "ea047916822c524ba96ce2b157e1fa96a7816917410db6572e31f79499046216",
                             "pathonly": false,
                             "path": "misc-lab1"
                         },
                         {
-                            "title": "",
-                            "updatedAt": 1751609219513,
-                            "wordcount": 0,
-                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "title": "Misc Lab2",
+                            "updatedAt": 1751955572278,
+                            "wordcount": 2,
+                            "unikey": "1e44a34e6c9c77d52c8dacfe5ea85b0b4654462af88e28e03a04c2949a918608",
+                            "pathonly": false,
+                            "path": "misc-lab2"
+                        },
+                        {
+                            "title": "Misc Lab3",
+                            "updatedAt": 1751955578283,
+                            "wordcount": 2,
+                            "unikey": "1032fce9df74965a4c716d8c99f769f4f32cd12037d5175d6d8e266add9c6d73",
+                            "pathonly": false,
+                            "path": "misc-lab3"
+                        },
+                        {
+                            "title": "Pwn Lab 1：代码注入与栈溢出",
+                            "updatedAt": 1751786244017,
+                            "wordcount": 7,
+                            "unikey": "5d9fc0deccc188c885dc53acce8271653014f724ce879a1d720f9e4a166eb7ac",
+                            "pathonly": false,
+                            "path": "pwn-lab1"
+                        },
+                        {
+                            "title": "Pwn Lab2",
+                            "updatedAt": 1751955586042,
+                            "wordcount": 2,
+                            "unikey": "751848dffdf474bc42e5b4c1498dfece7936d3367b90388591bd7cf5fce2da28",
+                            "pathonly": false,
+                            "path": "pwn-lab2"
+                        },
+                        {
+                            "title": "Pwn Lab3",
+                            "updatedAt": 1751955594073,
+                            "wordcount": 2,
+                            "unikey": "a01f73bfee1aec5c7640d2e5159d8ed221ecaa6d380f4339173db2a448c12ec5",
+                            "pathonly": false,
+                            "path": "pwn-lab3"
+                        },
+                        {
+                            "title": "Rev Lab 1：Rev 基础",
+                            "updatedAt": 1751955450586,
+                            "wordcount": 500,
+                            "unikey": "15f18b1869fba3ada2d64d872af418da8973bd5265e86c11347294cfc30d8def",
                             "pathonly": false,
                             "path": "rev-lab1"
                         },
                         {
+                            "title": "Rev Lab2",
+                            "updatedAt": 1751955605414,
+                            "wordcount": 2,
+                            "unikey": "0b3121c2e7ffe1cdb227caba9c7bbae50ab7e38492368e6e74599a09ac118013",
+                            "pathonly": false,
+                            "path": "rev-lab2"
+                        },
+                        {
+                            "title": "Rev Lab3",
+                            "updatedAt": 1751955610969,
+                            "wordcount": 2,
+                            "unikey": "2a5cba7d98fddd7b0977740e1d0830c9b59405d9467bc72447ef506526be3e14",
+                            "pathonly": false,
+                            "path": "rev-lab3"
+                        },
+                        {
                             "title": "Web Lab 1：计算机网络基础",
-                            "updatedAt": 1751608039303,
-                            "wordcount": 256,
-                            "unikey": "953f6d871e4f9834f5814ac9e7cb0935037c28e683e396895585a2876bfc66fa",
+                            "updatedAt": 1751955073604,
+                            "wordcount": 793,
+                            "unikey": "b88b0f239368b90f32877627b8ae0adc168165c5da821ff4db3b3af0fcd432fe",
                             "pathonly": false,
                             "path": "web-lab1"
+                        },
+                        {
+                            "title": "Web Lab 2：用户侧攻击",
+                            "updatedAt": 1751955077485,
+                            "wordcount": 0,
+                            "unikey": "f89787546996139eba83bf73ae111abd2ea8c9d0475a7c8cb3936631da0273bf",
+                            "pathonly": false,
+                            "path": "web-lab2"
+                        },
+                        {
+                            "title": "Web Lab3",
+                            "updatedAt": 1751955624418,
+                            "wordcount": 2,
+                            "unikey": "77d2deecdbf335bbaad96602591adacc52879a6cc8fe6e5e1ca3b723f50006c8",
+                            "pathonly": false,
+                            "path": "web-lab3"
                         }
                     ]
                 },
@@ -1660,13 +1756,13 @@
                     ]
                 }
             ],
-            "index": "972049388b7f51eb84994b17a2cdfab484a4c832b474ac552b96663cec5c99c4",
+            "index": "b04bf83c4dd0a181eecbc1137284d76410ace9fb024b9064274935d5539ec384",
             "entries": [
                 {
                     "title": "学在浙大",
-                    "updatedAt": 1750813185187,
-                    "wordcount": 178,
-                    "unikey": "972049388b7f51eb84994b17a2cdfab484a4c832b474ac552b96663cec5c99c4",
+                    "updatedAt": 1751619336080,
+                    "wordcount": 179,
+                    "unikey": "b04bf83c4dd0a181eecbc1137284d76410ace9fb024b9064274935d5539ec384",
                     "pathonly": true,
                     "path": "index"
                 }
