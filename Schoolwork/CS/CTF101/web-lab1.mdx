@@ -130,10 +130,11 @@ ZDBK.fetch("https://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html?doType=q
 ```python
 import requests
 
-Cookie = "JSESSION...[Redacted]"
+Cookie = "JSESSION....[Redacted]"
 
 headers = {
     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    "Cookie": Cookie,
 }
 data = {
     "xn": "",
@@ -151,7 +152,6 @@ data = {
 response = requests.post(
     "https://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html?doType=query&gnmkdm=N5083",
     headers=headers,
-    cookies=Cookie,
       data=data
 )
 print(response.json())
