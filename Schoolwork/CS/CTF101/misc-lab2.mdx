@@ -2,4 +2,266 @@
 title: Misc Lab2
 ---
 
-Misc lab2
+
+import Card from '@md-components/card.vue';
+import {NImage} from 'naive-ui';
+
+{/* IRON:owxwhkcn32pm4vtzflvkl65g57nbenmp:OB */}
+
+import PasswordContainer from '@md-components/passwordContainer.vue';
+
+<PasswordContainer md5="332cf4d3941d8f42c539d9a73b746901">
+
+
+*必做部分*
+
+# Challenge 1: songmingti (10%)
+
+<Card type="task" title="任务">
+
+第一道题目是校巴上的 songmingti，链接：[zjusec.com/challenges/28](https://zjusec.com/challenges/28)。
+
+请完成题目，在校巴提交 flag，并在实验报告中写出你的解题思路和具体过程。
+
+</Card>
+
+# Challenge 2: miaomiaomiao (10%)
+
+<Card type="task" title="任务">
+
+第二道题目是校巴上的 miaomiaomiao，链接：[zjusec.com/challenges/29](https://zjusec.com/challenges/29)。
+
+请完成题目，在校巴提交 flag，并在实验报告中写出你的解题思路和具体过程。
+
+</Card>
+
+# Challenge 3: Easy LSB (10%)
+
+<Card type="task" title="任务">
+
+- `[misc lec1] Easy LSB` 题目位于[比赛平台](https://ctf.zjusec.com/games/5/challenges)上
+
+
+这是一道 LSB 隐写的题目（完全是吗？），但和 lab 0 的方式有那么一点不一样，相信你一定也可以轻松解出 flag。
+
+![](https://courses.zjusec.com/topic/misc-lab2/nanami.png)
+
+同样可以在比赛平台上获取与上图相同的附件。
+
+请完成题目，在比赛平台提交 flag，并在实验报告中写出你的解题思路和具体过程。
+
+</Card>
+
+------
+
+# Challenge A: Palette Stego (25%)
+
+<Card type="task" title="任务">
+
+- `[lab2] Palette Stego` 题目位于[比赛平台](https://ctf.zjusec.com/games/3/challenges)上
+
+下图就是题目，它使用 EZStego 隐写隐藏了 flag：
+
+![](https://courses.zjusec.com/topic/misc-lab2/palette.png)
+
+同样可以在比赛平台上获取与上图相同的附件。
+
+请学习 PLTE chunk 的格式、EZStego 隐写的原理和具体步骤。你需要：
+
+- 完成题目，在比赛平台提交 flag，并在实验报告中写出你的解题思路和具体过程 (10%)
+- 给出你的解题代码 (15%)
+
+也就是说，你需要自己编写代码来解出这道题目。使用隐写工具解题只能得到 10% 分数。
+
+如果无法解出题目，也请将你的尝试写在报告中（你已经学到的相关知识也可以写进去），我们会根据你的进度给部分分。
+
+</Card>
+
+# Challenge B: Spectrogram (30%)
+
+<Card type="task" title="任务">
+
+这道题目是一个音频隐写的题目，我通过一个 Python 程序将两段歌曲转换为了频谱动图，相信你一定可以从动图中就复原出原曲的大致样子。
+
+![flag-1.gif](https://courses.zjusec.com/topic/misc-lab2/flag-1.gif)
+![flag-2.gif](https://courses.zjusec.com/topic/misc-lab2/flag-2.gif)
+
+附件位于 [GitHub 仓库的 `src/topic/misc-lab2` 路径下](https://github.com/team-s2/ctf_summer_courses/tree/master/src/topic/misc-lab2)。
+
+请参考生成频谱图的代码，尝试恢复原音频。你需要回答出至少一首歌曲的歌名，并将你的解题思路和具体过程写在实验报告中，将你恢复出的两段音频和编写的脚本通过压缩包的形式同时上传。
+
+如果无法完整完成复原，也请将你的尝试写在报告中，我们会根据完成情况给部分分。
+
+</Card>
+
+# Challenge C: Time & Power (30%)
+
+<Card type="task" title="任务">
+
+- `[misc lec1] Time & Power` 题目位于[比赛平台](https://ctf.zjusec.com/games/5/challenges)上
+
+这是 SJTUCTF 2025 的一道题目<del>的一部分</del>。某个黑客在攻击一台物理设备时，记录了该设备的功率变化。你需要通过这些数据还原出黑客成功攻击设备时的 flag。
+
+请完成题目，在比赛平台上提交 flag，并在实验报告中写出你的解题思路和具体过程。
+
+如果无法解出题目，也请将你的尝试写在报告中，我们会根据你的进度给部分分。
+
+</Card>
+
+We are referring to our own writeups [SJTUCTF2025 Writeup (2) | 5dbwat4's Blog](https://blog.5dbwat4.top/arch/SJTUCTF2025-Writeup-2#TIME-amp-POWER)
+
+## Writeup
+
+> 我发现我的设备功耗出现了异常，似乎有人在爆破我的密码……但首先，我要先登录上我的账号。
+
+相当明显的侧信道攻击emm但是感觉出的有点刻意了。
+
+第一个爆密码 很好办直接出了`aaaaaaaadmin`
+
+出来了一个numpy文件就是说每一位每一字符都有一个100个数的数据
+
+拖到excel表里画个折线图，欸，还真有一条线在某一点显著偏离其余线
+
+```python
+import numpy as np
+
+a=np.load("power.npy")
+
+r="abcdefghijklmnopqrstuvwxyz0123456789_{}"
+
+# cnt=0
+# for u in a:
+#     print(r[cnt%39],np.average(u))
+#     cnt+=1
+#     if cnt%39 ==0:
+#         print("\n")
+
+
+# print(len(a))
+# pos=7
+# with open("e.csv", "w") as f:
+#     for i in range((pos)*39,(pos+1)*39):
+#         f.write(r[i%39]+","+",".join([str((a[i][j])-9) for j in range(100)]))
+#         f.write("\n")
+# for i in range(39):
+#     print("\t".join([str((a[i][j])) for j in range(100)]))
+#     print("\n")
+
+
+# def calculate_variance(arr):
+#     mean = sum(arr) / len(arr)
+#     variance = sum((x - mean) ** 2 for x in arr) / len(arr)
+#     return variance
+
+def find_farthest_index(arr):
+    mean = sum(arr) / len(arr)
+    max_distance = -1
+    farthest_index = 0
+    for index, value in enumerate(arr):
+        current_distance = abs(value - mean)
+        if current_distance > max_distance:
+            max_distance = current_distance
+            farthest_index = index
+    return farthest_index,max_distance
+
+for pos in range(39):
+    max_dis_max=-1
+    max_dis_index=0
+    for o in range(100):
+        arr = [a[i][o] for i in range((pos)*39,(pos+1)*39)]
+        fi,md=find_farthest_index(arr)
+        if md>max_dis_max:
+            max_dis_max=md
+            max_dis_index=fi
+
+        # print(r[(pos)*39+max_dis_index],arr[max_dis_index],max_dis_max)
+
+    # print("max_dis_max",max_dis_max)
+    print("max_dis_index",r[max_dis_index])
+
+
+    """
+max_dis_index 0
+max_dis_index o
+max_dis_index p
+max_dis_index s
+max_dis_index {
+max_dis_index p
+max_dis_index o
+max_dis_index w
+max_dis_index e
+max_dis_index r
+max_dis_index _
+max_dis_index 1
+max_dis_index s
+max_dis_index _
+max_dis_index a
+max_dis_index 1
+max_dis_index 1
+max_dis_index _
+max_dis_index y
+max_dis_index 0
+max_dis_index u
+max_dis_index _
+max_dis_index n
+max_dis_index 5
+max_dis_index 5
+max_dis_index d
+max_dis_index }
+
+"""
+
+      
+"0ops{power_1s_a11_y0u_n55d}"
+```
+
+# (Part of) Challenge E: polyglot (20%)
+
+<Card type="task" title="任务">
+
+- 校巴上的 [polyglot](https://zjusec.com/challenges/155)
+- 这道题的主要目的是编写一段能同时被两个编译器(C/C++与Python)执行的程序，对两种语言的代码编程能力要求相对较高
+
+请完成题目，在校巴提交 flag，并在实验报告中写出你的解题思路和具体过程。
+
+</Card>
+
+Show Time:
+
+```c
+#include<stdio.h>
+#if 0
+
+print (open('/flag.txt').read())
+
+#endif
+
+#define help int main(){FILE*f=fopen("/flag.txt","r");if(!f)return 1;for(int c;(c=fgetc(f))!=EOF;)putchar(c);fclose(f);return 0;}
+
+help
+```
+
+```python
+#include<stdio.h>
+#if 0
+
+print (open('/flag.txt').read())
+
+#endif
+
+#define help int main(){FILE*f=fopen("/flag.txt","r");if(!f)return 1;for(int c;(c=fgetc(f))!=EOF;)putchar(c);fclose(f);return 0;}
+
+help
+```
+
+核心就是python的`#`注释可以等于C/C++的`#`预处理指令，然后就是define大法了。
+
+有点意外的是，用`#if 0 ... #endif`包裹的代码甚至不需要遵守 C/C++ 的语法规则，居然是直接被编译器忽略了（写解释型语言写的.jpg）。
+
+然后就是基本的`#define`花活了。这里要注意得define一个python里可以直接用的函数（仔细想来在前面`#if 0 ... #endif`定义一个变量，然后再在后面使用也不是不行）
+
+import imagePolyglotSolved from './images/misc2-polyglot-solved.jpeg?url';
+
+<NImage src={imagePolyglotSolved} alt="polyglot solved" />
+
+</PasswordContainer>

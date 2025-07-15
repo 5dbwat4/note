@@ -50,13 +50,22 @@ Misc Lab 1
 - [X]  1.1 Task 1.2 NATO26 Writeup
 - [X]  2 Challenge 1
 - [ ]  3 Challenge 2: 软总线流量分析取证1
-- [ ]  4 Bonus Challenge: aircrack-ng
+- [X]  4 Bonus Challenge: aircrack-ng
 - [ ]  5 Suggestion Bonus
+
+Misc Lab 2
+
+- [ ]  1 Challenge 1: songmingti (10%)
+- [ ]  2 Challenge 2: miaomiaomiao (10%)
+- [ ]  3 Challenge 3: Easy LSB (10%)
+- [ ]  4 Challenge A: Palette Stego (25%)
+- [ ]  5 Challenge B: Spectrogram (30%)
+- [X]  6 Challenge C: Time & Power (30%)
+- [X]  7 (Part of) Challenge E: polyglot (20%)
 
 Crypto Lab 1
 
 - [ ]  1 Task: vigenere-encrypt (40%)
-- [ ]  2 Challenges & bonus (75%)
 - [ ]  2.1 古典密码的拓展 (60%)
 - [ ]  2.2 RSA 的密钥格式解析 (40%+35%)
 - [ ]  2.3 DSA 数字签名的构建和验证 (60%+15%)
@@ -73,7 +82,7 @@ Pwn Lab 1
 
 Rev Lab 1
 
-- [ ]  1 Task 1：编译流程 (30%)
+- [X]  1 Task 1：编译流程 (30%)
 - [ ]  2 Task 2：工具使用 (35%)
 - [ ]  3.1 例2 简单的异或
 - [ ]  3.2 例3 base64

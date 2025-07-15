@@ -63,6 +63,33 @@
                                     "path": "symmetric"
                                 }
                             ]
+                        },
+                        {
+                            "path": [
+                                "CS/CTF/xsleak.wiki"
+                            ],
+                            "show": true,
+                            "name": "XSLeak Wiki",
+                            "leaf": true,
+                            "index": "1b622290393d89b11454dfd314d8becdd95d9d302db28440333afc4664b8574e",
+                            "entries": [
+                                {
+                                    "title": "Attacks",
+                                    "updatedAt": 1752497422741,
+                                    "wordcount": 768,
+                                    "unikey": "95cdf419d9bc3457978071db5c7a995aff00cb76183631ebe1e18fb65bb64b59",
+                                    "pathonly": false,
+                                    "path": "attacks"
+                                },
+                                {
+                                    "title": "",
+                                    "updatedAt": 1752497006531,
+                                    "wordcount": 18,
+                                    "unikey": "1b622290393d89b11454dfd314d8becdd95d9d302db28440333afc4664b8574e",
+                                    "pathonly": true,
+                                    "path": "index"
+                                }
+                            ]
                         }
                     ],
                     "index": "78bb0717e5b85c9908969726fba84cd18ebe6fb061a448632b977fb449af2297",
@@ -574,13 +601,13 @@
                     "show": false,
                     "name": "CTF101",
                     "leaf": true,
-                    "index": "2e51ef24fc6d51dc78cb5e2817b5c710a703357d71f18637da40a3f6d892b152",
+                    "index": "9e168e2b569aa184ac132bd45eae7e6329bacb6ddcf0216f439d7a8ef3059170",
                     "entries": [
                         {
                             "title": "Crypto Lab 1：消息加密和数字签名",
-                            "updatedAt": 1751954705963,
-                            "wordcount": 0,
-                            "unikey": "34a1299aec4cafae3a47cf3211a5953ce0e573577922c7f17470ad846993c715",
+                            "updatedAt": 1752051944704,
+                            "wordcount": 1572,
+                            "unikey": "63701c4aa32437332d77108d04c6f9c24b49bd1df4343db1c768161a6b194ce2",
                             "pathonly": false,
                             "path": "crypto-lab1"
                         },
@@ -602,9 +629,9 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1747622836762,
-                            "wordcount": 28,
-                            "unikey": "2e51ef24fc6d51dc78cb5e2817b5c710a703357d71f18637da40a3f6d892b152",
+                            "updatedAt": 1752214489057,
+                            "wordcount": 403,
+                            "unikey": "9e168e2b569aa184ac132bd45eae7e6329bacb6ddcf0216f439d7a8ef3059170",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -618,17 +645,17 @@
                         },
                         {
                             "title": "Misc Lab 1：编解码及流量取证",
-                            "updatedAt": 1751893249953,
-                            "wordcount": 1701,
-                            "unikey": "ea047916822c524ba96ce2b157e1fa96a7816917410db6572e31f79499046216",
+                            "updatedAt": 1752213874899,
+                            "wordcount": 3580,
+                            "unikey": "fb4b249852af2f2447b7128ad2db7a572269fb6056c5ec37073bd0b957505a8a",
                             "pathonly": false,
                             "path": "misc-lab1"
                         },
                         {
                             "title": "Misc Lab2",
-                            "updatedAt": 1751955572278,
-                            "wordcount": 2,
-                            "unikey": "1e44a34e6c9c77d52c8dacfe5ea85b0b4654462af88e28e03a04c2949a918608",
+                            "updatedAt": 1752174157358,
+                            "wordcount": 1645,
+                            "unikey": "070fa6b1d33506f8b2e8dbe7a169081cde2415269d36e368c371946ca6c9bc95",
                             "pathonly": false,
                             "path": "misc-lab2"
                         },
@@ -642,17 +669,17 @@
                         },
                         {
                             "title": "Pwn Lab 1：代码注入与栈溢出",
-                            "updatedAt": 1751786244017,
-                            "wordcount": 7,
-                            "unikey": "5d9fc0deccc188c885dc53acce8271653014f724ce879a1d720f9e4a166eb7ac",
+                            "updatedAt": 1752134274061,
+                            "wordcount": 2054,
+                            "unikey": "e39f2cc737ffb10216950e4e2b0f9df250988b05880a755a66a50d506e935c5c",
                             "pathonly": false,
                             "path": "pwn-lab1"
                         },
                         {
                             "title": "Pwn Lab2",
-                            "updatedAt": 1751955586042,
+                            "updatedAt": 1752052337876,
                             "wordcount": 2,
-                            "unikey": "751848dffdf474bc42e5b4c1498dfece7936d3367b90388591bd7cf5fce2da28",
+                            "unikey": "d544456810ad292fba7038ab325ec0bd2ae3253ec4b5030fb060da9fcca3c2c1",
                             "pathonly": false,
                             "path": "pwn-lab2"
                         },
@@ -666,9 +693,9 @@
                         },
                         {
                             "title": "Rev Lab 1：Rev 基础",
-                            "updatedAt": 1751955450586,
-                            "wordcount": 500,
-                            "unikey": "15f18b1869fba3ada2d64d872af418da8973bd5265e86c11347294cfc30d8def",
+                            "updatedAt": 1752175821879,
+                            "wordcount": 532,
+                            "unikey": "8a8639f67ebf03914e8f5c1f6ce36659baf34d0e06285d4285b475620e7e2fc9",
                             "pathonly": false,
                             "path": "rev-lab1"
                         },
@@ -690,17 +717,17 @@
                         },
                         {
                             "title": "Web Lab 1：计算机网络基础",
-                            "updatedAt": 1751955073604,
-                            "wordcount": 793,
-                            "unikey": "b88b0f239368b90f32877627b8ae0adc168165c5da821ff4db3b3af0fcd432fe",
+                            "updatedAt": 1752045953926,
+                            "wordcount": 1596,
+                            "unikey": "f0800cdd83cb17f731fc1f37c15ee5006dc95582c13188d2c87965eefe548b91",
                             "pathonly": false,
                             "path": "web-lab1"
                         },
                         {
                             "title": "Web Lab 2：用户侧攻击",
-                            "updatedAt": 1751955077485,
-                            "wordcount": 0,
-                            "unikey": "f89787546996139eba83bf73ae111abd2ea8c9d0475a7c8cb3936631da0273bf",
+                            "updatedAt": 1752049368675,
+                            "wordcount": 1279,
+                            "unikey": "09247f486e35fd13d5539a9b3f9c4d53878d783ecf863c320428c6c7991cc3bc",
                             "pathonly": false,
                             "path": "web-lab2"
                         },
@@ -1782,7 +1809,7 @@
                     "show": true,
                     "name": "科目一",
                     "leaf": true,
-                    "index": "b36881a7af6c8eeba57e26515d74004f95ec520ae4d2d21869796387b379c80d",
+                    "index": "df4d79c6f41abfbb238e147528aef3bf1557fef69edfa35a74016d61cf375678",
                     "entries": [
                         {
                             "title": "科目一错题集",
@@ -1794,9 +1821,9 @@
                         },
                         {
                             "title": "科目一知识点",
-                            "updatedAt": 1736701173311,
-                            "wordcount": 4454,
-                            "unikey": "b36881a7af6c8eeba57e26515d74004f95ec520ae4d2d21869796387b379c80d",
+                            "updatedAt": 1751988193431,
+                            "wordcount": 4717,
+                            "unikey": "df4d79c6f41abfbb238e147528aef3bf1557fef69edfa35a74016d61cf375678",
                             "pathonly": false,
                             "path": "main"
                         },

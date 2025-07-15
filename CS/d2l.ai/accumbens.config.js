@@ -1,11 +1,9 @@
-import fs from "fs";
-
 export default {
     "dir":import.meta.url,
     "path":{
         "default":true,
     },
-    "entries":'auto',
-    "name":"CTF101",
-    "show":false,
+    "entries":"auto",
+    "name":"d2l.ai",
+    "show":true,
 }
