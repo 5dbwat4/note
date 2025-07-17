@@ -4,6 +4,7 @@ title: Rev Lab 1：Rev 基础
 
 import Card from '@md-components/card.vue';
 import Asciinema from '@md-components/AsciinemaWrapper.vue';
+import {NImage} from 'naive-ui'
 
 {/* IRON:f57jrx6tu18bd09jshi8dsijcm3fc3sf:OB */}
 
@@ -66,6 +67,97 @@ import castTask1 from './casts/rev1-1.cast?url'
 </Card>
 
 
+<Card type="prompt" title="Deepseek R1">
+
+prompt： 与题干相同，从略
+
+---
+
+**一、核心功能操作演示**
+
+1. **初始分析与反汇编视图**
+
+- **操作流程**：  
+  - 启动IDA → 加载文件 → 选择`Portable executable for 80386 (PE)` → 默认分析选项。
+  - **关键界面**：  
+    - **反汇编视图（IDA View-A）**：显示汇编代码。  
+    - **函数窗口（Functions Window）**：列出所有函数（按`Ctrl+F`搜索`main`）。  
+    - **字符串视图（Strings Window）**：按`Shift+F12`查看硬编码字符串（发现`"Password correct!"`和`"Wrong password!"`）。
+
+2. **流程图（Graph View）分析**
+
+- **操作**：在反汇编视图中按`空格键`切换文本/流程图模式。  
+- **作用**：  
+  - 直观展示`main`函数的控制流（分支、循环）。  
+  - 识别关键跳转（如`jz`对应密码验证结果）。  
+
+
+3. **交叉引用（Xrefs）追踪**
+
+- **场景**：定位`"Password correct!"`字符串被何处调用。  
+- **操作**：  
+  1. 在字符串窗口双击该字符串 → 跳转到数据段。  
+  2. 光标悬停于字符串变量 → 按`X`查看交叉引用。  
+  3. 选择引用位置 → 跳转到调用它的代码（如`call puts`）。  
+
+4. **重命名与注释**
+
+- **快捷键**：  
+  - 重命名变量/函数：`N`  
+  - 添加常规注释：`:`  
+  - 添加重复注释（多位置可见）：`;`  
+
+
+5. **F5反编译（Hex-Rays Decompiler）**
+
+- **操作**：光标定位函数 → 按`F5`生成伪代码。  
+
+---
+
+**二、高效快捷键与小技巧**
+
+| **快捷键** | **功能**                  | **场景**                     |
+|------------|--------------------------|----------------------------|
+| `G`        | 跳转到指定地址            | 快速导航到`0x401000`        |
+| `Ctrl+S`   | 查看段信息                | 定位.data/.rdata等数据段    |
+| `Alt+T`    | 文本搜索                  | 查找指令`mov eax, 1`        |
+| `Alt+B`    | 二进制搜索（十六进制值）  | 查找机器码`B8 01 00 00 00` |
+| `Esc`      | 返回上一个位置            | 回溯分析路径               |
+| `Ctrl+鼠标滚轮` | 缩放流程图           | 调整视图大小               |
+
+---
+
+**三、实用技巧与笔记**
+
+1. **快速识别库函数**
+
+- **技巧**：IDA的**FLIRT签名**（Fast Library Identification and Recognition Technology）自动识别标准库函数（如`strcmp`）。  
+- **操作**：  
+  - 若函数未被识别 → 右键 → `Use standard signature`应用签名库。
+
+2. **栈变量重定义**
+
+- **场景**：函数栈帧中变量偏移量（如`[ebp-4]`）可重定义为有意义的名称。  
+- **操作**：  
+  1. 光标定位`ebp-4` → 按`Ctrl+K`打开栈变量视图。  
+  2. 双击变量名 → 重命名为`user_input`。
+
+3. **脚本自动化**
+
+- **常用脚本**：  
+  - **IDAPython**：批量重命名、修复代码。  
+  - **示例**：查找所有`mov eax, 1`并添加注释：  
+    ```python
+    for addr in range(0x401000, 0x402000):
+        if idc.get_bytes(addr, 2) == b"\xB8\x01":  # B8 01 = mov eax,1
+            idc.set_cmt(addr, "SET RETURN VALUE=1", 0)
+    ```
+
+</Card>
+
+谔谔，我个人平常一般就是，正常打开后，看一眼main函数（主要是看有没有加壳/加混淆），然后再看一眼strings，看看有没有有用的字符串。
+
+如果能静态分析的话就直接F5然后啃函数了，关于其它快捷键其实基本上直接右键菜单里就有，稍微找找就行 ~~（不想记）~~
 
 ## GDB
 
@@ -78,6 +170,35 @@ import castTask1 from './casts/rev1-1.cast?url'
 
 </Card>
 
+ref: [Debugging with GDB](https://sourceware.org/gdb/current/onlinedocs/gdb)
+
+**基本命令**
+
+- **启动程序**：`run`（缩写为 `r`），执行被调试的程序，遇到断点时暂停。
+- **继续执行**：`continue`（缩写为 `c`），继续执行程序，直到下一个断点或程序结束。
+- **单步执行**：`next`（缩写为 `n`），逐行执行代码，跳过函数调用；`step`（缩写为 `s`），逐行执行代码，进入函数内部。
+- **打印变量**：`print`（缩写为 `p`），打印指定变量的值。
+- **退出调试**：`quit`（缩写为 `q`），终止调试。
+
+**断点管理**
+
+- **设置断点**：`break`（缩写为 `b`），在指定位置设置断点。例如，`break main` 在 `main` 函数入口处设置断点，`break 10` 在第10行设置断点。
+- **删除断点**：`delete`，删除指定编号的断点，`delete` 后不加编号则删除所有断点。
+- **禁用断点**：`disable`，禁用指定编号的断点。
+- **启用断点**：`enable`，启用指定编号的断点。
+
+**查看信息**
+
+- **查看堆栈信息**：`backtrace`（缩写为 `bt`），显示当前调用堆栈。
+- **查看变量类型**：`whatis`，显示变量的类型。
+- **查看寄存器**：`info registers`，显示所有寄存器的值。
+
+**高级命令**
+
+- **观察点**：`watch`，监视变量的值变化。例如，`watch x` 在变量 `x` 的值变化时暂停程序。
+- **条件断点**：`break ... if ...`，在满足条件时设置断点。例如，`break 20 if x > 5` 在第20行且 `x` 大于5时设置断点。
+- **跳转执行**：`jump`，跳转到指定行继续执行。例如，`jump 30` 跳转到第30行继续执行。
+
 # Task 3：例题复现 (35%)
 
 <Card type="task" title="任务">
@@ -86,7 +207,144 @@ import castTask1 from './casts/rev1-1.cast?url'
 
 ## 例2 简单的异或
 
+```c
+int __cdecl __noreturn main(int argc, const char **argv, const char **envp)
+{
+  _BYTE v3[30]; // [esp+14h] [ebp-3Ch] BYREF
+  _BYTE v4[26]; // [esp+32h] [ebp-1Eh] BYREF
+  unsigned int i; // [esp+4Ch] [ebp-4h]
+
+  qmemcpy(v4, "MMMwjau`S]]S}ybS?4:;5:<4<q", sizeof(v4));
+  printf("Please input flag: ");
+  scanf("%s", v3);
+  for ( i = 0; i < 0x1A; ++i )
+  {
+    if ( (v3[i] ^ 0xC) != v4[i] )
+    {
+      printf("Your flag is not right.");
+      exit(0);
+    }
+  }
+  printf("You are right!");
+  exit(0);
+}
+```
+
+很显然是一个异或加密，直接用python脚本解密即可
+
+```python
+flag = "MMMwjau`S]]S}ybS?4:;5:<4<q"
+for i in range(len(flag)):
+    print(chr(ord(flag[i]) ^ 0xC), end="")
+
+# AAA{fmyl_QQ_qun_386796080}
+```
+
 ## 例3 base64
+
+IDA一把梭
+
+```c
+int __fastcall main(int argc, const char **argv, const char **envp)
+{
+  int v4; // [rsp+24h] [rbp-44h] BYREF
+  void *Buf1; // [rsp+28h] [rbp-40h] BYREF
+  char v6[56]; // [rsp+30h] [rbp-38h] BYREF
+
+  sub_401770(argc, argv, envp);
+  printf("please input the flag:");
+  scanf("%s", v6);
+  Buf1 = 0i64;
+  sub_401570(v6, &Buf1, &v4);
+  if ( !memcmp(Buf1, a5mc58bphliax7j, v4) )
+    printf("\nsuccess!");
+  else
+    printf("\nfailed!");
+  if ( Buf1 )
+    free(Buf1);
+  return 0;
+}
+```
+
+很显然输入数据flag进行一个sub_401570的操作将会得到a5mc58bphliax7j `'5Mc58bPHLiAx7J8ocJIlaVUxaJvMcoYMaoPMaOfg15c475tscHfM/8=='`
+
+一眼顶针鉴定为base64
+
+仔细一看发现确实是经典base64写法
+
+```c
+__int64 __fastcall sub_401570(const char *a1, _QWORD *a2, int *a3)
+{
+  int v6; // r15d
+  int v7; // r12d
+  int v8; // r13d
+  __int64 v9; // r14
+  _BYTE *v10; // rax
+  _BYTE *v11; // r9
+  __int64 v12; // r8
+  char v13; // cl
+  char v14; // r11
+  char v15; // r10
+  __int64 result; // rax
+
+  v6 = strlen(a1);
+  v7 = v6 % 3;
+  if ( v6 % 3 )
+  {
+    v8 = 4 * (v6 / 3) + 4;
+    v9 = v8;
+    v10 = malloc(v8 + 1i64);
+    v10[v8] = 0;
+    if ( v6 <= 0 )
+      goto LABEL_5;
+  }
+  else
+  {
+    v8 = 4 * (v6 / 3);
+    v9 = v8;
+    v10 = malloc(v8 + 1i64);
+    v10[v8] = 0;
+    if ( v6 <= 0 )
+      goto LABEL_8;
+  }
+  v11 = v10;
+  v12 = 0i64;
+  do
+  {
+    v11 += 4;
+    v13 = a1[v12];
+    *(v11 - 4) = aQvejafhmuyjbac[v13 >> 2];
+    v14 = a1[v12 + 1];
+    *(v11 - 3) = aQvejafhmuyjbac[(v14 >> 4) | (16 * v13) & 0x30];
+    v15 = a1[v12 + 2];
+    v12 += 3i64;
+    *(v11 - 2) = aQvejafhmuyjbac[(v15 >> 6) | (4 * v14) & 0x3C];
+    *(v11 - 1) = aQvejafhmuyjbac[v15 & 0x3F];
+  }
+  while ( v6 > (int)v12 );
+LABEL_5:
+  if ( v7 == 1 )
+  {
+    v10[v9 - 2] = 61;
+    v10[v9 - 1] = 61;
+  }
+  else if ( v7 == 2 )
+  {
+    v10[v9 - 1] = 61;
+  }
+LABEL_8:
+  *a2 = v10;
+  result = 0i64;
+  *a3 = v8;
+  return result;
+}
+```
+
+但是是换表base64 `aQvejafhmuyjbac db 'qvEJAfHmUYjBac+u8Ph5n9Od17FrICL/X0gVtM4Qk6T2z3wNSsyoebilxWKGZpRD',0`
+
+拖到cyberchef里得到flag `NSSCTF{a8d4347722800e72e34e1aba3fe914ae}` [See Recipe](https://lab.tonycrane.cc/CyberChef/#recipe=From_Base64('qvEJAfHmUYjBac%2Bu8Ph5n9Od17FrICL/X0gVtM4Qk6T2z3wNSsyoebilxWKGZpRD',true,false)&input=NU1jNThiUEhMaUF4N0o4b2NKSWxhVlV4YUp2TWNvWU1hb1BNYU9mZzE1YzQ3NXRzY0hmTS84PT0&oeol=FF)
+
+
 
 # Bonus (+15%)
 
@@ -97,8 +355,137 @@ import castTask1 from './casts/rev1-1.cast?url'
 - 完成校巴reverse3(来试试C#，需要ILSpy和一些数学知识) 
 </Card>
 
-## circuit
-
 ## reverse3
+
+用ILSpy反编译，
+
+分析一下源代码
+
+```csharp
+if (text.Length != 36)
+{
+	throw new Exception("长度错误！");
+}
+```
+说明flag的长度是36
+
+```csharp
+if (!text.StartsWith("AAA{") || !text.EndsWith("}"))
+{
+	throw new Exception("格式错误！");
+}
+```
+说明flag的格式是`AAA{...}`
+
+```csharp
+foreach (char c2 in text2)
+{
+	if (c2 > '\u007f')
+	{
+		throw new Exception("不对啊！");
+	}
+	c ^= c2;
+}
+for (int j = 0; j < 17; j++)
+{
+	array[j] = (byte)(c ^ text[18 + j]);
+}
+if (Convert.ToBase64String(array) != "d3l5d3ldRncbEB4fER4YEBg=")
+{
+	throw new Exception("不对啊！");
+}
+```
+
+说明flag后17位满足一个条件
+
+直接bruteforce c 
+
+```python
+import base64
+
+a = "d3l5d3ldRncbEB4fER4YEBg="
+b = base64.b64decode(a)
+
+for c in range(0,128):
+    print("c = " + str(c)+'   ', end="")
+    bts = bytearray(b)
+    for i in range(len(bts)):
+        bts[i] ^= c
+    print(bytes(bts))
+```
+
+发现`c = 40   b'_QQ_Qun_386796080'`
+
+
+
+```csharp
+for (int k = 0; k < 14; k++)
+{
+	if (text[k + 4] > '\u007f')
+	{
+		throw new Exception("不对啊！");
+	}
+	array2[k, 0] = text[k + 4];
+}
+Matrix matrix = new Matrix(array2);
+if (GetSquare() * matrix != new Matrix(new int[14, 1]
+{
+	{ 45 },
+	{ 77 },
+	{ 7 },
+	{ 109 },
+	{ 112 },
+	{ 98 },
+	{ 11 },
+	{ 14 },
+	{ 70 },
+	{ 77 },
+	{ 16 },
+	{ 26 },
+	{ 1 },
+	{ 106 }
+}))
+{
+	throw new Exception("不对啊！");
+}
+```
+将flag的4~18位进行一个线性代数运算得到一个结果
+
+```csharp
+private static Square GetSquare()
+{
+	MemoryStream memoryStream = new MemoryStream();
+	BinaryFormatter binaryFormatter = new BinaryFormatter();
+	string graph = "女儿悲，青春已大守空闺。\n女儿愁，悔教夫婿觅封侯。\n女儿喜，对镜晨妆颜色美。\n女儿乐，秋千架上春衫薄。\n\t——《红楼梦》";
+	binaryFormatter.Serialize(memoryStream, graph);
+	byte[] array = memoryStream.ToArray();
+	Square square = new Square(14);
+	for (int i = 0; i < square.Dimension; i++)
+	{
+		for (int j = 0; j < square.Dimension; j++)
+		{
+			square.SetValue(i + 1, j + 1, array[7 * (i + j * 14) % 195] % 127);
+		}
+	}
+  Console.WriteLine(square.toString());
+	memoryStream.Close();
+	return square;
+}
+```
+
+跳过~~复杂且逆天~~的不明就里的UTF-8转换（我不会C#啊），直接输出这个矩阵`Console.WriteLine(square.toString());`
+
+请出一尊大佛
+
+import imageMMA from './images/rev1-mma.png?url'
+
+<NImage src={imageMMA} alt="Solve using Mathematica" />
+
+
+
+得到了flag的前半段`C#_Is_The_Best`
+
+
+进行拼接得到`AAA{C#_Is_The_Best_QQ_Qun_386796080}`
 
 </PasswordContainer>
