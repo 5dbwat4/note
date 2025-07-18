@@ -121,7 +121,7 @@ function convertToNumber(string)
 </Card>
 
 
-## 一、GB系列字符编码方式
+**一、GB系列字符编码方式**
 
 
 1. **GB2312 (1980)**  
@@ -150,7 +150,7 @@ function convertToNumber(string)
      - 四字节：0x81-0xFE 0x30-0x39 0x81-0xFE 0x30-0x39  
    - 覆盖Unicode全部码空间（通过映射算法实现）
 
-## 二、版本兼容实现机制
+**二、版本兼容实现机制**
 
 1. **编码空间继承**  
    - GBK完全包含GB2312的编码位置（0xA1A1-0xF7FE）  
@@ -271,6 +271,21 @@ print(cnt)
 因为是复现的题目，所以需要你给出你完成题目的每一步过程或者其他更多**你自己的尝试**，包括命令、必要的截图以及你自己的思考。
 
 </Card>
+
+先拖到Wireshark中，看到一堆TCP，仔细一看发现没有诸如'xxx与xxx间隔多长时间'之类的题目，那应该本题就是从报文里面提取
+
+先上个过滤器：`tcp && (!tcp.payload contains "fake" && !tcp.payload contains "FAKE")`，过滤完感觉像人的包已经不多了，
+
+
+Find `devicename`可以找到`{"AUTHTYPE":1,"CRYPTOSUPPORT":false,"IDENTICALACCOUNT":false,"IMPORT_AUTH_CODE":"","IS_AUTH_CODE_READY":false,"ITF_VER":"1.1","LOCALDEVICEID":"8B9B141631ED3635E6A720F8E7A6E46C67349DE5A596B7A4D364F02126A98277","MSG_TYPE":90,"NETID":"448a9031671428838b92022e6514afc83f273380393127f40800041d4ca8eafe","REPLY":-20022,"authed":false,"bindLevel":3,"bindTypeSize":0,"dmVersion":"5.0.1","haveCredential":false,"isOnline":false,"localAccountId":"ohosAnonymousUid","localUserId":100,"targetDeviceName":"OpenHarmony 3.2"}`，同时解决了1，3两个问题：`OpenHarmony 3.2` `dmVersion: 5.0.1`
+
+
+
+第2题 找到一个`{"ACCOUNTGROUPID":"","AUTHTYPE":1,"CRYPTOSUPPORT":false,"HOST":"com.example.calculator","IDENTICALACCOUNT":false,"ITF_VER":"1.1","LOCALDEVICEID":"8E6D884C4CA52256668B0953B828509B199BB8FA484A2BD090B97441A9B16022","MSG_TYPE":80,"REPLY":-20022,"authed":false,"bindLevel":3,"dmVersion":"","haveCredential":false,"hostPkgLabel":"com.example.calculator","isOnline":false,"localAccountId":"ohosAnonymousUid","localUserId":100,"tokenId":537813859}`，所以是`calculator`
+
+第4题，搜索busVersion出来结果全是101,`{"AUTH_START_STATE":4,"AuthModule":0,"DataBufSize":65536,"DevIpHash":"...","TECmd":"getAuthInfo","TEData":"...","TEDeviceId":"...","exchangeIdType":0,"isNormalized":true,"softbusVersion":101,"supportInfoCompress":"false"}`
+
+拼接起来是OpenHarmony_3.2_calculator_5.0.1_101
 
 # Bonus Challenge: aircrack-ng
 
