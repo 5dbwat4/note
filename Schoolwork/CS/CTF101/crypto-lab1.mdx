@@ -372,6 +372,21 @@ do_bruteforce()
 
 但是没爆出来😥
 
+#### Update @ 2025-7-20
+
+把字符集放大一点爆出来了：
+
+```python
+...
+bruteforce = string.ascii_letters + string.digits + "!@#$%^&*()-_=+[]{}|;:',.<>?/~`"
+...
+```
+
+flag: `AAA{sl1Hp*aB4c!1mZQT3^gTn1L&1}`
+
+跑了34min，处于可接受的范围内
+
+
 ## 随机数的预测 (50%)
 
 <Card type="task" title="任务">
