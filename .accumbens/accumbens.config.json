@@ -74,10 +74,10 @@
                             "index": "1b622290393d89b11454dfd314d8becdd95d9d302db28440333afc4664b8574e",
                             "entries": [
                                 {
-                                    "title": "Attacks",
-                                    "updatedAt": 1752497422741,
-                                    "wordcount": 768,
-                                    "unikey": "95cdf419d9bc3457978071db5c7a995aff00cb76183631ebe1e18fb65bb64b59",
+                                    "title": "",
+                                    "updatedAt": 1752565126564,
+                                    "wordcount": 0,
+                                    "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                                     "pathonly": false,
                                     "path": "attacks"
                                 },
@@ -127,6 +127,15 @@
                             "path": "use-arbitrary-file-read"
                         }
                     ]
+                },
+                {
+                    "path": [
+                        "CS/d2l.ai"
+                    ],
+                    "show": true,
+                    "name": "d2l.ai",
+                    "leaf": true,
+                    "entries": []
                 }
             ],
             "entries": []
@@ -601,13 +610,13 @@
                     "show": false,
                     "name": "CTF101",
                     "leaf": true,
-                    "index": "9e168e2b569aa184ac132bd45eae7e6329bacb6ddcf0216f439d7a8ef3059170",
+                    "index": "3dae8ee57015534fa56c6db727a512767fe2bfbc31ace98f3563a22ff8f34f4e",
                     "entries": [
                         {
                             "title": "Crypto Lab 1：消息加密和数字签名",
-                            "updatedAt": 1752051944704,
-                            "wordcount": 1572,
-                            "unikey": "63701c4aa32437332d77108d04c6f9c24b49bd1df4343db1c768161a6b194ce2",
+                            "updatedAt": 1753028761078,
+                            "wordcount": 3546,
+                            "unikey": "aeb1ba00bf21f540f155ac23a4bd9be0f495b9ebb50556e50f20b4ee1ab4e8df",
                             "pathonly": false,
                             "path": "crypto-lab1"
                         },
@@ -629,9 +638,9 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1752214489057,
-                            "wordcount": 403,
-                            "unikey": "9e168e2b569aa184ac132bd45eae7e6329bacb6ddcf0216f439d7a8ef3059170",
+                            "updatedAt": 1752854238634,
+                            "wordcount": 409,
+                            "unikey": "3dae8ee57015534fa56c6db727a512767fe2bfbc31ace98f3563a22ff8f34f4e",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -645,9 +654,9 @@
                         },
                         {
                             "title": "Misc Lab 1：编解码及流量取证",
-                            "updatedAt": 1752213874899,
-                            "wordcount": 3580,
-                            "unikey": "fb4b249852af2f2447b7128ad2db7a572269fb6056c5ec37073bd0b957505a8a",
+                            "updatedAt": 1752847500005,
+                            "wordcount": 3815,
+                            "unikey": "63ea79fed7b5b6522cd2418ad9d14af0531e52a383fdf01b1fdffa7b1faec53c",
                             "pathonly": false,
                             "path": "misc-lab1"
                         },
@@ -693,9 +702,9 @@
                         },
                         {
                             "title": "Rev Lab 1：Rev 基础",
-                            "updatedAt": 1752175821879,
-                            "wordcount": 532,
-                            "unikey": "8a8639f67ebf03914e8f5c1f6ce36659baf34d0e06285d4285b475620e7e2fc9",
+                            "updatedAt": 1752822004254,
+                            "wordcount": 2517,
+                            "unikey": "11107f06aa01bdd8e72307dbc9593637f26267447b57940704f7307b7eaeacce",
                             "pathonly": false,
                             "path": "rev-lab1"
                         },
@@ -717,9 +726,9 @@
                         },
                         {
                             "title": "Web Lab 1：计算机网络基础",
-                            "updatedAt": 1752045953926,
-                            "wordcount": 1596,
-                            "unikey": "f0800cdd83cb17f731fc1f37c15ee5006dc95582c13188d2c87965eefe548b91",
+                            "updatedAt": 1752568804829,
+                            "wordcount": 2453,
+                            "unikey": "9eb950b42884cbfb627520fe1a6d9a76606d40f848ec184374d3a331e9c23785",
                             "pathonly": false,
                             "path": "web-lab1"
                         },
@@ -775,6 +784,30 @@
                             "unikey": "6514a0003a6cfa4acd3b346dba757d416c963b847e711cb63c242928dc779209",
                             "pathonly": false,
                             "path": "lab1"
+                        },
+                        {
+                            "title": "Lab 2: 向量化计算",
+                            "updatedAt": 1753126287944,
+                            "wordcount": 48,
+                            "unikey": "4673de46d2c6c580589afae00a3e239adb6d85744371b222bb454700295ebc10",
+                            "pathonly": false,
+                            "path": "lab2"
+                        },
+                        {
+                            "title": "Lab 2.5: 向量化进阶 (RISC-V)",
+                            "updatedAt": 1753126624637,
+                            "wordcount": 28,
+                            "unikey": "b779caebeb20ebeef18237f4a65cb26908271951297e4cf49655d87f9c3c4b10",
+                            "pathonly": false,
+                            "path": "lab2p5"
+                        },
+                        {
+                            "title": "Lab 3: CUDA 卷积",
+                            "updatedAt": 1753126001081,
+                            "wordcount": 0,
+                            "unikey": "ef9e8421ef93d9db5513a241286a8620c04a359184a4669097be27caffa98769",
+                            "pathonly": false,
+                            "path": "lab3"
                         }
                     ]
                 },
