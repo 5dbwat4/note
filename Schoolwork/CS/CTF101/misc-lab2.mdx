@@ -5,6 +5,7 @@ title: Misc Lab2
 
 import Card from '@md-components/card.vue';
 import {NImage} from 'naive-ui';
+import Asciinema from '@/components/md-comp/AsciinemaWrapper.vue';
 
 {/* IRON:owxwhkcn32pm4vtzflvkl65g57nbenmp:OB */}
 
@@ -25,6 +26,12 @@ import PasswordContainer from '@md-components/passwordContainer.vue';
 
 </Card>
 
+binwalk发现是两张图，foremost提取
+
+import ImageSMT from "./images/misc2-songmingti.jpg?url";
+
+<NImage src={ImageSMT} alt="misc2-songmingti" width="100%" />
+
 # Challenge 2: miaomiaomiao (10%)
 
 <Card type="task" title="任务">
@@ -34,6 +41,30 @@ import PasswordContainer from '@md-components/passwordContainer.vue';
 请完成题目，在校巴提交 flag，并在实验报告中写出你的解题思路和具体过程。
 
 </Card>
+
+先来个js trick 来恶心你一下
+
+```html
+
+<html>
+<body>
+    <script>
+        for (;;) {
+            alert('Miao~');
+        }   
+    </script>
+    <img src="img/miao~870F6C667A6CDC0D1F533859E72C48E0.jpg" />
+</body>
+</html>
+```
+
+拿到图片
+
+import CastMiao from "./casts/misc2-miao2.cast?raw";
+
+<Asciinema cast={CastMiao} />
+
+二进制数据`AAA{D0_Y0u_L1ke_Ste9H1de_M1a0}`
 
 # Challenge 3: Easy LSB (10%)
 
@@ -52,7 +83,19 @@ import PasswordContainer from '@md-components/passwordContainer.vue';
 
 </Card>
 
+import ImageISB1 from "./images/misc2-easylsb-solving.png?url";
+
+<NImage src={ImageISB1} alt="misc2-easylsb-solving" width="100%" />
+
+恢复高度（60->180）：
+
+import ImageISB2 from "./images/misc2-easylsb-solved.png?url";
+
+<NImage src={ImageISB2} alt="misc2-easylsb-solved" width="100%" />
+
 ------
+
+*选做题*
 
 # Challenge A: Palette Stego (25%)
 

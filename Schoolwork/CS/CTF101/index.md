@@ -49,9 +49,9 @@ Misc Lab 1
 
 - [X]  1.1 Task 1.2 NATO26 Writeup
 - [X]  2 Challenge 1
-- [ ]  3 Challenge 2: 软总线流量分析取证1
+- [X]  3 Challenge 2: 软总线流量分析取证1
 - [X]  4 Bonus Challenge: aircrack-ng
-- [ ]  5 Suggestion Bonus
+- [X]  5 Suggestion Bonus
 
 Misc Lab 2
 

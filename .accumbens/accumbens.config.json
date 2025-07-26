@@ -125,6 +125,14 @@
                             "unikey": "707558fd72eefcf3df4b5984260d4b6b83e1f85dfb6da634a74853b4f95bb6b7",
                             "pathonly": false,
                             "path": "use-arbitrary-file-read"
+                        },
+                        {
+                            "title": "XXE",
+                            "updatedAt": 1753378829059,
+                            "wordcount": 59,
+                            "unikey": "5de6ffddc0289be774b7cf6c6072bf2a65965f2640d976d5ed926ea45e50e8f1",
+                            "pathonly": false,
+                            "path": "XXE"
                         }
                     ]
                 },
@@ -610,7 +618,7 @@
                     "show": false,
                     "name": "CTF101",
                     "leaf": true,
-                    "index": "3dae8ee57015534fa56c6db727a512767fe2bfbc31ace98f3563a22ff8f34f4e",
+                    "index": "651af5431dbf435da59dc9199bf9ed378c39b26ec7e49903243c5bac60e7fb3b",
                     "entries": [
                         {
                             "title": "Crypto Lab 1：消息加密和数字签名",
@@ -621,26 +629,10 @@
                             "path": "crypto-lab1"
                         },
                         {
-                            "title": "Crypto Lab2",
-                            "updatedAt": 1751955552610,
-                            "wordcount": 2,
-                            "unikey": "69263641f5cf83f6701ff59b0fd34213077d0e132a47ff03eaf8d9b2c8cfde56",
-                            "pathonly": false,
-                            "path": "crypto-lab2"
-                        },
-                        {
-                            "title": "Crypto Lab3",
-                            "updatedAt": 1751955560635,
-                            "wordcount": 2,
-                            "unikey": "1838839e20f9e07143bf35a6f8b2c39ef70d1bb5aefca8ff04b94b079320c646",
-                            "pathonly": false,
-                            "path": "crypto-lab3"
-                        },
-                        {
                             "title": "",
-                            "updatedAt": 1752854238634,
-                            "wordcount": 409,
-                            "unikey": "3dae8ee57015534fa56c6db727a512767fe2bfbc31ace98f3563a22ff8f34f4e",
+                            "updatedAt": 1753271982748,
+                            "wordcount": 411,
+                            "unikey": "651af5431dbf435da59dc9199bf9ed378c39b26ec7e49903243c5bac60e7fb3b",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -685,22 +677,6 @@
                             "path": "pwn-lab1"
                         },
                         {
-                            "title": "Pwn Lab2",
-                            "updatedAt": 1752052337876,
-                            "wordcount": 2,
-                            "unikey": "d544456810ad292fba7038ab325ec0bd2ae3253ec4b5030fb060da9fcca3c2c1",
-                            "pathonly": false,
-                            "path": "pwn-lab2"
-                        },
-                        {
-                            "title": "Pwn Lab3",
-                            "updatedAt": 1751955594073,
-                            "wordcount": 2,
-                            "unikey": "a01f73bfee1aec5c7640d2e5159d8ed221ecaa6d380f4339173db2a448c12ec5",
-                            "pathonly": false,
-                            "path": "pwn-lab3"
-                        },
-                        {
                             "title": "Rev Lab 1：Rev 基础",
                             "updatedAt": 1752822004254,
                             "wordcount": 2517,
@@ -734,17 +710,17 @@
                         },
                         {
                             "title": "Web Lab 2：用户侧攻击",
-                            "updatedAt": 1752049368675,
-                            "wordcount": 1279,
-                            "unikey": "09247f486e35fd13d5539a9b3f9c4d53878d783ecf863c320428c6c7991cc3bc",
+                            "updatedAt": 1753278397958,
+                            "wordcount": 1233,
+                            "unikey": "960ef7f5a58cefb2d92a44421672e9afcbfcbc40c35c5e151612c827f49580d0",
                             "pathonly": false,
                             "path": "web-lab2"
                         },
                         {
-                            "title": "Web Lab3",
-                            "updatedAt": 1751955624418,
-                            "wordcount": 2,
-                            "unikey": "77d2deecdbf335bbaad96602591adacc52879a6cc8fe6e5e1ca3b723f50006c8",
+                            "title": "Web Lab 3：后端漏洞基础",
+                            "updatedAt": 1753385428396,
+                            "wordcount": 641,
+                            "unikey": "7865d20f554b4a9b5076545a853f68c7dd3c38219a9d46426279cf2f9cfb88e5",
                             "pathonly": false,
                             "path": "web-lab3"
                         }
@@ -787,9 +763,9 @@
                         },
                         {
                             "title": "Lab 2: 向量化计算",
-                            "updatedAt": 1753126287944,
-                            "wordcount": 48,
-                            "unikey": "4673de46d2c6c580589afae00a3e239adb6d85744371b222bb454700295ebc10",
+                            "updatedAt": 1753194138633,
+                            "wordcount": 3987,
+                            "unikey": "b519102342b4f34c1d7872c8b2a0455beef9b1522559a383911d81272aaf2a83",
                             "pathonly": false,
                             "path": "lab2"
                         },

