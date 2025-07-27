@@ -653,18 +653,18 @@
                             "path": "misc-lab1"
                         },
                         {
-                            "title": "Misc Lab2",
-                            "updatedAt": 1752174157358,
-                            "wordcount": 1645,
-                            "unikey": "070fa6b1d33506f8b2e8dbe7a169081cde2415269d36e368c371946ca6c9bc95",
+                            "title": "Misc Lab2：隐写与其他 misc",
+                            "updatedAt": 1753622478607,
+                            "wordcount": 2153,
+                            "unikey": "c7514d276a7e2a81b18eec2e471dea4f42afd30a605d1b2796ae588c75380b50",
                             "pathonly": false,
                             "path": "misc-lab2"
                         },
                         {
-                            "title": "Misc Lab3",
-                            "updatedAt": 1751955578283,
-                            "wordcount": 2,
-                            "unikey": "1032fce9df74965a4c716d8c99f769f4f32cd12037d5175d6d8e266add9c6d73",
+                            "title": "Misc Lab3：OSINT & AI",
+                            "updatedAt": 1753573969058,
+                            "wordcount": 2304,
+                            "unikey": "8517d0b5351a34fa161e73ed8e460ce32a4038ff01527570fc50a28a1157effb",
                             "pathonly": false,
                             "path": "misc-lab3"
                         },
@@ -710,9 +710,9 @@
                         },
                         {
                             "title": "Web Lab 2：用户侧攻击",
-                            "updatedAt": 1753278397958,
-                            "wordcount": 1233,
-                            "unikey": "960ef7f5a58cefb2d92a44421672e9afcbfcbc40c35c5e151612c827f49580d0",
+                            "updatedAt": 1753569633701,
+                            "wordcount": 1475,
+                            "unikey": "1ac9a9ca5131e5c53f2dc5e15e687ce1a45ff14b4e3459ebefcc0bae3fa297a3",
                             "pathonly": false,
                             "path": "web-lab2"
                         },

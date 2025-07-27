@@ -1,5 +1,5 @@
 ---
-title: Misc Lab2
+title: Misc Lab2：隐写与其他 misc
 ---
 
 
@@ -42,7 +42,7 @@ import ImageSMT from "./images/misc2-songmingti.jpg?url";
 
 </Card>
 
-先来个js trick 来恶心你一下
+先来个 js trick 来恶心一下
 
 ```html
 
@@ -97,9 +97,9 @@ import ImageISB2 from "./images/misc2-easylsb-solved.png?url";
 
 *选做题*
 
-# Challenge A: Palette Stego (25%)
+{/* # Challenge A: Palette Stego (25%) */}
 
-<Card type="task" title="任务">
+{/* <Card type="task" title="任务">
 
 - `[lab2] Palette Stego` 题目位于[比赛平台](https://ctf.zjusec.com/games/3/challenges)上
 
@@ -118,7 +118,9 @@ import ImageISB2 from "./images/misc2-easylsb-solved.png?url";
 
 如果无法解出题目，也请将你的尝试写在报告中（你已经学到的相关知识也可以写进去），我们会根据你的进度给部分分。
 
-</Card>
+</Card> */}
+
+
 
 # Challenge B: Spectrogram (30%)
 
@@ -136,6 +138,97 @@ import ImageISB2 from "./images/misc2-easylsb-solved.png?url";
 如果无法完整完成复原，也请将你的尝试写在报告中，我们会根据完成情况给部分分。
 
 </Card>
+
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=5221167&auto=0&height=66"></iframe>
+
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=82932&auto=0&height=66"></iframe>
+
+参考[librosa.feature.melspectrogram — librosa 0.11.0 documentation](https://librosa.org/doc/main/generated/librosa.feature.melspectrogram.html)
+
+```python
+    spectrogram = numpy.around(  # 四舍五入
+        librosa.power_to_db(
+            librosa.feature.melspectrogram(
+                y=y, sr=sample_rate, n_mels=num_freqs,
+                n_fft=fft_window_size,
+                hop_length=frame_step_size,
+                window=window_function_type
+            )
+        ) / quantize
+    ) * quantize
+```
+
+所以要做的事就是将这个过程倒过来，先 db -> power 然后再 melspectrogram -> audio 
+
+[librosa.feature.inverse.mel_to_audio — librosa 0.11.0 documentation](https://librosa.org/doc/main/generated/librosa.feature.inverse.mel_to_audio.html)
+
+发现了这个函数
+
+于是写出脚本
+
+```python
+import librosa
+import soundfile
+import numpy as np
+from PIL import Image, ImageSequence
+
+SAMPLE_RATE = 22050       
+NUM_FREQ_BINS = 32        
+QUANTIZE_FACTOR = 2       
+MIN_DB = -60              
+MAX_DB = 30               
+FFT_WINDOW_SIZE = 2048    
+FRAME_STEP_SIZE = 512     
+WINDOW_FUNCTION = 'hann'  
+
+
+gif_image = Image.open('flag-2.gif')
+
+####### Image load ########
+frames = []
+for frame in ImageSequence.Iterator(gif_image):
+    rgb_frame = frame.copy().convert('RGB')
+    frame_array = np.array(rgb_frame.getdata(), dtype=np.uint8).reshape(rgb_frame.height, rgb_frame.width, 3)
+    # print(frame_array)
+    frames.append(frame_array)
+
+# print("11111",frames)
+
+frames = np.array(frames)
+
+####### Image data to db ########
+
+log_mel_spec = np.zeros((len(frames), NUM_FREQ_BINS))
+
+for frame_idx, frame in enumerate(frames):
+    for freq_bin in range(NUM_FREQ_BINS):
+        col_index = freq_bin * (QUANTIZE_FACTOR * 2) + QUANTIZE_FACTOR
+
+        blue_channel_values = frame[::QUANTIZE_FACTOR, col_index, 0]
+
+        blue_pixel_count = np.sum(blue_channel_values == 0)
+        # print(freq_bin,blue_pixel_count)
+        db_value = blue_pixel_count * QUANTIZE_FACTOR + MIN_DB
+        log_mel_spec[frame_idx, freq_bin] = db_value
+
+log_mel_spec = log_mel_spec.T
+
+##### db to power ######
+
+power_mel_spec = librosa.db_to_power(log_mel_spec)
+
+##### Mel to audio ######
+
+reconstructed_audio = librosa.feature.inverse.mel_to_audio(
+    power_mel_spec,
+    sr=SAMPLE_RATE,
+    n_fft=FFT_WINDOW_SIZE,
+    hop_length=FRAME_STEP_SIZE,
+    window=WINDOW_FUNCTION
+)
+
+soundfile.write('flag-2.wav', reconstructed_audio, SAMPLE_RATE)
+```
 
 # Challenge C: Time & Power (30%)
 
@@ -258,7 +351,9 @@ max_dis_index }
 "0ops{power_1s_a11_y0u_n55d}"
 ```
 
-# (Part of) Challenge E: polyglot (20%)
+# Challenge E: PPC (30%)
+
+## polyglot (20%)
 
 <Card type="task" title="任务">
 
@@ -306,5 +401,31 @@ help
 import imagePolyglotSolved from './images/misc2-polyglot-solved.jpeg?url';
 
 <NImage src={imagePolyglotSolved} alt="polyglot solved" />
+
+## Quine (10%)
+
+Use C.
+
+大致思路是
+```plain
+int main(){
+    char *s="<源代码, 但这一行替换成%s>";
+    printf(s,s);
+}
+```
+
+存在问题是引号的转义问题
+
+所以这么写：
+
+```c
+#include <stdio.h>
+int main() {
+    char *s = "#include <stdio.h>\nint main() {\n    char *s=%c%s%c;\n    printf(s, 34, s, 34);\n}";
+    printf(s, 34, s, 34);
+}
+```
+
+
 
 </PasswordContainer>
