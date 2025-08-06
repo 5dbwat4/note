@@ -1,3 +1,581 @@
 ---
 title: "Lab 3: CUDA 卷积"
 ---
+
+实验文档： https://hpc101.zjusct.io/lab/Lab3-CudaConv/
+
+import Asciinema from '@/components/md-comp/AsciinemaWrapper.vue'
+
+# 实验目标
+
+本实验旨在通过CUDA编程实现高性能的二维卷积运算，针对int8和float16两种数据类型进行优化。卷积运算是深度学习和图像处理中的核心操作，优化其性能对于提高整体系统效率至关重要。
+
+import castFix2 from "./casts/lab3-fix2.cast?url"
+
+<Asciinema url={castFix2} />
+
+# 优化性能（基础任务）
+
+## 基准代码分析
+
+```c++ 
+template <>
+KernelConfig get_kernel_config<int8_t>() {
+    KernelConfig config;
+    config.grid = dim3((H + BLOCK - 1) / BLOCK, (W + BLOCK - 1) / BLOCK);
+    config.block = dim3(BLOCK, BLOCK);
+    config.shared_memory_size = 0;  // Use default shared memory size
+    return config;
+}
+
+__global__ void conv2d_cuda_kernel(const int8_t *__restrict__ a, 
+                                   const int8_t *__restrict__ w,
+                                   int8_t *__restrict__ b) {
+  const int i = blockIdx.x * blockDim.x + threadIdx.x;
+  const int j = blockIdx.y * blockDim.y + threadIdx.y;
+  if (i < size && j < size) {
+    for (int n = 0; n < N; ++n) {
+      for (int k = 0; k < K; ++k) {
+        int result = 0;
+        for (int c = 0; c < C; ++c) {
+          int x = i - R / 2, y = j - S / 2;
+          for (int r = 0; r < R; ++r) {
+            for (int s = 0; s < S; ++s) {
+              if (!(x < 0 || x >= size || y < 0 || y >= size)) {
+                result += static_cast<int>(a(n, x, y, c)) 
+                        * static_cast<int>(w(k, r, s, c));
+              }
+              y++;
+            }
+            x++;
+            y -= S;
+          }
+        }
+        b(n, i, j, k) = static_cast<int8_t>(result);
+      }
+    }
+  }
+}
+```
+该代码实现了二维卷积运算，但存在以下性能问题：
+1. **内存访问效率低**：每个输出元素需要访问$C \times R \times S$次全局内存
+2. **数据重用率低**：输入数据未被有效共享
+3. **并行度不足**：仅对输出空间维度并行化
+4. **计算访存比低**：每次内存访问仅执行一次乘加操作
+
+在NVIDIA V100 GPU上的测试结果：
+
+| 数据类型 | 执行时间 | TFLOPS |
+|---------|------------|--------|
+| half   |  850.9423 ms | 0.1109 TFLOPS |
+| int8   |  819.5438 ms | 0.1152 TFLOPS |
+
+## 优化实现
+
+```c 
+
+#include "conv.cuh"
+
+#define a(_n, _x, _y, _c) a[(_n) * H * W * C + (_x) * W * C + (_y) * C + (_c)]
+#define w(_k, _x, _y, _c) w[(_k) * R * S * C + (_x) * S * C + (_y) * C + (_c)]
+#define b(_n, _x, _y, _k) b[(_n) * H * W * K + (_x) * W * K + (_y) * K + (_k)]
+
+static constexpr int TILE_H = 16;
+static constexpr int TILE_W = 16;
+static constexpr int K_per_block = 16;
+static constexpr int C_per_block = 16;
+static constexpr int N_per_block = 1;
+
+// INT8 实现
+template <>
+KernelConfig get_kernel_config<int8_t>() {
+    KernelConfig config;
+    config.block = dim3(TILE_W, TILE_H, 1);
+    config.grid = dim3(
+        (W + TILE_W - 1) / TILE_W,
+        (H + TILE_H - 1) / TILE_H,
+        ((N + N_per_block - 1) / N_per_block) * 
+            ((K + K_per_block - 1) / K_per_block)
+    );
+    
+    constexpr int input_tile_size = N_per_block * 
+                (TILE_H + R - 1) * (TILE_W + S - 1) * C_per_block;
+    constexpr int weight_tile_size = K_per_block * R * S * C_per_block;
+    config.shared_memory_size = (input_tile_size + weight_tile_size)
+                                 * sizeof(int8_t);
+    
+    return config;
+}
+
+template <>
+__global__ void conv2d_cuda_kernel<int8_t, int>(
+    const int8_t *__restrict__ a, 
+    const int8_t *__restrict__ w,
+    int8_t *__restrict__ b
+) {
+    // 块索引计算
+    const int w_block_index = blockIdx.x;
+    const int h_block_index = blockIdx.y;
+    const int batch_block_index = blockIdx.z / 
+                    ((K + K_per_block - 1) / K_per_block);
+    const int k_block_index = blockIdx.z % 
+                    ((K + K_per_block - 1) / K_per_block);
+
+    // 全局坐标计算
+    const int w0 = w_block_index * TILE_W;
+    const int h0 = h_block_index * TILE_H;
+    const int n0 = batch_block_index * N_per_block;
+    const int k0 = k_block_index * K_per_block;
+    
+    const int w0_start = w0 - S / 2;
+    const int h0_start = h0 - R / 2;
+
+    // Step 1: 数据加载
+    
+    // 共享内存分配
+    extern __shared__ int8_t shared_memory[];
+    int8_t *input_tile = shared_memory;
+    int8_t *weight_tile = shared_memory + 
+            N_per_block * (TILE_H + R - 1) * (TILE_W + S - 1) * C_per_block;
+    
+    int tid = threadIdx.y * blockDim.x + threadIdx.x;
+    int acc[K_per_block] = {0};
+    
+    const int C_blocks = (C + C_per_block - 1) / C_per_block;
+    
+    for (int c_block = 0; c_block < C_blocks; c_block++) {
+        const int c_offset = c_block * C_per_block;
+        
+        // 加载输入块到共享内存
+        const int input_tile_size = N_per_block * 
+                    (TILE_H + R - 1) * (TILE_W + S - 1) * C_per_block;
+        const int load_input_per_thread = 
+                    (input_tile_size + blockDim.x * blockDim.y - 1) 
+                        / (blockDim.x * blockDim.y);
+        
+        for (int i = 0; i < load_input_per_thread; i++) {
+            const int idx = tid * load_input_per_thread + i;
+            if (idx < input_tile_size) {
+                const int n = idx / ((TILE_H + R - 1) * 
+                                (TILE_W + S - 1) * C_per_block);
+                const int rem = idx % ((TILE_H + R - 1) * 
+                                (TILE_W + S - 1) * C_per_block);
+                const int c = rem % C_per_block;
+                const int ww = (rem / C_per_block) % (TILE_W + S - 1);
+                const int hh = rem / (C_per_block * (TILE_W + S - 1));
+                
+                const int glob_h = h0_start + hh;
+                const int glob_w = w0_start + ww;
+                const int glob_c = c_offset + c;
+                const int glob_n = n0 + n;
+                
+                if (glob_n < N && glob_h >= 0 && 
+                    glob_h < H && glob_w >= 0 && 
+                    glob_w < W && glob_c < C) {
+                    input_tile[idx] = a(glob_n, glob_h, glob_w, glob_c);
+                } else {
+                    input_tile[idx] = 0;
+                }
+            }
+        }
+        
+        // 加载卷积核块到共享内存
+        const int weight_tile_size = K_per_block * R * S * C_per_block;
+        const int load_weight_per_thread = 
+                    (weight_tile_size + blockDim.x * blockDim.y - 1) / 
+                        (blockDim.x * blockDim.y);
+        
+        for (int i = 0; i < load_weight_per_thread; i++) {
+            const int idx = tid * load_weight_per_thread + i;
+            if (idx < weight_tile_size) {
+                const int k = idx / (R * S * C_per_block);
+                const int rem = idx % (R * S * C_per_block);
+                const int c = rem % C_per_block;
+                const int s = (rem / C_per_block) % S;
+                const int r = (rem / (C_per_block * S)) % R;
+                
+                const int glob_k = k0 + k;
+                const int glob_c = c_offset + c;
+                
+                if (glob_k < K && glob_c < C) {
+                    weight_tile[idx] = w(glob_k, r, s, glob_c);
+                } else {
+                    weight_tile[idx] = 0;
+                }
+            }
+        }
+        
+        __syncthreads();
+
+        // Step 2: 计算卷积
+        
+        // 计算部分和
+        for (int k = 0; k < K_per_block; k++) {
+            for (int r = 0; r < R; r++) {
+                for (int s = 0; s < S; s++) {
+                    for (int c = 0; c < C_per_block; c++) {
+                        const int h_in = threadIdx.y + r;
+                        const int w_in = threadIdx.x + s;
+                        
+                        const int input_index = 
+                            h_in * (TILE_W + S - 1) * C_per_block +
+                            w_in * C_per_block + c;
+                            
+                        const int weight_index = 
+                            k * R * S * C_per_block +
+                            r * S * C_per_block +
+                            s * C_per_block + c;
+                        
+                        acc[k] += static_cast<int>(input_tile[input_index]) * 
+                                  static_cast<int>(weight_tile[weight_index]);
+                    }
+                }
+            }
+        }
+        
+        __syncthreads();
+    }
+
+    // Step 3: 写回结果
+    
+    // 写回结果
+    for (int k = 0; k < K_per_block; k++) {
+        const int glob_k = k0 + k;
+        const int glob_h = h0 + threadIdx.y;
+        const int glob_w = w0 + threadIdx.x;
+        const int glob_n = n0;
+        
+        if (glob_n < N && glob_k < K && glob_h < H && glob_w < W) {
+            b(glob_n, glob_h, glob_w, glob_k) = static_cast<int8_t>(acc[k]);
+        }
+    }
+}
+```
+
+（half_t同理，从略）
+
+## 思路说明
+
+利用Shared Memory缓存输入数据块和卷积核块，减少对全局内存的访问次数。每一个Kernel按顺序执行的是：加载所需的数据到Shared Memory中，进行计算，写回结果；每一步都`__syncthreads()`确保数据正确性。通过这种方式，显著提高了数据重用率和内存访问效率。
+
+Tiling 的使用参考了实验文档：将结果矩阵 $C$ 分块，每个块的大小为 $T_M \times T_N$。对于每一个块，我们需要计算 $T_M \times K$ 和 $K \times T_N$ 的矩阵的乘积，我们进一步对 $K$ 进行分块，并对 $K$ 这一维的分块遍历，于是每个 Threadblock 需要计算 $\frac{K}{T_K}$ 个 $T_M \times T_K$ 和 $T_K \times T_N$ 的矩阵乘积的累加。
+
+此外，基准代码中存在大量条件分支来处理边界情况（if语句位于for循环最内层，而且和计算是交错的，这还了得），导致线程发散，影响性能。优化实现通过在加载数据时进行边界检查，确保计算过程中没有不可预测的if语句，减少了分支开销。
+
+## 测试实现的正确性和性能（ OJ 运行结果 ）
+
+import castFix1 from "./casts/lab3-fix1.cast?url"
+
+<Asciinema url={castFix1} />
+
+| 数据类型 | 执行时间 | TFLOPS | 
+|---------|------------|--------|
+| half   |  46.7960 ms | 2.0167 TFLOPS | 
+| int8   |  81.2024 ms | 1.1622 TFLOPS | 
+
+# 优化性能（进阶任务）
+
+## DP4A
+
+> DP4A 指令是一个特殊的指令，它可以在一个周期内完成 4 个整数的乘加运算，其计算结果为一个整数。该指令可以在 CUDA 中通过内嵌 PTX 汇编或者 `__dp4a` 函数调用。
+
+参考文档： [13. Integer Intrinsics — CUDA Math API Reference Manual 13.0 documentation](https://docs.nvidia.com/cuda/cuda-math-api/cuda_math_api/group__CUDA__MATH__INTRINSIC__INT.html#group__cuda__math__intrinsic__int_1ga933213059df6da2de206771f145ac2f8)
+
+> `__device__ int __dp4a(int srcA, int srcB, int c)`
+> 
+> Four-way `signed` `int8` dot product with int32 accumulate.
+> 
+> Extracts four pairs of packed byte-sized integers from `scrA` and `srcB`, then creates four pairwise products and adds them together to a signed 32-bit integer `c`.
+
+修改卷积核的计算逻辑，利用 DP4A 指令进行优化。
+
+```diff
+ for (int k = 0; k < K_per_block; k++) {
+     for (int r = 0; r < R; r++) {
+         for (int s = 0; s < S; s++) {
+-            for (int c = 0; c < C_per_block; c++) {
++            for (int c = 0; c < C_per_block; c += 4) {
+
+                 const int h_in = threadIdx.y + r;
+                 const int w_in = threadIdx.x + s;
+               
+                 const int input_index = 
+                     0 * (TILE_H + R - 1) * (TILE_W + S - 1) * C_per_block +
+                     h_in * (TILE_W + S - 1) * C_per_block +
+                     w_in * C_per_block + c;
+                  
+                 const int weight_index = 
+                     k * R * S * C_per_block +
+                     r * S * C_per_block +
+                     s * C_per_block + c;      
+
+-                acc[k] += static_cast<int>(input_tile[input_index]) * 
+-                          static_cast<int>(weight_tile[weight_index]);
++                int32_t in_val = *reinterpret_cast<const int32_t*>
++                                           (&input_tile[input_index]);
++                int32_t w_val = *reinterpret_cast<const int32_t*>
++                                           (&weight_tile[weight_index]);
++                
++                // 使用DP4A指令计算4个元素的点积并累加
++                acc[k] += __dp4a(in_val, w_val, 0);
+
+             }
+         }
+     }
+ }
+```
+
+### 该实现的正确性和性能（ OJ 运行结果 ）
+
+
+<Asciinema url={castFix2} />
+
+| 数据类型 | 执行时间 | TFLOPS |
+|---------|------------|--------|
+| int8   |  7.4072 ms | 12.7405 TFLOPS |
+
+
+
+# 使用 Nsight Compute 进行 Profile
+
+运行`ncu -o profile_output ./conv_int8`生成分析报告`profile_output.ncu-rep`，然后使用`ncu-ui profile_output.ncu-rep`打开图形界面进行分析。
+
+## Screenshots
+
+import {NImage} from "naive-ui";
+
+import ImageSc1 from "./assets/lab3-ncu-sc1.png?url";
+import ImageSc2 from "./assets/lab3-ncu-sc2.png?url";
+
+<NImage src={ImageSc1} alt="Nsight Compute Screenshot 1" />
+<NImage src={ImageSc2} alt="Nsight Compute Screenshot 2" />
+
+## 指出你的……
+
+根据 Nsight Compute 输出，指出 kernel 的访存大小和 Compute 与 Memory 利用率如下：
+
+**访存大小**
+
+- **Shared Memory Configuration Size [kbyte]**: 32.77 KB
+- **Static Shared Memory Per Block [byte/block]**: 72 bytes
+- **Dynamic Shared Memory Per Block [kbyte/block]**: 7.49 KB
+- **Driver Shared Memory Per Block [byte/block]**: 0 bytes
+
+**Compute 利用率**
+
+- **Compute (SM) Throughput [%]**: 48.09%
+  - 这表示计算吞吐量相对于理论最大值的利用率为 48.09%，计算资源的利用率相对较低。
+
+**Memory 利用率**
+
+- **Memory Throughput [%]**: 88.13%
+  - 这表示内存吞吐量相对于理论最大值的利用率为 88.13%。
+- **L1/TEX Cache Throughput [%]**: 88.90%
+  - 这表示 L1/TEX 缓存的吞吐量相对于理论最大值的利用率为 88.90%。
+- **L2 Cache Throughput [%]**: 24.72%
+  - 这表示 L2 缓存的吞吐量相对于理论最大值的利用率为 24.72%。
+- **DRAM Throughput [%]**: 1.70%
+  - 这表示 DRAM 的吞吐量相对于理论最大值的利用率为 1.70%。
+
+这表明内存资源的利用率较高，但 L2 缓存和 DRAM 的利用率相对较低。这与我们的优化是吻合的，因为我们通过Shared Memory减少了对全局内存的访问。
+
+
+{/* # 使用 Nsight Compute 进行 CUDA 性能分析
+
+Nsight Compute 是 NVIDIA 提供的一款强大的 CUDA 内核性能分析工具，它可以帮助开发者深入理解内核性能瓶颈，优化 CUDA 代码。下面详细介绍如何使用 Nsight Compute 进行性能分析。
+
+## 安装与基本使用
+
+### 1. 安装 Nsight Compute
+- 从 [NVIDIA 开发者网站](https://developer.nvidia.com/nsight-compute) 下载安装包
+- 支持 Windows 和 Linux 平台
+- 安装后确保 `ncu` 命令可用
+
+### 2. 基本命令行使用
+```bash
+# 基本分析
+ncu -o profile_output ./your_cuda_program
+
+# 详细指标收集
+ncu --set full ./your_cuda_program
+
+# 指定特定指标
+ncu --metrics gpu__time_duration.avg,smsp__sass_thread_inst_executed_op_fadd_pred_on.sum ./your_cuda_program
+```
+
+### 3. 图形界面使用
+```bash
+# 启动图形界面
+ncu-ui
+```
+
+## 关键分析功能
+
+### 1. 性能指标分析
+Nsight Compute 提供数百个性能指标，主要分为几类：
+
+| 类别 | 关键指标 | 说明 |
+|------|----------|------|
+| **内存访问** | `dram__bytes.sum` | 全局内存访问量 |
+| | `l1tex__t_bytes.sum` | L1 缓存访问量 |
+| | `lts__t_bytes.sum` | 共享内存访问量 |
+| **计算效率** | `smsp__sass_thread_inst_executed.sum` | 执行指令数 |
+| | `sm__throughput.avg.pct_of_peak_sustained_elapsed` | SM 利用率 |
+| **占用率** | `sm__warps_active.avg.pct_of_peak_sustained_active` | warp 活跃度 |
+| | `launch__block_size` | 线程块配置 |
+| **延迟分析** | `gpu__time_duration.sum` | 内核总耗时 |
+| | `stall_memory_throttle` | 内存瓶颈导致的停顿 |
+
+### 2. 源代码关联分析
+编译时添加 `-lineinfo` 选项：
+```bash
+nvcc -lineinfo -arch=sm_70 your_program.cu -o your_program
+```
+在 Nsight Compute 中可查看：
+- 源代码与 SASS 指令的对应关系
+- 热点代码行
+- 每个线程的寄存器使用情况
+
+### 3. 共享内存分析
+Nsight Compute 可分析共享内存的：
+- Bank 冲突 (`l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum`)
+- 访问模式
+- 使用效率
+
+### 4. 自动实验功能
+```bash
+ncu --target-processes all --kernel-regex "conv2d_cuda_kernel" --launch-skip 5 --launch-count 10 --export profile.csv ./your_program
+```
+- `--launch-skip`: 跳过前几次启动
+- `--launch-count`: 分析指定次数的内核启动
+- `--export`: 导出为 CSV 格式
+
+## 卷积优化分析实践
+
+### 1. 内存访问优化
+```bash
+ncu --metrics dram__bytes.sum,l1tex__t_bytes.sum,lts__t_bytes.sum ./conv_program
+```
+分析结果关注点：
+- 全局内存访问是否减少
+- 共享内存使用是否有效
+- L1 缓存命中率
+
+### 2. 计算效率分析
+```bash
+ncu --metrics smsp__sass_thread_inst_executed_op_fadd_pred_on.sum,smsp__sass_thread_inst_executed_op_fmul_pred_on.sum,smsp__sass_thread_inst_executed_op_ffma_pred_on.sum ./conv_program
+```
+分析重点：
+- FMA (乘加) 指令占比
+- 计算与内存访问比例
+- 指令流水线利用率
+
+### 3. 瓶颈识别与优化
+```bash
+ncu --set full --import-source yes ./conv_program
+```
+在图形界面中：
+1. 识别耗时最长的内核
+2. 查看"Details"选项卡中的瓶颈分析
+3. 检查"Source"选项卡中的热点代码
+4. 使用"Memory Workload Analysis"分析内存访问模式
+
+## 分析报告解读
+
+### 1. 性能指标解读
+- **Occupancy**: 接近 100% 为理想状态
+- **Memory Throughput**: 接近理论带宽表示内存访问高效
+- **Compute Throughput**: 接近峰值表示计算高效
+
+### 2. 优化建议
+Nsight Compute 提供自动优化建议：
+- "Speed Of Light" 部分显示各子系统利用率
+- "Warp State Statistics" 显示 warp 停滞原因
+- "Memory Workload Analysis" 建议内存访问优化
+
+### 3. 比较分析
+```bash
+ncu --export baseline.ncu-rep ./baseline
+ncu --export optimized.ncu-rep ./optimized
+ncu-diff baseline.ncu-rep optimized.ncu-rep -o diff.html
+```
+生成 HTML 格式的对比报告，清晰显示优化效果。
+
+## 高级技巧
+
+### 1. API 拦截分析
+```bash
+ncu --target-processes all --call-stack --kernel-regex "conv2d_cuda_kernel" ./conv_program
+```
+分析内核调用栈，了解调用上下文。
+
+### 2. 指令级分析
+```bash
+ncu --metrics sass__inst_executed.avg.per_cycle_active ./conv_program
+```
+分析每个周期执行的指令数，识别指令发射瓶颈。
+
+### 3. 共享内存 bank 冲突分析
+```bash
+ncu --metrics l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum ./conv_program
+```
+检测共享内存访问中的 bank 冲突问题。
+
+## 最佳实践
+
+1. **增量分析**：每次只关注一个优化点
+2. **基准测试**：优化前后进行对比
+3. **多配置分析**：测试不同的线程块大小和共享内存配置
+4. **关注关键指标**：
+   - 内存带宽利用率
+   - SM 占用率
+   - 指令发射效率
+5. **结合 Nsight Systems**：使用 Nsight Systems 进行系统级分析，再使用 Nsight Compute 进行内核级优化
+
+通过 Nsight Compute 的深入分析，可以系统地优化卷积内核的性能，识别内存瓶颈、计算效率问题以及并行度不足等关键问题。
+
+## 4. 性能分析
+
+### 4.1 理论性能提升
+
+优化后的计算访存比：
+$$
+\text{计算量} = 2 \times N \times H \times W \times C \times K \times R \times S
+$$
+
+$$
+\text{访存量} = N \times H \times W \times C + K \times R \times S \times C
+$$
+
+$$
+\text{计算访存比} = \frac{2 \times R \times S \times K}{1 + \frac{K \times R \times S}{N \times H \times W}}
+$$
+
+对于典型参数(N=1, H=W=224, C=K=64, R=S=3)：
+- 原始实现：计算访存比 ≈ 18
+- 优化实现：计算访存比 ≈ 576 (32倍提升)
+
+### 4.2 实际性能测试
+
+在NVIDIA V100 GPU上的测试结果：
+
+| 数据类型 | 输入尺寸 | 卷积核 | 原始实现(ms) | 优化实现(ms) | 加速比 | TFLOPS |
+|---------|---------|-------|------------|------------|-------|--------|
+| int8    | 224×224 | 3×3   | 15.2       | 1.8        | 8.4x  | 42.6   |
+| float16 | 224×224 | 3×3   | 18.7       | 2.3        | 8.1x  | 34.8   |
+| int8    | 112×112 | 5×5   | 4.3        | 0.7        | 6.1x  | 38.2   |
+| float16 | 112×112 | 5×5   | 5.2        | 0.9        | 5.8x  | 30.1   | */}
+
+{/* 
+## 6. 实验总结
+
+本实验通过分块策略、共享内存优化和协作式数据加载，实现了卷积运算的显著加速。关键优化点包括：
+
+1. **空间-通道联合分块**：最大化数据重用
+2. **共享内存高效利用**：减少全局内存访问
+3. **边界处理优化**：减少分支开销
+4. **数据类型特化**：针对int8和float16分别优化
+
+优化后实现相比原始版本有5-8倍的性能提升，TFLOPS接近理论峰值的一半。进一步优化方向包括双缓冲技术、张量核心利用和循环展开等。
+
+通过本次实验，深入理解了GPU内存层次结构、并行计算模式和性能优化技术，为后续深度学习算子优化奠定了基础。 */}
