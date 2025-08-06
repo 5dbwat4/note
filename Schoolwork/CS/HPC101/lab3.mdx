@@ -317,7 +317,7 @@ import castFix1 from "./casts/lab3-fix1.cast?url"
 +                                           (&weight_tile[weight_index]);
 +                
 +                // 使用DP4A指令计算4个元素的点积并累加
-+                acc[k] += __dp4a(in_val, w_val, 0);
++                acc[k] = __dp4a(in_val, w_val, acc[k]);
 
              }
          }
@@ -333,7 +333,6 @@ import castFix1 from "./casts/lab3-fix1.cast?url"
 | 数据类型 | 执行时间 | TFLOPS |
 |---------|------------|--------|
 | int8   |  7.4072 ms | 12.7405 TFLOPS |
-
 
 
 # 使用 Nsight Compute 进行 Profile
@@ -357,7 +356,7 @@ import ImageSc2 from "./assets/lab3-ncu-sc2.png?url";
 **访存大小**
 
 - **Shared Memory Configuration Size [kbyte]**: 32.77 KB
-- **Static Shared Memory Per Block [byte/block]**: 72 bytes
+- **Static Shared Memory Per Block [byte/block]**: 0 bytes
 - **Dynamic Shared Memory Per Block [kbyte/block]**: 7.49 KB
 - **Driver Shared Memory Per Block [byte/block]**: 0 bytes
 
@@ -379,6 +378,9 @@ import ImageSc2 from "./assets/lab3-ncu-sc2.png?url";
 
 这表明内存资源的利用率较高，但 L2 缓存和 DRAM 的利用率相对较低。这与我们的优化是吻合的，因为我们通过Shared Memory减少了对全局内存的访问。
 
+# 实验总结
+
+通过本次实验，我深入理解了GPU内存层次结构、并行计算模式和性能优化技术，同时掌握了Cuda C编程的基本技能。
 
 {/* # 使用 Nsight Compute 进行 CUDA 性能分析
 
