@@ -111,6 +111,14 @@
                             "path": "index"
                         },
                         {
+                            "title": "",
+                            "updatedAt": 1753884238391,
+                            "wordcount": 1473,
+                            "unikey": "4643dce83769f0ec2d083dc6bc820c4044ba33b42292f5613bf1613d7daa83db",
+                            "pathonly": false,
+                            "path": "solve-gandolf"
+                        },
+                        {
                             "title": "SSTI - Server-Side Template Injection",
                             "updatedAt": 1751505677945,
                             "wordcount": 0,
@@ -662,9 +670,9 @@
                         },
                         {
                             "title": "Misc Lab3：OSINT & AI",
-                            "updatedAt": 1753573969058,
-                            "wordcount": 2304,
-                            "unikey": "8517d0b5351a34fa161e73ed8e460ce32a4038ff01527570fc50a28a1157effb",
+                            "updatedAt": 1753901107954,
+                            "wordcount": 4311,
+                            "unikey": "4e564aef7884217a3cbbac1059eb25a409963a72cfd9b7bf236408e998cfdbd3",
                             "pathonly": false,
                             "path": "misc-lab3"
                         },
@@ -779,11 +787,19 @@
                         },
                         {
                             "title": "Lab 3: CUDA 卷积",
-                            "updatedAt": 1753126001081,
-                            "wordcount": 0,
-                            "unikey": "ef9e8421ef93d9db5513a241286a8620c04a359184a4669097be27caffa98769",
+                            "updatedAt": 1754489223632,
+                            "wordcount": 3603,
+                            "unikey": "c4b798096b4ceb93919b8f02523a7149c8597837b0a65bc9e52253e9afb6cdea",
                             "pathonly": false,
                             "path": "lab3"
+                        },
+                        {
+                            "title": "Lab 4: Solver Challenge",
+                            "updatedAt": 1754758856248,
+                            "wordcount": 108,
+                            "unikey": "0b5e7283f4d43754a6e2e21d2a2cab111ccc3f1218475fe03141acea6d54bd2c",
+                            "pathonly": false,
+                            "path": "lab4"
                         }
                     ]
                 },
