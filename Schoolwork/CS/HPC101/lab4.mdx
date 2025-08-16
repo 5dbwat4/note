@@ -472,7 +472,6 @@ guided     | 512          | 61.3749         |
           * 随着 `chunk_size` 增大，性能会提升并趋于稳定。因为每个线程现在处理一个连续的内存块（例如线程0处理i=0到63），这最大化了缓存的利用率。
       * 对于 `dynamic` 和 `guided`：`chunk_size`较小时，增大 `chunk_size` 对性能有显著的积极影响。因为它减少了调度的次数，降低了线程在请求新任务时的开销。
 
-### 这一步优化后的性能提升情况
 
 ## 编译优化
 
@@ -523,12 +522,421 @@ import Cast5 from "./casts/lab4-running-fuck2.cast?url"
 
 ## MPI 进程级并行
 
+### ……你主要需要明确下面这三个问题，并进行合理实现
+
+1. **任务划分：分析计算任务的特征，将大的计算任务拆分成多个互不依赖的子任务，并分配给不同的进程进行计算。**
+
+    `BiCGSTAB` 算法的计算瓶颈主要在于大规模的矩阵-向量乘法 (GEMV) 和向量点积 (Dot Product)。这些操作都具有良好的数据并行特性。参考实验文档，该实现中使用矩阵分块的形式进行任务划分，具体是按行分块。
+
+    我们将 $N \times N$ 的主矩阵 $A$ 在行维度上进行切分，将 $N$ 行数据尽可能均匀地分配给 $P$ 个 MPI 进程。每个进程获得一个大小为 $N_{\text{local}} \times N$ 的子矩阵 $A_{\text{local}}$，其中 $N_{\text{local}} \approx N/P$。相应地，所有 $N$ 维的向量（如解向量 $x$、残差 $r$ 等）也按照相同的逻辑进行划分，每个进程只负责计算和存储其对应 $A_{\text{local}}$ 的那部分向量分量。
+
+    通过这种划分，原先对整个矩阵和向量的操作被分解成了多个在子矩阵和子向量上的、大部分情况下相互独立的计算子任务。例如，原先的 GEMV 操作 $y = Ax$ 就被分解为多个并行的 $y_{\text{local}} = A_{\text{local}} * x$ 子任务。
+
+    **实现思路**
+
+    -  在并行逻辑的开始，我们首先计算每个进程应分配的行数 (`counts`) 和在全局数据中的起始偏移量 (`displs`)。这里考虑了 `N` 无法被进程数 `size` 整除的边界情况，确保任务分配的均衡性。
+
+        ```c
+        int* counts = (int*)malloc(size * sizeof(int)); // 每个进程的行数
+        int* displs = (int*)malloc(size * sizeof(int)); // 每个进程的行偏移
+        int rem = N % size;
+        int sum = 0;
+        for (int i = 0; i < size; i++) {
+            counts[i] = N / size;
+            if (rem > 0) {
+                counts[i]++;
+                rem--;
+            }
+            displs[i] = sum;
+            sum += counts[i];
+        }
+        int local_n = counts[rank]; // 当前进程的任务量
+        ```
+
+    -  根据计算出的 `local_n`，每个进程只为自己负责的子任务分配内存。例如 `A_local`、`r_local` 等。
+
+        ```c
+        double* A_local = (double*)malloc(local_n * N * sizeof(double));
+        double* r_local = (double*)calloc(local_n, sizeof(double));
+        double* r_hat_local = (double*)calloc(local_n, sizeof(double));
+        double* p_local = (double*)calloc(local_n, sizeof(double));
+        double* v_local = (double*)calloc(local_n, sizeof(double));
+        double* s_local = (double*)calloc(local_n, sizeof(double));
+        double* h_local = (double*)calloc(local_n, sizeof(double));
+        double* t_local = (double*)calloc(local_n, sizeof(double));
+        double* y_local = (double*)calloc(local_n, sizeof(double));
+        double* z_local = (double*)calloc(local_n, sizeof(double));
+        double* x_local = (double*)calloc(local_n, sizeof(double));
+        double* K2_inv_local = (double*)calloc(local_n, sizeof(double));
+        ```
+
+2. **数据分发与结果收集：在并行计算开始前，需要把数据分发给每个进程。同理，完成计算后，需要将结果收集起来。**
+
+   
+
+    在非共享内存的 MPI 模型中，数据通信是并行化的生命线。我们主要采用了**集合通信 (Collective Communication)**，因为它能更高效地处理这种结构化的、全局性的数据同步需求。点对点通信虽然灵活，但在需要广播或全局规约的场景下，会导致主进程通信负载过重，可扩展性较差。
+    
+      * 主循环开始前的数据分发: 在计算开始前，主进程 (rank 0) 负责读取完整数据。随后：
+          * 使用 `MPI_Bcast` 将所有进程都需要知道的全局信息（如矩阵维度 `N`）广播出去。
+          * 使用 `MPI_Scatterv` 将按行划分好的矩阵 `A_local` 和向量 `x_local` 等分发给对应的进程。使用 `v` 后缀的版本（`Scatterv`）是为了灵活处理行数分配不均的情况。
+
+              ```cpp
+              // --- 在调用求解器前，将 N 广播给所有进程 ---
+              MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD);
+              ...
+              // 分发矩阵 A
+              MPI_Scatterv(A, mat_counts, mat_displs, MPI_DOUBLE, A_local, 
+                           local_n * N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+              // 分发初始向量 x 到各自的 x_local
+              MPI_Scatterv(x_full, counts, displs, MPI_DOUBLE, x_local, 
+                           local_n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+              ```
+
+      * **迭代中通信**: 在 `BiCGSTAB` 的迭代过程中，也需要通信来同步数据：
+          * `MPI_Allgatherv`: 在执行 GEMV (`v = Ay`) 之前，输入向量 `y` 必须是完整的。由于 `y` 是以 `y_local` 的形式分布在各个进程上的，我们使用 `MPI_Allgatherv` 将所有 `y_local` 片段收集起来，在**每个进程**上都重构出完整的 `y_full` 向量。
+          * `MPI_Allreduce`: 在计算点积时，每个进程先计算一个局部和，然后通过 `MPI_Allreduce` 将所有局部和相加，并将最终的全局总和返回给**所有进程**。这使得每个进程都能独立计算下一步所需的标量（如 `alpha`, `omega`），避免了“主进程计算-再广播”的模式。
+
+            ```cpp
+            // 为 GEMV 准备完整的输入向量
+            MPI_Allgatherv(y_local, local_n, MPI_DOUBLE, y_full, counts, 
+                           displs, MPI_DOUBLE, MPI_COMM_WORLD);
+
+            // 计算全局点积
+            local_dot = 0.0;
+            for (int i = 0; i < local_n; i++) 
+                local_dot += r_hat_local[i] * v_local[i];
+            MPI_Allreduce(&local_dot, &dot_rhat_v, 1, MPI_DOUBLE, 
+                          MPI_SUM, MPI_COMM_WORLD);
+            ```
+      * **结果收集**: 计算结束后，使用 `MPI_Gatherv` 将分布在各进程的解向量片段 `x_local` 收集到主进程的完整向量 `x` 中，以便进行最终的验证和输出。
+
+        ```cpp
+        MPI_Gatherv(x_local, local_n, MPI_DOUBLE, x, counts, 
+                    displs, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        ```
+
+3. **并行计算：你需要分析 BiCGSTAB 算法的迭代过程中，哪些部分可以充分并行计算，哪些部分必须串行计算。**
+
+    `BiCGSTAB` 算法的大部分计算步骤都可以高效并行化，但也包含必须sync执行的部分。
+
+    * **可并行部分**:  
+        1.  `GEMV`: 如 `v = Ay`，在每个进程都拥有完整的向量 `y` 后，可以完全独立地计算 `v_local = A_local * y`。
+        2.  向量线性组合: 如 `s = r - alpha * v`，这类操作是元素级别的，各进程可以在自己的 `s_local`, `r_local`, `v_local` 上独立完成，无需任何通信。
+        3.  `precondition`: `y = K_inv * p` 同样是元素级别的操作，可在本地独立完成。
+
+    * **必须串行计算部分**:  
+        主要列出的是需要依赖所有线程计算结果的步骤，这些步骤需要全局同步才能继续。  
+        1.  **标量计算**: `alpha`, `omega`, `beta`, `rho` 的计算依赖于全局点积的结果。例如，`alpha = rho / dot_product(r_hat, v)`，必须等待所有进程完成 `v_local` 的计算，并通过 `MPI_Allreduce` 得到全局点积后，才能进行除法运算。
+        2.  **收敛判断**: 判断 `dot_product(s, s) < tol` 也需要一次全局点积的同步。
+
+### 代码与优化结果
+
+```c 
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <mpi.h>
+
+void gemv(double* y, double* A, double* x, int rows, int cols) {
+#pragma omp parallel for
+    for (int i = 0; i < rows; i++) {
+        double sum = 0.0;
+        for (int j = 0; j < cols; j++) {
+            sum += A[i * cols + j] * x[j];
+        }
+        y[i] = sum;
+    }
+}
+
+double dot_product(double* x, double* y, int n) {
+    double result = 0.0;
+#pragma omp parallel for reduction(+:result)
+    for (int i = 0; i < n; i++) {
+        result += x[i] * y[i];
+    }
+    return result;
+}
+
+void precondition(double* A, double* K2_inv, int rows, int cols, int start_row) {
+#pragma omp parallel for
+    for (int i = 0; i < rows; i++) {
+        int global_row = start_row + i;
+        K2_inv[i] = 1.0 / A[i * cols + global_row];
+    }
+}
+
+void precondition_apply(double* z, double* K2_inv, double* r, int n) {
+#pragma omp parallel for
+    for (int i = 0; i < n; i++) {
+        z[i] = K2_inv[i] * r[i];
+    }
+}
+
+int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    if (size <= 1) {
+        return bicgstab_serial(N, A, b, x, max_iter, tol);
+    }
+
+    int* counts = (int*)malloc(size * sizeof(int));
+    int* displs = (int*)malloc(size * sizeof(int));
+    int rem = N % size;
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        counts[i] = N / size;
+        if (rem > 0) {
+            counts[i]++;
+            rem--;
+        }
+        displs[i] = sum;
+        sum += counts[i];
+    }
+    int local_n = counts[rank];
+    int start_row = displs[rank];
+
+    double* A_local = (double*)malloc(local_n * N * sizeof(double));
+    double* r_local = (double*)calloc(local_n, sizeof(double));
+    double* r_hat_local = (double*)calloc(local_n, sizeof(double));
+    double* p_local = (double*)calloc(local_n, sizeof(double));
+    double* v_local = (double*)calloc(local_n, sizeof(double));
+    double* s_local = (double*)calloc(local_n, sizeof(double));
+    double* h_local = (double*)calloc(local_n, sizeof(double));
+    double* t_local = (double*)calloc(local_n, sizeof(double));
+    double* y_local = (double*)calloc(local_n, sizeof(double));
+    double* z_local = (double*)calloc(local_n, sizeof(double));
+    double* x_local = (double*)calloc(local_n, sizeof(double));
+    double* K2_inv_local = (double*)calloc(local_n, sizeof(double));
+    
+    double* y_full = (double*)calloc(N, sizeof(double));
+    double* z_full = (double*)calloc(N, sizeof(double));
+    double* x_full = (double*)calloc(N, sizeof(double));
+    double* b_full = (double*)malloc(N * sizeof(double));
+
+    int* mat_counts = (int*)malloc(size * sizeof(int));
+    int* mat_displs = (int*)malloc(size * sizeof(int));
+    for (int i = 0; i < size; ++i) {
+        mat_counts[i] = counts[i] * N;
+        mat_displs[i] = displs[i] * N;
+    }
+    MPI_Scatterv(A, mat_counts, mat_displs, MPI_DOUBLE, A_local, 
+                 local_n * N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    free(mat_counts);
+    free(mat_displs);
+
+    precondition(A_local, K2_inv_local, local_n, N, start_row);
+
+    if (rank == 0) {
+        memcpy(x_full, x, N * sizeof(double));
+        memcpy(b_full, b, N * sizeof(double));
+    }
+    MPI_Bcast(x_full, N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(b_full, N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Scatterv(x_full, counts, displs, MPI_DOUBLE, x_local, 
+                 local_n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+    double rho = 1.0, rho_old = 1.0, alpha = 1.0, omega = 1.0;
+    double tol_squared = tol * tol;
+
+    double* Ax_local = (double*)calloc(local_n, sizeof(double));
+    gemv(Ax_local, A_local, x_full, local_n, N);
+    for (int i = 0; i < local_n; i++) {
+        r_local[i] = b_full[start_row + i] - Ax_local[i];
+    }
+    free(Ax_local);
+    free(b_full);
+
+    memcpy(r_hat_local, r_local, local_n * sizeof(double));
+    
+    double local_dot = dot_product(r_hat_local, r_local, local_n);
+    MPI_Allreduce(&local_dot, &rho, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    memcpy(p_local, r_local, local_n * sizeof(double));
+
+    int iter;
+    for (iter = 1; iter <= max_iter; iter++) {
+        rho_old = rho;
+
+        precondition_apply(y_local, K2_inv_local, p_local, local_n);
+
+        MPI_Allgatherv(y_local, local_n, MPI_DOUBLE, y_full, 
+                       counts, displs, MPI_DOUBLE, MPI_COMM_WORLD);
+        gemv(v_local, A_local, y_full, local_n, N);
+
+        local_dot = dot_product(r_hat_local, v_local, local_n);
+        double dot_rhat_v;
+        MPI_Allreduce(&local_dot, &dot_rhat_v, 1, MPI_DOUBLE, MPI_SUM, 
+                      MPI_COMM_WORLD);
+        alpha = rho / dot_rhat_v;
+
+        for (int i = 0; i < local_n; i++) {
+            h_local[i] = x_local[i] + alpha * y_local[i];
+            s_local[i] = r_local[i] - alpha * v_local[i];
+        }
+
+        local_dot = dot_product(s_local, s_local, local_n);
+        double s_norm_sq;
+        MPI_Allreduce(&local_dot, &s_norm_sq, 1, 
+                      MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        if (s_norm_sq < tol_squared) {
+            memcpy(x_local, h_local, local_n * sizeof(double));
+            break;
+        }
+
+        precondition_apply(z_local, K2_inv_local, s_local, local_n);
+
+        MPI_Allgatherv(z_local, local_n, MPI_DOUBLE, z_full, counts, 
+                       displs, MPI_DOUBLE, MPI_COMM_WORLD);
+        gemv(t_local, A_local, z_full, local_n, N);
+
+        // omega = (t·s)/(t·t)
+        double dot_t_s = dot_product(t_local, s_local, local_n);
+        double dot_t_t = dot_product(t_local, t_local, local_n);
+        double global_t_s, global_t_t;
+        MPI_Allreduce(&dot_t_s, &global_t_s, 1, 
+                      MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        MPI_Allreduce(&dot_t_t, &global_t_t, 1, 
+                      MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        omega = global_t_s / global_t_t;
+
+        // x = h + omega*z
+        // r = s - omega*t
+        for (int i = 0; i < local_n; i++) {
+            x_local[i] = h_local[i] + omega * z_local[i];
+            r_local[i] = s_local[i] - omega * t_local[i];
+        }
+
+        local_dot = dot_product(r_local, r_local, local_n);
+        double r_norm_sq;
+        MPI_Allreduce(&local_dot, &r_norm_sq, 1, MPI_DOUBLE, 
+                      MPI_SUM, MPI_COMM_WORLD);
+        if (r_norm_sq < tol_squared) break;
+
+        local_dot = dot_product(r_hat_local, r_local, local_n);
+        MPI_Allreduce(&local_dot, &rho, 1, 
+                      MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        
+        // beta = (rho/rho_old)*(alpha/omega)
+        double beta = (rho / rho_old) * (alpha / omega);
+
+        // p = r + beta*(p - omega*v)
+        for (int i = 0; i < local_n; i++) {
+            p_local[i] = r_local[i] + beta * (p_local[i] - omega * v_local[i]);
+        }
+    }
+
+    MPI_Gatherv(x_local, local_n, MPI_DOUBLE, x, counts, displs, 
+                MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+    free(counts); free(displs);
+    free(A_local); free(r_local); free(r_hat_local); free(p_local); free(v_local);
+    free(s_local); free(h_local); free(t_local); free(y_local); free(z_local);
+    free(x_local); free(K2_inv_local); free(y_full); free(z_full); free(x_full);
+
+    return (iter <= max_iter) ? iter : -1;
+}
+```
+
+
+import CastMPI1 from "./casts/lab4-mpi111.cast?url"
+
+<Asciinema url={CastMPI1} />
 
 
 ## Profile 性能分析（优化程序之后）
 
+<Card title="环境说明" >
+使用`mpirun -trace -n 4 ./build/bicgstab ./data/case_2001.bin`在M600节点上运行，使用的核数、线程数均少于在solver2分区上运行时的数量，因此性能相对于上一节有所下降。
+</Card>
+
+使用` traceanalyzer --cli ./bicgstab.stf --summary`得到：
+
+```
+
+>>>>> Welcome to the Intel(R) Trace Analyzer command line interface. <<<<
+
+Application runtime [s]: 5.10609
+Time for cache [s]: 0
+Time for analysis [s]: 0.403
+4:4
+20.4087:7.25727:0
+512:32768
+MPI_Allreduce:4
+5.40816:0:0
+N/A:N/A:N/A
+415164:0:0
+3321312:0:0
+MPI_Allgatherv:4
+0:1.74278:0
+N/A:N/A:N/A
+0:138388:0
+0:553828776:0
+MPI_Scatterv:4
+0.049829:6.9e-05:0.011874
+N/A:N/A:N/A
+9:2:1
+0:32016:32032008
+MPI_Bcast:4
+0.042636:3e-05:0
+N/A:N/A:N/A
+10:2:0
+4:32016:0
+MPI_Finalize:1
+0.001699:0:0
+N/A:N/A:N/A
+4:0:0
+0:0:0
+MPI_Gatherv:4
+0:0.000177:0
+N/A:N/A:N/A
+0:4:0
+0:16008:0
+MPI_Get_processor_name:1
+6e-06:0:0
+N/A:N/A:N/A
+4:0:0
+0:0:0
+MPI_Comm_size:1
+5e-06:0:0
+N/A:N/A:N/A
+8:0:0
+0:0:0
+MPI_Comm_rank:1
+4e-06:0:0
+N/A:N/A:N/A
+8:0:0
+0:0:0
+```
 
 
+参考文档：[Intel® Trace Analyzer Command Line Interface Reference](https://www.intel.com/content/www/us/en/docs/trace-analyzer-collector/user-guide-reference/2021-10/traceanalyzer-command-line-interface.html)
 
-# 提交文件说明
+> The application summary sheet consists of a three-line header:
+> ```
+>          <# processes>:<# processes per node>
+> <application time>:<MPI time>:<IIS time>
+> <first message size of middle bucket (2)>: \
+> <first message size of highest bucket (3)>
+> ```
+> The header is followed by these sets of lines, for each of the top ten  functions, sorted by descending total time:
+> 
+> ```
+>          <Name of MPI_group>:<# involved processes> 
+>          
+> <total time in above func for bucket 1>:<for bucket 2>:<for bucket 3>
+> <total IIS time in above func for bucket 1>:<for bucket 2>:<for bucket 3>
+> <count in above func for bucket 1>:<for bucket 2>:<for bucket 3>
+> <total # bytes in above func for bucket 1>:<for bucket 2>:<for bucket 3>
+> ```
+> In the application summary sheet, IIS stands for Ideal Interconnect Simulator, which predicts MPI behavior on an ideal interconnect.
+> 
+> You can import the application summary sheet to spreadsheet applications such as Microsoft* Office Excel*. Fields are separated by colons. Unknown values are indicated by N/A. 
 
+**耗时最多的三个 MPI 函数** (请区分 MPI 与 OpenMP)：
+  - MPI_Allreduce 5.40816s
+  - MPI_Allgatherv 1.74278s
+  - MPI_Scatterv 0.061772s
+
+**程序在 MPI 上消耗的总时间**：7.25727s
