@@ -1,0 +1,1150 @@
+---
+title: "Lab 5: TinyLLM"
+---
+
+实验文档： https://hpc101.zjusct.io/lab/Lab5-TinyLLM
+
+import Card from "@md-components/card.vue"
+import Asciinema from "@md-components/AsciinemaWrapper.vue"
+import {NImage} from "naive-ui";
+
+# 实验目标
+
+本实验通过从零实现 Qwen3-8B 模型中的关键组件来掌握深度学习的核心概念。通过实现 Self Attention 和 Feed Forward Network (FFN)，最终构建一个完整的语言模型，并在此基础上进行文本生成。
+
+# 实现思路
+
+## Self Attention Layer 的代码实现
+
+根据实验文档：
+
+
+> 在自注意力层中，Query、Key和Value都是来自同一输入序列。其实现步骤如下：
+> 
+> 1. **QKV投影**：将输入 `hidden_states` 通过三个线性层 `q_proj`, `k_proj`, `v_proj` 投影为 `Q`, `K`, `V` 三个矩阵。
+> 2. **形状变换**：将 Q, K, V 张量重塑为多头格式 `[batch, num_heads, seq_len, head_dim]`。其中 `head_dim * num_heads = d_model`。
+> 3. **进行注意力计算**：计算注意力分数，并应用 mask 和 softmax 函数。
+> 4. **输出投影**：将注意力输出重塑为 `[batch, seq_len, d_model]`，并通过输出投影层 `o_proj`。
+
+
+1. 首先是*QKV投影*部分，实现如下：
+
+   ```python
+   query_states = self.q_proj(hidden_states)
+   key_states = self.k_proj(hidden_states)
+   value_states = self.v_proj(hidden_states)
+   ```
+   
+2. 接下来是*形状变换*部分，对 Q, K, V 进行形状变换，重塑为多头格式。
+   
+   ```python
+   # Q: (bsz, q_len, hidden_size) -> (bsz, num_heads, q_len, head_dim)
+   query_states = query_states.view(
+       bsz, q_len, self.num_heads, self.head_dim
+   ).transpose(1, 2)
+   # K: (bsz, q_len, hidden_size) -> (bsz, num_key_value_heads, q_len, head_dim)
+   key_states = key_states.view(
+       bsz, q_len, self.num_key_value_heads, self.head_dim
+   ).transpose(1, 2)
+   # V: (bsz, q_len, hidden_size) -> (bsz, num_key_value_heads, q_len, head_dim)
+   value_states = value_states.view(
+       bsz, q_len, self.num_key_value_heads, self.head_dim
+   ).transpose(1, 2)
+   ```
+
+3. Qwen 3 使用 RMSNorm（Root Mean Square Normalization）来替代传统的 LayerNorm。
+
+   实验代码中已经实现了 RMSNorm 的相关操作。
+   
+   ```python
+   def forward(self, hidden_states):
+       input_dtype = hidden_states.dtype
+       hidden_states = hidden_states.to(torch.float32)
+       variance = hidden_states.pow(2).mean(-1, keepdim=True)
+       hidden_states = hidden_states * torch.rsqrt(variance + 
+                                                   self.variance_epsilon)
+       return self.weight * hidden_states.to(input_dtype)
+   ```
+   
+   $$
+   \text{RMSNorm}(x) = \frac{x}{\sqrt{\text{mean}(x^2) + \epsilon}} \cdot \gamma
+   $$
+   
+   只需要在代码中调用即可
+   
+   ```python
+   query_states = self.q_norm(query_states)
+   key_states = self.k_norm(key_states)
+   ```
+
+4. 对 Q 和 K 应用 RoPE 位置编码。
+
+   相关的函数已经在 `rope.py` 中实现
+   
+   RoPE 的计算公式为：
+   
+   $$
+   \text{RoPE}(x, pos) = x \cdot \cos(pos) + \text{rot}(x) \cdot \sin(pos)
+   $$
+   
+   其中，$\cos(pos)$ 和 $\sin(pos)$ 分别表示位置编码的余弦和正弦部分，其中通过设置缓存加速计算。
+   
+   ```python
+   class RotaryEmbedding(nn.Module):
+       """旋转位置编码模块"""
+   
+       def __init__(
+           self,
+           dim: int,
+           max_position_embeddings: int = 2048,
+           base: float = 10000.0,
+           device=None,
+       ):
+           super().__init__()
+           self.dim = dim
+           self.max_position_embeddings = max_position_embeddings
+           self.base = base
+   
+           # 计算频率的倒数
+           inv_freq = 1.0 / (
+               self.base
+               ** (torch.arange(0, self.dim, 2, device=device).float() / self.dim)
+           )
+           self.register_buffer("inv_freq", inv_freq, persistent=False)
+   
+           # 缓存 cos 和 sin 值
+           self._set_cos_sin_cache(max_position_embeddings)
+   
+       def _set_cos_sin_cache(self, seq_len: int):
+           """设置余弦和正弦值的缓存"""
+           self.max_seq_len_cached = seq_len
+           t = torch.arange(self.max_seq_len_cached, device=self.inv_freq.device)
+                           .type_as(self.inv_freq)
+   
+           freqs = torch.outer(t, self.inv_freq)
+           emb = torch.cat((freqs, freqs), dim=-1)
+   
+           self.register_buffer("cos_cached", emb.cos(), persistent=False)
+           self.register_buffer("sin_cached", emb.sin(), persistent=False)
+   
+       def forward(
+           self, x: torch.Tensor, seq_len: Optional[int] = None
+       ) -> Tuple[torch.Tensor, torch.Tensor]:
+   
+           if seq_len is None:
+               seq_len = x.shape[-2]
+   
+           # 如果序列长度超过缓存长度，重新计算
+           if seq_len > self.max_seq_len_cached:
+               self._set_cos_sin_cache(seq_len)
+   
+           return (
+               self.cos_cached[:seq_len].to(dtype=x.dtype),
+               self.sin_cached[:seq_len].to(dtype=x.dtype),
+           )
+   ```
+   
+   $\text{rot}(x)$ 表示对 $x$ 进行旋转并取负号，实现如下。
+   
+   ```python
+   def rotate_half(x: torch.Tensor) -> torch.Tensor:
+       x1 = x[..., : x.shape[-1] // 2]
+       x2 = x[..., x.shape[-1] // 2 :]
+       return torch.cat((-x2, x1), dim=-1)
+   ```
+   
+   最后以下函数实现了将上面几个函数综合，得出$x \cdot \cos(pos) + \text{rot}(x) \cdot \sin(pos)$的过程
+   
+   ```python
+   def apply_rotary_pos_emb(
+       q: torch.Tensor, k: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor
+   ) -> Tuple[torch.Tensor, torch.Tensor]:
+       q_embed = (q * cos) + (rotate_half(q) * sin)
+       k_embed = (k * cos) + (rotate_half(k) * sin)
+       return q_embed, k_embed
+   ```
+   
+   在实际实现中，直接调用该函数：
+   
+   ```python
+   kv_seq_len = key_states.shape[-2]
+   cos, sin = self.rotary_emb(value_states, seq_len=kv_seq_len)
+   query_states, key_states = apply_rotary_pos_emb(
+        query_states, key_states, cos, sin
+   )
+   ```
+
+
+5. 根据 GQA 机制对 K 和 V 进行复制，以匹配 Q 的头数。
+
+   我们需要通过重复 Key/Value Heads 来匹配 Query Heads 的数量。
+   
+   相关的代码已经实现在了attention.py中
+   ```python
+   def _repeat_kv(self, hidden_states: torch.Tensor, n_rep: int) -> torch.Tensor:
+       """
+       This is equivalent to torch.repeat_interleave(x, dim=1, repeats=n_rep).
+       The hidden_states.repeat(...).view(...) is more optimized when using torch.compile.
+       """
+       batch, num_key_value_heads, slen, head_dim = hidden_states.shape
+       if n_rep == 1:
+           return hidden_states
+       hidden_states = hidden_states[:, :, None, :, :].expand(
+           batch, num_key_value_heads, n_rep, slen, head_dim
+       )
+       return hidden_states.reshape(batch, 
+               num_key_value_heads * n_rep, slen, head_dim)
+   ```
+   
+   在forward中直接调用即可
+   
+   ```python
+   key_states = self._repeat_kv(key_states, self.num_key_value_groups)
+   value_states = self._repeat_kv(value_states, self.num_key_value_groups)
+   ```
+
+
+6. 打断一下，我们先实现一个softmax
+
+   > 不得直接调用 Pytorch 中现成的 Attention、FFN、Transformer 等模块，只可使用实验框架中的模块和函数以及 Pytorch 的基础 Tensor 操作。
+   
+   咱也不知道softmax到底算不算基础Tensor操作，总之先自己实现一下：
+
+   对于一个输入向量 $\mathbf{z} = [z_1, z_2, \ldots, z_n]$，Softmax 函数的第 $i$ 个输出为：
+   
+   $
+   sigma(\mathbf{z})_i = \frac{e^{z_i}}{\sum_{j=1}^{n} e^{z_j}}
+   $
+   
+   ```python
+   def softmax(x: torch.Tensor, dim: int = -1) -> torch.Tensor:
+       x = x - x.max(dim=dim, keepdim=True).values
+       x = x.exp()
+       return x / x.sum(dim=dim, keepdim=True)
+   ```
+
+7. 进行注意力计算
+
+    - 计算注意力分数 ($QK^T$)、应用 scale ($\frac{1}{\sqrt{d_k}}$)，mask 和 softmax。
+ 
+        ```python
+        attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / 
+                             math.sqrt(self.head_dim)
+        if attention_mask is not None:
+            attn_weights = attn_weights + attention_mask
+        attn_weights = softmax(attn_weights, dim=-1)
+        ```
+    - 计算注意力输出 (softmax结果乘以 V)。
+
+        ```python
+        attn_output = torch.matmul(attn_weights, value_states)
+        ```
+
+8. 将注意力输出通过输出投影层 `o_proj`，得到最终的输出。
+
+   ```python
+   attn_output = self.o_proj(attn_output)
+   ```
+
+综合上述过程，得到了完整的 Self Attention Layer 的前向传播过程。
+
+```python
+
+def forward(
+    self,
+    hidden_states: torch.Tensor,
+    attention_mask: Optional[torch.Tensor] = None,
+) -> torch.Tensor:
+    bsz, q_len, _ = hidden_states.shape
+
+    #  根据 1-3 步完成 Q, K, V 的准备
+    query_states = self.q_proj(hidden_states)
+    key_states = self.k_proj(hidden_states)
+    value_states = self.v_proj(hidden_states)
+
+    # 多头注意力
+    query_states = query_states.view(
+        bsz, q_len, self.num_heads, self.head_dim
+    ).transpose(1, 2)
+    key_states = key_states.view(
+        bsz, q_len, self.num_key_value_heads, self.head_dim
+    ).transpose(1, 2)
+    value_states = value_states.view(
+        bsz, q_len, self.num_key_value_heads, self.head_dim
+    ).transpose(1, 2)
+    # Qwen3 在应用 RoPE 之前对 Q 和 K 进行 RMSNorm
+    query_states = self.q_norm(query_states)
+    key_states = self.k_norm(key_states)
+
+    # 应用 RoPE
+    kv_seq_len = key_states.shape[-2]
+    cos, sin = self.rotary_emb(value_states, seq_len=kv_seq_len)
+    query_states, key_states = apply_rotary_pos_emb(
+        query_states, key_states, cos, sin
+    )
+
+    # 根据第 5 步完成 GQA 机制的实现
+    key_states = self._repeat_kv(key_states, self.num_key_value_groups)
+    value_states = self._repeat_kv(value_states, 
+                                   self.num_key_value_groups)
+
+    # 根据第 6 步完成注意力计算
+    attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / 
+                        math.sqrt( self.head_dim )
+    
+    if attention_mask is not None:
+        attn_weights = attn_weights + attention_mask
+    def softmax(x: torch.Tensor, dim: int = -1) -> torch.Tensor:
+        x = x - x.max(dim=dim, keepdim=True).values
+        x = x.exp()
+        return x / x.sum(dim=dim, keepdim=True)
+    attn_weights = softmax(attn_weights, dim=-1)
+
+    # 根据第 7 步完成输出投影
+    attn_output = torch.matmul(attn_weights, value_states) \
+                       .transpose(1, 2).contiguous()       \
+                       .reshape(bsz, q_len, self.hidden_size)
+    attn_output = self.o_proj(attn_output)
+    return attn_output
+```
+
+## Feed Forward Network (FFN) 的代码实现
+
+1. 先实现`SiLU`函数：
+
+    SiLU（Sigmoid Linear Unit）是一个激活函数，定义为 $f(x) = x \cdot \text{Sigmoid}(x)$，
+
+    而 Sigmoid 函数的定义为 $\text{Sigmoid}(x) = \frac{1}{1 + e^{-x}}$。
+
+    使用python实现如下：
+
+    ```python
+    def sigmoid(x: torch.Tensor) -> torch.Tensor:
+        return 1 / (1 + torch.exp(-x))
+    def silu(x: torch.Tensor) -> torch.Tensor:
+        return x * sigmoid(x)
+    ```
+
+2. 接下来实现 Feed Forward Network (FFN) 的前向传播：
+
+   FFN 通常由两个线性层和一个激活函数组成。我们可以使用之前实现的 SiLU 激活函数。
+
+   使用python实现如下：
+
+   ```python
+   class FeedForwardNetwork(nn.Module):
+       def __init__(self, input_dim: int, 
+                    hidden_dim: int, output_dim: int):
+           super().__init__()
+           self.fc1 = nn.Linear(input_dim, hidden_dim)
+           self.fc2 = nn.Linear(hidden_dim, output_dim)
+
+       def forward(self, x: torch.Tensor) -> torch.Tensor:
+           x = self.fc1(x)
+           x = silu(x)
+           x = self.fc2(x)
+           return x
+   ```
+
+3. 不过，Qwen 3 FFN 的结构有所不同
+
+    > 在 Qwen 3 中，FFN 采用 SwiGLU 作为激活函数，并使用 `intermediate_size` 作为中间层的维度。
+    > 
+    > 包含三个线性层：
+    > 
+    > 1. **门控投影 (Gate Projection)**：计算门控值，形状为 `[batch, seq_len, intermediate_size]`。
+    > 2. **上投影 (Up Projection)**：计算上投影值，形状为 `[batch, seq_len, intermediate_size]`。
+    > 3. **下投影 (Down Projection)**：将结果投影回原维度，形状为 `[batch, seq_len, hidden_size]`。
+
+    ```python
+        # 1. 计算门控值并应用 SiLU 激活函数
+        # F.silu(x) 等价于 x * sigmoid(x)
+        activated_gate = silu(self.gate_proj(x))
+        
+        # 2. 计算上投影值
+        up_states = self.up_proj(x)
+        
+        # 3. 逐元素相乘
+        fused_states = activated_gate * up_states
+        
+        # 4. 下投影得到最终输出
+        output = self.down_proj(fused_states)
+    ```
+
+# 单元测试和模型生成效果的截图
+
+import cast1 from "./casts/lab5-st1.cast?url"
+import cast2 from "./casts/lab5-st2.cast?url"
+
+<Asciinema url={cast1} />
+<Asciinema url={cast2} />
+
+# 思考题解答
+
+## ……描述 Qwen3 Decoder Layer 的结构和前向过程，并画图说明
+
+```python
+
+def forward(
+    self,
+    hidden_states: torch.Tensor,
+    attention_mask: Optional[torch.Tensor] = None,
+) -> torch.Tensor:
+    """
+    Args:
+        hidden_states: 输入隐藏状态 [batch_size, seq_len, hidden_size]
+        attention_mask: 注意力掩码
+        position_ids: 位置编码索引
+    """
+    residual = hidden_states
+    hidden_states = self.input_layernorm(hidden_states)
+
+    hidden_states = self.self_attn(
+        hidden_states=hidden_states,
+        attention_mask=attention_mask,
+    )
+    hidden_states = residual + hidden_states
+
+    residual = hidden_states
+    hidden_states = self.post_attention_layernorm(hidden_states)
+    hidden_states = self.mlp(hidden_states)
+
+    hidden_states = residual + hidden_states
+    return hidden_states
+```
+
+代码的流程相当清晰，绘图如下：
+
+import Image1 from "./assets/lab5-Untitled-2025-08-10-0351.excalidraw.svg?url"
+
+<NImage src={Image1} />
+
+
+各个组件的输入输出形状：均为`[batch_size, seq_len, hidden_size]`
+
+通过给代码添加print语句也能验证这一说法：
+
+```
+输入 hidden_states 形状: torch.Size([1, 13, 4096])
+残差分支 residual 形状: torch.Size([1, 13, 4096])
+LayerNorm后形状: torch.Size([1, 13, 4096])
+自注意力输出形状: torch.Size([1, 13, 4096])
+第一次残差后形状: torch.Size([1, 13, 4096])
+第二次残差分支 residual 形状: torch.Size([1, 13, 4096])
+后注意力LayerNorm形状: torch.Size([1, 13, 4096])
+MLP输出形状: torch.Size([1, 13, 4096])
+最终输出形状: torch.Size([1, 13, 4096])
+```
+
+
+## Qwen3 模型的参数量和理论显存占用；理论与实际
+
+### 请尝试计算 Qwen3 模型的参数量……
+
+> 参数量，即 model 的总参数数量。在 Transformer 模型中，参数量通常来自于以下几个部分：
+> 
+> - Embedding 层的参数量： `vocab_size * hidden_size`
+> - 每个 Decoder Layer 的参数量：包括 Self Attention 和 FFN 的参数量
+> - 最终输出层的参数量： `hidden_size * vocab_size`
+> 在每个 Decoder Layer 中，所有的 Linear 层和 RMSNorm 层都会对最终的参数量有所贡献。
+
+计算过程：
+
+
+- **Embedding层**：  
+  $\text{vocab\_size} \times \text{hidden\_size} = 151936 \times 4096 = 622329856$
+
+- **Decoder Layer层**：共有 $36$ 个，每一个包含：
+  - **Self Attention 的参数量**：
+    - q_proj的参数量： $(\text{num\_heads} \times \text{head\_dim}) \times \text{hidden\_size} = 4096 \times 4096 = 16777216$
+    - k_proj的参数量： $(\text{num\_key\_value\_heads} \times \text{head\_dim}) \times \text{hidden\_size} = 1024 \times 4096 = 4194304$
+    - v_proj的参数量： $(\text{num\_key\_value\_heads} \times \text{head\_dim}) \times \text{hidden\_size} = 1024 \times 4096 = 4194304$
+    - o_proj的参数量： $\text{hidden\_size} \times (\text{num\_heads} \times \text{head\_dim}) = 4096 \times 4096 = 16777216$
+    - q_norm的参数量： $\text{head\_dim} = 128$
+    - k_norm的参数量： $\text{head\_dim} = 128$
+  - **FFN 的参数量**：
+    - gate_proj的参数量： $\text{intermediate\_size} \times \text{hidden\_size} = 12288 \times 4096 = 50331648$
+    - up_proj的参数量： $\text{intermediate\_size} \times \text{hidden\_size} = 12288 \times 4096 = 50331648$
+    - down_proj的参数量： $\text{hidden\_size} \times \text{intermediate\_size} = 4096 \times 12288 = 50331648$
+  - input_layernorm的参数量： $\text{hidden\_size} = 4096$
+  - post_attention_layernorm的参数量： $\text{hidden\_size} = 4096$
+  - 每个 Decoder Layer 总计参数量： $16777216 + 4194304 + 4194304 + 16777216 + 128 + 128 + 50331648 + 50331648 + 50331648 + 4096 + 4096 = 192946432$
+  - 所有 Decoder Layer 总计： $36 \times 192946432 = 6946071552$
+
+- **最终层归一化用的norm**：  
+  $\text{hidden\_size} = 4096$  
+  ```python
+  self.norm = RMSNorm(
+      config.hidden_size, eps=config.rms_norm_eps, device=device, dtype=dtype
+  )
+  ```
+
+- **最终输出层**：  
+  $\text{hidden\_size} \times \text{vocab\_size} = 4096 \times 151936 = 622329856$
+
+- **总参数量**：  
+  $622329856 + 6946071552 + 4096 + 622329856 = 8190735360$
+
+**验证你的计算**
+
+使用以下代码：
+
+```python
+total_params = 0
+for name, param in model.named_parameters():
+    param_count = param.numel()
+    total_params += param_count
+    print(f"参数名: {name}, 形状: {param.shape}, 参数量: {param_count}")
+print(f"\n总参数量: {total_params}")
+```
+
+得到以下输出：
+
+<div style="max-height: 1400px; overflow-y: auto;">
+
+```
+参数名: model.embed_tokens.weight, 形状: torch.Size([151936, 4096]), 参数量: 622329856
+参数名: model.layers.0.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.0.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.0.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.0.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.0.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.0.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.0.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.0.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.0.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.0.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.0.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.1.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.1.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.1.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.1.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.1.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.1.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.1.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.1.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.1.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.1.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.1.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.2.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.2.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.2.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.2.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.2.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.2.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.2.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.2.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.2.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.2.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.2.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.3.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.3.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.3.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.3.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.3.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.3.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.3.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.3.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.3.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.3.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.3.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.4.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.4.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.4.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.4.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.4.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.4.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.4.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.4.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.4.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.4.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.4.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.5.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.5.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.5.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.5.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.5.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.5.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.5.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.5.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.5.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.5.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.5.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.6.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.6.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.6.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.6.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.6.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.6.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.6.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.6.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.6.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.6.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.6.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.7.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.7.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.7.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.7.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.7.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.7.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.7.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.7.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.7.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.7.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.7.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.8.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.8.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.8.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.8.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.8.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.8.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.8.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.8.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.8.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.8.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.8.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.9.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.9.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.9.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.9.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.9.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.9.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.9.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.9.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.9.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.9.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.9.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.10.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.10.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.10.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.10.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.10.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.10.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.10.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.10.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.10.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.10.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.10.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.11.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.11.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.11.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.11.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.11.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.11.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.11.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.11.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.11.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.11.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.11.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.12.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.12.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.12.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.12.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.12.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.12.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.12.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.12.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.12.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.12.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.12.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.13.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.13.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.13.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.13.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.13.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.13.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.13.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.13.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.13.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.13.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.13.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.14.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.14.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.14.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.14.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.14.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.14.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.14.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.14.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.14.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.14.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.14.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.15.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.15.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.15.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.15.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.15.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.15.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.15.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.15.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.15.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.15.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.15.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.16.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.16.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.16.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.16.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.16.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.16.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.16.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.16.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.16.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.16.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.16.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.17.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.17.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.17.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.17.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.17.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.17.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.17.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.17.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.17.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.17.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.17.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.18.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.18.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.18.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.18.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.18.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.18.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.18.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.18.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.18.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.18.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.18.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.19.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.19.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.19.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.19.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.19.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.19.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.19.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.19.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.19.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.19.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.19.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.20.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.20.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.20.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.20.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.20.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.20.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.20.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.20.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.20.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.20.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.20.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.21.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.21.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.21.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.21.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.21.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.21.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.21.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.21.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.21.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.21.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.21.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.22.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.22.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.22.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.22.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.22.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.22.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.22.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.22.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.22.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.22.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.22.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.23.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.23.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.23.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.23.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.23.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.23.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.23.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.23.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.23.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.23.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.23.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.24.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.24.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.24.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.24.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.24.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.24.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.24.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.24.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.24.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.24.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.24.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.25.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.25.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.25.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.25.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.25.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.25.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.25.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.25.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.25.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.25.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.25.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.26.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.26.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.26.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.26.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.26.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.26.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.26.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.26.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.26.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.26.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.26.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.27.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.27.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.27.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.27.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.27.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.27.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.27.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.27.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.27.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.27.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.27.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.28.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.28.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.28.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.28.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.28.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.28.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.28.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.28.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.28.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.28.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.28.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.29.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.29.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.29.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.29.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.29.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.29.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.29.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.29.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.29.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.29.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.29.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.30.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.30.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.30.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.30.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.30.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.30.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.30.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.30.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.30.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.30.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.30.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.31.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.31.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.31.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.31.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.31.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.31.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.31.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.31.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.31.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.31.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.31.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.32.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.32.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.32.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.32.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.32.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.32.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.32.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.32.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.32.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.32.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.32.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.33.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.33.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.33.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.33.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.33.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.33.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.33.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.33.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.33.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.33.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.33.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.34.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.34.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.34.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.34.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.34.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.34.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.34.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.34.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.34.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.34.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.34.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.35.self_attn.q_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.35.self_attn.k_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.35.self_attn.v_proj.weight, 形状: torch.Size([1024, 4096]), 参数量: 4194304
+参数名: model.layers.35.self_attn.o_proj.weight, 形状: torch.Size([4096, 4096]), 参数量: 16777216
+参数名: model.layers.35.self_attn.q_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.35.self_attn.k_norm.weight, 形状: torch.Size([128]), 参数量: 128
+参数名: model.layers.35.mlp.gate_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.35.mlp.up_proj.weight, 形状: torch.Size([12288, 4096]), 参数量: 50331648
+参数名: model.layers.35.mlp.down_proj.weight, 形状: torch.Size([4096, 12288]), 参数量: 50331648
+参数名: model.layers.35.input_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.layers.35.post_attention_layernorm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: model.norm.weight, 形状: torch.Size([4096]), 参数量: 4096
+参数名: lm_head.weight, 形状: torch.Size([151936, 4096]), 参数量: 622329856
+
+总参数量: 8190735360
+```
+
+
+</div>
+
+
+发现两者匹配，计算结果正确。
+
+### ……和理论显存占用
+
+模型参数的显存占用则是由参数量和数据类型决定的。在本实验中使用的数据类型是 bfloat16，每个参数占用 2 字节，由此可以计算出模型的总显存占用：$8190735360 \times 2 = 16381470720$ 字节，约 15.26 GB。
+
+### ……并查看实际运行时的显存占用情况……
+
+使用命令`nvidia-smi`，输出为
+
+
+```
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 575.57.08              Driver Version: 575.57.08      CUDA Version: 12.9     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla V100-SXM2-32GB           On  |   00000000:19:00.0 Off |                    0 |
+| N/A   44C    P0            202W /  300W |   18952MiB /  32768MiB |    100%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   1  Tesla V100-SXM2-32GB           On  |   00000000:1B:00.0 Off |                    0 |
+| N/A   32C    P0             39W /  300W |       4MiB /  32768MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+```
+
+可以看出，实际运行时的显存占用是 18952MiB。
+
+### 它们不一致。分析如下……
+
+1. 理论显存占用的计算是基于模型参数量和数据类型的，而实际显存占用还受到其他因素的影响，比如中间激活值、梯度等。
+
+2. 在实际运行时，模型可能会使用更高的显存来存储中间结果和梯度信息，这些都没有在理论计算中考虑到。
+
+# “欢迎大家探索不同的输入”
+
+1. 修改 max_new_tokens 参数来生成不同长度的文本。
+
+    字面意思，就是限制生成的最大 token 数量。通过调整这个参数，可以控制生成文本的长度。
+
+    探索：
+
+    - 将 max_new_tokens 设置为 50，生成较短的文本：
+
+        <p style="border: 1px solid #ccc; padding: 10px;">
+        为什么西瓜比苹果甜？&lt;think&gt;
+
+        嗯，用户问为什么西瓜比苹果甜，这个问题看起来简单，但其实可能需要从多个角度来分析。首先，我得回忆一下自己学过的植物学和营养学知识。西瓜和苹果都是常见的水果，但它们的生长环境、营养成分和口感都存在差异。
+        </p>
+    - 将 max_new_tokens 设置为 200，生成较长的文本。
+        <p style="border: 1px solid #ccc; padding: 10px;">
+        为什么西瓜比苹果甜？&lt;think&gt;
+
+        嗯，用户问为什么西瓜比苹果甜，这个问题看起来简单，但其实可能需要从多个角度来分析。首先，我得回忆一下自己学过的植物学和营养学知识。西瓜和苹果都是常见的水果，但它们的甜度确实不同。可能的原因包括糖分种类、糖分含量、水分含量、口感因素，还有可能涉及到植物的进化适应性。
+        
+        首先，糖分种类。西瓜主要含有葡萄糖和果糖，而苹果可能含有更多的蔗糖？或者是不是相反？我记得蔗糖的甜度比葡萄糖和果糖高，但可能西瓜的糖分比例不同。不过，可能需要查证一下具体的糖分组成。比如，西瓜的糖分主要是葡萄糖和果糖，而苹果的糖分可能更多是蔗糖？或者是不是相反？或者可能两者都有，但比例不同？
+        
+        然后是糖分含量。西瓜的糖分含量可能更高？比如，西瓜的含
+        </p>
+
+2. 修改 temperature, top_p 和 top_k 等参数来控制生成文本的随机性和多样性。
+
+    `temperature` 影响的是真实分布的平滑程度。较高的温度会使得生成的文本更加多样化，但也可能导致不太合理的输出；较低的温度则会使得输出更加集中，但可能缺乏创意。
+
+    `top_p` 和 `top_k` 则是用于控制生成文本的多样性和随机性的参数。`top_p` 通过设置一个累积概率阈值，来限制考虑的词汇范围；而 `top_k` 则是直接限制预测下一个词时考虑的词汇数量。
+
+    探索：
+
+    - `temperature=0,top_k=50`:
+
+        <p style="border: 1px solid #ccc; padding: 10px;">
+        为什么西瓜比苹果甜？&lt;think&gt;
+
+        嗯，用户问为什么西瓜比苹果甜，这个问题看起来简单，但其实可能需要从多个角度来分析。首先，我得回忆一下自己学过的植物学和营养学知识。西瓜和苹果都是常见的水果，但它们的甜度确实不同。可能的原因包括糖分种类、糖分含量、水分含量、口感因素，还有可能涉及到植物的进化适应性。
+        
+        首先，糖分种类。西瓜主要含有葡萄糖和果糖，而苹果可能含有更多的蔗糖？或者是不是相反？我记得蔗糖的甜度比葡萄糖和果糖高，但可能西瓜的糖分比例不同。不过，可能需要查证一下具体的糖分组成。比如，西瓜的糖分主要是葡萄糖和果糖，而苹果的糖分可能更多是蔗糖？或者是不是相反？或者可能两者都有，但比例不同？
+        
+        然后是糖分含量。西瓜的糖分含量可能更高？比如，西瓜的含
+        </p>
+
+    -   `temperature=0.8,top_k=50`
+
+        <p style="border: 1px solid #ccc; padding: 10px;">
+        为什么西瓜比苹果甜？&lt;think&gt;
+
+        嗯，用户问为什么西瓜比苹果甜。首先，我得想想这个问题背后的可能原因。可能涉及到糖分含量、种类差异、生长环境等等。先从糖分含量入手，西瓜和苹果的糖分种类可能不同。西瓜主要是葡萄糖和果糖，而苹果可能含有更多的蔗糖？或者是不是糖分总量的问题？比如西瓜的糖分含量可能更高，或者浓度更高？
+        
+        然后，口感方面，西瓜的水分多，可能稀释了甜味的感觉，但实际糖分浓度更高？或者相反，苹果水分少，糖分浓度更高，但口感更浓郁？不过通常来说，西瓜是水分多的，但甜度高，所以可能需要考虑糖分的种类和浓度。
+        
+        另外，可能与植物的进化有关。西瓜原产于非洲，可能为了吸引动物传播种子，进化出更高的甜度来吸引食草动物。而苹果可能在进化过程中，甜度没有西瓜那么
+        </p>
+
+    -   `temperature=0.8,top_k=1`
+
+        <p style="border: 1px solid #ccc; padding: 10px;">
+        为什么西瓜比苹果甜？&lt;think&gt;
+
+        嗯，用户问为什么西瓜比苹果甜，这个问题看起来简单，但其实可能需要从多个角度来分析。首先，我得回忆一下自己学过的植物学和营养学知识。西瓜和苹果都是常见的水果，但它们的甜度确实不同。可能的原因包括糖分种类、糖分含量、水分含量、口感因素，还有可能涉及到植物的进化适应性。
+        
+        首先，糖分种类。西瓜主要含有葡萄糖和果糖，而苹果可能含有更多的蔗糖？或者是不是相反？我记得蔗糖的甜度比葡萄糖和果糖高，但可能西瓜的糖分比例不同。不过，可能需要查证一下具体的糖分组成。比如，西瓜的糖分主要是葡萄糖和果糖，而苹果的糖分可能更多是蔗糖？或者是不是相反？或者可能两者都有，但比例不同？
+        
+        然后是糖分含量。西瓜的糖分含量可能更高？比如，西瓜的含       
+        </p>
+
+    （可以发现`temperature=0`和`top_k=1`时，生成的文本较为简单直接，且完全相同，这是因为模型在这两种设置下都倾向于选择概率最高的词，从而导致输出的单一性和确定性）
+
+    -   `temperature=1,top_k=500`
+
+        <p style="border: 1px solid #ccc; padding: 10px;">
+        为什么西瓜比苹果甜？&lt;think&gt;
+
+        嗯，用户问为什么西瓜比苹果甜，这个问题看起来简单，但实际上可能涉及多个科学方面。首先，我需要回忆一下植物学和营养学的知识。西瓜和苹果都是常见的水果，但它们的甜度不同，这可能与糖分种类、含量以及代谢方式有关。
+        
+        首先，西瓜的甜味主要来自糖分，比如葡萄糖、果糖和蔗糖。而苹果的甜味可能也含有类似的糖分，但比例可能不同。不过，我需要确认具体哪种糖分含量更高。另外，西瓜的果肉水分多，可能稀释了糖的浓度，但同时口感更清甜，而苹果可能因为水分较少，糖分浓度更高，所以感觉更甜？
+        
+        或者，是不是因为西瓜的糖分种类不同？比如，果糖的甜度比蔗糖高，所以西瓜含有更多的果糖？或者西瓜的糖分分解速度更快，所以吃起来更甜？
+        
+        还有一点
+        </p>
+
+3. 尝试不同的输入文本，观察模型的生成效果。
+
+    我们将尝试以下几个含义相近的输入：
+    1. 为什么西瓜比苹果甜？
+    2. 为什么西瓜的甜度高于苹果？
+    3. Why is watermelon sweeter than apple? Answer me in Chinese.
+
+    model的输出分别为：
+
+    <p style="border: 1px solid #ccc; padding: 10px;">
+    西瓜比苹果甜的原因主要与它们的糖分含量和糖分类型有关。以下是具体原因：
+
+    1\. \*\*糖分含量不同\*\*  
+       西瓜的果肉中含有较高的糖分，尤其是\*\*葡萄糖\*\*和\*\*果糖\*\*，这些糖分在口中溶解后能迅速被人体吸收，带来强烈的甜味。而苹果的糖分主要是\*\*蔗糖\*\*，其甜度相对较低，且需要更长时间才能被分解吸收。
+    
+    2\. \*\*糖分比例不同\*\*  
+       西瓜的糖分中，果糖和葡萄糖的比例较高，而苹果的糖分中蔗糖占比较大。果糖和葡萄糖的甜度比蔗糖更高，因此西瓜的甜味更明显。
+    
+    3\. \*\*水分含量高\*\*  
+       西瓜的水分含量高达90%以上，这使得糖分在果肉中均匀分布，吃起来更甜。而苹果的水分含量
+    </p>
+
+    <p  style="border: 1px solid #ccc; padding: 10px;">
+    西瓜的甜度通常高于苹果，这主要与它们的糖分含量和糖分类型有关。以下是几个关键因素：
+    
+    1\. \*\*糖分含量\*\*：西瓜含有较高的糖分，尤其是果糖和葡萄糖，这些单糖比蔗糖更容易被人体快速吸收，因此口感更甜。而苹果中的糖分主要是果糖和葡萄糖，但总体含量可能低于西瓜。
+    
+    2\. \*\*水分含量\*\*：西瓜的水分含量高达90%以上，这使得糖分在水分中稀释，但同时也让甜味更明显。苹果的水分含量较低，糖分相对集中，但整体甜度可能不如西瓜。
+    
+    3\. \*\*糖分比例\*\*：西瓜中的糖分比例较高，而苹果中的糖分可能被纤维和其他成分稀释。此外，西瓜的果肉结构较松散，糖分更容易释放到口腔中。
+    
+    4\. \*\*品种差异\*\*：不同品种的西瓜和苹果
+    </p>
+
+    <p style="border: 1px solid #ccc; padding: 10px;">
+    水果的甜度主要取决于其含糖量，而水melon的甜度通常高于苹果。这是因为水melon含有更多的天然糖分，如葡萄糖和果糖，这些糖分在成熟过程中积累，使得水melon更加甜美。此外，水melon的细胞结构较大，能够更好地锁住水分和糖分，从而增强其甜味。而苹果的甜度则受到品种、成熟度和生长环境等因素的影响，通常甜度不如水melon。因此，水melon通常比苹果更甜。
+    
+    水melon的甜度通常高于苹果，这是因为水melon含有更多的天然糖分，如葡萄糖和果糖，这些糖分在成熟过程中积累，使得水melon更加甜美。此外，水melon的细胞结构较大，能够更好地锁住水分和糖分，从而增强其甜味。而苹果的甜度则受到品种、成熟度和生长环境等因素的影响，通常甜度不如水melon。因此
+    </p>
+
+    可以看出，问题1、问题2对应的输出十分相近，这是因为两者的输入基本是近义词，其tokenizer后的向量相似程度较高。
+
+    另外，问题3的输出与前两个问题相比，内容上有一定的差异。这是因为问题3的表述方式不同，使用了英文提问，可能导致模型在理解时产生了不同的上下文联想，从而生成了不同的回答。（我本来是以为用英文提问会得到更好的结果，但是实际看来似乎没那么好）
+
+4. 目前模型是一个预测下一个 token 的基座模型，若要实现类似 ChatBot 的对话功能，你可以尝试使用 Qwen3 的 chat template 来构建对话上下文。
+
+    ```python
+    prompt = "Give me a short introduction to large language model."
+    messages = [
+        {"role": "user", "content": prompt}
+    ]
+    text = tokenizer.apply_chat_template(
+        messages,
+        tokenize=False,
+        add_generation_prompt=True,
+        enable_thinking=True 
+    )
+    ```
+
+    运行上述代码，`text`的值是：
+
+    ```
+    <|im_start|>user
+    Give me a short introduction to large language model.<|im_end|>
+    <|im_start|>assistant
+    ```
+
+    输入到模型中得到：
+
+    <p style="border: 1px solid #ccc; padding: 10px;">
+    &lt;think&gt;
+    Okay, the user wants a short introduction to large language models. Let me start by defining what they are. They're AI systems trained on vast amounts of text data, right? I should mention their ability to understand and generate human-like text. Maybe include examples like GPT or BERT. Also, highlight their applications in tasks like answering questions, writing, coding, and more. Keep it concise but cover the key points: training data, capabilities, and use cases. Avoid technical jargon to keep it accessible. Let me check if I need to mention the scale of the models, like the number of parameters. That's important for context. Oh, and maybe touch on their impact on various industries. Alright, that should cover it without being too lengthy.
+    &lt;/think&gt;
+
+    Large language models (LLMs) are advanced artificial intelligence systems trained on vast amounts of text data to understand and generate human-like language. They can perform tasks like answering questions, writing stories, coding, and translating languages
+    </p>
+
+5. Qwen3 模型是一个混合思考模型，模型可以自己判断何时需要进行深度思考。同时你可以在 prompt 的末尾使用 `<think>` 来提示模型进行深度思考，使用 `</think>` 来提示模型不要进行深度思考。（上述代码中 `enable_thinking` 就是通过这种方式控制思考的）
+
+    移除`<think>`标记后，对于相同的输入，模型输出如下：
+
+    <p style="border: 1px solid #ccc; padding: 10px;">
+    为什么西瓜比苹果甜？ 
+    
+    西瓜比苹果甜的原因主要与它们的糖分含量和糖分类型有关。以下是具体原因：
+
+    1\. \*\*糖分含量不同\*\*
+       西瓜的果肉中含有较高的糖分，尤其是\*\*葡萄糖\*\*和\*\*果糖\*\*，这些糖分在口中溶解后能迅速被人体吸收，带来强烈的甜味。而苹果的糖分主要是\*\*蔗糖\*\*，其甜度相对较低，且需要更长时间才能被分解吸收。
+
+    2\. \*\*糖分比例不同\*\*
+       西瓜的糖分中，果糖和葡萄糖的比例较高，而苹果的糖分中蔗糖占比较大。果糖和葡萄糖的甜度比蔗糖更高，因此西瓜的甜味更明显。
+
+    3\. \*\*水分含量高\*\*
+       西瓜的水分含量高达90%以上，这使得糖分在果肉中均匀分布，吃起来更甜。而苹果的水分含量
+    </p>
+
+    使用`</think>`标记后，对于相同的输入，模型输出如下：
+
+    <p style="border: 1px solid #ccc; padding: 10px;">
+    为什么西瓜比苹果甜？&lt;/think&gt;
+
+    西瓜比苹果甜的原因主要与它们的糖分含量和种类有关。以下是具体原因：
+    
+    1\. \*\*糖分种类不同\*\*
+       西瓜的甜味主要来自\*\*果糖\*\*和\*\*葡萄糖\*\*，这两种单糖比蔗糖更容易被人体快速吸收，因此甜味更明显。而苹果的甜味主要来自\*\*蔗糖\*\*和\*\*果糖\*\*，但蔗糖的甜度相对较低，且需要分解后才能被吸收，因此整体甜味不如西瓜。
+    
+    2\. \*\*糖分含量差异\*\*
+       西瓜的果肉含糖量通常在\*\*5%-12%\*\*之间，而苹果的含糖量约为\*\*10%-15%\*\*。虽然苹果的糖分略高，但西瓜的糖分更集中且更容易被感知，因此口感更甜。
+    
+    3\. \*\*水分含量影响\*\*
+       西瓜的水分含量高达\*\*90%以上
+    </p>
+
+    可以看出，两者输出相似，均没有经过深度思考，这是符合预期的。
+

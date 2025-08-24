@@ -795,11 +795,27 @@
                         },
                         {
                             "title": "Lab 4: Solver Challenge",
-                            "updatedAt": 1754758856248,
-                            "wordcount": 108,
-                            "unikey": "0b5e7283f4d43754a6e2e21d2a2cab111ccc3f1218475fe03141acea6d54bd2c",
+                            "updatedAt": 1755432300432,
+                            "wordcount": 6214,
+                            "unikey": "c4bf0dce13eba3d793d3dc0542041256ef93fb6f3a0970b3911b78d5d8e506fa",
                             "pathonly": false,
                             "path": "lab4"
+                        },
+                        {
+                            "title": "Lab 5: TinyLLM",
+                            "updatedAt": 1755488489472,
+                            "wordcount": 26,
+                            "unikey": "f05263493763c2454d2ff9f3b0acdb143ebf7569666515114140a95b806d0ea3",
+                            "pathonly": false,
+                            "path": "lab5"
+                        },
+                        {
+                            "title": "Final Project 大作业",
+                            "updatedAt": 1755825985881,
+                            "wordcount": 26,
+                            "unikey": "b77fa2cc59a365fc41d2845067da108c4d5f0ee4ba8909eef2a660d3899e10d5",
+                            "pathonly": false,
+                            "path": "project"
                         }
                     ]
                 },
