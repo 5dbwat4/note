@@ -1,0 +1,63 @@
+---
+title: "Assignment 0: 虚拟机的使用"
+---
+
+1. 遗憾的是，所附的虚拟硬盘文件分享链接已经失效了。
+2. 我们将尝试不使用虚拟机，而是直接在本地环境中进行开发和测试。
+3. 所以，首要任务是弄一个相同或相近的环境。
+
+# 把eigen配好
+
+将最新stable版本的Eigen库下载并解压到本地目录中。
+
+当前目录结构
+
+```
+main.cpp
+CMakeLists.txt
+eigen-3.4.0
+ |-- Eigen
+ |   |-- Core
+ |   |-- Dense
+ |   |-- Geometry
+ |   |-- Unsupported
+ |-- ...
+```
+
+然后修改`CMakeLists.txt`，将Eigen的include目录添加到include路径中：
+
+```diff
+- find_package(Eigen3 REQUIRED)
+- include_directories(EIGEN3_INCLUDE_DIR)
++ include_directories(${CMAKE_SOURCE_DIR}/eigen-3.4.0)
+```
+
+`main.cpp`中调用eigen的方式也要对应修改
+
+```diff
+- #include<eigen3/Eigen/Core>
+- #include<eigen3/Eigen/Dense>
++ #include<Eigen/Core>
++ #include<Eigen/Dense>
+```
+
+总之这么操作之后编译可以正常完成了。
+
+# 做做任务
+
+> 给定一个点$P=(2,1)$,将该点绕原点先逆时针旋转$45^\circ$，再平移$(1,2)$,计算出变换后点的坐标（要求用齐次坐标进行计算）。
+
+```cpp
+Eigen::Vector3f P(2,1,1);
+Eigen::Matrix3f R;
+R << std::cos(M_PI/4), -std::sin(M_PI/4), 0,
+     std::sin(M_PI/4),  std::cos(M_PI/4), 0,
+     0,                 0,                1;
+Eigen::Matrix3f T;
+T << 1, 0, 1,
+     0, 1, 2,
+     0, 0, 1;
+P = T * R * P;
+
+std::cout << "变换后点的坐标为: (" << P(0) << ", " << P(1) << ")" << std::endl;
+```

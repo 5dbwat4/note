@@ -1,0 +1,74 @@
+---
+title: "Lab 2.5: 向量化进阶 (RISC-V)"
+---
+
+import Asciinema from "@md-components/AsciinemaWrapper.vue"
+
+任务二未能战胜。
+
+# 使用 RVV Intrinsic 实现整数矩阵乘法
+
+## Naive implement using Intrinsic
+
+```cpp
+void optimized_gemm(uint8_t* A, int8_t* B, int32_t* C, int m, int n, int k) {
+    const int inner_dim = 128;
+    const vint32m1_t scal =  __riscv_vmv_v_x_i32m1(0, 1);
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            uint8_t* a_ptr = A + i * inner_dim;
+            int8_t* b_ptr = B + j * inner_dim;
+            int avl = inner_dim;
+            size_t vl = __riscv_vsetvl_e8m1(avl);
+            vint32m4_t acc_vec = __riscv_vmv_v_x_i32m4(0, 32);
+            for (; avl > 0; avl -= vl) {
+                vuint8m1_t a_vec = __riscv_vle8_v_u8m1(a_ptr, vl);
+                a_ptr += vl;
+                vint8m1_t b_vec = __riscv_vle8_v_i8m1(b_ptr, vl);
+                b_ptr += vl;
+                vuint16m2_t a_ext = __riscv_vzext_vf2_u16m2(a_vec, vl);
+                vint16m2_t b_ext = __riscv_vsext_vf2_i16m2(b_vec, vl);
+                acc_vec = __riscv_vwmaccsu_vv_i32m4(acc_vec, b_ext, a_ext, vl);
+            }
+            vint32m1_t red = __riscv_vredsum_vs_i32m4_i32m1(
+                                                acc_vec, scal , vl);
+            C[i * n + j] = __riscv_vmv_x_s_i32m1_i32(red);
+        }
+    }
+}
+```
+
+~~又到了*查查表*时间~~
+
+与lab2相同，我们的核心思路是：
+    - 对$C$中的每一元素，加载对应的行&列（`__riscv_vle8_v_u8m1` -> `__riscv_vzext_vf2_u16m2`， `__riscv_vle8_v_i8m1` -> `__riscv_vsext_vf2_i16m2`）
+    - Multiply-Add：`__riscv_vwmaccsu_vv_i32m4`
+    - 全部加和：`__riscv_vredsum_vs_i32m4_i32m1`
+    - 存储：`__riscv_vmv_x_s_i32m1_i32`
+
+import Cast0 from "./casts/lab2p5-v0.cast?url"
+
+<Asciinema url={Cast0} />
+
+## 来点分块
+
+```cpp
+...
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j += 4) {
+            int8_t* b_ptr0 = B + j * inner_dim;
+            int8_t* b_ptr1 = B + (j + 1) * inner_dim;
+            int8_t* b_ptr2 = B + (j + 2) * inner_dim;
+            int8_t* b_ptr3 = B + (j + 3) * inner_dim;
+            //...(同前，但是A不变，B重复4次)
+            C[i * n + j] = __riscv_vmv_x_s_i32m1_i32(red0);
+            C[i * n + j + 1] = __riscv_vmv_x_s_i32m1_i32(red1);
+            C[i * n + j + 2] = __riscv_vmv_x_s_i32m1_i32(red2);
+            C[i * n + j + 3] = __riscv_vmv_x_s_i32m1_i32(red3);
+        }
+    }
+```
+
+import Cast1 from "./casts/lab2p5-v1.cast?url"
+
+<Asciinema url={Cast1} />

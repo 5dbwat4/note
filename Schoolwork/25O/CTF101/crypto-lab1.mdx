@@ -1,0 +1,536 @@
+---
+title: Crypto Lab 1：消息加密和数字签名
+---
+
+
+import Card from '@md-components/card.vue';
+
+{/* IRON:myisijv597slx1bxx338qrs7sdv438kw:OB */}
+
+import PasswordContainer from '@md-components/passwordContainer.vue';
+
+<PasswordContainer md5="9d5877b5a59773af69919a1544ea8c08">
+
+# Task: vigenere-encrypt (40%)
+
+<Card type="task" title="任务">
+
+课上介绍了维吉尼亚（Vigenere）密码，其作为多表加密的替换密码，加密强度相对于单表替换已经增强了许多，但是仍然会因语言学特性被轻松破解。
+
+维吉尼亚密码的破解方法在课上有一定介绍，也做了一些展示，密钥的破解基本分为以下两步：
+
+1. 爆破猜测密钥长度
+    - 第一种方法是寻找多次重复的密文，然后计算密文间隔的最大公因数，即为最有可能的密钥长度，这个在课上已作展示
+    - 此外，也可以爆破密钥长度，计算密文中相隔该长度的字符重合了几次，整体重合次数最多的长度可能就是密钥长度
+2. 逐位爆破密钥
+    - 确定了密钥长度后，可以通过字母频率或者单词频率猜测密钥的其中几位
+    - 随后根据已解密的部分猜测单词，继续进行密钥的破解
+
+本 Task 需要完成 ZJU School-Bus 上的 [vigenere-encrypt](https://zjusec.com/challenges/31) 一题，在实验报告中简单描述这道题的做法。如果没法完整做出，也可以叙述自己的思路和解题过程，会根据完成情况给分。本题分值 40 分。
+
+</Card>
+
+1. 猜测密钥的长度
+    我们使用[Index of coincidence](https://en.wikipedia.org/wiki/Index_of_coincidence)作为评判指标
+    ```python
+    import math
+
+    # 定义字符集（与加密时相同）
+    text_list = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\t\n'
+
+    def compute_ic(s):
+        """计算字符串s的重合指数(IoC)"""
+        n = len(s)
+        if n <= 1:
+            return 0.0
+
+        freq = {}
+        for char in s:
+            freq[char] = freq.get(char, 0) + 1
+
+        total = 0
+        for count in freq.values():
+            total += count * (count - 1)
+
+        return total / (n * (n - 1))
+
+    def main():
+        # 读取密文
+        with open('cipher.txt', 'r') as f:
+            cipher = f.read()
+
+        # 设定密钥长度测试范围 (1-40)
+        min_key_len = 1
+        max_key_len = 40
+        results = []
+
+        for key_len in range(min_key_len, max_key_len + 1):
+            # 按密钥长度分组
+            groups = [''] * key_len
+            for idx, char in enumerate(cipher):
+                group_idx = idx % key_len
+                groups[group_idx] += char
+
+            # 计算平均IC
+            avg_ic = 0.0
+            valid_groups = 0
+            for group in groups:
+                if len(group) >= 2:  # 需要足够字符计算IC
+                    group_ic = compute_ic(group)
+                    avg_ic += group_ic
+                    valid_groups += 1
+
+            if valid_groups > 0:
+                avg_ic /= valid_groups
+            else:
+                avg_ic = 0.0
+
+            results.append((key_len, avg_ic))
+
+        # 按IC值降序排序
+        results.sort(key=lambda x: x[1], reverse=True)
+
+        # 输出结果
+        print("密钥长度候选 (按IC值降序):")
+        print("长度\tIC值\t与随机文本差值")
+        for key_len, ic in results:
+            random_ic = 1 / len(text_list)  # 随机文本的期望IC
+            ic_diff = ic - random_ic
+            print(f"{key_len}\t{ic:.6f}\t{ic_diff:+.6f}")
+
+    if __name__ == "__main__":
+        main()
+    ```
+
+    得出len=29时IoC值合适( 0.070525 )，因此选择29作为密钥长度
+
+2. 逐位爆破密钥
+    ```python
+    from collections import Counter
+
+    # 定义字符集（与加密时相同）
+    text_list = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\t\n'
+    mod = len(text_list)  # 97
+
+    def mod_inv(a, m=mod):
+        """计算a在模m下的乘法逆元"""
+        for i in range(1, m):
+            if (a * i) % m == 1:
+                return i
+        return None  # a为0时无逆元（但a∈[1,96]总有逆元）
+
+    def rate(text):
+        """
+        计算文本中：小写字母个数 + 空格个数 + 大写字母个数 * 0.5
+        """
+        lowercase_count = 0
+        uppercase_count = 0
+        space_count = 0
+
+        for char in text:
+            if char.islower():
+                lowercase_count += 1
+            elif char.isupper():
+                uppercase_count += 1
+            elif char == ' ':  # 只计算空格字符
+                space_count += 1
+
+        # 计算总分：小写字母全值 + 空格全值 + 大写字母半值
+        total_score = lowercase_count + space_count + (uppercase_count * 0.5)
+        return total_score
+
+    def break_single_key(cipher_group):
+        """爆破单个密钥"""
+        best_key = 0
+        best_ic = -1
+
+        for k in range(1, mod):  # 尝试所有可能密钥k∈[1,96]
+            inv_k = mod_inv(k)
+            decrypted = []
+            for c in cipher_group:
+                idx_c = text_list.index(c)
+                idx_p = (idx_c * inv_k) % mod
+                decrypted.append(text_list[idx_p])
+            decrypted_text = ''.join(decrypted)
+            ic_val = rate(decrypted_text)
+
+            if ic_val > best_ic:
+                best_ic = ic_val
+                best_key = k
+        return best_key
+
+    def break_vigenere_key(ciphertext, key_length):
+        """爆破整个Vigenère密钥（已知密钥长度）"""
+        # 按密钥长度分组密文
+        groups = [''] * key_length
+        for i, char in enumerate(ciphertext):
+            groups[i % key_length] += char
+
+        print("分组后的密文：", "\n\n".join(groups))
+        # 对每组爆破单个密钥
+        key = []
+        for group in groups:
+            key.append(break_single_key(group))
+        return key
+
+    def decrypt(ciphertext, key):
+        """用密钥解密密文"""
+        inv_key = [mod_inv(k) for k in key]  # 计算密钥的逆元
+        plaintext = []
+        for i, char in enumerate(ciphertext):
+            idx_c = text_list.index(char)
+            idx_p = (idx_c * inv_key[i % len(key)]) % mod
+            plaintext.append(text_list[idx_p])
+        return ''.join(plaintext)
+
+    # 主程序
+    if __name__ == "__main__":
+        # 读取密文文件
+        with open('cipher.txt', 'r') as f:
+            ciphertext = f.read()
+
+        # 输入已知的密钥长度（通过其他方法获得）
+        key_length = 29
+
+        # 爆破密钥
+        key = break_vigenere_key(ciphertext, key_length)
+        print(f"爆破得到的密钥: {key}")
+
+        # 用密钥解密密文
+        plaintext = decrypt(ciphertext, key)
+
+        # 保存解密结果
+        with open('decrypted.txt', 'w') as f:
+            f.write(plaintext)
+        print("解密结果已保存到 decrypted.txt")
+    ```
+
+    关于评判key正确性的那个评分函数，考虑到原文是《TOEFL reading passage》，显然应当由大量小写字母，一些空格，少量大写字母，以及一个嵌入的flag组成，那么可以直接认定解密后满足这个特点的key是正确的key。
+
+    所以我们干脆不用IoC了，直接使用《小写字母个数 + 空格个数 + 大写字母个数 * 0.5》这一 ~~*先进的原创性的*~~ 评分函数来评判key的正确性。
+
+<pre style="font-family: v-mono, SFMono-Regular, Menlo, Consolas, Courier, monospace;word-wrap: break-word;white-space: pre-wrap;overflow-wrap: break-word;font-size: 14px;line-height: 1.5em;">
+By the mid-nineteenth century, the term "icebox" had entered the American language, but ice was still only beginning to affect the diet of ordinary citizens in the United States. The ice trade grew with the growth of cities. Ice was used in hotels, taverns, and hospitals, and by some forward-looking city dealers in fresh meat, fresh fish, and butter.After the Civil War (1861-1865), as ice was used to refrigerate freight cars, it also came into household use. Even before 1880, half the ice sold in New York, Philadelphia, and Baltimore, and one-third of that sold in Boston and Chicago, went to families for their own use. This had become possible because a new household convenience, the icebox, a precursor of the modern refrigerator, had been invented.
+Making an efficient icebox was not as easy as we might now suppose. In the early nineteenth century, the knowledge of the physics of heat, which was essential to a science of refrigeration, was rudimentary. The commonsense notion that the best icebox was one that prevented the ice from melting was of course mistaken, for it was the melting of the ice that performed the cooling.
+Nevertheless, early efforts to economize ice included wrapping the ice in blankets, which kept the ice from doing its job. Not until near the end of the nineteenth century did inventors achieve the delicate balance of insulation and circulation needed for an efficient icebox.
+fLaG:AAA\{i_like_T0ef1_v3ry_M3uh!!!\}
+But as early as 1803, an ingenious Maryland farmer, Thomas Moore, had been on the right track. He owned a farm about twenty miles outside the city of Washington, for which the village of Georgetown was the market center. When he used an icebox of his own design to transport his butter to market, he found that customers would pass up the rapidly melting stuff in the tubs of his competitors to pay a premium price for his butter, still fresh and hard in neat, one-pound bricks.
+One advantage of his icebox, Moore explained, was that farmers would no longer have to travel to market at night in order to keep their produce cool.
+Perhaps the most obvious way artistic creation reflects how people live is by mirroring the environment - the materials and technologies available to a culture. Stone, wood, tree bark, clay, and sand are generally available materials. In addition, depending on the locality, other resources may be accessible: shells, horns, gold, copper, and silver. The different uses to which societies put these materials are of interest to anthropologists who may ask, for example, why people choose to use clay and not copper when both items are available. Although there are no conclusive answers yet, the way in which a society views its environment is sometimes apparent in its choice and use of artistic materials. The use of certain metals, for example, may be reserved for ceremonial objects of special importance. Or the belief in the supernatural powers of a stone or tree may cause a sculptor to be sensitive to that material.
+What is particularly meaningful to anthropologist is the realization that although the materials available to a society may to some extent limit or influence what it can do artistically, the materials by no means determine what is done. Why do the artists in Japanese society rake sand into patterns; and the artists in Roman society melt sand to form glass? Moreover, even when the same material is used in the same way by members of different societies, the form or style of the work varies enormously from culture to culture. A society may simply choose to represent objects or phenomena that are important to its population. An examination of the art of the Middle Ages tells us something about the medieval preoccupation with theological doctrine. In addition to revealing the primary concerns of a society, the content of that society's art may also reflect the culture's social stratification.
+</pre>
+
+居然一次就成功了这个属实没想到，我还以为会有复杂的调试score function的过程
+
+# Challenges & bonus (75%)
+
+## 古典密码的拓展 (60%)
+
+<Card type="task" title="任务">
+
+希尔密码是古典密码学与线性代数的结合，通过希尔密码的破解，也可以初步感受现代密码学的特点：以数学为基础的算法构建和破解。
+
+本 Challenge 需要完成 ZJU School-Bus 上的 [HSC](https://zjusec.com/challenges/168) 一题，在实验报告中简单描述这道题的做法。
+
+这里首先先让同学们学习一下 sagemath 的使用方法，对完成本题或者之后专题的学习有较大的帮助。
+
+- 对题目中的 MT 矩阵进行随机赋值，使其可逆，使用 sage 求出它的逆矩阵，分值 10 分
+- 随机设置 flag 生成 FT，计算 RT，再通过 RT 和 MT 求出 FT 的值，与原 FT 进行比对，分值 10 分
+
+如果后续没有选择密码学专题的打算，上述复现可以使用[在线环境](https://sagecell.sagemath.org/)。
+
+HSC 题目分值 40 分，加上 sage 复现部分本 Challenge 共 60 分，同样，如果没法完整做出，也可以叙述自己的思路和解题过程，会根据完成情况给分。
+
+</Card>
+
+### 对题目中的 MT 矩阵进行随机赋值，使其可逆，使用 sage 求出它的逆矩阵
+
+```python
+from sage.all import *
+
+# 随机生成可逆矩阵 MT
+while True:
+    # 生成随机 3x3 矩阵
+    MT = matrix(Zmod(256), [[randint(0, 255) for _ in range(3)] for _ in range(3)])
+
+    if MT.is_invertible():
+        break
+
+print("随机生成的 MT 矩阵:")
+print(MT)
+print("MT 的逆矩阵:")
+print(MT.inverse())
+```
+### 随机设置 flag 生成 FT，计算 RT，再通过 RT 和 MT 求出 FT 的值，与原 FT 进行比对
+
+```python
+# ...
+# Now we have MT which is a 3x3 invertible matrix
+
+import random
+import string
+
+# 2. 随机生成 flag (30个字符，格式为 AAA{...})
+def generate_random_flag():
+    prefix = "AAA{"
+    suffix = "}"
+    # 生成25个随机可打印字符
+    middle = ''.join(random.choices(string.ascii_letters + string.digits + "_-", k=25))
+    return prefix + middle + suffix
+
+flag = generate_random_flag()
+print("随机生成的 flag:", flag)
+
+# 3. 构建 FT 矩阵 (3x10)
+FT = matrix(Zmod(256), 3, 10)
+for i in range(3):
+    for j in range(10):
+        FT[i, j] = ord(flag[i + j * 3])
+
+print("FT 矩阵:")
+print(FT)
+
+# 4. 计算 RT = MT * FT
+RT = MT * FT
+print("RT 矩阵:")
+print(RT)
+
+# 5. 求出 FT 的值
+FT_recovered = MT.inverse() * RT
+
+print("FT 恢复后的矩阵:")
+print(FT_recovered)
+
+# 6. 验证 FT 恢复是否正确
+flag_recovered = ""
+for j in range(10):
+    for i in range(3):
+        flag_recovered += chr(FT_recovered[i, j])
+print("恢复的 flag:", flag_recovered)
+if flag_recovered == flag:
+    print("FT 恢复成功，flag 匹配！")
+else:
+    print("FT 恢复失败，flag 不匹配。")
+```
+
+### HSC
+
+爆破4位flag来还原 MT 矩阵，通过FT是否均为可打印字符来判断是否正确。
+
+```python
+from sage.all import *
+import random
+import string
+
+result_bytes = b'\xfc\xf2\x1dE\xf7\xd8\xf7\x1e\xed\xccQ\x8b9:z\xb5\xc7\xca\xea\xcd\xb4b\xdd\xcb\xf2\x939\x0b\xec\xf2'
+RT_0 =  matrix(Zmod(256), [[252,69,11],[242,247,236],[29,216,242]])
+bruteforce = string.ascii_letters + string.digits + "_-"
+RT = matrix(Zmod(256), 3,10)
+for i in range(10):
+	for j in range(3):
+	    RT[j, i]=result_bytes[j+i*3]
+
+# We are bruteforce 64**4 which is acceptable
+
+def all_char_is_printable(matrix):
+    for i in range(matrix.nrows()):
+        for j in range(matrix.ncols()):
+            if matrix[i, j] < 32 or matrix[i, j] > 126:
+                return False
+    return True
+
+def do_a_single_test(FT_0):
+    FT_recovered = FT_0 * RT_0.inverse() * RT
+    if not all_char_is_printable(FT_recovered):
+        return
+    flag_recovered = ""
+    for j in range(10):
+        for i in range(3):
+            flag_recovered += chr(FT_recovered[i, j])
+    print("恢复的 flag:", flag_recovered)
+
+def do_bruteforce():
+    FT_0 = matrix(Zmod(256),3,3)
+    FT_0 [0,0] = 65
+    FT_0 [1,0] = 65
+    FT_0 [2,0] = 65
+    FT_0 [0,1] = 123
+    FT_0 [2,2] = 125
+    for i1 in bruteforce:
+        FT_0 [1,1] = ord(i1)
+        for i2 in bruteforce:
+            FT_0 [2,1] = ord(i2)
+            print("Report status: ", i1, i2)
+            for i3 in bruteforce:
+                FT_0 [0,2] = ord(i3)
+                for i4 in bruteforce:
+                    FT_0 [1,2] = ord(i4)
+                    do_a_single_test(FT_0)
+
+do_bruteforce()
+```
+
+但是没爆出来😥
+
+#### Update @ 2025-7-20
+
+把字符集放大一点爆出来了：
+
+```python
+...
+bruteforce = string.ascii_letters + string.digits + "!@#$%^&*()-_=+[]{}|;:',.<>?/~`"
+...
+```
+
+flag: `AAA{sl1Hp*aB4c!1mZQT3^gTn1L&1}`
+
+跑了34min，处于可接受的范围内
+
+
+## 随机数的预测 (50%)
+
+<Card type="task" title="任务">
+
+随机数在密码学中起着重要的作用，尤其是在密钥生成和加密算法中。
+
+在课上我们主要介绍了随机数的生成和预测方法，以及相关的攻击方式，你可以尝试实现一些简单的随机数预测攻击。
+
+本 Challenge 需要完成 ZJU School-Bus 上的 [PRNG Study1](https://zjusec.com/challenges/94) 一题，在实验报告中简单描述这道题的做法。完成本题可以获得 50 分。
+
+- 如果想要获得额外的 15 分奖励，你可以再选择任意一种语言的随机数生成器进行分析并阐述攻击的思路。
+
+如果没法完整做出，也可以叙述自己的思路和解题过程，会根据完成情况给分。
+
+</Card>
+
+### PRNG Study1
+
+```python
+from pwn import *
+
+sh = remote('10.214.160.13',12600)
+
+
+
+powStr = sh.recvline().decode() # 'sha256(XXXX + iL9MgF7ZDXba3SjK) == e9281fd69ad6c142a118e2f1f4a24129277377bb96c06f7c08277da7620d5825'
+sh.recvline()
+
+
+import hashlib
+import string
+
+def solve_proof_of_work(proof, digest):
+    # The charset to use for the brute force (same as in the proof_of_work function)
+    charset = string.ascii_letters + string.digits
+    
+    # Iterate over all possible combinations of the 4-character prefix
+    for i in range(len(charset)):
+        print(f"Testing prefix {i+1}/{len(charset)}", end='\r')
+        for j in range(len(charset)):
+            for k in range(len(charset)):
+                for l in range(len(charset)):
+                    prefix = f"{charset[i]}{charset[j]}{charset[k]}{charset[l]}"
+                    # print((prefix + proof).encode('utf-8'))
+                    if hashlib.sha256((prefix + proof).encode()).hexdigest() == digest:
+                        return prefix
+    return None
+
+proof = powStr.split(') == ')[0][14:]
+digest = powStr.split(') == ')[1][:-1]
+
+log.info(f"Solving PoW with Proof: {proof}, Digest: {digest}")
+solution = solve_proof_of_work(proof, digest)
+log.success(f"Solution found: {solution}")
+sh.sendline(bytes(solution, 'utf-8'))
+# sh.interactive()
+
+sh.recvuntil(b'Level:')
+sh.sendline(b'1')
+
+sh.recvline().decode()
+
+
+
+
+
+
+
+
+log.info('Receiving leaked data')
+leaked_data_str = sh.recvline().decode() # '[8861151185762077140, 8786055871148907391, 9031881494187854144, 2057099155505662839, 10920481184413936408, 8863944909863100605]'
+leaked_data = [int(x) for x in leaked_data_str[1:-2].split(', ')]
+
+print(leaked_data)
+
+# sh.recvline().decode()
+
+log.info(f"Cracking LCD")
+
+from functools import reduce
+from math import gcd
+
+# https://zer0yu.github.io/2018/11/02/Cracking-LCG/
+
+def crack_unknown_increment(states, modulus, multiplier):
+    increment = (states[1] - states[0]*multiplier) % modulus
+    return modulus, multiplier, increment
+
+def crack_unknown_multiplier(states, modulus):
+    multiplier = (states[2] - states[1]) * modinv(states[1] - states[0], modulus) % modulus
+    return crack_unknown_increment(states, modulus, multiplier)
+
+def egcd(a, b):
+    if a == 0:
+        return (b, 0, 1)
+    else:
+        g, x, y = egcd(b % a, a)
+        return (g, y - (b // a) * x, x)
+
+def modinv(b, n):
+    g, x, _ = egcd(b, n)
+    if g == 1:
+        return x % n
+    
+def crack_unknown_modulus(states):
+    diffs = [s1 - s0 for s0, s1 in zip(states, states[1:])]
+    zeroes = [t2*t0 - t1*t1 for t0, t1, t2 in zip(diffs, diffs[1:], diffs[2:])]
+    modulus = abs(reduce(gcd, zeroes))
+    return crack_unknown_multiplier(states, modulus)
+
+
+n,a,b = crack_unknown_modulus(leaked_data)
+
+log.info(f"Reversed param: n={n}, a={a}, b={b}")
+
+state = leaked_data[0]
+assert((a*state + b) % n==leaked_data[1])
+
+for i in range(6):
+    # sh.recvuntil('Guess: ').decode()
+    print(sh.recv())
+    state = leaked_data[i]
+    print(f"Guess {i+1}: {state}")
+    sh.sendline(str(state).encode())
+
+for i in range(6,23):
+    # sh.recvuntil('Guess: ').decode()
+    print(sh.recv())
+    state = (a*state + b) % n
+    print(f"Guess {i+1}: {state}")
+    sh.sendline(str(state).encode())
+
+
+sh.interactive()
+
+# sh.recvline().decode()
+# print('line', sh.recvline().decode())
+# print('line', sh.recvline().decode())
+# print('line', sh.recvline().decode())
+
+
+
+# AAA{8a8y_L1near_C0ngruen7ial_G3ner4tors_Cracking|fee9a4cd03}
+```
+
+
+</PasswordContainer>

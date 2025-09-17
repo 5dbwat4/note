@@ -1,0 +1,91 @@
+---
+title: "Lecture 4: Transformation Cont."
+---
+
+# **3D变换（3D Transformations）**
+1. **齐次坐标（Homogeneous Coordinates）**  
+   - 3D点：$(x, y, z, 1)^\text{T}$  
+   - 3D向量：$(x, y, z, 0)^\text{T}$  
+   - 通用形式 $(x, y, z, w)^\text{T} \, ( w \neq 0 )$等价于点：$(x/w, y/w, z/w)^\text{T}$
+
+2. **变换矩阵（4×4 Affine Matrices）**  
+   ```math
+   \begin{pmatrix} x' \\ y' \\ z' \\ 1 \end{pmatrix} = 
+   \begin{pmatrix} 
+     a & b & c & t_x \\ 
+     d & e & f & t_y \\ 
+     g & h & i & t_z \\ 
+     0 & 0 & 0 & 1 
+   \end{pmatrix} 
+   \cdot 
+   \begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}
+   ```
+   **执行顺序**：先线性变换（缩放/旋转），后平移（Translation）。
+
+3. **基础变换矩阵**  
+   | 变换类型         | 矩阵公式                                                                 |
+   |------------------|-------------------------------------------------------------------------|
+   | 缩放（Scale）    | $\mathbf{S}(s_x,s_y,s_z)=\begin{pmatrix} s_x & 0 & 0 & 0 \\ 0 & s_y & 0 & 0 \\ 0 & 0 & s_z & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix}$ |
+   | 平移（Translation） | $T = \begin{pmatrix} 1 & 0 & 0 & t_x \\ 0 & 1 & 0 & t_y \\ 0 & 0 & 1 & t_z \\ 0 & 0 & 0 & 1 \end{pmatrix}$                       |
+   | 旋转（Rotation） | $R_x(\alpha) = \begin{pmatrix} 1 & 0 & 0 & 0 \\ 0 & \cos\alpha & -\sin\alpha & 0 \\ 0 & \sin\alpha & \cos\alpha & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix}$ <br /> $R_y(\alpha) = \begin{pmatrix} \cos\alpha & 0 & \sin\alpha & 0 \\ 0 & 1 & 0 & 0 \\ -\sin\alpha & 0 & \cos\alpha & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix}$ <br /> $R_z(\alpha) = \begin{pmatrix} \cos\alpha & -\sin\alpha & 0 & 0 \\ \sin\alpha & \cos\alpha & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix}$ |
+
+   旋转：  
+   1. 绕哪个轴转，哪个轴是1
+   2. 注意绕y轴时，x和z轴的符号会互换
+
+4. **3D旋转合成**： Compose any 3D rotation from $\mathbf{R}_x$, $\mathbf{R}_y$, $\mathbf{R}_z$  
+
+   - **欧拉角（Euler Angles）**：$\mathbf{R}_{xyz}(\alpha,\beta,\gamma) = \mathbf{R}_x(\alpha)\mathbf{R}_y(\beta)\mathbf{R}_z(\gamma)$
+     （飞行模拟常用：Roll, Pitch, Yaw）  
+   - **罗德里格斯公式（Rodrigues' Formula）**：Rotation by angle $\alpha$ around axis $\mathbf{n}$  
+     ```math
+     R(\mathbf{n},\alpha) = \cos\alpha \mathbf{I} + (1-\cos\alpha)\mathbf{n}\mathbf{n}^T + \sin\alpha 
+     \begin{pmatrix} 0 & -n_z & n_y \\ n_z & 0 & -n_x \\ -n_y & n_x & 0 \end{pmatrix}
+     ```
+
+# **观测变换（Viewing Transformation）**
+##  **视图变换（View/Camera Transformation）**  
+   - **相机参数**：  
+     - 位置 $\vec{e}$（Position）  
+     - 观察方向 $\hat{g}$（ Look-at / gaze Direction）  
+     - 向上方向 $\hat{t}$（Up Direction，垂直于 $\hat{g}$）  
+   - **目标**：将相机移至原点，up at Y, look at -Z 。（ If the camera and all objects move together,  the “photo” will be the same）  
+
+   - **矩阵分解**：  
+     ```math
+     M_{view} = R_{view} \cdot T_{view} \quad \text{（先平移后旋转）}
+     ```
+     - 平移矩阵：`T_view = [1 0 0 -x_e; 0 1 0 -y_e; 0 0 1 -z_e; 0 0 0 1]`  
+     - 旋转矩阵：将 `(g×t, t, -g)` 对齐到 `(X, Y, Z)` 轴。
+
+## **投影变换（Projection Transformation）**
+
+![](./assets/two-types-of-projection.png)
+
+###  **正交投影（Orthographic Projection）**  
+   - **流程**：  
+     1. 将立方体 $[l, r] \times [b, t] \times [f, n]$ 平移至原点中心；  
+     2. 缩放至规范立方体 $[-1, 1] ^3$。  
+
+   - **矩阵**：  
+     ```math
+     M_{ortho} = \begin{bmatrix} \frac{2}{r-l} & 0 & 0 & 0 \\ 0 & \frac{2}{t-b} & 0 & 0 \\ 0 & 0 & \frac{2}{n-f} & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix} \cdot \begin{bmatrix} 1 & 0 & 0 & -\frac{r+l}{2} \\ 0 & 1 & 0 & -\frac{t+b}{2} \\ 0 & 0 & 1 & -\frac{n+f}{2} \\ 0 & 0 & 0 & 1 \end{bmatrix}
+     ```
+   - **注意**：相机朝向 `-Z` 时，`n > f`（OpenGL使用左手系）。
+
+###  **透视投影（Perspective Projection）**  
+   - **核心思想**：  
+     - 将视锥体（Frustum）“挤压”为立方体（`M_{persp→ortho}`），再进行正交投影。  
+     - 近大远小：点 `(x, y, z)` 投影后坐标为 `(nx/z, ny/z)`。  
+     
+   - **挤压矩阵推导**：  
+     - 利用齐次坐标性质：`(x, y, z, 1) → (nx, ny, unknown, z)`  
+     - 约束条件：近平面 `z=n` 不变，远平面 `z=f` 中心不变。  
+     - 最终矩阵：  
+       ```math
+       M_{persp→ortho} = \begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & n+f & -nf \\ 0 & 0 & 1 & 0 \end{bmatrix}
+       ```
+   - **完整透视投影**：`M_{persp} = M_{ortho} \cdot M_{persp→ortho}`
+
+# **关键总结**
+- **视图变换本质**：将相机与场景一起变换，简化后续投影（Model-View Transformation）。  

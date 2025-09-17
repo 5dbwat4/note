@@ -111,10 +111,10 @@
                             "path": "index"
                         },
                         {
-                            "title": "",
-                            "updatedAt": 1753884238391,
-                            "wordcount": 1473,
-                            "unikey": "4643dce83769f0ec2d083dc6bc820c4044ba33b42292f5613bf1613d7daa83db",
+                            "title": "Solve Gandolf",
+                            "updatedAt": 1756912144267,
+                            "wordcount": 1475,
+                            "unikey": "ffb0440295203c426869028f5ba91de782a476bbd0410b1af845b70152f5809a",
                             "pathonly": false,
                             "path": "solve-gandolf"
                         },
@@ -151,7 +151,108 @@
                     "show": true,
                     "name": "d2l.ai",
                     "leaf": true,
-                    "entries": []
+                    "index": "6a31b337df5347625539fd4a8ddb01999fbfdbb60948d28bb3b3391b930cc6bc",
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1757867917618,
+                            "wordcount": 10,
+                            "unikey": "6a31b337df5347625539fd4a8ddb01999fbfdbb60948d28bb3b3391b930cc6bc",
+                            "pathonly": true,
+                            "path": "index"
+                        },
+                        {
+                            "title": "多层感知机（MLP）",
+                            "updatedAt": 1756185655900,
+                            "wordcount": 445,
+                            "unikey": "25c30602512ce44201f122bafaf689ca64b0351626748363889f5f20d7f41346",
+                            "pathonly": false,
+                            "path": "multilayer-perceptrons"
+                        },
+                        {
+                            "title": "Softmax回归 & 图片分类任务",
+                            "updatedAt": 1756184081045,
+                            "wordcount": 610,
+                            "unikey": "be48ec1f14be0dfa44cc13a9329168bcf07ef51fa46b7d4587ae2022636244d8",
+                            "pathonly": false,
+                            "path": "softmax-regression"
+                        }
+                    ]
+                },
+                {
+                    "path": [
+                        "CS/GAMES101"
+                    ],
+                    "show": true,
+                    "name": "GAMES101",
+                    "leaf": true,
+                    "index": "c7a4d54e017a3f679654ab9c1072ee9226e9cf23909a0ec200a0c78ffb59c96d",
+                    "entries": [
+                        {
+                            "title": "Assignment 0: 虚拟机的使用",
+                            "updatedAt": 1756921088858,
+                            "wordcount": 307,
+                            "unikey": "806fdc207b9ecf294906a4070ab91bcaacf4b8ef87f176c2044c251390ef455e",
+                            "pathonly": false,
+                            "path": "HW0"
+                        },
+                        {
+                            "title": "Assignment 1: 旋转与投影",
+                            "updatedAt": 1756921101094,
+                            "wordcount": 1,
+                            "unikey": "f273315a83db829fe13d524e943ff44f4357f119ad6a2395ae359c4f5370f603",
+                            "pathonly": false,
+                            "path": "HW1"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1757867993509,
+                            "wordcount": 28,
+                            "unikey": "c7a4d54e017a3f679654ab9c1072ee9226e9cf23909a0ec200a0c78ffb59c96d",
+                            "pathonly": true,
+                            "path": "index"
+                        },
+                        {
+                            "title": "Lecture 1: Overview of Computer Graphics",
+                            "updatedAt": 1756914304375,
+                            "wordcount": 1120,
+                            "unikey": "7b8593d2fcf73f34543829bf99bf4a836d4f8f21a68fe3940dd6d529908612b8",
+                            "pathonly": false,
+                            "path": "Lec1"
+                        },
+                        {
+                            "title": "Lecture 2: Review of Linear Algebra",
+                            "updatedAt": 1756915974214,
+                            "wordcount": 1011,
+                            "unikey": "d5a3f0dbe0486c23f56b4a1e9b0f779bb2d8f62650312dd0683a34b0c0c676a0",
+                            "pathonly": false,
+                            "path": "Lec2"
+                        },
+                        {
+                            "title": "Lecture 3: Transformation",
+                            "updatedAt": 1756920399839,
+                            "wordcount": 1023,
+                            "unikey": "6cd4670354275e4f11b3ab6b7f6fdd2354b6d43d968e2dd641a72413f7f9b741",
+                            "pathonly": false,
+                            "path": "Lec3"
+                        },
+                        {
+                            "title": "Lecture 4: Transformation Cont.",
+                            "updatedAt": 1757514957010,
+                            "wordcount": 816,
+                            "unikey": "e44a3110cb41fdd92805b6d20572e5ea4b9f2682f1713d6c05e8588778659740",
+                            "pathonly": false,
+                            "path": "Lec4"
+                        },
+                        {
+                            "title": "Memorable",
+                            "updatedAt": 1757514487278,
+                            "wordcount": 64,
+                            "unikey": "31c1c7bb827414ab24e302d9403cd5e2d86194c22025474d3b77178d9dbfc9bd",
+                            "pathonly": false,
+                            "path": "ref-sheet"
+                        }
+                    ]
                 }
             ],
             "entries": []
@@ -166,7 +267,7 @@
             "subcategories": [
                 {
                     "path": [
-                        "Schoolwork/CS/CS1014GZ",
+                        "Schoolwork/24A/CS1014GZ",
                         "Schoolwork/C-Basis",
                         "Schoolwork/CS1014GZ"
                     ],
@@ -197,6 +298,41 @@
                             "unikey": "fe7a9d4e86fc36a11f89852dc4f95a522604b706dd9642d5b1ad7b09f050df2a",
                             "pathonly": false,
                             "path": "final-exms"
+                        }
+                    ]
+                },
+                {
+                    "path": [
+                        "Schoolwork/LA1",
+                        "Schoolwork/MATH1261GH"
+                    ],
+                    "show": true,
+                    "name": "线性代数I",
+                    "leaf": true,
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1737479418097,
+                            "wordcount": 526,
+                            "unikey": "34012fd24e20d14cdf3a822cb0e8ce64d06b8feb8cdfb685820103f6653e0d27",
+                            "pathonly": true,
+                            "path": "menu"
+                        },
+                        {
+                            "title": "定义定理表",
+                            "updatedAt": 1737479419300,
+                            "wordcount": 3092,
+                            "unikey": "d71b958bfcfa7e8a923ae18913d158cd21b740a20427e2c6fc2eb1b9efec6c1e",
+                            "pathonly": false,
+                            "path": "thx"
+                        },
+                        {
+                            "title": "补天",
+                            "updatedAt": 1737479417377,
+                            "wordcount": 5111,
+                            "unikey": "756cf76f9ee7f4d780277cc099f3638dd61c60637145312e782df8881ae3c90e",
+                            "pathonly": false,
+                            "path": "fill-hole"
                         }
                     ]
                 },
@@ -381,6 +517,64 @@
                             "unikey": "c1a92501d85d7f93a816d16547330ffacb1987a802c1d2497d4dde94ca71acb2",
                             "pathonly": false,
                             "path": "rc5"
+                        }
+                    ]
+                },
+                {
+                    "path": [
+                        "Schoolwork/24B/CS1028M/SYS1-labs"
+                    ],
+                    "show": true,
+                    "name": "SYS-labs",
+                    "leaf": true,
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1741704563010,
+                            "wordcount": 3182,
+                            "unikey": "629da30d8a972fead0f70cc77b6f6c48378a22b9b0a52464f6d70b41844cf1c8",
+                            "pathonly": false,
+                            "path": "report"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1743419953521,
+                            "wordcount": 2619,
+                            "unikey": "4de75b52e74d8126e00dacc53adb8da491773c1145e8cdb8ba744df69decffef",
+                            "pathonly": false,
+                            "path": "report"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1744557847882,
+                            "wordcount": 1507,
+                            "unikey": "ee441e8a594750a4c5599c832972a537acc803f0ef2ae193e24f1a7e4db6a275",
+                            "pathonly": false,
+                            "path": "report"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1745769252863,
+                            "wordcount": 3819,
+                            "unikey": "9a8d6d91fc9e9fe663a70bf632521ef6c00e85fb75b85799f20bb57a565f7913",
+                            "pathonly": false,
+                            "path": "report"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1746974148699,
+                            "wordcount": 2114,
+                            "unikey": "7c8393059a6e9269cf45477a02a0ce151b8c4da88fa1a99af6c53c856959e734",
+                            "pathonly": false,
+                            "path": "report"
+                        },
+                        {
+                            "title": "project: 单周期 CPU 设计",
+                            "updatedAt": 1749245056371,
+                            "wordcount": 3176,
+                            "unikey": "1475503aaf5e18e1762ebcf6e9835527feadd271a000b9117e2460cb29e38a22",
+                            "pathonly": false,
+                            "path": "report"
                         }
                     ]
                 },
@@ -621,206 +815,6 @@
                 },
                 {
                     "path": [
-                        "Schoolwork/CS/CTF101"
-                    ],
-                    "show": false,
-                    "name": "CTF101",
-                    "leaf": true,
-                    "index": "651af5431dbf435da59dc9199bf9ed378c39b26ec7e49903243c5bac60e7fb3b",
-                    "entries": [
-                        {
-                            "title": "Crypto Lab 1：消息加密和数字签名",
-                            "updatedAt": 1753028761078,
-                            "wordcount": 3546,
-                            "unikey": "aeb1ba00bf21f540f155ac23a4bd9be0f495b9ebb50556e50f20b4ee1ab4e8df",
-                            "pathonly": false,
-                            "path": "crypto-lab1"
-                        },
-                        {
-                            "title": "",
-                            "updatedAt": 1753271982748,
-                            "wordcount": 411,
-                            "unikey": "651af5431dbf435da59dc9199bf9ed378c39b26ec7e49903243c5bac60e7fb3b",
-                            "pathonly": true,
-                            "path": "index"
-                        },
-                        {
-                            "title": "Lab 0 Report",
-                            "updatedAt": 1751940416017,
-                            "wordcount": 4645,
-                            "unikey": "d74dcc2b0e90e64b46c281c78a9254de59e731f3b7ddf02dbca82caaa244a7ac",
-                            "pathonly": false,
-                            "path": "lab0"
-                        },
-                        {
-                            "title": "Misc Lab 1：编解码及流量取证",
-                            "updatedAt": 1752847500005,
-                            "wordcount": 3815,
-                            "unikey": "63ea79fed7b5b6522cd2418ad9d14af0531e52a383fdf01b1fdffa7b1faec53c",
-                            "pathonly": false,
-                            "path": "misc-lab1"
-                        },
-                        {
-                            "title": "Misc Lab2：隐写与其他 misc",
-                            "updatedAt": 1753622478607,
-                            "wordcount": 2153,
-                            "unikey": "c7514d276a7e2a81b18eec2e471dea4f42afd30a605d1b2796ae588c75380b50",
-                            "pathonly": false,
-                            "path": "misc-lab2"
-                        },
-                        {
-                            "title": "Misc Lab3：OSINT & AI",
-                            "updatedAt": 1753901107954,
-                            "wordcount": 4311,
-                            "unikey": "4e564aef7884217a3cbbac1059eb25a409963a72cfd9b7bf236408e998cfdbd3",
-                            "pathonly": false,
-                            "path": "misc-lab3"
-                        },
-                        {
-                            "title": "Pwn Lab 1：代码注入与栈溢出",
-                            "updatedAt": 1752134274061,
-                            "wordcount": 2054,
-                            "unikey": "e39f2cc737ffb10216950e4e2b0f9df250988b05880a755a66a50d506e935c5c",
-                            "pathonly": false,
-                            "path": "pwn-lab1"
-                        },
-                        {
-                            "title": "Rev Lab 1：Rev 基础",
-                            "updatedAt": 1752822004254,
-                            "wordcount": 2517,
-                            "unikey": "11107f06aa01bdd8e72307dbc9593637f26267447b57940704f7307b7eaeacce",
-                            "pathonly": false,
-                            "path": "rev-lab1"
-                        },
-                        {
-                            "title": "Rev Lab2",
-                            "updatedAt": 1751955605414,
-                            "wordcount": 2,
-                            "unikey": "0b3121c2e7ffe1cdb227caba9c7bbae50ab7e38492368e6e74599a09ac118013",
-                            "pathonly": false,
-                            "path": "rev-lab2"
-                        },
-                        {
-                            "title": "Rev Lab3",
-                            "updatedAt": 1751955610969,
-                            "wordcount": 2,
-                            "unikey": "2a5cba7d98fddd7b0977740e1d0830c9b59405d9467bc72447ef506526be3e14",
-                            "pathonly": false,
-                            "path": "rev-lab3"
-                        },
-                        {
-                            "title": "Web Lab 1：计算机网络基础",
-                            "updatedAt": 1752568804829,
-                            "wordcount": 2453,
-                            "unikey": "9eb950b42884cbfb627520fe1a6d9a76606d40f848ec184374d3a331e9c23785",
-                            "pathonly": false,
-                            "path": "web-lab1"
-                        },
-                        {
-                            "title": "Web Lab 2：用户侧攻击",
-                            "updatedAt": 1753569633701,
-                            "wordcount": 1475,
-                            "unikey": "1ac9a9ca5131e5c53f2dc5e15e687ce1a45ff14b4e3459ebefcc0bae3fa297a3",
-                            "pathonly": false,
-                            "path": "web-lab2"
-                        },
-                        {
-                            "title": "Web Lab 3：后端漏洞基础",
-                            "updatedAt": 1753385428396,
-                            "wordcount": 641,
-                            "unikey": "7865d20f554b4a9b5076545a853f68c7dd3c38219a9d46426279cf2f9cfb88e5",
-                            "pathonly": false,
-                            "path": "web-lab3"
-                        }
-                    ]
-                },
-                {
-                    "path": [
-                        "Schoolwork/CS1030M",
-                        "CS/CS1030M",
-                        "CS/HPC101"
-                    ],
-                    "show": true,
-                    "name": "HPC101",
-                    "leaf": true,
-                    "index": "675a0c6dba01ff4c93fcee535f2654fe44ada304999e7558562692ea6f5a929d",
-                    "entries": [
-                        {
-                            "title": "",
-                            "updatedAt": 1747723678947,
-                            "wordcount": 35,
-                            "unikey": "675a0c6dba01ff4c93fcee535f2654fe44ada304999e7558562692ea6f5a929d",
-                            "pathonly": true,
-                            "path": "index"
-                        },
-                        {
-                            "title": "Lab 0: Linux Crash Course",
-                            "updatedAt": 1750964694845,
-                            "wordcount": 0,
-                            "unikey": "8af5efac528976fe80ee173528e1d0285dee1d9b7dd2e074a4d251d381efb8a3",
-                            "pathonly": false,
-                            "path": "lab0"
-                        },
-                        {
-                            "title": "Lab 1: 简单集群搭建",
-                            "updatedAt": 1751514832931,
-                            "wordcount": 3148,
-                            "unikey": "6514a0003a6cfa4acd3b346dba757d416c963b847e711cb63c242928dc779209",
-                            "pathonly": false,
-                            "path": "lab1"
-                        },
-                        {
-                            "title": "Lab 2: 向量化计算",
-                            "updatedAt": 1753194138633,
-                            "wordcount": 3987,
-                            "unikey": "b519102342b4f34c1d7872c8b2a0455beef9b1522559a383911d81272aaf2a83",
-                            "pathonly": false,
-                            "path": "lab2"
-                        },
-                        {
-                            "title": "Lab 2.5: 向量化进阶 (RISC-V)",
-                            "updatedAt": 1753126624637,
-                            "wordcount": 28,
-                            "unikey": "b779caebeb20ebeef18237f4a65cb26908271951297e4cf49655d87f9c3c4b10",
-                            "pathonly": false,
-                            "path": "lab2p5"
-                        },
-                        {
-                            "title": "Lab 3: CUDA 卷积",
-                            "updatedAt": 1754489223632,
-                            "wordcount": 3603,
-                            "unikey": "c4b798096b4ceb93919b8f02523a7149c8597837b0a65bc9e52253e9afb6cdea",
-                            "pathonly": false,
-                            "path": "lab3"
-                        },
-                        {
-                            "title": "Lab 4: Solver Challenge",
-                            "updatedAt": 1755432300432,
-                            "wordcount": 6214,
-                            "unikey": "c4bf0dce13eba3d793d3dc0542041256ef93fb6f3a0970b3911b78d5d8e506fa",
-                            "pathonly": false,
-                            "path": "lab4"
-                        },
-                        {
-                            "title": "Lab 5: TinyLLM",
-                            "updatedAt": 1755488489472,
-                            "wordcount": 26,
-                            "unikey": "f05263493763c2454d2ff9f3b0acdb143ebf7569666515114140a95b806d0ea3",
-                            "pathonly": false,
-                            "path": "lab5"
-                        },
-                        {
-                            "title": "Final Project 大作业",
-                            "updatedAt": 1755825985881,
-                            "wordcount": 26,
-                            "unikey": "b77fa2cc59a365fc41d2845067da108c4d5f0ee4ba8909eef2a660d3899e10d5",
-                            "pathonly": false,
-                            "path": "project"
-                        }
-                    ]
-                },
-                {
-                    "path": [
                         "Schoolwork/MA2",
                         "Schoolwork/MATH1164GH"
                     ],
@@ -1052,41 +1046,6 @@
                             "unikey": "53223df516cc3730e1afb8efc8ab69208666e96899ac66d3b3a913d6a5c4353c",
                             "pathonly": false,
                             "path": "tgd-ch-22"
-                        }
-                    ]
-                },
-                {
-                    "path": [
-                        "Schoolwork/LA1",
-                        "Schoolwork/MATH1261GH"
-                    ],
-                    "show": true,
-                    "name": "线性代数I",
-                    "leaf": true,
-                    "entries": [
-                        {
-                            "title": "",
-                            "updatedAt": 1737479418097,
-                            "wordcount": 526,
-                            "unikey": "34012fd24e20d14cdf3a822cb0e8ce64d06b8feb8cdfb685820103f6653e0d27",
-                            "pathonly": true,
-                            "path": "menu"
-                        },
-                        {
-                            "title": "定义定理表",
-                            "updatedAt": 1737479419300,
-                            "wordcount": 3092,
-                            "unikey": "d71b958bfcfa7e8a923ae18913d158cd21b740a20427e2c6fc2eb1b9efec6c1e",
-                            "pathonly": false,
-                            "path": "thx"
-                        },
-                        {
-                            "title": "补天",
-                            "updatedAt": 1737479417377,
-                            "wordcount": 5111,
-                            "unikey": "756cf76f9ee7f4d780277cc099f3638dd61c60637145312e782df8881ae3c90e",
-                            "pathonly": false,
-                            "path": "fill-hole"
                         }
                     ]
                 },
@@ -1496,6 +1455,276 @@
                 },
                 {
                     "path": [
+                        "Schoolwork/CS2045M",
+                        "CS/CS2045M",
+                        "CS/ADS"
+                    ],
+                    "show": true,
+                    "name": "高级数据结构与算法分析",
+                    "leaf": true,
+                    "entries": []
+                },
+                {
+                    "path": [
+                        "Schoolwork/CS2052M",
+                        "CS/CS2052M",
+                        "CS/SYS2"
+                    ],
+                    "show": true,
+                    "name": "计算机系统Ⅱ",
+                    "leaf": true,
+                    "entries": []
+                },
+                {
+                    "path": [
+                        "Schoolwork/CS2065M",
+                        "CS/CS2065M",
+                        "CS/AID"
+                    ],
+                    "show": true,
+                    "name": "人工智能引论",
+                    "leaf": true,
+                    "index": "2a113c2741f4f9b4111a50bf4763aa194396750ede4211a2191bbbeb19c08e96",
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1758078427180,
+                            "wordcount": 6,
+                            "unikey": "2a113c2741f4f9b4111a50bf4763aa194396750ede4211a2191bbbeb19c08e96",
+                            "pathonly": true,
+                            "path": "index"
+                        },
+                        {
+                            "title": "抄PPT",
+                            "updatedAt": 1758078860934,
+                            "wordcount": 0,
+                            "unikey": "15c1c7407db67c23b0b411e934caef7a648e1df2951e7f7f86207dc525218b31",
+                            "pathonly": false,
+                            "path": "recite"
+                        }
+                    ]
+                },
+                {
+                    "path": [
+                        "Schoolwork/MATH2461FZ",
+                        "Math/MATH2461FZ"
+                    ],
+                    "show": true,
+                    "name": "概率论和数理统计",
+                    "leaf": true,
+                    "entries": []
+                },
+                {
+                    "path": [
+                        "Schoolwork/25A/PHY2001GH"
+                    ],
+                    "show": true,
+                    "name": "普通物理学Ⅱ（H）",
+                    "leaf": true,
+                    "entries": []
+                },
+                {
+                    "path": [
+                        "Schoolwork/25O/CTF101"
+                    ],
+                    "show": false,
+                    "name": "CTF101",
+                    "leaf": true,
+                    "index": "651af5431dbf435da59dc9199bf9ed378c39b26ec7e49903243c5bac60e7fb3b",
+                    "entries": [
+                        {
+                            "title": "Crypto Lab 1：消息加密和数字签名",
+                            "updatedAt": 1753028761078,
+                            "wordcount": 3546,
+                            "unikey": "aeb1ba00bf21f540f155ac23a4bd9be0f495b9ebb50556e50f20b4ee1ab4e8df",
+                            "pathonly": false,
+                            "path": "crypto-lab1"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1753271982748,
+                            "wordcount": 411,
+                            "unikey": "651af5431dbf435da59dc9199bf9ed378c39b26ec7e49903243c5bac60e7fb3b",
+                            "pathonly": true,
+                            "path": "index"
+                        },
+                        {
+                            "title": "Lab 0 Report",
+                            "updatedAt": 1751940416017,
+                            "wordcount": 4645,
+                            "unikey": "d74dcc2b0e90e64b46c281c78a9254de59e731f3b7ddf02dbca82caaa244a7ac",
+                            "pathonly": false,
+                            "path": "lab0"
+                        },
+                        {
+                            "title": "Misc Lab 1：编解码及流量取证",
+                            "updatedAt": 1752847500005,
+                            "wordcount": 3815,
+                            "unikey": "63ea79fed7b5b6522cd2418ad9d14af0531e52a383fdf01b1fdffa7b1faec53c",
+                            "pathonly": false,
+                            "path": "misc-lab1"
+                        },
+                        {
+                            "title": "Misc Lab2：隐写与其他 misc",
+                            "updatedAt": 1753622478607,
+                            "wordcount": 2153,
+                            "unikey": "c7514d276a7e2a81b18eec2e471dea4f42afd30a605d1b2796ae588c75380b50",
+                            "pathonly": false,
+                            "path": "misc-lab2"
+                        },
+                        {
+                            "title": "Misc Lab3：OSINT & AI",
+                            "updatedAt": 1753901107954,
+                            "wordcount": 4311,
+                            "unikey": "4e564aef7884217a3cbbac1059eb25a409963a72cfd9b7bf236408e998cfdbd3",
+                            "pathonly": false,
+                            "path": "misc-lab3"
+                        },
+                        {
+                            "title": "Pwn Lab 1：代码注入与栈溢出",
+                            "updatedAt": 1752134274061,
+                            "wordcount": 2054,
+                            "unikey": "e39f2cc737ffb10216950e4e2b0f9df250988b05880a755a66a50d506e935c5c",
+                            "pathonly": false,
+                            "path": "pwn-lab1"
+                        },
+                        {
+                            "title": "Rev Lab 1：Rev 基础",
+                            "updatedAt": 1752822004254,
+                            "wordcount": 2517,
+                            "unikey": "11107f06aa01bdd8e72307dbc9593637f26267447b57940704f7307b7eaeacce",
+                            "pathonly": false,
+                            "path": "rev-lab1"
+                        },
+                        {
+                            "title": "Rev Lab2",
+                            "updatedAt": 1751955605414,
+                            "wordcount": 2,
+                            "unikey": "0b3121c2e7ffe1cdb227caba9c7bbae50ab7e38492368e6e74599a09ac118013",
+                            "pathonly": false,
+                            "path": "rev-lab2"
+                        },
+                        {
+                            "title": "Rev Lab3",
+                            "updatedAt": 1751955610969,
+                            "wordcount": 2,
+                            "unikey": "2a5cba7d98fddd7b0977740e1d0830c9b59405d9467bc72447ef506526be3e14",
+                            "pathonly": false,
+                            "path": "rev-lab3"
+                        },
+                        {
+                            "title": "Web Lab 1：计算机网络基础",
+                            "updatedAt": 1752568804829,
+                            "wordcount": 2453,
+                            "unikey": "9eb950b42884cbfb627520fe1a6d9a76606d40f848ec184374d3a331e9c23785",
+                            "pathonly": false,
+                            "path": "web-lab1"
+                        },
+                        {
+                            "title": "Web Lab 2：用户侧攻击",
+                            "updatedAt": 1753569633701,
+                            "wordcount": 1475,
+                            "unikey": "1ac9a9ca5131e5c53f2dc5e15e687ce1a45ff14b4e3459ebefcc0bae3fa297a3",
+                            "pathonly": false,
+                            "path": "web-lab2"
+                        },
+                        {
+                            "title": "Web Lab 3：后端漏洞基础",
+                            "updatedAt": 1753385428396,
+                            "wordcount": 641,
+                            "unikey": "7865d20f554b4a9b5076545a853f68c7dd3c38219a9d46426279cf2f9cfb88e5",
+                            "pathonly": false,
+                            "path": "web-lab3"
+                        }
+                    ]
+                },
+                {
+                    "path": [
+                        "Schoolwork/CS1030M",
+                        "CS/CS1030M",
+                        "CS/HPC101"
+                    ],
+                    "show": true,
+                    "name": "HPC101",
+                    "leaf": true,
+                    "index": "c10ead2f60ecf11a8356f71aaeaf25b291d0a4ccf30adf103717dc431b2a390e",
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1756050903391,
+                            "wordcount": 74,
+                            "unikey": "c10ead2f60ecf11a8356f71aaeaf25b291d0a4ccf30adf103717dc431b2a390e",
+                            "pathonly": true,
+                            "path": "index"
+                        },
+                        {
+                            "title": "Lab 0: Linux Crash Course",
+                            "updatedAt": 1750964694845,
+                            "wordcount": 0,
+                            "unikey": "8af5efac528976fe80ee173528e1d0285dee1d9b7dd2e074a4d251d381efb8a3",
+                            "pathonly": false,
+                            "path": "lab0"
+                        },
+                        {
+                            "title": "Lab 1: 简单集群搭建",
+                            "updatedAt": 1751514832931,
+                            "wordcount": 3148,
+                            "unikey": "6514a0003a6cfa4acd3b346dba757d416c963b847e711cb63c242928dc779209",
+                            "pathonly": false,
+                            "path": "lab1"
+                        },
+                        {
+                            "title": "Lab 2: 向量化计算",
+                            "updatedAt": 1753194138633,
+                            "wordcount": 3987,
+                            "unikey": "b519102342b4f34c1d7872c8b2a0455beef9b1522559a383911d81272aaf2a83",
+                            "pathonly": false,
+                            "path": "lab2"
+                        },
+                        {
+                            "title": "Lab 2.5: 向量化进阶 (RISC-V)",
+                            "updatedAt": 1756122833960,
+                            "wordcount": 288,
+                            "unikey": "220eed0d588da3db6c313c90d9d10d566dd31e91aea57db0a6aaaf07228d4de0",
+                            "pathonly": false,
+                            "path": "lab2p5"
+                        },
+                        {
+                            "title": "Lab 3: CUDA 卷积",
+                            "updatedAt": 1754489223632,
+                            "wordcount": 3603,
+                            "unikey": "c4b798096b4ceb93919b8f02523a7149c8597837b0a65bc9e52253e9afb6cdea",
+                            "pathonly": false,
+                            "path": "lab3"
+                        },
+                        {
+                            "title": "Lab 4: Solver Challenge",
+                            "updatedAt": 1755432300432,
+                            "wordcount": 6214,
+                            "unikey": "c4bf0dce13eba3d793d3dc0542041256ef93fb6f3a0970b3911b78d5d8e506fa",
+                            "pathonly": false,
+                            "path": "lab4"
+                        },
+                        {
+                            "title": "Lab 5: TinyLLM",
+                            "updatedAt": 1756060489736,
+                            "wordcount": 14141,
+                            "unikey": "f77afbf533b5bf495bf2ee98254b4b2dd4c5e22833ee09a3d5d4915ada5b9ad6",
+                            "pathonly": false,
+                            "path": "lab5"
+                        },
+                        {
+                            "title": "Final Project 大作业",
+                            "updatedAt": 1755825985881,
+                            "wordcount": 26,
+                            "unikey": "b77fa2cc59a365fc41d2845067da108c4d5f0ee4ba8909eef2a660d3899e10d5",
+                            "pathonly": false,
+                            "path": "project"
+                        }
+                    ]
+                },
+                {
+                    "path": [
                         "Schoolwork/ADMN1002G",
                         "Others/ADMN1002G"
                     ],
@@ -1555,6 +1784,16 @@
                             "path": "postexam"
                         }
                     ]
+                },
+                {
+                    "path": [
+                        "Schoolwork/MARX2001GH",
+                        "Others/MARX2001GH"
+                    ],
+                    "show": true,
+                    "name": "马克思主义基本原理（H）",
+                    "leaf": true,
+                    "entries": []
                 },
                 {
                     "path": [
@@ -1824,13 +2063,13 @@
                     ]
                 }
             ],
-            "index": "b04bf83c4dd0a181eecbc1137284d76410ace9fb024b9064274935d5539ec384",
+            "index": "58db1e4d2d7121c609f8084a18544cbf8529870d580ec876b309a3634930e1b8",
             "entries": [
                 {
                     "title": "学在浙大",
-                    "updatedAt": 1751619336080,
-                    "wordcount": 179,
-                    "unikey": "b04bf83c4dd0a181eecbc1137284d76410ace9fb024b9064274935d5539ec384",
+                    "updatedAt": 1758079591042,
+                    "wordcount": 203,
+                    "unikey": "58db1e4d2d7121c609f8084a18544cbf8529870d580ec876b309a3634930e1b8",
                     "pathonly": true,
                     "path": "index"
                 }

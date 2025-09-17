@@ -1,0 +1,131 @@
+---
+title:  "Lecture 3: Transformation"
+---
+
+
+# **This Week & Today**  
+- **本周主题 (This Week)：** Transformation（变换）！包括2D和3D变换。  
+- **今日内容 (Today)：**  
+  - 为什么学习变换 (Why study transformation)。  
+  - 2D变换 (2D transformations)：旋转 (rotation)、缩放 (scale)、剪切 (shear)。  
+  - 齐次坐标 (Homogeneous coordinates)。  
+  - 组合变换 (Composing transforms)。  
+  - 3D变换 (3D transformations)。  
+
+
+# **为什么学习变换？ (Why Study Transformation?)**  
+- **应用场景：**  
+  - **建模 (Modeling)：** 通过变换调整物体形状和位置。例如，旋转 (rotation) 用于改变物体朝向，缩放 (scale) 用于调整大小。  
+  - **观看 (Viewing)：** 将3D世界投影到2D屏幕（投影/projection），实现可视化。  
+
+
+# **2D变换 (2D Transformations)**  
+2D变换通过矩阵表示，统一处理几何操作。所有变换可写为矩阵形式：  
+$$  
+\mathbf{x}^{\prime} = \mathbf{M} \mathbf{x}, \quad \text{其中} \quad \mathbf{x} = \begin{bmatrix} x \\ y \end{bmatrix}  
+$$  
+
+- **缩放 (Scale)：**  
+  - 均匀缩放 (Uniform scale)：所有方向按比例变化。矩阵为：  
+    $$  
+    \mathbf{S}(s_x, s_y) = \begin{pmatrix} s_x & 0 \\ 0 & s_y \end{pmatrix}  
+    $$  
+    - 示例：$s_x = s_y$ 时物体等比例放大/缩小。  
+
+  - 非均匀缩放 (Non-uniform scale)：各方向比例不同，例如 $s_x \neq s_y$。  
+
+
+- **反射 (Reflection)：**  
+  - 实现镜像效果，例如水平反射 (horizontal reflection)：  
+    $$  
+    \mathbf{M} = \begin{pmatrix} -1 & 0 \\ 0 & 1\end{pmatrix}, \quad x^{\prime} = -x  
+    $$  
+      
+
+- **剪切 (Shear)：**  
+  - 使物体倾斜，水平剪切时：y=0 无偏移，y=1 时水平偏移 a。矩阵为：  
+    $$  
+    \mathbf{M} = \begin{pmatrix} 1 & a \\ 0 & 1 \end{pmatrix}  
+    $$  
+      
+
+- **旋转 (Rotation)：**  
+  - 默认绕原点 (0,0) 逆时针旋转 (CCW)。矩阵为：  
+    $$  
+    \mathbf{R}(\alpha) = \begin{pmatrix} \cos\alpha & -\sin\alpha \\ \sin\alpha & \cos\alpha \end{pmatrix}  
+    $$  
+    - 示例：$\alpha = 45^\circ$ 时物体旋转45度。  
+
+
+- **线性变换 (Linear Transforms)：**  
+  - 所有上述操作都是线性变换，可用同维度矩阵表示：  
+    $$  
+    \begin{bmatrix} x' \\ y' \end{bmatrix} = \begin{bmatrix} a & b \\ c & d \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix}  
+    $$  
+
+# **齐次坐标 (Homogeneous Coordinates)**  
+- **为什么需要？ (Why Homogeneous Coordinates?)**  
+  - 平移 (translation) 无法用标准矩阵表示（非线性变换）。例如：  
+    $$  
+    \begin{bmatrix} x' \\ y' \end{bmatrix} = \begin{bmatrix} a & b \\ c & d \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} + \begin{bmatrix} t_x \\ t_y \end{bmatrix}  
+    $$  
+  - 齐次坐标统一所有变换：添加 w-坐标 (w-coordinate)。  
+    - **点 (Point)：** $(x, y, 1 )^\text{T}$  
+    - **向量 (Vector)：** $(x, y, 0)^\text{T}$  
+    - 操作规则：向量+向量=向量，点-点=向量，点+向量=点（点+点无效）。  
+
+- **矩阵表示 (Matrix Representation)：**  
+  - 平移矩阵：  
+    $$  
+    \mathbf{T}(t_x, t_y) = \begin{pmatrix} 1 & 0 & t_x \\ 0 & 1 & t_y \\ 0 & 0 & 1 \end{pmatrix}, \quad \begin{pmatrix} x' \\ y' \\ 1 \end{pmatrix} = \mathbf{T} \begin{pmatrix} x \\ y \\ 1 \end{pmatrix}  
+    $$  
+  - **仿射变换 (Affine Transformation)：** = 线性变换 + 平移。  
+    $$  
+    \begin{pmatrix} x' \\ y' \\ 1 \end{pmatrix} = \begin{pmatrix} a & b & t_x \\ c & d & t_y \\ 0 & 0 & 1 \end{pmatrix} \begin{pmatrix} x \\ y \\ 1 \end{pmatrix}  
+    $$  
+  - 逆变换 (Inverse Transform)：几何和矩阵逆一致，M⁻¹ 表示反向操作。  
+      
+
+---
+
+# **组合变换 (Composing Transforms)**  
+- **顺序重要性 (Order Matters)：**  
+  - 矩阵乘法不可交换 (not commutative)。例如：先平移后旋转 vs. 先旋转后平移结果不同。  
+    - **错误顺序：** 先平移再旋转，物体位置偏移。  
+    - **正确顺序：** 先旋转再平移，物体绕自身中心旋转后移动。  
+      
+  - 矩阵应用：从右到左 (right to left)。例如，绕点 c 旋转：  
+    1. 平移中心到原点：T(-c)  
+    2. 旋转：R(α)  
+    3. 平移回：T(c)  
+    组合矩阵：$$\mathbf{T}(\mathbf{c}) \cdot \mathbf{R}(\alpha) \cdot \mathbf{T}(-\mathbf{c})$$  
+
+- **性能优化：** 多个变换组合 (A₁, A₂, ...) 通过矩阵乘法高效计算：  
+  $$  
+  \mathbf{A}_n \cdots \mathbf{A}_2 \cdot \mathbf{A}_1 \cdot \begin{bmatrix} x \\ y \\ 1 \end{bmatrix}  
+  $$  
+
+---
+
+# **3D变换 (3D Transformations)**  
+- **扩展方法：** 使用齐次坐标，4×4 矩阵表示。  
+  - **点 (Point)：** (x, y, z, 1)ᵀ  
+  - **向量 (Vector)：** (x, y, z, 0)ᵀ  
+  - 通用点：(x, y, z, w) 等价于 (x/w, y/w, z/w)（w ≠ 0）。  
+- **仿射变换矩阵：**  
+  $$  
+  \begin{pmatrix} x' \\ y' \\ z' \\ 1 \end{pmatrix} = \begin{pmatrix} a & b & c & t_x \\ d & e & f & t_y \\ g & h & i & t_z \\ 0 & 0 & 0 & 1 \end{pmatrix} \begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}  
+  $$  
+  - 顺序：先线性变换 (linear transform)，后平移 (translation)。  
+
+---
+
+# **总结与问题 (Summary & Questions)**  
+- **关键收获：**  
+  - 变换是图形学核心，用于建模和观看。  
+  - 2D变换（缩放、旋转等）通过矩阵实现，齐次坐标统一处理平移。  
+  - 组合变换顺序至关重要，影响最终结果。  
+  - 3D变换是2D的自然扩展。  
+- **遗留问题：**  
+  - 如何优化复杂变换的性能？  
+  - 齐次坐标在3D投影中的具体应用？  

@@ -1,0 +1,103 @@
+---
+title: "Lecture 1: Overview of Computer Graphics"
+---
+
+
+
+## **1. Introduction to the Course**  
+- **课程名称:** GAMES101: Introduction to Computer Graphics  
+- **讲师背景:**  
+  - 教育经历: 清华大学本科（2009–2013）、UC Berkeley博士（2013–2018），2018年起任UCSB助理教授。  
+  - 研究方向: 计算机图形学渲染（Rendering）。  
+  - 兴趣爱好: 研究、电子游戏、钢琴、旅行、NBA等。  
+  - 个人网站: http://www.cs.ucsb.edu/~lingqi/  
+- **讲师成就:**  
+  - 2018年: 奥斯卡最佳视觉效果提名（Oscar Nominee for Best Visual Effects）  
+  - 2019年: 研究成果应用于《狮子王》高清版（Lion King HD）  
+      
+      
+- **助教团队:**  
+  - 刘光哲 (清华大学, lgz17@mails.tsinghua.edu.cn)  
+  - 史雨宸 (中科大, syc0412@mail.ustc.edu.cn)  
+  - 邓俊辰 (哈工大, 1050106988@qq.com)  
+  - 更多助教将在本讲座后招募（根据需求）。  
+
+
+## **2. What is Computer Graphics?**  
+- **定义:** 计算机图形学（Computer Graphics）是使用计算机合成和操作视觉信息的学科（"The use of computers to synthesize and manipulate visual information"）。  
+- **核心元素:**  
+  - 涉及几何、光照、动画的数学和物理基础。  
+  - 重点在虚拟世界的创建与交互。  
+
+
+## **3. Why Study Computer Graphics?**  
+- **智力挑战（Intellectual Challenges）:**  
+  - 创建逼真的虚拟世界，需理解物理世界的各个方面（如光照、运动）。  
+  - 推动新计算方法和显示技术的发展。  
+- **技术挑战（Technical Challenges）:**  
+  - 数学: 透视投影、曲线、曲面的建模。  
+  - 物理: 光照和着色（Lighting and Shading）。  
+  - 3D形状表示与操作、动画/模拟技术。  
+  - 3D图形软件编程和硬件集成。  
+- **终极原因:** 计算机图形学很酷且充满乐趣（"Computer Graphics is AWESOME!"）！  
+
+## **4. Applications of Computer Graphics**  
+计算机图形学广泛应用于多个领域，以下是关键应用示例：   
+- **视频游戏（Video Games）:** 如《Sekiro: Shadows Die Twice》（2019年度游戏），强调实时渲染。  
+- **电影（Movies）:** 用于特效制作，例如《The Matrix》(1999)  
+- **动画（Animations）:** 如《Zootopia》(2016)和《Frozen 2》(2019)，展示角色和环境渲染  
+- **设计（Design）:** 用于CAD和工业设计，例如Autodesk Gallery工具  
+- **虚拟现实（Virtual Reality）:** 如Oculus VR设备，提供沉浸式体验。  
+- **增强现实（Augmented Reality）:** 如Microsoft Hololens，叠加虚拟元素到现实世界  
+- **数字插图（Digital Illustration）:** 用于艺术创作，例如数字绘画工具  
+- **模拟（Simulation）:** 如《星际穿越》中的黑洞效果  
+- **图形用户界面（GUIs）:** 用于软件和操作系统，例如本课程网站界面  
+- **排版（Typography）:** 字体设计，如Baskerville字体  
+
+## **5. Course Topics (核心主题)**  
+课程分为四大模块，重点关注原理而非工具：  
+- **Rasterization（光栅化）:**  
+  - 将3D几何体（如三角形）投影到屏幕，分解为像素（fragments）。  
+  - 实时应用的标准（如视频游戏）  
+      
+- **Curves and Meshes（曲线和网格）:**  
+  - 几何表示方法（How to represent geometry）。  
+- **Ray Tracing（光线追踪）:**  
+  - 从摄像机发射光线，计算交点和着色，反弹至光源。  
+  - 离线应用的标准（如电影动画）  
+      
+- **Animation / Simulation（动画/模拟）:**  
+  - 关键技术：关键帧动画（Key frame Animation）和质量弹簧系统（Mass-spring System）。  
+
+**课程不覆盖内容（Not Covered）:**  
+- 不教API（如OpenGL/DirectX/Vulkan）或着色器语法（Shaders Syntax）。  
+- 不教3D建模工具（如Maya/Blender）或游戏引擎（如Unity/Unreal）。  
+- 不教计算机视觉（CV）或深度学习（如GAN），这些有明确界限区别。  
+
+
+## **6. Course Logistics (课程后勤)**  
+- **课程网站:** http://www.cs.ucsb.edu/~lingqi/teaching/games101.html  
+  - 包含教学大纲、幻灯片、阅读材料等。  
+  - 网站界面示例  
+      
+- **参考资料:**  
+  - 无强制教材，推荐参考书: "Fundamentals of Computer Graphics" by Steve Marschner and Peter Shirley (第3版或更新)。  
+  - 阅读材料和幻灯片课后在线提供。  
+- **作业（Assignments）:**  
+  - 每周编程任务（C++语言），使用提供的代码框架和虚拟机镜像。  
+  - 提交网站: http://www.smartchair.org/GAMES2020Course-YLQ/  
+  - 截止时间严格（11:59 PM），反馈一周内提供。  
+  - 无考试，但有期末项目（Final Project），优秀作品可在线展示。  
+- **开发环境（IDE）:**  
+  - 推荐: Visual Studio (Windows) / Visual Studio Code (跨平台) / Qt Creator。  
+  - 不推荐: CLion, Eclipse, Sublime Text等（对C++支持不足）。  
+- **学术诚信（Academic Integrity）:**  
+  - 作业独立完成，禁止抄袭或在线发布代码。  
+  - 讨论欢迎，但禁止共享解决方案。  
+- **Q&A平台:**  
+  - 使用BBS论坛讨论: http://games-cn.org/forums/forum/games-online-course-forum/  
+
+## **7. Conclusion**  
+- **关键收获:** 计算机图形学是跨学科领域，融合数学、物理和计算技术，应用广泛且充满创新。  
+- **下一步:** 复习线性代数（下讲主题），并访问课程网站获取资料。  
+- **Q&A:** 鼓励在BBS提问，讲师和助教团队支持。  

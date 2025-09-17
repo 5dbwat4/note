@@ -1,0 +1,85 @@
+---
+title: 多层感知机（MLP）
+---
+
+# 为什么要有MLP
+
+线性回归是画一条直线来拟合数据点（比如用面积预测房价），Softmax回归是画几条直线来把不同的类别分开（比如区分猫和狗的图片，假设特征很简单）。但是，当特征变得更加复杂时，这些线性模型就无法很好地拟合数据了。这时，我们需要引入多层感知机（MLP）来构建更复杂的模型。
+
+# 实现
+
+实现一个MLP，完成Fashion-MNIST图像分类数据集任务
+
+```python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torchvision import datasets, transforms
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Load Fashion-MNIST dataset
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.5,), (0.5,))
+])
+
+train_dataset = datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform)
+test_dataset = datasets.FashionMNIST(root='./data', train=False, download=True, transform=transform)
+
+train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
+test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
+
+# Define the MLP model
+class MLP(nn.Module):
+    def __init__(self):
+        super(MLP, self).__init__()
+        self.fc1 = nn.Linear(28 * 28, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 10)
+        self.relu = nn.ReLU()  # 将ReLU定义为模块的一部分
+
+    def forward(self, x):
+        x = x.view(-1, 28 * 28)
+        x = self.relu(self.fc1(x))
+        x = self.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+# Initialize the model, loss function, and optimizer
+model = MLP().to(device)  # 直接移动到设备
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+# Training loop
+for epoch in range(15):
+    model.train()
+    running_loss = 0.0
+    for images, labels in train_loader:
+        # 将数据移动到相同设备
+        images, labels = images.to(device), labels.to(device)
+        
+        optimizer.zero_grad()
+        outputs = model(images)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+        
+        running_loss += loss.item()
+    
+    print(f"Epoch {epoch+1}, Loss: {running_loss/len(train_loader)}")
+
+# 测试代码（可选）
+model.eval()
+correct = 0
+total = 0
+with torch.no_grad():
+    for images, labels in test_loader:
+        images, labels = images.to(device), labels.to(device)
+        outputs = model(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+print(f'Test Accuracy: {100 * correct / total}%')
+```

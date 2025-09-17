@@ -1,0 +1,97 @@
+---
+title: "Lecture 2: Review of Linear Algebra"
+---
+
+
+# **向量基础（Vector Fundamentals）**  
+- **定义（Definition）：** 表示方向（Direction）和长度（Length）；无绝对起点。  
+  - 符号（Notation）：$\vec{a}$、$\boldsymbol{a}$ 或 $\overrightarrow{AB} = B - A$。  
+  - 模长（Magnitude）：$\left\|\vec{a}\right\|$（长度）。  
+- **归一化（Normalization）：** 转换为单位向量（Unit Vector）：  
+  - 公式：$\hat{a} = \vec{a} / \|\vec{a}\|$（用于表示方向）。  
+- **加法（Addition）：**  
+  - 几何法：平行四边形法则（Parallelogram Law）或三角形法则（Triangle Law）。  
+  - 代数法：坐标分量（Component-wise）相加。  
+- **笛卡尔坐标（Cartesian Coordinates）：**  
+  -  X and Y can be any (usually orthogonal unit) vectors
+  - 二维（2D）：$\mathbf{A} = \begin{pmatrix} x \\ y \end{pmatrix}$，$\|\mathbf{A}\| = \sqrt{x^2 + y^2}$。  
+  - 三维（3D）：扩展 $z$ 分量。  
+
+---
+
+# **向量运算（Vector Operations）**  
+## **1. 点积（Dot Product, Scalar Product）**  
+- **定义（Definition）：** $\vec{a} \cdot \vec{b} = \|\vec{a}\| \|\vec{b}\| \cos \theta$。  
+  - 单位向量（Unit Vectors）：$\cos \theta = \hat{a} \cdot \hat{b}$。  
+- **性质（Properties）：**  
+  - 交换律（Commutative）：$\vec{a} \cdot \vec{b} = \vec{b} \cdot \vec{a}$。  
+  - 分配律（Distributive）：$\vec{a} \cdot (\vec{b} + \vec{c}) = \vec{a} \cdot \vec{b} + \vec{a} \cdot \vec{c}$。  
+  - 标量乘法（Scalar Multiplication）：$(k\vec{a}) \cdot \vec{b} = k(\vec{a} \cdot \vec{b})$。  
+- **笛卡尔坐标公式（Cartesian Formula）：**  
+  - 二维：$\vec{a} \cdot \vec{b} = x_a x_b + y_a y_b$。  
+  - 三维：$\vec{a} \cdot \vec{b} = x_a x_b + y_a y_b + z_a z_b$。  
+- **图形学应用（Applications in Graphics）：**  
+  - **角度计算：** 向量间夹角余弦（如光源方向与法线）。( Find angle between two vectors 
+ (e.g. cosine of angle between light source and surface )  
+  - **投影（Projection）：**   
+     将 $\vec{b}$ 分解到 $\vec{a}$：  
+     - 方向：$\vec{b_{\perp}} = k \hat{a}$
+     - 模长（Magnitude）$k = \|\vec{b}\| \cos \theta$
+  - **方向分析（Direction Analysis）：** 点积符号判断正向（Forward）/反向（Backward）。  
+    
+  
+
+## **2. 叉积（Cross Product, Vector Product）**  
+- **定义（Definition）：** 结果垂直于输入向量；方向符合右手定则（Right-Hand Rule）。  
+- **性质（Properties）：**  
+  - 反交换律（Anti-commutative）：$\vec{a} \times \vec{b} = -\vec{b} \times \vec{a}$。  
+  - 自叉积（Self-product）：$\vec{a} \times \vec{a} = \vec{0}$。  
+  - 分配律（Distributive）：$\vec{a} \times (\vec{b} + \vec{c}) = \vec{a} \times \vec{b} + \vec{a} \times \vec{c}$。  
+  - 标量乘法（Scalar Multiplication）：$(k\vec{a}) \times \vec{b} = k(\vec{a} \times \vec{b})$。
+- **笛卡尔坐标公式（Cartesian Formula）：**  
+  - $\vec{a} \times \vec{b} = \begin{pmatrix} y_a z_b - y_b z_a \\ z_a x_b - x_a z_b \\ x_a y_b - y_a x_b \end{pmatrix}$。  
+  - 矩阵形式（Matrix Form）：$\vec{a} \times \vec{b} = A^* b = \begin{pmatrix} 0 & -z_a & y_a \\ z_a & 0 & -x_a \\ -y_a & x_a & 0 \end{pmatrix} \begin{pmatrix} x_b \\ y_b \\ z_b \end{pmatrix}$。  
+- **图形学应用（Applications in Graphics）：**  
+  - **方向测试（Orientation Testing）：** 判断点位于多边形左侧（Left）/右侧（Right）或内部（Inside）/外部（Outside）。  
+    
+  
+
+## **3. 标准正交基（Orthonormal Bases）与坐标系（Coordinate Frames）**  
+- **定义（Definition）：** 三个向量 ($\vec{u}, \vec{v}, \vec{w}$) 满足：  
+  - 单位长度（Unit Length）：$\|\vec{u}\| = \|\vec{v}\| = \|\vec{w}\| = 1$。  
+  - 正交（Orthogonality）：$\vec{u} \cdot \vec{v} = \vec{v} \cdot \vec{w} = \vec{u} \cdot \vec{w} = 0$。  
+  - 右手系（Right-handed）：$\vec{w} = \vec{u} \times \vec{v}$。  
+- **投影（Projection）：** 表示点 $\vec{p}$：$\vec{p} = (\vec{p} \cdot \vec{u}) \vec{u} + (\vec{p} \cdot \vec{v}) \vec{v} + (\vec{p} \cdot \vec{w}) \vec{w}$。  
+- **意义：**  
+  - Important for representing points, positions, locations
+  - Often, many sets of coordinate systems
+    - Global, local, world, model, parts of model (head, hands, …)
+  - Critical issue is transforming between these systems/ bases
+    - A topic for next week。  
+
+---
+
+# **矩阵（Matrices）：图形变换的数学工具**  
+- In Graphics, pervasively used to represent transformations
+- **定义（Definition）：** $m \times n$ 数字数组，如 $\begin{pmatrix} 1 & 3 \\ 5 & 2 \\ 0 & 4 \end{pmatrix}$。**($m \times n = m \, \text{rows}, n \, \text{columns}$)**  
+- 标量加法、乘法： Addition and multiplication by a scalar are trivial:
+  - element by element
+- **矩阵乘法（Matrix-Matrix Multiplication）：**  
+  - 条件（Requirements）：左矩阵列数（Columns） = 右矩阵行数（Rows），结果维度 $(M \times N)(N \times P) = (M \times P)$。  
+  - 元素计算（Element Calculation）：行 $i$ (左) 与列 $j$ (右) 的点积（Dot Product）。  
+  - 性质（Properties）：
+    - **不可交换（Non-commutative）：$AB \neq BA$**。  
+    - 结合律（Associative）和分配律（Distributive）：
+      - $(AB)C = A(BC)$
+      - $A(B + C) = AB + AC$
+      - $(A + B)C = AC + BC$
+- **矩阵-向量乘法（Matrix-Vector Multiplication）：**  
+  - 向量视为列矩阵（Column Matrix），如 $\begin{pmatrix} x \\ y \end{pmatrix}$。  
+  - **Key for transforming points**，例如二维绕 $y$ 轴反射（Reflection）：$\begin{pmatrix} -1 & 0 \\ 0 & 1 \end{pmatrix} \begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} -x \\ y \end{pmatrix}$。  
+- **转置（Transpose）：** 行列互换（Swap Rows/Columns）；$(AB)^T = B^T A^T$。  
+- **单位矩阵（Identity Matrix）与逆（Inverse）：**  
+  - 单位矩阵：$I_{3\times3} = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}$。  
+  - 逆矩阵：$AA^{-1} = A^{-1}A = I$；$(AB)^{-1} = B^{-1} A^{-1}$。  
+- **向量运算的矩阵表示（Vector Operations in Matrix Form）：**  
+  - 点积（Dot Product）：$\vec{a} \cdot \vec{b} = \vec{a}^T \vec{b}$。  
+  - 叉积（Cross Product）：见上述对偶矩阵公式（Dual Matrix Formula）。  

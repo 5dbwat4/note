@@ -1,0 +1,67 @@
+---
+title: 你就默吧活爹（单词部分）
+---
+import ReciteHidden from "@/components/md-comp/Recite_Hidden.vue";
+
+# Ch01 The Foundations: Logic and Proofs
+
+| Terms | Translation | Detail |
+| --- | --- | --- |
+| proposition | <ReciteHidden>命题</ReciteHidden> | <ReciteHidden> a statement that is true or false <br/> 一个陈述，其值为真或假。</ReciteHidden> |
+| p ∨ q (disjunction of p and q) | <ReciteHidden>p和q的析取</ReciteHidden> | <ReciteHidden> the proposition “$p$ or $q$,” which is true if and only if at least one of $p$ and $q$ is true <br/> 命题“$p$或$q$”，当且仅当$p$和$q$中至少有一个为真时为真。</ReciteHidden> |
+| p ∧ q (conjunction of p and q) | <ReciteHidden>p和q的合取</ReciteHidden> | <ReciteHidden> the proposition “$p$ and $q$,” which is true if and only if both $p$ and $q$ are true <br/> 命题“$p$和$q$”，当且仅当$p$和$q$都为真时为真。</ReciteHidden> |
+| converse of p → q | <ReciteHidden>p → q的逆命题</ReciteHidden> | <ReciteHidden> the conditional statement $q → p$ <br/> 条件命题$q → p$。</ReciteHidden> |
+| contrapositive of p → q | <ReciteHidden>p → q的逆否命题</ReciteHidden> | <ReciteHidden> the conditional statement $¬q → ¬p$ <br/> 条件命题$¬q → ¬p$。</ReciteHidden> |
+| inverse of p → q | <ReciteHidden>p → q的反命题</ReciteHidden> | <ReciteHidden> the conditional statement $¬p → ¬q$ <br/> 条件命题$¬p → ¬q$。</ReciteHidden> |
+| tautology | <ReciteHidden>永真命题</ReciteHidden> | <ReciteHidden> a compound proposition that is always true <br/> 总是为真的复合命题。</ReciteHidden> |
+| contradiction | <ReciteHidden>矛盾命题</ReciteHidden> | <ReciteHidden> a compound proposition that is always false <br/> 总是为假的复合命题。</ReciteHidden> |
+| contingency | <ReciteHidden>可满足命题</ReciteHidden> | <ReciteHidden> a compound proposition that is sometimes true and sometimes false <br/> 有时为真、有时为假的复合命题。</ReciteHidden> |
+| consistent compound propositions | <ReciteHidden>一致的复合命题</ReciteHidden> | <ReciteHidden> compound propositions for which there is an assignment of truth values to the variables that makes all these propositions true <br/> 存在一种变量的真值赋值，使得所有这些复合命题都为真的复合命题。</ReciteHidden> |
+| predicate | <ReciteHidden>谓词</ReciteHidden> | <ReciteHidden> part of a sentence that attributes a property to the subject <br/> 句子中表示主语具有某种属性的部分。</ReciteHidden> |
+| premise | <ReciteHidden>前提</ReciteHidden> | <ReciteHidden> a statement, in an argument, or argument form, other than the final one <br/> 在论证或论证形式中，除了最后一条之外的陈述。</ReciteHidden> |
+| conclusion | <ReciteHidden>结论</ReciteHidden> | <ReciteHidden> the final statement in an argument or argument form <br/> 论证或论证形式中的最后一条陈述。</ReciteHidden> |
+| fallacy | <ReciteHidden>谬误</ReciteHidden> | <ReciteHidden> an invalid argument form often used incorrectly as a rule of inference (or sometimes, more generally, an incorrect argument) <br/> 通常被错误地用作推理规则的无效论证形式（或者更一般地，一个错误的论证）。</ReciteHidden> |
+| conjecture | <ReciteHidden>猜想</ReciteHidden> | <ReciteHidden> a mathematical assertion proposed to be true, but that has not been proved <br/> 被提出为真的数学命题，但尚未被证明。</ReciteHidden> |
+| axiom | <ReciteHidden>公理</ReciteHidden> | <ReciteHidden> a statement that is assumed to be true and that can be used as a basis for proving theorems <br/> 被假设为真，并且可以作为证明定理基础的陈述。</ReciteHidden> |
+| lemma | <ReciteHidden>引理</ReciteHidden> | <ReciteHidden> a theorem used to prove other theorems <br/> 用于证明其他定理的定理。</ReciteHidden> |
+| corollary | <ReciteHidden>推论</ReciteHidden> | <ReciteHidden> a proposition that can be proved as a consequence of a theorem that has just been proved <br/> 作为刚刚证明的定理的推论而可以被证明的命题。</ReciteHidden> |
+
+# Ch02 Basic Structures: Sets, Functions, Sequences, Sums, and Matrices
+
+| Terms | Translation | Detail |
+| --- | --- | --- |
+| roster method | <ReciteHidden> 列表法 </ReciteHidden> | <ReciteHidden> a method that describes a set by listing its elements. <br/> 通过列出集合的所有元素来描述集合的方法。 </ReciteHidden> |
+| set builder notation | <ReciteHidden> 集合构造符号 </ReciteHidden> | <ReciteHidden> the notation that describes a set by stating a property an element must have to be a member. <br/> 通过陈述一个元素必须具有的属性来描述集合的符号。 </ReciteHidden> |
+| P(S) (the power set of S) | <ReciteHidden> P(S)（S的幂集） </ReciteHidden> | <ReciteHidden> the set of all subsets of S. <br/> S的所有子集构成的集合。 </ReciteHidden> |
+| A − B (the difference of A and B) | <ReciteHidden> A − B（A与B的差集） </ReciteHidden> | <ReciteHidden> the set containing those elements that are in A but not in B. <br/> 包含在A中但不在B中的元素的集合。 </ReciteHidden> |
+| A ⊕ B (the symmetric difference of A and B) | <ReciteHidden> A ⊕ B（A与B的对称差） </ReciteHidden> | <ReciteHidden> the set containing those elements in exactly one of A and B. <br/> 包含在A和B中恰好一个集合中的元素的集合。 </ReciteHidden> |
+| onto function, surjection | <ReciteHidden> 满射函数，满射 </ReciteHidden> | <ReciteHidden> a function from A to B such that every element of B is the image of some element in A. <br/> 从A到B的函数，使得B中的每个元素都是A中某个元素的像。 </ReciteHidden> |
+| one-to-one function, injection | <ReciteHidden> 单射函数，单射 </ReciteHidden> | <ReciteHidden> a function such that the images of elements in its domain are distinct. <br/> 一个函数，使得其定义域中元素的像各不相同。 </ReciteHidden> |
+| one-to-one correspondence, bijection | <ReciteHidden> 一一对应，双射 </ReciteHidden> | <ReciteHidden> a function that is both one-to-one and onto. <br/> 既是单射又是满射的函数。 </ReciteHidden> |
+| inverse of $f$ | <ReciteHidden> $f$的逆函数 </ReciteHidden> | <ReciteHidden> the function that reverses the correspondence given by $f$ (when $f$ is a bijection). <br/> 反转由$f$给出的对应关系的函数（当$f$是双射时）。 </ReciteHidden> |
+| partial function | <ReciteHidden> 部分函数 </ReciteHidden> | <ReciteHidden> an assignment to each element in a subset of the domain a unique element in the codomain. <br/> 将定义域的一个子集中的每个元素分配到值域中的唯一元素。 </ReciteHidden> |
+| geometric progression | <ReciteHidden> 等比数列 </ReciteHidden> | <ReciteHidden> a sequence of the form $a, ar, ar^2, \ldots$, where $a$ and $r$ are real numbers. <br/> 形如$a, ar, ar^2, \ldots$的数列，其中$a$和$r$是实数。 </ReciteHidden> |
+| arithmetic progression | <ReciteHidden> 等差数列 </ReciteHidden> | <ReciteHidden> a sequence of the form $a, a + d, a + 2d, \ldots$, where $a$ and $d$ are real numbers. <br/> 形如$a, a + d, a + 2d, \ldots$的数列，其中$a$和$d$是实数。 </ReciteHidden> |
+| recurrence relation | <ReciteHidden> 递推关系 </ReciteHidden> | <ReciteHidden> an equation that expresses the $n$-th term $a_n$ of a sequence in terms of one or more of the previous terms of the sequence for all integers $n$ greater than a particular integer. <br/> 一个方程，表示数列的第$n$项$a_n$是数列中一个或多个前面项的函数，对所有大于某个特定整数的整数$n$成立。 </ReciteHidden> |
+| cardinality | <ReciteHidden> 基数 </ReciteHidden> | <ReciteHidden> two sets A and B have the same cardinality if there is a one-to-one correspondence from A to B. <br/> 如果存在从A到B的一一对应，则集合A和B具有相同的基数。 </ReciteHidden> |
+| $\mathfrak{c}$ | <ReciteHidden> $\mathfrak{c}$ </ReciteHidden> | <ReciteHidden> the cardinality of the set of real numbers. <br/> 实数集的基数。 </ReciteHidden> |
+| Cantor diagonalization argument | <ReciteHidden> 康托对角线论证 </ReciteHidden> | <ReciteHidden> a proof technique used to show that the set of real numbers is uncountable. <br/> 一种证明实数集不可数的证明技巧。 </ReciteHidden> |
+| continuum hypothesis | <ReciteHidden> 连续统假设 </ReciteHidden> | <ReciteHidden> the statement that no set A exists such that $\aleph_0 < \abs{A} < \mathfrak{c}$. <br/> 不存在一个集合A，使得$\aleph_0 < \abs{A} < \mathfrak{c}$。 </ReciteHidden> |
+| $I_n$ (identity matrix of order $n$) | <ReciteHidden> $I_n$（$n$阶单位矩阵） </ReciteHidden> | <ReciteHidden> the $n \times n$ matrix that has entries equal to 1 on its diagonal and 0s elsewhere. <br/> 对角线上的元素为1，其余位置为0的$n \times n$矩阵。 </ReciteHidden> |
+| $A^t$ (transpose of $A$) | <ReciteHidden> $A^t$（$A$的转置） </ReciteHidden> | <ReciteHidden> the matrix obtained from $A$ by interchanging the rows and columns. <br/> 通过交换$A$的行和列得到的矩阵。 </ReciteHidden> |
+| symmetric matrix | <ReciteHidden> 对称矩阵 </ReciteHidden> | <ReciteHidden> a matrix is symmetric if it equals its transpose. <br/> 如果一个矩阵等于它的转置，则该矩阵是对称的。 </ReciteHidden> |
+
+
+# Ch03 Algorithms
+
+| Terms | Translation | Detail |
+| --- | --- | --- |
+| algorithmic paradigm | <ReciteHidden> 算法范式 </ReciteHidden> | <ReciteHidden> a general approach for constructing algorithms based on a particular concept. <br/> 基于特定概念构建算法的通用方法。 </ReciteHidden> |
+| tractable problem | <ReciteHidden> 易解问题 </ReciteHidden> | <ReciteHidden> a problem for which there is a worst-case polynomial-time algorithm that solves it. <br/> 存在一个最坏情况下多项式时间算法可以解决的问题。 </ReciteHidden> |
+| intractable problem | <ReciteHidden> 难解问题 </ReciteHidden> | <ReciteHidden> a problem for which no worst-case polynomial-time algorithm exists for solving it. <br/> 不存在一个最坏情况下多项式时间算法可以解决的问题。 </ReciteHidden> |
+
+# Ch04 Number Theory and Cryptography
+
+(It's hard to say but it seems those terms in this chapter are not so important.)
+
+# Ch05 Induction and Recursion
