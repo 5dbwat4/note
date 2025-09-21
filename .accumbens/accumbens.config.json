@@ -527,56 +527,7 @@
                     "show": true,
                     "name": "SYS-labs",
                     "leaf": true,
-                    "entries": [
-                        {
-                            "title": "",
-                            "updatedAt": 1741704563010,
-                            "wordcount": 3182,
-                            "unikey": "629da30d8a972fead0f70cc77b6f6c48378a22b9b0a52464f6d70b41844cf1c8",
-                            "pathonly": false,
-                            "path": "lab0"
-                        },
-                        {
-                            "title": "",
-                            "updatedAt": 1743419953521,
-                            "wordcount": 2619,
-                            "unikey": "4de75b52e74d8126e00dacc53adb8da491773c1145e8cdb8ba744df69decffef",
-                            "pathonly": false,
-                            "path": "lab1"
-                        },
-                        {
-                            "title": "",
-                            "updatedAt": 1744557847882,
-                            "wordcount": 1507,
-                            "unikey": "ee441e8a594750a4c5599c832972a537acc803f0ef2ae193e24f1a7e4db6a275",
-                            "pathonly": false,
-                            "path": "lab2"
-                        },
-                        {
-                            "title": "",
-                            "updatedAt": 1745769252863,
-                            "wordcount": 3819,
-                            "unikey": "9a8d6d91fc9e9fe663a70bf632521ef6c00e85fb75b85799f20bb57a565f7913",
-                            "pathonly": false,
-                            "path": "lab3"
-                        },
-                        {
-                            "title": "",
-                            "updatedAt": 1746974148699,
-                            "wordcount": 2114,
-                            "unikey": "7c8393059a6e9269cf45477a02a0ce151b8c4da88fa1a99af6c53c856959e734",
-                            "pathonly": false,
-                            "path": "lab4"
-                        },
-                        {
-                            "title": "project: 单周期 CPU 设计",
-                            "updatedAt": 1749245056371,
-                            "wordcount": 3176,
-                            "unikey": "1475503aaf5e18e1762ebcf6e9835527feadd271a000b9117e2460cb29e38a22",
-                            "pathonly": false,
-                            "path": "project"
-                        }
-                    ]
+                    "entries": []
                 },
                 {
                     "path": [
