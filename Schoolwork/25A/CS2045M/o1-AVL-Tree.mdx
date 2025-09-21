@@ -1,0 +1,160 @@
+---
+title: AVL Tree, Splay Tree, and Amortized Analysis
+---
+
+# AVL Tree
+
+## Why we need balanced BST?
+
+我们知道，二叉搜索树可以保证插入、删除、查找的时间复杂度为 $O(h)$，$h$ 是树的高度。然而，$h$ 是不确定的，在最坏情况下，BST 可能退化成链表，导致 $h = n$，从而使得这些操作的时间复杂度变为 $O(n)$。
+
+核心问题在于：普通的BST无法自平衡。 AVL树就是为了解决这个问题而诞生的。
+
+## Definition of AVL Tree
+
+【Definition】An empty binary tree is height balanced. If $T$ is a nonempty binary tree with $T_L$ and $T_R$ as its left and right subtrees, then $T$ is height balanced iff
+
+(1) $T_L$ and $T_R$ are height balanced, and
+
+(2) $|h_L - h_R| \leq 1$ where $h_L$ and $h_R$ are the heights of $T_L$ and $T_R$, respectively.
+
+【Definition】The balance factor $BF(\text{node})=h_L - h_R$. In an AVL tree, $BF(\text{node})= - 1,0$, or $1$.
+
+The height of an empty tree is defined to be $-1$.
+
+可以看看这个Visualizer: https://visualgo.net/en/bst
+
+## Which case is it?
+
+<div style="color: gray">
+
+When we insert a node, we first perform the standard BST insertion. After that, we need to check the balance factor of each node on the path from the inserted node up to the root. If any node becomes unbalanced (i.e., its balance factor is either $2$ or $-2$), we need to perform rotations to restore balance.
+
+There are four cases to consider based on the balance factors:
+
+1. **Left-Left (LL) Case**: This occurs when a node is inserted into the left subtree of the left child of an unbalanced node. To fix this, we perform a right rotation on the unbalanced node.
+
+2. **Right-Right (RR) Case**: This occurs when a node is inserted into the right subtree of the right child of an unbalanced node. To fix this, we perform a left rotation on the unbalanced node.
+
+3. **Left-Right (LR) Case**: This occurs when a node is inserted into the right subtree of the left child of an unbalanced node. To fix this, we perform a left rotation on the left child of the unbalanced node, followed by a right rotation on the unbalanced node.
+
+4. **Right-Left (RL) Case**: This occurs when a node is inserted into the left subtree of the right child of an unbalanced node. To fix this, we perform a right rotation on the right child of the unbalanced node, followed by a left rotation on the unbalanced node.
+
+</div>
+
+**省流：导致不平衡的那个子树（最高的那一块）位于哪里，这就是哪个case。**
+
+![](https://visualgo.net/img/four_cases.png)
+
+## How to do rotations?
+
+根据你的case，现在你有了$|bf|$为1和2的两个节点，暂且叫他们$1$和$2$。
+1. 把它们以外的部分拆掉
+2. 钉着$1$，直接旋转，现在$2$多了空的子树
+3. 似乎$1$的子树之一卡住了，转不动。没事，把它拆下来接到$2$上
+4. 把$1$接回去
+
+## About the minimum nodes of AVL tree
+
+Let $n_h$ be the minimum number of nodes in an AVL tree of height $h$. We have:
+
+- $n_0 = 1$ (a single node)
+- $n_1 = 2$ (a root and one child)
+- For $h \geq 2$, $\color{blue} n_h = n_{h-1} + n_{h-2} + 1$ (the root node plus the minimum nodes in the left and right subtrees)
+
+We have 
+$$
+\color{blue}\boxed{n_h = F_{h+2} - 1}
+$$
+where $F_k$ is the $k$-th Fibonacci number.
+
+## Implementation of AVL Tree
+
+```c
+typedef struct AVLNode {
+    int key;
+    struct AVLNode *left;
+    struct AVLNode *right;
+    int height; // height of the node
+} AVLNode;
+typedef struct AVLTree {
+    AVLNode *root;
+} AVLTree;
+// Function to get the height of a node
+int height(AVLNode *N) {
+    if (N == NULL)
+        return -1;
+    return N->height;
+}
+int bf(AVLNode *N) {
+    if (N == NULL)
+        return 0;
+    return height(N->left) - height(N->right);
+}
+// Right rotate
+AVLNode* rightRotate(AVLNode *y) {
+    AVLNode *x = y->left;
+    AVLNode *T2 = x->right;
+    // Perform rotation
+    x->right = y;
+    y->left = T2;
+    // Update heights
+    y->height = max(height(y->left), height(y->right)) + 1;
+    x->height = max(height(x->left), height(x->right)) + 1;
+    // Return new root
+    return x;
+}
+// Left rotate
+AVLNode* leftRotate(AVLNode *x) {
+    AVLNode *y = x->right;
+    AVLNode *T2 = y->left;
+    // Perform rotation
+    y->left = x;
+    x->right = T2;
+    // Update heights
+    x->height = max(height(x->left), height(x->right)) + 1;
+    y->height = max(height(y->left), height(y->right)) + 1;
+    // Return new root
+    return y;
+}
+// Insert a node
+AVLNode* insert(AVLNode* node, int key) {
+    // 1. Perform the normal BST insertion
+    if (node == NULL) {
+        AVLNode* newNode = (AVLNode*)malloc(sizeof(AVLNode));
+        newNode->key = key;
+        newNode->left = newNode->right = NULL;
+        newNode->height = 0; // New node is initially added at leaf
+        return newNode;
+    }
+    if (key < node->key)
+        node->left = insert(node->left, key);
+    else if (key > node->key)
+        node->right = insert(node->right, key);
+    else // Duplicate keys are not allowed in the AVL tree
+        return node;
+    // 2. Update height of this ancestor node
+    node->height = 1 + max(height(node->left), height(node->right));
+    // 3. Get the balance factor of this ancestor node to check whether this node became unbalanced
+    int balance = bf(node);
+    // If this node becomes unbalanced, then there are 4 cases
+    // Left Left Case
+    if (balance > 1 && key < node->left->key)
+        return rightRotate(node);
+    // Right Right Case
+    if (balance < -1 && key > node->right->key)
+        return leftRotate(node);
+    // Left Right Case
+    if (balance > 1 && key > node->left->key) {
+        node->left = leftRotate(node->left);
+        return rightRotate(node);
+    }
+    // Right Left Case
+    if (balance < -1 && key < node->right->key) {
+        node->right = rightRotate(node->right);
+        return leftRotate(node);
+    }
+    // return the (unchanged) node pointer
+    return node;
+}
+```

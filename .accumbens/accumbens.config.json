@@ -534,7 +534,7 @@
                             "wordcount": 3182,
                             "unikey": "629da30d8a972fead0f70cc77b6f6c48378a22b9b0a52464f6d70b41844cf1c8",
                             "pathonly": false,
-                            "path": "report"
+                            "path": "lab0"
                         },
                         {
                             "title": "",
@@ -542,7 +542,7 @@
                             "wordcount": 2619,
                             "unikey": "4de75b52e74d8126e00dacc53adb8da491773c1145e8cdb8ba744df69decffef",
                             "pathonly": false,
-                            "path": "report"
+                            "path": "lab1"
                         },
                         {
                             "title": "",
@@ -550,7 +550,7 @@
                             "wordcount": 1507,
                             "unikey": "ee441e8a594750a4c5599c832972a537acc803f0ef2ae193e24f1a7e4db6a275",
                             "pathonly": false,
-                            "path": "report"
+                            "path": "lab2"
                         },
                         {
                             "title": "",
@@ -558,7 +558,7 @@
                             "wordcount": 3819,
                             "unikey": "9a8d6d91fc9e9fe663a70bf632521ef6c00e85fb75b85799f20bb57a565f7913",
                             "pathonly": false,
-                            "path": "report"
+                            "path": "lab3"
                         },
                         {
                             "title": "",
@@ -566,7 +566,7 @@
                             "wordcount": 2114,
                             "unikey": "7c8393059a6e9269cf45477a02a0ce151b8c4da88fa1a99af6c53c856959e734",
                             "pathonly": false,
-                            "path": "report"
+                            "path": "lab4"
                         },
                         {
                             "title": "project: 单周期 CPU 设计",
@@ -574,7 +574,7 @@
                             "wordcount": 3176,
                             "unikey": "1475503aaf5e18e1762ebcf6e9835527feadd271a000b9117e2460cb29e38a22",
                             "pathonly": false,
-                            "path": "report"
+                            "path": "project"
                         }
                     ]
                 },
@@ -1462,7 +1462,25 @@
                     "show": true,
                     "name": "高级数据结构与算法分析",
                     "leaf": true,
-                    "entries": []
+                    "index": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1758128993315,
+                            "wordcount": 0,
+                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "pathonly": true,
+                            "path": "index"
+                        },
+                        {
+                            "title": "AVL Tree, Splay Tree, and Amortized Analysis",
+                            "updatedAt": 1758218562469,
+                            "wordcount": 1024,
+                            "unikey": "4c7607b5fd2277152c6b58b59b04e8b00c9119171158a1d9ed40875f0ec79f38",
+                            "pathonly": false,
+                            "path": "o1-AVL-Tree"
+                        }
+                    ]
                 },
                 {
                     "path": [
@@ -1484,15 +1502,23 @@
                     "show": true,
                     "name": "人工智能引论",
                     "leaf": true,
-                    "index": "2a113c2741f4f9b4111a50bf4763aa194396750ede4211a2191bbbeb19c08e96",
+                    "index": "060c075b095032e0a9bf4d0c95755cb659bc14dd1cfb14446cd853b8138244ce",
                     "entries": [
                         {
                             "title": "",
-                            "updatedAt": 1758078427180,
-                            "wordcount": 6,
-                            "unikey": "2a113c2741f4f9b4111a50bf4763aa194396750ede4211a2191bbbeb19c08e96",
+                            "updatedAt": 1758166155192,
+                            "wordcount": 436,
+                            "unikey": "060c075b095032e0a9bf4d0c95755cb659bc14dd1cfb14446cd853b8138244ce",
                             "pathonly": true,
                             "path": "index"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1758164813114,
+                            "wordcount": 6256,
+                            "unikey": "84806d2238a46ea13f2b7018bcc2539dbd37f8af3f87cc765d581151c8563f45",
+                            "pathonly": false,
+                            "path": "p-ch1"
                         },
                         {
                             "title": "抄PPT",
@@ -1512,25 +1538,56 @@
                     "show": true,
                     "name": "概率论和数理统计",
                     "leaf": true,
-                    "entries": []
+                    "index": "bc340a58d915eb0a1ed18368c70bbdae71adaf59b05cd40b95ae9b2c3134a07f",
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1758222129400,
+                            "wordcount": 230,
+                            "unikey": "bc340a58d915eb0a1ed18368c70bbdae71adaf59b05cd40b95ae9b2c3134a07f",
+                            "pathonly": true,
+                            "path": "index"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1758226852636,
+                            "wordcount": 6333,
+                            "unikey": "31d05676bf34a0865219d3988332d6324b4940e24b14223dacf7df592ff1ace6",
+                            "pathonly": false,
+                            "path": "PPT-ch1"
+                        }
+                    ]
                 },
                 {
                     "path": [
-                        "Schoolwork/25A/PHY2001GH"
+                        "Schoolwork/PHY2001GH",
+                        "Phy/PHY2001GH"
                     ],
                     "show": true,
                     "name": "普通物理学Ⅱ（H）",
                     "leaf": true,
-                    "entries": []
+                    "index": "5ba1f4576fd19b2bcd4e1178d4ca44d106e7d76422390e5fd02b5928095b1478",
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1758129524896,
+                            "wordcount": 7,
+                            "unikey": "5ba1f4576fd19b2bcd4e1178d4ca44d106e7d76422390e5fd02b5928095b1478",
+                            "pathonly": true,
+                            "path": "index"
+                        }
+                    ]
                 },
                 {
                     "path": [
-                        "Schoolwork/25O/CTF101"
+                        "Schoolwork/CTF101",
+                        "CS/CTF101",
+                        "Featured/CTF101"
                     ],
                     "show": false,
                     "name": "CTF101",
                     "leaf": true,
-                    "index": "651af5431dbf435da59dc9199bf9ed378c39b26ec7e49903243c5bac60e7fb3b",
+                    "index": "00df7c6ea891b31076bf2ea48448153451ff71a143c53a9f5ebc9c423dae8ccc",
                     "entries": [
                         {
                             "title": "Crypto Lab 1：消息加密和数字签名",
@@ -1542,9 +1599,9 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1753271982748,
-                            "wordcount": 411,
-                            "unikey": "651af5431dbf435da59dc9199bf9ed378c39b26ec7e49903243c5bac60e7fb3b",
+                            "updatedAt": 1758223316500,
+                            "wordcount": 422,
+                            "unikey": "00df7c6ea891b31076bf2ea48448153451ff71a143c53a9f5ebc9c423dae8ccc",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -1793,7 +1850,17 @@
                     "show": true,
                     "name": "马克思主义基本原理（H）",
                     "leaf": true,
-                    "entries": []
+                    "index": "31c2109da6e206e843c423f9bd2ff31f250e6913a68dd30034ccefed597b105b",
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1758166154628,
+                            "wordcount": 11,
+                            "unikey": "31c2109da6e206e843c423f9bd2ff31f250e6913a68dd30034ccefed597b105b",
+                            "pathonly": true,
+                            "path": "index"
+                        }
+                    ]
                 },
                 {
                     "path": [
@@ -2063,13 +2130,13 @@
                     ]
                 }
             ],
-            "index": "58db1e4d2d7121c609f8084a18544cbf8529870d580ec876b309a3634930e1b8",
+            "index": "6024b475064c22886558e58a16976533b14c8ff1894d4bf98a29cd503d6c72a4",
             "entries": [
                 {
                     "title": "学在浙大",
-                    "updatedAt": 1758079591042,
-                    "wordcount": 203,
-                    "unikey": "58db1e4d2d7121c609f8084a18544cbf8529870d580ec876b309a3634930e1b8",
+                    "updatedAt": 1758222789984,
+                    "wordcount": 223,
+                    "unikey": "6024b475064c22886558e58a16976533b14c8ff1894d4bf98a29cd503d6c72a4",
                     "pathonly": true,
                     "path": "index"
                 }

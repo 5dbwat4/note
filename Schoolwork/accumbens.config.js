@@ -8,13 +8,11 @@ function findAccumbensFolders(rootDir) {
   const results = [];
 
   function scanDirectory(currentDir) {
-    // let foundInCurrent = false;
     const items = fs.readdirSync(currentDir);
 
     // 检查当前目录是否包含accumbens.config.js
     if (items.includes('accumbens.config.js')) {
       results.push(path.relative(targetDirectory, currentDir));
-    //   foundInCurrent = true;
     }
 
     // 递归遍历所有子目录

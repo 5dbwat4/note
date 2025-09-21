@@ -39,11 +39,11 @@ Web Lab 1
 Web Lab 2
 
 - [X]  1 Task 1: HTML Parser (15 分)
-- [ ]  2 Task 2: Show me the secret (20 分)
-- [ ]  3 Task 3: node._sanitized (30 分)
+- [X]  2 Task 2: Show me the secret (20 分)
+- [X]  3 Task 3: node._sanitized (30 分)
 - [X]  4 Task 4: Gradient (30 分)
-- [ ]  5 Task 5 & 6: XSS 1 & 2 (60 分)
-- [ ]  6 Task 7: 拓展 (20 分)
+- [X]  5 Task 5 & 6: XSS 1 & 2 (60 分)
+- [X]  6 Task 7: 拓展 (20 分)
 
 Misc Lab 1
 
@@ -55,21 +55,21 @@ Misc Lab 1
 
 Misc Lab 2
 
-- [ ]  1 Challenge 1: songmingti (10%)
-- [ ]  2 Challenge 2: miaomiaomiao (10%)
-- [ ]  3 Challenge 3: Easy LSB (10%)
+- [X]  1 Challenge 1: songmingti (10%)
+- [X]  2 Challenge 2: miaomiaomiao (10%)
+- [X]  3 Challenge 3: Easy LSB (10%)
 - [ ]  4 Challenge A: Palette Stego (25%)
-- [ ]  5 Challenge B: Spectrogram (30%)
+- [X]  5 Challenge B: Spectrogram (30%)
 - [X]  6 Challenge C: Time & Power (30%)
 - [X]  7 (Part of) Challenge E: polyglot (20%)
 
 Crypto Lab 1
 
-- [ ]  1 Task: vigenere-encrypt (40%)
-- [ ]  2.1 古典密码的拓展 (60%)
+- [X]  1 Task: vigenere-encrypt (40%)
+- [X]  2.1 古典密码的拓展 (60%)
 - [ ]  2.2 RSA 的密钥格式解析 (40%+35%)
 - [ ]  2.3 DSA 数字签名的构建和验证 (60%+15%)
-- [ ]  2.4 随机数的预测 (50%+15%)
+- [X]  2.4 随机数的预测 (50%+15%)
 - [ ]  2.5 （慎选）哈希函数的扩展攻击 (60%)
 
 Pwn Lab 1
