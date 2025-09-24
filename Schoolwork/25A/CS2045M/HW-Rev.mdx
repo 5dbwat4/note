@@ -1,0 +1,54 @@
+---
+title: PTA Review
+---
+
+对应ADS25-MYC。PTA题目&答案&自己的解析。
+
+
+
+# Week 1 AVL Tree
+
+## True or False
+
+1. Every subtree of an AVL tree is also an AVL tree.  
+   **True**. By definition, an AVL tree is a binary search tree where the heights of the two child subtrees of any node differ by at most one. This property holds for every subtree as well.
+
+2. Consider an AVL tree. Immediately after we insert a node (without restoring the tree balance), the parent of the newly inserted node may become imbalanced.  
+   **False**. The *parent* of the newly inserted node must have been $0 \rightarrow 1$ or $1 \,\text{or} -1$ after insertion. It will never become imbalanced. Such a imbalancement can only occur at the grandparent or higher ancestors.
+
+3. In the following tree, node 1 is imbalanced and it is in case LR.  
+   <img src="https://images.ptausercontent.com/f0799a98-d3ca-434a-911d-2ae9e584bf6f.png" width="200"/>
+   **False**. It is in case RR.
+
+## Multiple Choice
+
+1. One of the nodes in the following tree is imbalanced. Which case is it in?  
+    <img src="https://images.ptausercontent.com/b1f26a4d-444c-419c-9b7f-62731407f2cb.png" width="200"/>  
+    A. LL  
+    B. LR  
+    C. RR  
+    D. RL  
+    **Answer: D**. The imbalanced node is 7, and it is in case RL.
+
+2. Insert 2, 1, 4, 5, 9, 3, 6, 7 into an initially empty AVL tree.  Which one of the following statements is FALSE?  
+   A. 4 is the root  
+   B. 3 and 7 are siblings  
+   C. 2 and 6 are siblings  
+   D. 9 is the parent of 7  
+    **Answer: B**.
+
+
+## Multiple Choice More than one answer
+
+1. Suppose that immediately after we delete a node from an AVL tree (without restoring the tree balance), some node u becomes imbalanced. Let T be the subtree rooted at u. How will the height of T change after we rebalance u? (Note that the root of T changes after rebalancing.)  
+   A. increases by 1  
+   B. does not change  
+   C. decreases by 1  
+   **Answer: B, C**. The height of T either remains the same or decreases by 1 after rebalancing u.
+
+2. Consider an AVL tree of height $5$. Which of the followings are the possible number of nodes in this tree? We assume that the height of a single node is $1$.  
+  A. 10  
+  B. 20  
+  C. 30  
+  D. 35  
+  **Answer: B, C**

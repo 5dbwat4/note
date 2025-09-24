@@ -1,0 +1,69 @@
+---
+title: Red-Black Tree
+---
+
+# What is a Red-Black Tree?
+
+【Definition】A red-black tree is a binary search tree that satisfies the following red-black properties:
+
+1.  Every node is either <span style="color:red;font-weight:bold">red</span> or <span style="color:black;font-weight:bold">black</span>.
+2.  The root is <span style="color:black;font-weight:bold">black</span>.
+3.  Every leaf (NIL) is <span style="color:black;font-weight:bold">black</span>.
+4.  If a node is <span style="color:red;font-weight:bold">red</span>, then both its children are <span style="color:black;font-weight:bold">black</span>.
+5.  For each node, all simple paths from the node to descendant leaves contain the same number of <span style="color:black;font-weight:bold">black</span> nodes.
+
+【Definition】 The black-height of any node x, denoted by bh(x), is the number of black nodes on any simple path from x (x not included) down to a leaf.  bh(Tree) = bh(root).
+
+\* myc课上的定义中，x is included
+
+Properties:
+
+1. For 2 children v & w of a node u, bh(v) = bh(w).
+2. $\forall x \in \text{Tree}, h(x) \geq bh(x) \geq \frac{h(x)}{2}$.
+
+通过上述机制，保证了$\frac{1}{2}  \leq \frac{h(v)}{h(w)} \leq 2$.
+
+【Lemma】 A red-black tree with N internal nodes has height at most 2ln(N +1).
+
+\* 课上说的是$2\log_2(N+1) +2$
+
+Proof Idea: Show that a subtree with root x contains at least $2^{bh(x)} -1$ internal nodes.
+
+By induction on the height of x:
+- Base case: If h(x) = 0, then x is a leaf, so it contains $2^0 -1 = 0$ internal nodes.
+- Inductive step: If h(x) > 0, then x has two children, say y and z. By the inductive hypothesis, each of the subtrees rooted at y and z contains at least $2^{bh(y)} -1$ and $2^{bh(z)} -1$ internal nodes, respectively. By property 1, bh(y) = bh(z) = bh(x) - 1 (?). Therefore, the subtree rooted at x contains at least:
+  $$(2^{bh(x) - 1} - 1) + (2^{bh(x) - 1} - 1) + 1 = 2^{bh(x)} - 1$$
+  internal nodes.
+
+# Insertion
+To insert a node z into a red-black tree, we:
+
+1. perform a standard binary search tree insertion, coloring the new node z <span style="color:red;font-weight:bold">red</span>. 
+
+2. This may violate the red-black properties, so we need to fix any violations.
+
+We denote the parent of a node z as p(z), the grandparent as g(z), and the uncle as u(z).
+We have the following cases to consider:
+- **Case 1**: p(z) is <span style="color:black;font-weight:bold">black</span>. In this case, the tree is still a valid red-black tree, and we are done.
+- **Case 2**: p(z) is <span style="color:red;font-weight:bold">red</span>. In this case, we have a violation of property 4. We need to consider the color of u(z):
+  - **Case 2a**: u(z) is <span style="color:red;font-weight:bold">red</span>. In this case, we can recolor p(z) and u(z) to <span style="color:black;font-weight:bold">black</span> and g(z) to <span style="color:red;font-weight:bold">red</span>. Then, we set z = g(z) and repeat the process from step 2.
+  - **Case 2b**: u(z) is <span style="color:black;font-weight:bold">black</span> (or NIL). In this case, we need to perform rotations to fix the violation. We have two sub-cases:
+    - **Case 2b(i)**: z is a right child of p(z) and p(z) is a left child of g(z) (or vice versa). In this case, we perform a rotation on p(z) to make z a left child of g(z) (or vice versa). This transforms the situation into Case 2b(ii).
+    - **Case 2b(ii)**: z is a left child of p(z) and p(z) is a left child of g(z) (or both are right children). In this case, we perform a rotation on g(z), making p(z) the new root of the subtree. We then recolor p(z) to <span style="color:black;font-weight:bold">black</span> and g(z) to <span style="color:red;font-weight:bold">red</span>(Case 2a).
+
+{/* # About Rotations?
+
+*TODO*
+
+# Deletion
+To delete a node z from a red-black tree, we:
+1. perform a standard binary search tree deletion. 
+
+2. If the deleted node y is <span style="color:red;font-weight:bold">red</span>, then the tree is still a valid red-black tree, and we are done.
+
+3. If the deleted node y is <span style="color:black;font-weight:bold">black</span>, then we need to fix any violations of the red-black properties. This may involve a series of rotations and recoloring operations.  
+    
+    We wonder about its children.     
+    - If one child is <span style="color:red;font-weight:bold">red</span> and the other is <span style="color:black;font-weight:bold">black</span>, we can replace y with its <span style="color:red;font-weight:bold">red</span> child and color the child <span style="color:black;font-weight:bold">black</span>.
+    - If both children are <span style="color:black;font-weight:bold">black</span>. We 
+/    - If both children are <span style="color:red;font-weight:bold">red</span>, we can replace y with one of its <span style="color:red;font-weight:bold">red</span> children, color the child <span style="color:black;font-weight:bold">black</span>, and then perform a series of rotations and recoloring operations to restore the red-black properties. */}
