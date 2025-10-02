@@ -1,5 +1,7 @@
 # 普通物理学 II (H)
 
+[默写](./recite)
+
 # All of Physics II in 5 Equations
 
 $$ 1.\vec{F}=q(\vec{E}+\vec{v}\times\vec{B}) $$
@@ -15,3 +17,4 @@ $$ 5.\oint\vec{B}\cdot d\vec{l}=\mu_{0}I+\mu_{0}\varepsilon_{0}\frac{d\Phi_{E}}{
 # But indeed 
 
 - [Electric Charge and Coulomb’s Law (电荷和库仑定律)](Ch25)
+- [Electric Fields (电场)](Ch26)

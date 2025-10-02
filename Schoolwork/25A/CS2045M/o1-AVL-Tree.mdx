@@ -2,15 +2,13 @@
 title: AVL Tree
 ---
 
-# AVL Tree
-
-## Why we need balanced BST?
+# Why we need balanced BST?
 
 我们知道，二叉搜索树可以保证插入、删除、查找的时间复杂度为 $O(h)$，$h$ 是树的高度。然而，$h$ 是不确定的，在最坏情况下，BST 可能退化成链表，导致 $h = n$，从而使得这些操作的时间复杂度变为 $O(n)$。
 
 核心问题在于：普通的BST无法自平衡。 AVL树就是为了解决这个问题而诞生的。
 
-## Definition of AVL Tree
+# Definition of AVL Tree
 
 【Definition】An empty binary tree is height balanced. If $T$ is a nonempty binary tree with $T_L$ and $T_R$ as its left and right subtrees, then $T$ is height balanced iff
 
@@ -24,7 +22,7 @@ The height of an empty tree is defined to be $-1$.
 
 可以看看这个Visualizer: https://visualgo.net/en/bst
 
-## Which case is it?
+# Which case is it?
 
 <div style="color: gray">
 
@@ -46,7 +44,7 @@ There are four cases to consider based on the balance factors:
 
 ![](https://visualgo.net/img/four_cases.png)
 
-## How to do rotations?
+# How to do rotations?
 
 根据你的case，现在你有了$|bf|$为1和2的两个节点，暂且叫他们$1$和$2$。
 1. 把它们以外的部分拆掉
@@ -54,7 +52,7 @@ There are four cases to consider based on the balance factors:
 3. 似乎$1$的子树之一卡住了，转不动。没事，把它拆下来接到$2$上
 4. 把$1$接回去
 
-## About the minimum nodes of AVL tree
+# About the minimum nodes of AVL tree
 
 Let $n_h$ be the minimum number of nodes in an AVL tree of height $h$. We have:
 
@@ -68,7 +66,7 @@ $$
 $$
 where $F_k$ is the $k$-th Fibonacci number.
 
-## Implementation of AVL Tree
+# Implementation of AVL Tree
 
 ```c
 typedef struct AVLNode {

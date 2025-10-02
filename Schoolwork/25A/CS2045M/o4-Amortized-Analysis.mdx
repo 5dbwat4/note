@@ -1,0 +1,101 @@
+---
+title: Amortized Analysis
+---
+
+# What is Amortized Analysis?
+
+Target :  Any M consecutive operations take at most O(M log N) time.
+Idea :  Use potential function to analyze the amortized cost of each operation.
+
+worst-case bound $\geq$ amortized bound $\geq$ average-case bound
+
+{/* # Examples
+
+# From some simple examples
+
+动态数组（Dynamic Array）：
+1. 申请一个初始大小为1的数组；
+2. 每次插入一个元素，如果当前数组已满，则申请一个大小为当前数组两倍的新数组，并将旧数组的元素复制到新数组中，然后插入新元素。
+
+$O(n)$ time in worst case (When reallocate is needed).
+
+摊还分析：考虑a sequence of insertion operation。每次插入操作的实际成本为1（插入元素）加上可能的复制成本。
+
+假设1次操作的成本为c, 则对于n次插入操作，总成本为：
+*   普通插入的成本：$cm$。
+*   reallocation的成本：$= 3c + 6c + 12c + \cdots + 3 \cdot 2^{k-1} c \leq cm + 3c \left( 2^{\log_2 n} - 1 \right) \leq 7cm$
+
+$\dfrac{T(m)}{m} \leq 7c = O(1)$
+
+（？）这是聚合分析吗？ */}
+
+{/* # Some complex examples
+
+Two-stack queue：
+- 使用两个栈`inStack`和`outStack`来实现队列的入队和出队操作。
+- 入队操作：将元素压入`inStack`。 ($O(1)$)
+- 出队操作：如果`outStack`为空，则将`inStack`中的所有元素弹出并压入`outStack`，然后从`outStack`弹出元素。 ($O(n)$ in worst case)
+
+核算法：
+
+这种方法给每个操作直接“定价”（摊还代价），并保证这个价格足以支付整个序列的运行。多收的钱会被储存起来，用于支付未来可能发生的昂贵操作。
+
+**我们如何定价？**
+- **`enqueue` 操作：** 我们收取 **3 硬币**。
+    - 1 硬币用于支付它自身的 `push` 到 `stack_in` 的操作。
+    - 剩下的 2 硬币作为“存款”，附着在这个元素上。这笔存款是为了未来支付它从 `stack_in` 被 `pop` 出来并 `push` 到 `stack_out` 的代价（2个单位代价）。
+- **`dequeue` 操作：** 我们收取 **1 硬币**。
+    - 无论 `stack_out` 是否为空，从 `stack_out` 执行 `pop` 的代价都是 1。这个硬币刚好用于支付它。
+
+**验证存款是否足够：**
+- 当一个昂贵的“倾倒”操作发生时，我们需要把 `stack_in` 里的所有元素都移动一遍。对于每一个被移动的元素，我们需要支付 2 个硬币（`pop` from `stack_in` 和 `push` to `stack_out`）。幸运的是，这些元素在当初 `enqueue` 时，都已经预付了 2 硬币的存款。所以，这次昂贵的操作完全由之前的存款支付，不需要额外收费。
+- 最后从 `stack_out` 弹出元素时，我们收取的 1 硬币刚好支付 `pop` 操作。
+
+**结论：**
+我们成功地为 `enqueue` 定价 3 硬币，为 `dequeue` 定价 1 硬币。由于它们都是常数，所以每个操作的摊还代价是 O(1)。
+
+
+
+势能法：
+
+
+我们定义一个势能函数 $\Phi$，它表示数据结构的“存储能量”或“潜在能量”。对于 Two-stack queue，我们可以定义势能函数为：
+$$\Phi = 2 \times \text{number of elements in } stack_{in}$$（要求是定义出一个好的势能函数） */}
+
+{/* 还是感觉有点抽象。
+
+感觉这东西只能意会。 */}
+
+
+# 势能法
+
+摊还分析:势能法
+
+**核心思想**
+
+势能法通过引入一个势函数(Potential Function)将数据结构的每个状态映射到一个实数，这个实数表示该状态的“势能”。我们将每次操作的摊还成本定义为实际成本加上势能的变化。通过选择合适的势函数，我们可以证明一系列操作的总摊还成本是总实际成本的上界，并且具有较好的渐近复杂度。
+
+**定义**
+
+- 设 $ D_{i} $ 表示第 i 次操作后的数据结构状态。
+- 势函数 $ \Phi(D_{i}) $ 将状态 $ D_{i} $ 映射到一个实数。
+- 第 i 次操作的实际成本为 $ c_{i} $。
+- 第 i 次操作的摊还成本 $ \hat{c_{i}} $ 定义为：
+   $$ 
+   \hat{c_{i}}=c_{i}+\Phi(D_{i})-\Phi(D_{i-1}) 
+   $$
+- 一系列 n 次操作的总摊还成本为：
+   $$ 
+   \sum_{i=1}^{n}\hat{c_{i}}=\sum_{i=1}^{n}c_{i}+\Phi(D_{n})-\Phi(D_{0}) 
+   $$
+
+**步骤**
+
+1. 选择势函数：势函数应能够区分数据结构的状态，使得昂贵操作的发生对应着高势能状态，从而在操作后势能降低以抵消实际成本。
+2. 计算摊还成本：对每个操作，计算其摊还成本，并证明其有常数界或对数界等。
+3. 求总摊还成本：通过累加摊还成本，并利用势函数的初始和最终状态，得到总实际成本的上界。
+
+**关键点**
+
+- 势函数的初始势能 $\Phi(D_{0})$ 通常设为0或一个常数，且最终势能 $\Phi(D_{n})$ 非负。
+- 势函数的选择是艺术，需要经验和对数据结构的理解。

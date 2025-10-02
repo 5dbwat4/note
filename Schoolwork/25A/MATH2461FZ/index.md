@@ -13,3 +13,30 @@
 - 成绩构成: 平时成绩 60% (包括作业及到课率等平时表现, 小测, 课程大作业, 等等) + 期末考试成绩 40%  
   总评成绩说明: 期末考试成绩设置最低分, 低于期末最低分或总评低于 60 均为不及格.
 
+----
+
+- [Chapter 1 Introduction to Probability](./L1) · [Raw PPT for reference](./L1-raw)
+- [Chapter 2 Random Variables and Distributions](./L2) · [Raw PPT for reference](./L2-raw)
+
+
+
+---
+
+AI PPT提取prompt:
+
+> 现在需要你提取PDF内容转为Markdown+LaTeX形式：
+>
+> 你必须仔细分析PDF每一页存在的重复性内容，如果它们是页头、页尾、页码等则应删去
+>
+> 对于应该以列表呈现的内容，你应该用Markdown中的列表语法写。
+>
+> 对于应该写成表格的内容，你应该使用Markdown中的表格语法。
+>
+> 对于数学公式，你应当使用"\$...\$"语法写。
+>
+> 对于图片，你只需要用类似![](image)的占位符来表示即可。
+>
+> 对于Example, Definition等类型的内容，请你将对应的部分完整包括在&lt;Card type="type" titile="...">&lt;/Card>中。
+>
+> 你不需要概括内容，不需要提取关键词，不应该改变原文内容。除非上述情况，你的输出应当与原文无异。
+

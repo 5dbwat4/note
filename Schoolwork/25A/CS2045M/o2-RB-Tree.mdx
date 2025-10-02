@@ -2,6 +2,8 @@
 title: Red-Black Tree
 ---
 
+import {NImage} from "naive-ui";
+
 # What is a Red-Black Tree?
 
 【Definition】A red-black tree is a binary search tree that satisfies the following red-black properties:
@@ -16,7 +18,7 @@ title: Red-Black Tree
 
 \* myc课上的定义中，x is included
 
-Properties:
+# Properties
 
 1. For 2 children v & w of a node u, bh(v) = bh(w).
 2. $\forall x \in \text{Tree}, h(x) \geq bh(x) \geq \frac{h(x)}{2}$.
@@ -51,19 +53,26 @@ We have the following cases to consider:
     - **Case 2b(i)**: z is a right child of p(z) and p(z) is a left child of g(z) (or vice versa). In this case, we perform a rotation on p(z) to make z a left child of g(z) (or vice versa). This transforms the situation into Case 2b(ii).
     - **Case 2b(ii)**: z is a left child of p(z) and p(z) is a left child of g(z) (or both are right children). In this case, we perform a rotation on g(z), making p(z) the new root of the subtree. We then recolor p(z) to <span style="color:black;font-weight:bold">black</span> and g(z) to <span style="color:red;font-weight:bold">red</span>(Case 2a).
 
-{/* # About Rotations?
+import Img1 from "./assets/rbt-1.svg?url"
 
-*TODO*
+<NImage src={Img1} alt="rbt-1" />
 
 # Deletion
-To delete a node z from a red-black tree, we:
-1. perform a standard binary search tree deletion. 
 
-2. If the deleted node y is <span style="color:red;font-weight:bold">red</span>, then the tree is still a valid red-black tree, and we are done.
+参考： https://www.cs.purdue.edu/homes/ayg/CS251/slides/chap13c.pdf
 
-3. If the deleted node y is <span style="color:black;font-weight:bold">black</span>, then we need to fix any violations of the red-black properties. This may involve a series of rotations and recoloring operations.  
-    
-    We wonder about its children.     
-    - If one child is <span style="color:red;font-weight:bold">red</span> and the other is <span style="color:black;font-weight:bold">black</span>, we can replace y with its <span style="color:red;font-weight:bold">red</span> child and color the child <span style="color:black;font-weight:bold">black</span>.
-    - If both children are <span style="color:black;font-weight:bold">black</span>. We 
-/    - If both children are <span style="color:red;font-weight:bold">red</span>, we can replace y with one of its <span style="color:red;font-weight:bold">red</span> children, color the child <span style="color:black;font-weight:bold">black</span>, and then perform a series of rotations and recoloring operations to restore the red-black properties. */}
+1. 标准的BST删除：Leaf直接删除； 1 child的node，child上移； 2 children的node，找in-order successor替换，然后删除successor。
+
+2. 所以目前，删除的节点一定是叶节点。如果它是红的，everything is fine.
+
+3. 如果它是黑的，可能会破坏black-height Property。将这个节点定为Double Black，我们要做的是找到最近的Red node中和它。所以有几种情况：1. 在附近的兄弟那找到了这样的节点；2. 这个节点是root，因此直接移除Double Black状态；3. 未能找到，因此【将兄弟节点置为Red，父节点增加一个Black，自己变成单黑】，通过这种方式传递了Double Black状态。
+
+4. 自然引出以下问题：什么是“找到”。事实上，我们暂时不在意这个“找”，而是关注*什么情况下，可以进入情况3*。  
+   它的兄弟节点是黑的，兄弟节点的两个儿子也是黑的。
+
+5. 到这里的过程都很容易理解。为什么要这么理解？我是因为对于初学者来说，RB Tree的Case很多，死记Case以及Case对应的Rotation变换比较难。
+
+6. 那么，对于*非情况3*，要么转化成情况3，要么直接解决Double Black。现在可以分类了：  
+    1. 兄弟节点是红的（那么两个儿子都是黑的）：旋转，将红的节点挪到双黑那条链上（变成它的父亲），于是直接中和
+    2. 兄弟节点是黑的，两个儿子都是红的：儿子变黑，兄弟变红，进入情况1
+    3. 兄弟节点是黑的，儿子一红一黑：核心
