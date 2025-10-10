@@ -1413,7 +1413,7 @@
                     "show": true,
                     "name": "高级数据结构与算法分析",
                     "leaf": true,
-                    "index": "f9f8086889d551a826d0ec3f67ce381bdc65f17398d249deb6bb73686f6ed023",
+                    "index": "8b65d23ac3fdfe68b8efd09d3bb7316356833e680a1c3ca98156ee003ecd1c3a",
                     "entries": [
                         {
                             "title": "PTA Review",
@@ -1425,9 +1425,9 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1759216449275,
-                            "wordcount": 321,
-                            "unikey": "f9f8086889d551a826d0ec3f67ce381bdc65f17398d249deb6bb73686f6ed023",
+                            "updatedAt": 1759689499244,
+                            "wordcount": 378,
+                            "unikey": "8b65d23ac3fdfe68b8efd09d3bb7316356833e680a1c3ca98156ee003ecd1c3a",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -1449,27 +1449,35 @@
                         },
                         {
                             "title": "Splay Tree",
-                            "updatedAt": 1759248386065,
-                            "wordcount": 613,
-                            "unikey": "56607665ebd5886d297366707f73d9e54938791352e3cacbb9f572a35e5ab549",
+                            "updatedAt": 1759930876665,
+                            "wordcount": 943,
+                            "unikey": "9fc0e4c4cfbfb3cd0fc6a98abf1916be2f4dddbd3542ea74a28d02dfeaec51ff",
                             "pathonly": false,
                             "path": "o3-Splay-Tree"
                         },
                         {
                             "title": "Amortized Analysis",
-                            "updatedAt": 1759216335342,
+                            "updatedAt": 1759684540703,
                             "wordcount": 1193,
-                            "unikey": "befe709ef6d86f18dca5c0c4aba971635fba958bb193b8edf222a0fc06f32dd1",
+                            "unikey": "beaabf22ad542b06d80efe10de53c769fc81778c6369e6ad8e0b68c4312e73da",
                             "pathonly": false,
                             "path": "o4-Amortized-Analysis"
                         },
                         {
                             "title": "B-Tree",
-                            "updatedAt": 1759216436421,
-                            "wordcount": 0,
-                            "unikey": "bc310971f61b504aa45ea48f3de364ade3e8e8a6df2d85dd10614541b7348f26",
+                            "updatedAt": 1759729084514,
+                            "wordcount": 2179,
+                            "unikey": "b5c893d6e2005da0370893c2c79c08428af8beb1840628cebc4455626bd7a1fc",
                             "pathonly": false,
                             "path": "o5-B-Tree"
+                        },
+                        {
+                            "title": "Inverted File Index 倒排索引",
+                            "updatedAt": 1759689834420,
+                            "wordcount": 615,
+                            "unikey": "2c57048504177bb3919843e0813e75eb41f132a2bb43f7d20e00398f68b5ba2a",
+                            "pathonly": false,
+                            "path": "o6-Inv-File-Index"
                         },
                         {
                             "title": "PTA 程序题",
@@ -1554,13 +1562,13 @@
                     "show": true,
                     "name": "概率论和数理统计",
                     "leaf": true,
-                    "index": "9e5d9ee1859397c12c0cc3e2b2c92fce98d2beace98e6b41ce07b0c3d6b72aea",
+                    "index": "4ebf76a9f3e1301c96ac877484afa43037b20401299054bdf3e738b25c296458",
                     "entries": [
                         {
                             "title": "",
-                            "updatedAt": 1759327088366,
-                            "wordcount": 476,
-                            "unikey": "9e5d9ee1859397c12c0cc3e2b2c92fce98d2beace98e6b41ce07b0c3d6b72aea",
+                            "updatedAt": 1759579939336,
+                            "wordcount": 631,
+                            "unikey": "4ebf76a9f3e1301c96ac877484afa43037b20401299054bdf3e738b25c296458",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -1582,19 +1590,27 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1759329164825,
-                            "wordcount": 5397,
-                            "unikey": "0f21741bf0944fe26fdc561e32d8cf4e9c9fe2e04e0870c2e5a6a6dbfef36007",
+                            "updatedAt": 1759591609850,
+                            "wordcount": 9528,
+                            "unikey": "846c2a8bd63fb0821832ac89c47d69daff12612deb6e75ff8fd2b2c848af0bdd",
                             "pathonly": false,
                             "path": "L2-raw"
                         },
                         {
-                            "title": "",
-                            "updatedAt": 1759114810224,
-                            "wordcount": 0,
-                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "title": "Chapter 2 Random Variables and Distributions",
+                            "updatedAt": 1759592073407,
+                            "wordcount": 830,
+                            "unikey": "6a92fb957217a80da0ade5d5a89be1119c1e66b6b9c88a5e5740a52b3675f799",
                             "pathonly": false,
                             "path": "L2"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1759591783846,
+                            "wordcount": 14,
+                            "unikey": "14a6401ebc5e521cb6876ae9a060f43170a6e532006ca417d8e1cbfab5faf532",
+                            "pathonly": false,
+                            "path": "PPT-aio"
                         }
                     ]
                 },

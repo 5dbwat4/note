@@ -1,0 +1,102 @@
+---
+title: Inverted File Index 倒排索引
+---
+
+import Card from '@md-components/card.vue'
+
+# How to find a word in millions of documents?
+
+- Naive Approach : Scan all documents one by one. (Too slow)
+- Another naive approach: Term-Document Incidence Matrix. (Too large)
+- Better Approach: Inverted File Index.
+
+# 倒排索引的实现
+
+【Definition】 Index is a mechanism for locating a given term in a text.
+
+【Definition】 Inverted file contains a list of pointers (e.g. the number of a page) to all occurrences of that term in the text.
+
+Term Dictionary - Posting List (Times; Documents Words)
+
+用一个字典来描述一类关系，其主键为单词，键值为这个单词出现的所有位置。
+
+最朴素的版本就是让键值为单词出现过的文档的序号序列，而如果我们还需要知道词汇出现的位置，则可以让键值是一个二元组的序列，其中第一个元素是文档的序号，第二个元素是单词在文档中出现的位置。
+
+# 优化
+
+构建倒排索引时：
+
+​- ​词干提取​​：将单词的不同形态（如 "processing", "processed", "processes") 还原为其词根形式 "process"。这增加了检索的召回率，用户用不同形式搜索都能找到相关文档。 <font color="grey">Word Stemming : Process a word so that only its stem or root form is left. </font>
+
+​- ​去除停用词​​：过滤掉那些极其常见但信息量很小的词（如英文中的 "the", "a", "an", "in"）。这能显著减小索引的规模。<font color="grey">Stop Words : Some words are so common that almost every document contains them, such as “a” “the” “it”.  It is useless to index them.  They are called stop words.  We can eliminate them from the original documents.</font>
+
+While accessing a term ……
+- Solution 1:  Search trees ( B- trees, B+ trees, Tries, ... )
+- Solution 2:  Hashing
+
+分布式索引​​：当数据量太大，一台机器的内存无法处理时，需要分布式系统。  
+- ​按词项分区​​：将词典中的词项分布到不同的机器上。
+- ​按文档分区​​：将不同的文档集合分布到不同的机器上，每台机器为自己负责的文档构建局部索引。
+
+Thresholding
+- Thresholding
+  - Document: only retrieve the top x documents where the documents are ranked by weight
+    - Not feasible for Boolean queries
+    - Can miss some relevant documents due to truncation
+  - Query: Sort the query terms by their frequency in ascending order; search according to only some percentage of the original query terms
+
+
+# Search Engine Measures
+- Measures for a search engine
+  - How fast does it index
+    - Number of documents/hour
+  - How fast does it search
+    - Latency as a function of index size
+  - Expressiveness of query language
+    - Ability to express complex information needs
+    - Speed on complex queries
+  - User happiness?
+    - Data Retrieval Performance Evaluation (after establishing correctness)
+      - Response time
+      - Index space
+    - Information Retrieval Performance Evaluation
+      - + How relevant is the answer set?
+
+- Relevance measurement requires 3 elements:
+  - A benchmark document collection
+  - A benchmark suite of queries
+  - A binary assessment of either Relevant or Irrelevant for each query-doc pair
+
+# Precision and Recall
+- Precision = (# of relevant documents retrieved) / (# of documents retrieved)
+- Recall = (# of relevant documents retrieved) / (# of relevant documents in the collection)
+
+直观的说，Precision 衡量的是检索结果的准确性，Recall 衡量的是检索结果的完整性。
+
+<Card type="info" title="More detailed...">
+
+我们可以把**搜索引擎**想象成一个在**大海（整个互联网）里捕鱼（寻找相关信息）** 的**渔夫**。
+
+1. Precision - 精准率
+
+**问题：** 捞上来的这一网东西里，有多少是真正的“鱼”（相关结果），而不是“垃圾”（不相关结果）？
+
+**定义：** Precision衡量的是**搜索结果的相关性**。它是“检索到的相关文档数”与“所有被检索到的文档数”的比值。
+
+**公式：**
+$\text{Precision} = \frac{|\{\text{相关文档}\} \cap \{\text{检索到的文档}\}|}{|\{\text{检索到的文档}\}|} = \frac{\text{True Positives (TP)}}{\text{True Positives (TP)} + \text{False Positives (FP)}} $
+
+**结论：** Precision高，意味着**搜索结果很纯净，垃圾很少**。用户看到的第一页结果大概率都是他想要的。
+
+2. Recall - 召回率
+
+**问题：** 整个大海里所有的“鱼”（所有相关结果），你这一网捞起来了多少？
+
+**定义：** Recall衡量的是**搜索结果的完整性**。它是“检索到的相关文档数”与“整个大海中所有相关文档数”的比值。
+
+**公式：**
+$\text{Recall} = \frac{|\{\text{相关文档}\} \cap \{\text{检索到的文档}\}|}{|\{\text{相关文档}\}|} = \frac{\text{True Positives (TP)}}{\text{True Positives (TP)} + \text{False Negatives (FN)}} $
+
+**结论：** Recall高，意味着**搜得很全，漏网之鱼很少**。用户不太会错过任何重要的相关信息。
+
+</Card>

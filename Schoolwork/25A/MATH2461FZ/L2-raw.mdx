@@ -1,4 +1,4 @@
-\* 目前提取至Ch2.3
+\* 目前提取至Ch2.4
 
 import Card from "@md-components/card.vue"
 
@@ -574,4 +574,480 @@ $$
 
 判断: $X$ 是否为离散型的随机变量?  
 此分布函数是一个连续函数, 而非阶梯函数, 因此 $X$ 不是离散型随机变量.
+</Card>
+
+
+## §2.4 连续型随机变量(Continuous Random Variable/Distribution)
+
+<Card type="Definition" title="Definition 9 (连续型随机变量、概率密度函数)">
+对于随机变量 $X$ 的分布函数 $F(x)$，若存在非负的函数 $f(x)$，对于任意实数 $x$，均有 
+$$
+F(x)=\int_{-\infty}^{x} f(t) d t, \forall x \in \mathbb{R},
+$$
+则称 $X$ 为**连续型随机变量(continuous random variable)**，其中 $f(x)$ 称为 $X$ 的**概率密度函数(probability density function)**。
+</Card>
+
+<Card type="Definition" title="Definition 9 (Continuous Distribution/Random Variable/p.d.f./support)">
+We say that a random variable $X$ has a continuous distribution or that $X$ is a continuous random variable if there exists a nonnegative function $f(x)$, defined on the real line, such that for every interval of real numbers (bounded or unbounded), the probability that $X$ takes a value in the interval is the integral of $f(x)$ over the interval. $f(x)$ is called the probability density function (abbreviated p.d.f.) of $X$. The set $\{x: f(x)>0\}$ is called the support of (the distribution of) $X$.
+</Card>
+
+概率密度函数 $f(x)$ 的性质:  
+1. $f(x) \geq 0$;
+2. $\int_{-\infty}^{\infty} f(x) d x=1$;
+
+**说明**：(1)与(2)为概率密度函数的两条本质性质。
+
+![](./assets/c2r-6.png)
+
+3. 对于连续型的随机变量 $X$，概率密度函数为 $f(x)$，则对于任意的实数 $x_{1}$，$x_{2}$（$x_{1}<x_{2}$），有 
+$$
+P\left(x_{1}<X \leq x_{2}\right)=\int_{x_{1}}^{x_{2}} f(x) d x .
+$$
+
+![](./assets/c2r-7.png)
+
+<Card type="Proof" title="Proof">
+$$
+P\left(x_{1}<X \leq x_{2}\right)=F\left(x_{2}\right)-F\left(x_{1}\right)=\int_{-\infty}^{x_{2}} f(x) d x-\int_{-\infty}^{x_{1}} f(x) d x=\int_{x_{1}}^{x_{2}} f(x) d x .
+$$
+</Card>
+
+**注**：对于连续型的随机变量 $X$，概率密度函数为 $f(x)$：
+- $P(X=a)=0$，$\forall a \in \mathbb{R}$
+- $P(X \in I)=\int_{I} f(x) d x$，$I \subset \mathbb{R}$（常用计算公式）
+
+4. 对于 $f(x)$ 的连续点 $x$，有 $F'(x)=f(x)$，即此时有 
+$$
+f(x)=F'(x)=\lim _{\Delta x \to 0} \frac{F(x+\Delta x)-F(x)}{\Delta x}=\lim _{\Delta x \to 0} \frac{P(x<X \leq x+\Delta x)}{\Delta x} .
+$$
+
+**说明**:  
+1. $f(x)$ 值的含义：当 $\Delta x$ 充分小时，$P(x<X \leq x+\Delta x) \approx f(x) \cdot \Delta x$；
+2. $f(x)$ 的值有可能大于1；
+3. 连续型随机变量：概率密度函数与分布函数的关系
+   - 由 $f(x)$ 求 $F(x)$：$F(x)=\int_{-\infty}^{x} f(t) d t$
+   - 由 $F(x)$ 求 $f(x)$：$f(x)=\frac{d}{d x} F(x)$
+
+
+<Card type="Example" title="Example 17">
+设 $X$ 的概率密度函数为 
+$$
+f(x)= \begin{cases}c, & 0<x<1, \\ \frac{2}{9}, & 3<x<6, \\ 0, & 其他\end{cases}
+$$
+求：
+1. 常数 $c$ 的值；
+2. 写出 $X$ 的概率分布函数；
+3. 要使 $P(X<k)=\frac{2}{3}$，求 $k$ 的值。
+
+**Solution**
+
+1. 由概率密度函数性质可知 
+$$
+1=\int_{-\infty}^{+\infty} f(t) d t=\int_{0}^{1} c d t+\int_{3}^{6} \frac{2}{9} d t=c+\frac{2}{3} \Rightarrow c=\frac{1}{3} .
+$$
+由此可知 $P\{X \in(0,1) \cup(3,6)\}=1$。
+
+支撑(support)：$D=\{x: f(x)>0\}=\{x|0<x<1 \text{ 或 } 3<x<6\}$
+
+对于连续型随机变量 $X$，有 
+$$
+\int_{-\infty}^{+\infty} f(x) d x=\int_{D} f(x) d x+\int_{\overline{D}} f(x) d x=\int_{D} f(x) d x+0=P(X \in D)=1 .
+$$
+
+2. 由密度函数定义，$F(x)=\int_{-\infty}^{x} f(t) d t$，分情况讨论：
+$$
+F(x)= \begin{cases}0, & x<0, \\ \int_{0}^{x} \frac{1}{3} d t=\frac{x}{3}, & 0 \leq x<1, \\ \int_{0}^{1} \frac{1}{3} d t=\frac{1}{3}, & 1 \leq x<3, \\ \int_{0}^{1} \frac{1}{3} d t+\int_{3}^{x} \frac{2}{9} d t=\frac{1}{3}+\frac{2(x-3)}{9}=\frac{2x-3}{9}, & 3 \leq x<6, \\ 1, & x \geq 6\end{cases}
+$$
+
+**思考**：若已知 $F(x)$，如何求 $f(x)$？
+
+3. 使 $P(X<k)=\frac{2}{3}=F(k)$，代入分布函数得：
+当 $3 \leq k<6$ 时，$\frac{2k-3}{9}=\frac{2}{3}$，解得 $k=4.5$。
+</Card>
+
+### 几个重要的连续型随机变量
+#### (1) 均匀分布
+<Card type="Definition" title="Definition 10 (均匀分布)">
+设随机变量 $X$ 具有概率密度函数 
+$$
+f(x)= \begin{cases}\frac{1}{b-a}, & x \in(a, b), \\ 0, & 其他,\end{cases}
+$$
+其中 $a<b$，则称 $X$ 服从**区间 $(a, b)$ 上均匀分布(uniform distribution)**，记作 $X \sim U(a, b)$。
+</Card>
+
+![](./assets/c2r-8.png)
+
+设 $a \leq c<c+s \leq b$，则 
+$$
+P(c<X<c+s)=\int_{c}^{c+s} \frac{1}{b-a} d t=\frac{s}{b-a}
+$$
+与 $c$ 无关，仅与区间长度 $s$ 有关（等可能性）。
+
+根据概率密度函数的定义，可得均匀分布的分布函数为 
+$$
+F(x)= \begin{cases}0, & x<a, \\ \frac{x-a}{b-a}, & a \leq x<b, \\ 1, & x \geq b .\end{cases}
+$$
+
+![](./assets/c2r-9.png)
+
+
+<Card type="Example" title="Example 18">
+在区间 $(-1, 2)$ 上随机取一数 $X$，试写出 $X$ 的概率密度函数，并求 $P(X>0)$ 的值。
+
+**Solution**
+
+由题意知，$X$ 服从区间 $(-1, 2)$ 上的均匀分布，其概率密度为 
+$$
+f(x)= \begin{cases}\frac{1}{3}, & -1<x<2, \\ 0, & 其他.\end{cases}
+$$
+
+计算 $P(X>0)$：
+- 法一：$P(X>0)=\int_{0}^{+\infty} f(x) d x=\int_{0}^{2} \frac{1}{3} d x=\frac{2}{3}$
+- 法二：$P(X>0)=\frac{(-1,2) \cap(0,+\infty) \text{ 的长度 }}{(-1,2) \text{ 的长度 }}=\frac{(0,2) \text{ 的长度 }}{(-1,2) \text{ 的长度 }}=\frac{2}{3}$
+</Card>
+
+<Card type="Example" title="Example 18 (Cont.)">
+若在该区间上随机取10个数，求10个数中恰有2个数大于0的概率。
+
+**Solution**
+
+设10个数中有 $Y$ 个数大于0，则 $Y \sim B(10, \frac{2}{3})$（二项分布），故 
+$$
+P(Y=2)=C_{10}^{2}\left(\frac{2}{3}\right)^{2}\left(\frac{1}{3}\right)^{8}=\frac{10!}{2!(10-2)!} \times \frac{4}{9} \times \frac{1}{3^8}=\frac{45 \times 4}{3^{10}}=\frac{180}{59049}=\frac{20}{6561} \approx 0.003048 .
+$$
+</Card>
+
+
+<Card type="Example" title="Example 19">
+杭州某长途汽车站每天从早上6点（第一班车）开始，每隔30分钟有一班车开往上 海。王先生在早上6:20至7:10随机到达车站，设他早上6:20过 $X$ 分钟到达车站，则 $X$ 服从 $(0, 50)$ 上的均匀分布。
+求：
+1. 王先生候车时间不超过15分钟的概率；
+2. 如果王先生一月中有两次按此方式独立地去候车，求他一次候车不超过15分钟，另一次候车大于10分钟的概率。
+
+**Solution**
+
+1. $P(\text{候车时间不超过15分钟})=\frac{10+15}{50}=0.5$
+2. $P(\text{候车时间大于10分钟})=\frac{20+10}{50}=0.6$
+
+   设王先生两次分别在早上6:20过 $X_{1}$ 和 $X_{2}$ 分钟到达车站，那么 
+$$
+
+\begin{aligned}
+P(\text{一次候车不超过15分钟，另一次大于10分钟})
+&= P\left(\left(X_{1}<15, X_{2}>10\right) \cup\left(X_{1}>10, X_{2}<15\right)\right) \\
+&= P\left(X_{1}<15, X_{2}>10\right)+P\left(X_{1}>10, X_{2}<15\right)-P\left(10<X_{1}<15,10<X_{2}<15\right) \\
+&= 0.5 \times 0.6 + 0.6 \times 0.5 - 0.1 \times 0.1 \\
+&= 0.3 + 0.3 - 0.01 \\
+&= 0.59
+\end{aligned}
+$$
+</Card>
+
+#### (2) 指数分布
+<Card type="Definition" title="Definition 11 (指数分布)">
+设随机变量 $X$ 具有概率密度函数 
+$$
+f(x)= \begin{cases}\lambda e^{-\lambda x}, & x>0, \\ 0, & x \leq 0\end{cases}
+$$
+其中 $\lambda>0$，则称 $X$ 服从参数为 $\lambda$ 的指数分布(exponential distribution)，记作 $X \sim Exp(\lambda)$ 或 $X \sim E(\lambda)$。
+</Card>
+
+根据概率密度函数的定义，可得**指数分布 $X \sim E(\lambda)$ 的分布函数**为 
+$$
+F(x)= \begin{cases}1-e^{-\lambda x}, & x>0, \\ 0, & x \leq 0 .\end{cases}
+$$
+
+指数分布还具有一个重要的性质——“**无记忆性**”：  
+即对任意的 $t>0$，$t_{0}>0$，有 
+$$
+P\left(X>t_{0}+t | X>t_{0}\right)=\frac{P\left(X>t_{0}+t\right)}{P\left(X>t_{0}\right)}=\frac{1-F\left(t_{0}+t\right)}{1-F\left(t_{0}\right)}=\frac{e^{-\lambda(t_{0}+t)}}{e^{-\lambda t_{0}}}=e^{-\lambda t}=P(X>t) .
+$$
+
+这也意味着，对于任意的 $t>0$，$t_{0}>0$，在 $\{X>t_{0}\}$ 的条件下，$X-t_{0}$ 服从指数分布（即其条件分布为指数分布）。
+
+
+<Card type="Example" title="Example 20">
+某大型设备在任何长度为 $t$ 的区间内发生故障的次数 $N(t)$ 服从参数为 $\lambda t$ 的Poisson分布。记设备无故障运行的时间为 $T$。
+求：
+1. $T$ 的概率分布函数；
+2. 已知设备已无故障运行10个小时，求再无故障运行8个小时的概率。
+
+**Solution**
+
+由题意，$N(t) \sim P(\lambda t)$，其分布律为 $P(N(t)=k)=\frac{(\lambda t)^{k}}{k !} e^{-\lambda t}$，$k=0,1,2, ...$。  
+无故障运行时间 $T$ 的分布函数为 $F_{T}(t)=P(T \leq t)$：
+
+1. 当 $t<0$ 时，$F_{T}(t)=0$；   
+   当 $t \geq 0$ 时，$F_{T}(t)=1-P(T>t)=1-P(N(t)=0)   =1-e^{-\lambda t}$。
+   
+   因此 $T$ 的分布函数为 
+   $$
+   F_{T}(t)= \begin{cases}1-e^{-\lambda t}, & t \geq 0, \\ 0, & t<0 .\end{cases}
+   $$
+   即 $T \sim E(\lambda)$，具有无记忆性。
+
+2. 由无记忆性，$P(T>18 | T>10)=P(T>8)$，而 $P(T>8)=1-F_{T}(8)=e^{-8\lambda}$，故 
+   $$
+   P(T>18 | T>10)=e^{-8\lambda}
+   $$
+</Card>
+
+#### (3) 正态分布
+<Card type="Definition" title="Definition 12 (正态分布)">
+设随机变量 $X$ 具有概率密度函数 
+$$
+f(x)=\frac{1}{\sqrt{2 \pi} \sigma} \exp \left\{-\frac{1}{2 \sigma^{2}}(x-\mu)^{2}\right\}, \quad-\infty<x<+\infty,
+$$
+其中 $\sigma>0$，$-\infty<\mu<+\infty$，则称 $X$ 服从参数为 $\mu$、$\sigma$ 的正态分布(normal distribution)，或简称 $X$ 为正态变量，也常称为Gauss分布，记作 $X \sim N(\mu, \sigma^{2})$。
+</Card>
+
+下面验证密度函数的归一化（即 $\int_{-\infty}^{+\infty} f(x) d x=1$）
+
+<Card type="Proof" title="Proof">
+注意到 
+$$
+
+\int_{-\infty}^{+\infty} f(x) d x \stackrel{\text{令 } t=\frac{x-\mu}{\sigma}}{=} \int_{-\infty}^{+\infty} \frac{1}{\sqrt{2 \pi} \sigma} e^{-\frac{t^{2}}{2}} \sigma d t=\int_{-\infty}^{+\infty} \frac{1}{\sqrt{2 \pi}} e^{-\frac{t^{2}}{2}} d t
+
+$$
+记 $I=\int_{-\infty}^{+\infty} e^{-\frac{t^{2}}{2}} d t$，则 $I^2=\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} e^{-\frac{t^2 + s^2}{2}} d t d s$（极坐标变换：$t=r\cos\theta$，$s=r\sin\theta$），计算得 $I=\sqrt{2\pi}$。因此 
+$$
+
+\int_{-\infty}^{+\infty} f(x) d x=\frac{1}{\sqrt{2 \pi}} \times \sqrt{2\pi}=1
+
+$$
+</Card>
+
+正态变量 $X \sim N(\mu, \sigma^{2})$ 的概率密度函数$f(x) = \dfrac{1}{\sqrt{2\pi}\sigma}\text{e}^{-\frac{(x-\mu)^2}{2\sigma^2}} , -\infty < x < + \infty$性质  
+- $f(x)$ 关于 $x=\mu$ 对称；
+- 当 $x>\mu$ 时，$f(x)$ 关于 $x$ 严格单调下降；
+- 最大值：$f_{max}=f(\mu)=\frac{1}{\sqrt{2 \pi} \sigma}$；
+- 极限：$\lim _{|x-\mu| \to+\infty} f(x)=0$；
+- 在 $x=\mu \pm \sigma$ 处曲线有拐点。
+
+![](./assets/c2r-11.png)
+
+不同 $\mu$ 和 $\sigma$ 对概率密度函数图像的影响（两参数的含义） 
+- 当固定 $\sigma$，改变 $\mu$ 的大小时，$f(x)$ 的图像形状不变，只是沿着 $x$ 轴作平移变换；
+- 当固定 $\mu$，改变 $\sigma$ 的大小时，$f(x)$ 的图像对称轴不变，而形状在改变：$\sigma$ 越小，图形越高越瘦；$\sigma$ 越大，图形越矮越胖。
+
+![](./assets/c2r-12.png)
+
+通常称 $\mu$ 为**位置参数**（决定曲线对称轴位置），$\sigma$ 为**尺度参数**（决定曲线分散程度）。
+
+### 正态变量的特点
+- 取值呈中间多、两头少、对称的特性；
+- 当固定 $\mu$ 时，$\sigma$ 越大，曲线的峰越低，落在 $\mu$ 附近的概率越小，取值就越分散，即 $\sigma$ 是反映正态变量取值分散性的一个指标；
+- 在自然现象和社会现象中，大量随机变量服从或近似服从正态分布。
+
+### 正态分布下的概率计算
+若 $X \sim N(\mu, \sigma^{2})$，则 
+$$
+P\{X \leq x\}=F(x)=\int_{-\infty}^{x} \frac{1}{\sqrt{2 \pi} \sigma} e^{-\frac{(t-\mu)^{2}}{2 \sigma^{2}}} d t = ?
+$$
+
+算不出来！  
+1. 利用Excel、MATLAB、R、Python、C++、SPSS等软件计算；
+2. 转化为标准正态分布，结合标准正态分布函数表计算。
+
+#### 标准正态分布
+<Card type="Definition" title="Definition 13 (标准正态分布)">
+若 $Z \sim N(0,1)$，则称 $Z$ 服从标准正态分布。  
+其概率密度函数为 $\varphi(z)=\frac{1}{\sqrt{2 \pi}} e^{-\frac{z^{2}}{2}}$，  
+分布函数为 $\Phi(z)=\int_{-\infty}^{z} \varphi(t) d t=\int_{-\infty}^{z} \frac{1}{\sqrt{2 \pi}} e^{-\frac{t^{2}}{2}} d t$。
+</Card>
+
+![](./assets/c2r-13.png)
+
+**标准正态分布函数表**：https://en.wikipedia.org/wiki/Standard_normal_table  
+
+![](./assets/c2r-14.png)
+![](./assets/c2r-15.png)
+
+
+例如：$\Phi(1.23)=0.89065$，$\Phi(1.96)=0.97500$
+
+
+由于 $\varphi(z)=\frac{1}{\sqrt{2 \pi}} e^{-\frac{z^{2}}{2}}$ 是偶函数，因此标准正态分布的分布函数具有性质：  
+$$
+
+\Phi\left(-z_{0}\right)=1-\Phi\left(z_{0}\right), \forall z_{0} \in \mathbb{R}
+
+$$
+
+![](./assets/c2r-16.png)
+
+<Card type="性质" title="性质">
+当 $X \sim N(\mu, \sigma^{2})$ 时，则有 $\frac{X-\mu}{\sigma} \sim N(0,1)$。
+</Card>
+
+<Card type="Proof" title="Proof">
+$$
+
+\begin{aligned}
+F_{\frac{X-\mu}{\sigma}}(z) &= P\left(\frac{X-\mu}{\sigma} \leq z\right) \\
+&= P(X \leq \mu + z\sigma) \\
+&= F_{X}(\mu + z\sigma) \\
+&= \int_{-\infty}^{\mu + z\sigma} \frac{1}{\sqrt{2 \pi} \sigma} e^{-\frac{(t-\mu)^{2}}{2 \sigma^{2}}} d t \\
+&\stackrel{\text{令 } s=\frac{t-\mu}{\sigma}}{=} \int_{-\infty}^{z} \frac{1}{\sqrt{2 \pi}} e^{-\frac{s^{2}}{2}} d s \\
+&= \Phi(z)
+\end{aligned}
+
+$$
+因此 $\frac{X-\mu}{\sigma} \sim N(0,1)$。
+</Card>
+
+由此可知，当 $X \sim N(\mu, \sigma^{2})$ 时，对于任意实数 $a$，有 
+$$
+
+F_{X}(a)=P(X \leq a)=P\left(\frac{X-\mu}{\sigma} \leq \frac{a-\mu}{\sigma}\right)=\Phi\left(\frac{a-\mu}{\sigma}\right)
+
+$$
+
+
+<Card type="Example" title="Example 21">
+设 $X \sim N(\mu, \sigma^{2})$，则 
+$$
+
+\begin{aligned}
+P(|X-\mu|<\sigma) &= P(-\sigma<X-\mu<\sigma) \\
+&= P(\mu-\sigma<X<\mu+\sigma) \\
+&= P\left(\frac{(\mu-\sigma)-\mu}{\sigma}<\frac{X-\mu}{\sigma}<\frac{(\mu+\sigma)-\mu}{\sigma}\right) \\
+&= P(-1<\frac{X-\mu}{\sigma}<1) \\
+&= \Phi(1)-\Phi(-1) \\
+&= 2\Phi(1)-1 \\
+&= 2 \times 0.8413 - 1 = 0.6826
+\end{aligned}
+
+$$
+
+同理：
+$$
+
+P(|X-\mu|<2\sigma)=2\Phi(2)-1=2 \times 0.9772 - 1 = 0.9544
+
+$$
+$$
+
+P(|X-\mu|<3\sigma)=2\Phi(3)-1=2 \times 0.9987 - 1 = 0.9974
+
+$$
+</Card>
+
+![](./assets/c2r-17.png)
+
+
+<Card type="Example" title="Example 22">
+用天平称一实际重量为 $a$ 的物体，天平的读数为随机变量 $X$，设 $X \sim N(a, 0.01^{2})$。
+求：
+1. 读数 $X$ 与 $a$ 的误差小于0.005的概率；
+2. 读数 $X$ 至少比 $a$ 多0.0085的概率。
+</Card>
+
+<Card type="Solution" title="Solution">
+由正态分布性质知 $\frac{X-a}{0.01} \sim N(0,1)$。因此：
+
+1. $P(|X-a|<0.005)=P\left(\left|\frac{X-a}{0.01}\right|<\frac{0.005}{0.01}\right)=P\left(\left|\frac{X-a}{0.01}\right|<0.5\right)$  
+$=\Phi(0.5)-\Phi(-0.5)=2\Phi(0.5)-1$  
+查附表2，$\Phi(0.5)=0.6915$，故 $2 \times 0.6915 - 1 = 0.3830$。
+
+2. $P(X-a \geq 0.0085)=P\left(\frac{X-a}{0.01} \geq \frac{0.0085}{0.01}\right)=P\left(\frac{X-a}{0.01} \geq 0.85\right)$  
+$=1-\Phi(0.85)$  
+查附表2，$\Phi(0.85)=0.8023$，故 $1 - 0.8023 = 0.1977$。
+</Card>
+
+使用Excel表单计算 $P(X-a<0.0085)$（以2003版本为例，不同版本具体做法有所不同）  
+1. 在Excel表单的任一单元格输入“=”；
+2. 在主菜单中点击“插入”，选择“函数(F)”；
+3. 在选择类别的下拉式菜单中选择“统计”；
+4. 选择“NORMDIST”，点击“确定”（注意区别NORMSDIST）；
+5. 在函数参数表单中输入“X=0.0085, Mean=0, Standard_dev=0.01, Cumulative=TRUE”；
+6. 点击“确定”；
+7. 在单元格中出现“0.802337508”。
+
+
+<Card type="Example" title="Example 23">
+一批钢材（线材）长度 $X$（单位：cm）服从正态分布 $N(\mu, \sigma^{2})$。
+求：
+1. 若 $\mu=100$，$\sigma=2$，求这批钢材长度小于97.8 cm的概率；
+2. 若 $\mu=100$，要使这批钢材的长度至少有90%落在区间(97, 103)内，问 $\sigma$ 至多取何值？
+
+**Solution**
+
+1. $P(X<97.8)=P\left(\frac{X-100}{2}<\frac{97.8-100}{2}\right)=P\left(\frac{X-100}{2}<-1.1\right)$  
+$=\Phi(-1.1)=1-\Phi(1.1)$  
+查附表2，$\Phi(1.1)=0.8643$，故 $1 - 0.8643 = 0.1357$。
+
+2. $P(97<X<103)=P\left(\frac{97-100}{\sigma}<\frac{X-100}{\sigma}<\frac{103-100}{\sigma}\right)$  
+$=\Phi\left(\frac{3}{\sigma}\right)-\Phi\left(-\frac{3}{\sigma}\right)=2\Phi\left(\frac{3}{\sigma}\right)-1$  
+要求该概率≥90%（即0.9），故 $2\Phi\left(\frac{3}{\sigma}\right)-1 \geq 0.9$，即 $\Phi\left(\frac{3}{\sigma}\right) \geq 0.95$。
+
+所以需 $\Phi\left(\frac{3}{\sigma}\right) \geq 0.95$，查标准正态分布表，$\Phi(1.645)=0.95$，即 
+$$
+
+\frac{3}{\sigma} \geq 1.645 \Rightarrow \sigma \leq \frac{3}{1.645} \approx 1.8237
+
+$$
+
+</Card>
+
+在计算 $\Phi$ 的逆函数时，也可以使用Excel表单：  
+1. 选择“NORMINV”，点击“确定”；
+2. 在函数参数表单中输入“Probability=0.95, Mean=0, Standard_dev=1”；
+3. 点击“确定”，在单元格中出现“1.644853627”。
+
+
+<Card type="Example" title="Example 24">
+设一天中经过一高速公路某一入口的重型车辆数 $X$ 近似服从 $N(\mu, \sigma^{2})$。已知有25%的天数超过400辆，有33%的天数不到350辆，求 $\mu$、$\sigma$。
+
+**Solution**
+
+由题意知：
+$$
+P(X>400) \approx 1-\Phi\left(\frac{400-\mu}{\sigma}\right)=0.25
+$$
+$$
+P(X<350) \approx \Phi\left(\frac{350-\mu}{\sigma}\right)=0.33
+$$
+
+而 $\Phi(0.675)=0.75$, $\Phi(-0.440)=0.33$因此
+
+$$
+\left\{\begin{array}{l}
+(\mu - 400)/\sigma = -0.675 \\
+(350 - \mu)/\sigma = -0.40
+\end{array}\right.
+
+$$
+解得：
+$$
+
+\begin{cases}
+\mu = 369.7 \\
+\sigma = 44.8
+\end{cases}
+
+$$
+</Card>
+
+
+<Card type="Example" title="Example 25">
+一银行服务需要等待，设等待时间 $X$（分钟）的概率密度函数为 
+$$
+f(x)= \begin{cases}\frac{1}{10} e^{-\frac{x}{10}}, & x>0, \\ 0, & x \leq 0\end{cases}
+$$
+某人进了银行，且打算过会儿去办另一件事情，于是先等待，如果超过15分钟还没有等到服务就离开。设他实际的等待时间为 $Y$。
+求：
+1. $Y$ 的分布函数；
+2. 问 $Y$ 是离散型随机变量吗？是连续型随机变量吗？
+
+**Solution**
+
+1. 由题意可知 $Y=\min\{X, 15\}$，故
+$$
+F(y)= \begin{cases}0, & y<0, \\ 1-e^{-\frac{y}{10}}, & 0 \leq y<15, \\ 1, & y \geq 15\end{cases}
+$$
+
+2. $Y$ 的取值范围是 $[0, 15]$，取值不可列，故 $Y$ 不是离散型随机变量；  
+又 $P(Y=15)=F(15)-F(15^-)=1 - (1-e^{-\frac{15}{10}})=e^{-1.5} \neq 0$，不满足连续型随机变量“单点概率为0”的性质，因此 $Y$ 也不是连续型随机变量。（事实上，从 $Y$ 的分布函数在 $y=15$ 处不连续也可知 $Y$ 不是连续型随机变量。）故 $Y$ 为非连非离型的随机变量。
 </Card>

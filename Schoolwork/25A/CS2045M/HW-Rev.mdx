@@ -71,3 +71,121 @@ title: PTA Review
    C. $v$ must be red.
    D. Both children of $v$ are NIL.
    **Answer: B, C, D**. Note that: **since $v$ is sure to be red, $u$ must be black**.
+
+
+# Week 3 
+
+## True Or False
+
+
+
+1. Let $T$ be a BST. If we perform a splay operation on the node with the minimum key, then the root of the resulting tree has no left child.
+
+
+2. Suppose that the insertion operation of some data structure has a worst-case cost of $\Theta(n)$ and an amortized cost of $O(\log n)$. Starting with the empty structure, if we perform $m$ insertion operations consecutively, the total cost may be as large as $\Theta(m^2)$.
+
+
+
+3. The height of a splay tree with $n$ nodes can be as large as $\Theta(n)$.
+
+4. Suppose we have a potential function $\Phi $ such that for all $\Phi(D_i) \geq \Phi(D_0)$ for all $i$, but $\Phi(D_0) \neq 0$. Then there exists a potential $\Phi^\prime $ such that $\Phi ^\prime(D_0) =0$,  $\Phi ^\prime(D_i) \geq 0$ for all $i \geq 1$, and the amortized costs using $\Phi^\prime $ are the same as the amortized costs using $\Phi$.
+
+5. Consider an insertion in a B+ tree. We may need to update some keys stored in some internal nodes even if no leaf is split during the insertion.
+
+6. A B+ tree of order 3 is also called a 2-3 tree. Consider a 2-3 tree with 3 internal nodes. Its leaves can have a maximum number of 18 keys in total.
+
+7. In distributed indexing, document-partitioned strategy is to store on each node all the documents that contain the terms in a certain range.
+
+
+8. When evaluating the performance of data retrieval, it is important to measure the relevancy of the answer set.
+
+
+9. Precision is more important than recall when evaluating the explosive detection in airport security.   
+
+10. While accessing a term by hashing in an inverted file index, range searches are expensive.  
+
+## Multiple Choice
+
+
+
+1. Let $T$ be a splay tree with $n$ nodes. Suppose that $4$ is a key stored in some leaf of $T$. If we performs a sequence of $m$ findkey(4) on $T$, what is the total cost in the worst case?
+
+    - [ ] A. $\Theta(m\log n)$
+    - [ ] B. $\Theta(m + n)$
+    - [ ] C. $\Theta(m + \log n)$
+    - [ ] D. $\Theta(mn)$
+
+2. Insert 3, 1, 4, 5, 9, 2, 6, 8, 7, 0 into an initially empty 2-3 tree (with splitting).  Which one of the following statements is FALSE?
+
+    - [ ] A. 7 and 8 are in the same node
+    - [ ] B. the parent of the node containing 5 has 3 children
+    - [ ] C. the first key stored in the root is 6
+    - [ ] D. there are 5 leaf nodes
+
+3. After deleting 9 from the 2-3 tree given in the figure, which one of the following statements is FALSE?
+
+   ![](~/130)
+
+    - [ ] A. the root is full
+    - [ ] B. the second key stored in the root is 6
+    - [ ] C. 6 and 8 are in the same node
+    - [ ] D. 6 and 5 are in the same node
+
+4. Consider a B+ tree of order $M$. What is the maximum number of elements that are stored in an internal node?
+
+    - [ ] A. $M$
+    - [ ] B. $M - 1$
+    - [ ] C. $M + 1$
+    - [ ] D. M/2
+
+5. When measuring the relevancy of the answer set, if the precision is high but the recall is low, it means that:
+
+    - [ ] A. most of the relevant documents are retrieved, but too many irrelevant documents are returned as well
+    - [ ] B. most of the retrieved documents are relevant, but still a lot of relevant documents are missed
+    - [ ] C. most of the relevant documents are retrieved, but the benchmark set is not large enough
+    - [ ] D. most of the retrieved documents are relevant, but the benchmark set is not large enough
+
+6. Which of the following is NOT concerned for measuring a search engine?
+
+    - [ ] A. How fast does it index
+    - [ ] B. How fast does it search
+    - [ ] C. How friendly is the interface
+    - [ ] D. How relevant is the answer set
+
+7. There are 28000 documents in the database. The statistic data for one query are shown in the following table. The recall is: __
+
+   | - | Relevant | Irrelevant|
+   | Retrieved | 4000 | 12000 |
+   | Not Retrieved | 8000 | 4000 |
+
+    - [ ] A. 14%
+    - [ ] B. 25%
+    - [ ] C. 33%
+    - [ ] D. 50%
+
+## Multiple Choice More Than One Answer
+
+
+
+1. Consider the dynamic array given in class. Which of the following potential functions will yield an amortized cost of $O(1)$ for insertion? Select all the potential functions that work. To be rigorous, you may multiply all the following functions by a constant that is large enough. (Hint: recall that a good potential function must satisfy two certain conditions.)
+
+    - [ ] A. the number of elements stored in the array
+    - [ ] B. the opposite of the number of elements stored in the array
+    - [ ] C. the number of available cells in the array
+    - [ ] D. the opposite of the number of available cells in the array
+    - [ ] E. the number of elements stored in the array minus the number of available cells in the array
+
+2. Insert 1,5,7,3,6,2,4 one by one into an empty splay tree. Which of the following statements are true? We assume that the height of a single node is 1.
+
+    - [ ] A. 3 is the root.
+    - [ ] B. 3 and 6 are siblings.
+    - [ ] C. The height of the resulting tree is 3.
+    - [ ] D. After 5 is inserted, there is no need to perform the splay operation
+
+3. Consider a deletion in a B+ tree.  Suppose that no underflow occurs after the deletion. How many elements in the internal nodes may be updated?  Select all possible answers.
+
+    - [ ] A. 0
+    - [ ] B. 1
+    - [ ] C. 2
+    - [ ] D. \>2
+
