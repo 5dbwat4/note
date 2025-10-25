@@ -1,0 +1,375 @@
+---
+title: "Lab 1 实验报告：基础五级流水线"
+---
+
+import Asciinema from '@md-components/AsciinemaWrapper.vue'
+
+import { NImage } from 'naive-ui'
+
+实验文档：https://zju-sys.pages.zjusct.io/sys2/sys2-fa25/lab1/
+
+# 实验目的
+
+- **理解流水线的基本概念与思想。** 深入理解流水线（Pipeline）的基本原理，包括指令级并行、各级之间的数据传递、流水线寄存器的作用，以及流水线带来的吞吐率提升和潜在的冒险（数据冒险、结构冒险、控制冒险）问题。
+- **基于在单周期 CPU 中已经实现的模块，实现 5 级流水线框架。** 在已有的单周期 CPU 基础上，将各个功能模块（如取指、译码、执行、访存、写回）进行拆分，插入流水线寄存器，完成五级流水线（IF, ID, EXE, MEM, WB）CPU 的搭建，实现指令在流水线中的流动。
+- **理解流水线设计在提高 CPU 的吞吐率，提升整体性能上的作用与优越性。** 掌握流水线 CPU 的设计方法，包括流水线寄存器的设计、各级信号的传递、冒险检测与处理（这个实验中主要是flush），并理解这些机制对提升 CPU 性能的实际意义。
+
+
+# 实验过程
+
+提及实验过程，主要就是将上学期写的单周期 CPU ，各个模块进行拆分，插入寄存器，该从组合逻辑改成时序逻辑的也要修改，形成流水线 CPU 。
+
+在这里记录遇到的问题和debug过程。
+
+## 读cosim源码
+
+在开发过程中，测试时出现报错：
+
+```
+[error] check board set 1 error
+```
+
+以及
+
+```
+[error] WDATA SIM 0000000000000001, DUT 0000000000000000
+[error] 0000000000000c10@00000000 check board clear 1 error
+```
+
+第一个报错之前没有遇到过，尝试去找论文 [MorFuzz: Fuzzing Processor via Runtime Instruction Morphing enhanced Synchronizable Co-simulation](https://www.usenix.org/conference/usenixsecurity23/presentation/xu-jinyan) 以及在网络上查找，发现这个`riscv-isa-cosim`怎么连个文档都没有😠
+
+在[cj.cc](https://github.com/sycuricon/riscv-isa-cosim/blob/master/cosim/cj.cc)这个文件中找到了相关报错对应的代码：
+
+
+
+```cpp
+...
+
+  reg_t sim_pc = s->last_pc;
+  uint32_t sim_insn = s->last_insn;
+  size_t regNo, fregNo;
+  if (s->XPR.get_last_write(regNo)) {
+    if (!check_board.set(regNo, s->XPR[regNo], dut_insn, dut_pc, get_mmio_access())) {
+      printf("\x1b[31m[error] check board set %ld error \x1b[0m\n", regNo);
+      if (blind) {
+        tohost_data = 1;
+        return 0;
+      } else {
+        return 10;
+      }
+    }
+  }
+  if (s->FPR.get_last_write(fregNo)) {
+    if (!f_check_board.set(fregNo, s->FPR[fregNo], dut_insn, dut_pc, get_mmio_access())) {
+      printf("\x1b[31m[error] float check board set %ld error \x1b[0m\n", fregNo);
+      if (blind) {
+        tohost_data = 1;
+        return 0;
+      } else {
+        return 10;
+      }
+    }
+  }
+
+...
+    if (!check_board.clear(dut_waddr, dut_wdata)) {
+      if (check_board.get_ignore(dut_waddr)) {
+        s->XPR.write(dut_waddr, dut_wdata);
+        check_board.clear(dut_waddr);
+        return 0;
+      } else if ((check_board.get_insn(dut_waddr) & 0x7f) == 0x73) {
+        if (!sync_state) {
+          tohost_data = 1;
+          printf("\x1b[31m[error] %016lx@%08x CSR UNMATCH \x1b[33mSIM %016lx\x1b[31m, DUT \x1b[36m%016lx \x1b[0m\n", 
+        check_board.get_pc(dut_waddr), check_board.get_insn(dut_waddr), dump(check_board.get_data(dut_waddr)), dump(dut_wdata));
+          DUMP_STATE;
+        }
+          
+        s->XPR.write(dut_waddr, dut_wdata);
+        check_board.clear(dut_waddr);
+        return 0;
+      } else {
+        printf("\x1b[31m[error] WDATA \x1b[33mSIM %016lx\x1b[31m, DUT \x1b[36m%016lx \x1b[0m\n", 
+          dump(check_board.get_data(dut_waddr)), dump(dut_wdata));
+        printf("\x1b[31m[error] %016lx@%08x check board clear %d error \x1b[0m\n", check_board.get_pc(dut_waddr), check_board.get_insn(dut_waddr), dut_waddr);
+        DUMP_STATE;
+        if (blind) {
+          if (!sync_state)
+            tohost_data = 1;
+          s->XPR.write(dut_waddr, dut_wdata);
+          check_board.clear(dut_waddr);
+          return 0;
+        } else {
+          return 255;
+        }
+      }
+    }
+...
+```
+
+大意是说，当我commit to cosim的时候，cj会将将相关的寄存器行为写入check_board中（`valid`置1），方便后续比对
+
+对应的check_board实现在`cj.h`中：
+
+```cpp
+bool set(size_t i, T value, uint32_t dut_insn, reg_t dut_pc, bool mmio_ignore = false) {
+  if (!ignore_zero || i != 0) {
+    if (valid[i])
+      return false;  // <--- 失败条件1：对应位置已经被设置过
+    valid[i] = !valid[i];
+    ignore[i] = mmio_ignore;
+    data[i] = value;
+    insn[i] = dut_insn;
+    pc[i] = dut_pc;
+  }
+  return true;
+}
+```
+
+看它的意思，似乎一次commit时对同一个寄存器做了多次操作，会导致报错。
+
+**再看`Core.sv`发现果然，是`rd_id`信号接线错误导致的。**
+
+
+顺便一提，这里是clear那个报错对应的情况
+
+```cpp
+bool clear(size_t i, T value) {
+  if (!ignore_zero || i != 0) {
+    if (!valid[i])
+      return false; // <--- 失败条件1：对应位置没有被设置过
+    if (data[i] != value) {
+      return false; // <--- 失败条件2：数据值不匹配
+    }
+    valid[i] = !valid[i];
+  }
+  return true;
+}
+void clear(size_t i) {
+  valid[i] = false;
+}
+```
+
+## 用`$display`打印信号
+
+用gdkwave查看波形时，出现了这么一个问题：对于结构体（`EXEMEM`）之类，拖到右侧它只会显示`valid=1`，而不会显示类似`EXEMEM.valid=1`的可供区分的显示方式。（~~虽然其实并没有使用`core_struct.vh`中的结构体~~，但是无论如何gdkwave查看波形还是非常难受）
+
+在`Core`模块的开头加入：
+
+```verilog
+always @(posedge clk) begin
+    $display("===============================\nTick tocking... rst=%b", rst);
+end
+```
+
+在五级流水线的每一级加入类似以下的输出：
+```verilog
+$display("[#3 EXE]Instruction in EXE stage: %h at PC: %h", IDEXE_instruction, IDEXReg_pc);
+$display("  PC updated to %h", next_pc);
+$display("  ALU operation: a=%h, b=%h, op=%s, result=%h", EXE_alu_a, EXE_alu_b, IDEXReg_alu_op.name(), EXE_alu_res);
+$display("  CMP operation: a=%h, b=%h, op=%s, result=%b", IDEXReg_reg_data_1, IDEXReg_reg_data_2, IDEXReg_cmp_op.name(), EXE_cmp_res);
+$display("  Memory operation: we_mem=%b, re_mem=%b, mem_op=%s", IDEXReg_we_mem, IDEXReg_re_mem, IDEXReg_mem_op.name());
+$display("  WB operation: we_reg=%b, wb_sel=%s", IDEXReg_we_reg, IDEXReg_wb_sel.name());
+```
+
+有以下输出，个人觉得比波形图更直观：
+
+```
+...
+===============================
+Tick tocking... rst=0
+IMEM request: addr=0000000000000154, valid=1, ready=1
+IMEM reply:   rdata=0211b82300000013, valid=1, ready=1
+DMEM R request: addr=00000000000002b0, valid=1, ready=1
+DMEM R reply:   rdata=87654321f234f6f8, valid=1, ready=1
+DMEM W request: addr=0000000000000318, data=fffffffffffff6f8, valid=1, ready=1
+DMEM W reply:   valid=1, ready=1
+[#5 WB]Instruction in WB stage: 00000013 at PC: 0000000000000148
+  Write back data: 0000000000000000 to regfile: 1
+  Indeed we select WB_SEL_ALU, alu=0000000000000000, mem=0000000000000000, pc=0000000000000148
+Commit cosim: PC=0000000000000148, INST=0000000000000013
+              RD= 0, WE=1, DATA=0000000000000000
+[#4 MEM]Instruction in MEM stage: 00000013 at PC: 000000000000014c
+   Memory operation: Read:0000000000000000 (87654321f234f6f8)
+   Those data just flow by: alu_res=0000000000000000, wb_sel=WB_SEL_ALU, we_reg=1
+[#3 EXE]Instruction in EXE stage: 00000013 at PC: 0000000000000150
+  PC updated to 000000000000015c
+  ALU operation: a=0000000000000000, b=0000000000000000, op=ALU_ADD, result=0000000000000000
+  CMP operation: a=0000000000000000, b=0000000000000000, op=CMP_NO, result=0
+  Memory operation: we_mem=0, re_mem=0, mem_op=MEM_NO
+  WB operation: we_reg=1, wb_sel=WB_SEL_ALU
+[#2 ID]Instruction fetched: 0211b823 at PC: 0000000000000154
+   Controler Signals: we_reg=0, we_mem=1, re_mem=0, npc_sel=0
+   ALU Signals: alu_op=ALU_ADD, alu_asel=ASEL_REG, alu_bsel=BSEL_IMM
+   WB Signals: wb_sel=WB_SEL0 ; imm: 00000030
+[#1 IF]PC updated to 0000000000000158
+register data full: '{'hf234f6f8, 'h2b0, 'h2f0, 'h0, 'h63d, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0} 
+===============================
+Tick tocking... rst=0
+IMEM request: addr=0000000000000158, valid=1, ready=1
+IMEM reply:   rdata=0000001300012083, valid=1, ready=1
+DMEM R request: addr=00000000000002b0, valid=1, ready=1
+DMEM R reply:   rdata=87654321f234f6f8, valid=1, ready=1
+DMEM W request: addr=0000000000000318, data=fffffffffffff6f8, valid=1, ready=1
+DMEM W reply:   valid=1, ready=1
+[#5 WB]Instruction in WB stage: 00000013 at PC: 000000000000014c
+  Write back data: 0000000000000000 to regfile: 1
+  Indeed we select WB_SEL_ALU, alu=0000000000000000, mem=0000000000000000, pc=000000000000014c
+Commit cosim: PC=000000000000014c, INST=0000000000000013
+              RD= 0, WE=1, DATA=0000000000000000
+[#4 MEM]Instruction in MEM stage: 00000013 at PC: 0000000000000150
+   Memory operation: Read:0000000000000000 (87654321f234f6f8)
+   Those data just flow by: alu_res=0000000000000000, wb_sel=WB_SEL0, we_reg=1
+[#3 EXE]Instruction in EXE stage: 0211b823 at PC: 0000000000000154
+  PC updated to 0000000000000160
+  ALU operation: a=00000000000002f0, b=0000000000000030, op=ALU_ADD, result=0000000000000320
+  CMP operation: a=00000000000002f0, b=00000000f234f6f8, op=CMP_NO, result=0
+  Memory operation: we_mem=1, re_mem=0, mem_op=MEM_D
+  WB operation: we_reg=0, wb_sel=WB_SEL0
+[#2 ID]Instruction fetched: 00012083 at PC: 0000000000000158
+   Controler Signals: we_reg=1, we_mem=0, re_mem=1, npc_sel=0
+   ALU Signals: alu_op=ALU_ADD, alu_asel=ASEL_REG, alu_bsel=BSEL_IMM
+   WB Signals: wb_sel=WB_SEL_MEM ; imm: 00000000
+[#1 IF]PC updated to 000000000000015c
+register data full: '{'hf234f6f8, 'h2b0, 'h2f0, 'h0, 'h63d, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0} 
+===============================
+...
+```
+
+## board_sim 过了， Vivado 下板没成功
+
+出现了大量此类报错：
+
+```
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin Q with 1st driver pin 'dut/core/xxx[25]__0/Q' [E:/Projects/sys2/lab1/submit/Core.sv:20]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin Q with 2nd driver pin 'GND' [E:/Projects/sys2/lab1/submit/Core.sv:20]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net Q is connected to at least one constant driver which has been preserved, other driver is ignored [E:/Projects/sys2/lab1/submit/Core.sv:20]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin Q with 1st driver pin 'dut/core/xxx[24]__0/Q' [E:/Projects/sys2/lab1/submit/Core.sv:20]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin Q with 2nd driver pin 'GND' [E:/Projects/sys2/lab1/submit/Core.sv:20]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net Q is connected to at least one constant driver which has been preserved, other driver is ignored [E:/Projects/sys2/lab1/submit/Core.sv:20]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin Q with 1st driver pin 'dut/core/xxx[23]__0/Q' [E:/Projects/sys2/lab1/submit/Core.sv:20]
+```
+
+搜寻资料时发现了这个 [critical warning [synth 8-6859] and [synth 8-6858] for a legal generate loop in SV file.](https://adaptivesupport.amd.com/s/question/0D52E00007H6z3sSAB/critical-warning-synth-86859-and-synth-86858-for-a-legal-generate-loop-in-sv-file?language=en_US)， `the code has been simulated correctly in vcs tool., so i don't think anything wrong with it.`与我面对的问题一模一样，但是并没有解答。
+
+最终还是参考[sys2-fa24#16](https://git.zju.edu.cn/zju-sys/sys2/sys2-fa24/-/issues/16)，将每个`@always`时序逻辑合并起来，解决了这个问题。~~（前人的智慧）~~
+
+
+
+
+
+## 仿真&下板
+
+> 执行
+> 
+> ```bash
+> make verilate TESTCASE=syn CUSTOM_OPTS=-DNORACE
+> ```
+> 
+> 进行仿真测试，以检验 CPU 基本功能。
+
+import cast1 from "./ve.cast?url";
+
+<Asciinema url={cast1} />
+
+> 执行
+> ```bash
+> make board_sim TESTCASE=syn CUSTOM_OPTS=-DNORACE
+> ```
+> 生成测试文件 `build/verilate/testcase.hex`；
+
+import cast2 from "./bo.cast?url";
+
+<Asciinema url={cast2} />
+
+> 进行上板测试，以检验 CPU 设计规范，如果处理器死循环在 `0x2b0` 则说明实验成功，如果停在 `0x2a4` 则说明实验失败。
+
+import ImageB from "./succ-b.jpg?url";
+
+<NImage src={ImageB} alt="success" />
+
+
+# 思考题
+
+## `fibonacci` loop 的 CPI ……
+
+> 对于 `syn.asm` 的 `fibonacci` 的如下代码段，请计算该 loop 在流水线 CPU、SCPU、多周期 CPU 各自的 CPI，对比三者的 CPI。<span style="color:red">20%</span>
+> 
+>     ```asm
+>     000000000000000c <fibonacci>:
+>        c:	00000013          	addi	zero,zero,0
+>       10:	00000013          	addi	zero,zero,0
+>       14:	002081b3          	add	gp,ra,sp
+>       18:	00000013          	addi	zero,zero,0
+>       1c:	00000013          	addi	zero,zero,0
+>       20:	00000013          	addi	zero,zero,0
+>       24:	003100b3          	add	ra,sp,gp
+>       28:	00000013          	addi	zero,zero,0
+>       2c:	00000013          	addi	zero,zero,0
+>       30:	00000013          	addi	zero,zero,0
+>       34:	00308133          	add	sp,ra,gp
+>       38:	fff20213          	addi	tp,tp,-1 # ffffffffffffffff <_end+0xfffffffffffffccf>
+>       3c:	00000013          	addi	zero,zero,0
+>       40:	00000013          	addi	zero,zero,0
+>       44:	00000013          	addi	zero,zero,0
+>       48:	fc4012e3          	bne	zero,tp,c <fibonacci>
+>     ```
+- 单周期 CPU：CPI = 1。毋庸置疑。
+
+- 多周期 CPU：    
+    先统计各类指令的数量：    
+        - R 型指令：3 条（`add`）
+        - I 型指令：12 条（`addi`）
+        - B 型指令：1 条（`bne`）  
+
+    假设 R 型指令 CPI = 4，I 型指令 CPI = 3，B 型指令 CPI = 3，则
+    $$
+    \text{CPI}_{\text{多周期}} = \frac{3 \times 4 + 12 \times 3 + 1 \times 3}{16} = 3.9375
+    $$
+
+- 流水线 CPU：    
+    理想情况下 CPI 接近 1，但要考虑第 48 行分支跳转带来的 stall。  
+    可以认为该 B 型指令相当于多消耗了 2 个周期。  
+    $$
+    \text{CPI}_{\text{流水线}} = \frac{16 + 2}{16} = 1.125
+    $$
+
+
+## 要有比单周期 CPU 更高的执行效率，流水线的时钟频率……
+
+> 假设 SCPU 的时钟频率是 100 MHz，如果流水线想要有比单周期 CPU 更高的执行效率，它的时钟频率至少需要是多少？ <span style="color:red">10%</span>
+
+一个五级流水线CPU，它的CPI理想情况下接近1~~（我们就当1算吧）~~，而单周期CPU的CPI=1。
+
+流水线CPU的一个指令需要5个周期完成，为了让流水线CPU的执行效率高于单周期CPU，流水线CPU的时钟频率至少需要是单周期CPU的5倍，**即500MHz**。
+
+（虽然但是，如果考虑冒险等因素，实际CPI会大于1，实际频率需求应该要大于500MHz）
+
+## 为什么多周期 CPU 优于单周期 CPU，流水线 CPU 优于多周期 CPU……
+
+> 从时钟频率和 CPI 的角度解释，为什么多周期 CPU 优于单周期 CPU，流水线 CPU 优于多周期 CPU。<span style="color:red">10%</span>
+
+
+| 指标 | 单周期CPU | 多周期CPU | 流水线CPU |
+| :--- | :--- | :--- | :--- |
+| 时钟频率 | 非常低 | 高 | 与多周期差不多 |
+| CPI | 1 | ~3-5 | ~1 |
+
+**为什么多周期 CPU 优于单周期 CPU？**
+
+单周期CPU，虽然CPI很低（一个指令在一个周期完成），但是这是有代价的，因为时钟周期必须足够长以适应最慢的指令（如访存指令），导致时钟频率极低，整体性能受限。
+
+多周期CPU通过将指令分解为多个较短的阶段，每个阶段用一个时钟周期完成，使得时钟周期长度由最慢的阶段决定，时钟频率显著提升。虽然CPI上升（每条指令需多个周期），但频率提升的幅度远大于CPI增加的幅度，因此整体性能优于单周期CPU。
+
+简单的说就是，性能瓶颈从一个指令的最长用时，变成了一个阶段的最长用时，速度快的指令等待的时间就减少了。
+
+**为什么流水线 CPU 优于多周期 CPU？**
+
+多周期CPU通过将指令分解为多个较短的阶段，每个阶段用一个时钟周期完成。但是，同时只有一个阶段在工作，没有工作的阶段（对应的寄存器/ALU/...等等）就被浪费了
+
+流水线CPU则进一步优化，通过指令级并行让多个指令在不同阶段同时执行，理想情况下CPI接近1。虽然说由于冒险，实际会有一些空窗期，但整体性能远超多周期CPU（相当于4个多周期CPU在跑）。
+
+# 心得体会
+
+这次实验确实让我感受到了“流水线”带来的复杂性，虽然过程中有点波折，但是很多细节都得自己摸索。希望以后助教能多整理点常见问题和 debug 指南，别让大家都在同一个坑里反复跳。
+

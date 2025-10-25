@@ -1,5 +1,3 @@
-\* 目前提取至Ch2.4
-
 import Card from "@md-components/card.vue"
 
 
@@ -1051,3 +1049,313 @@ $$
 2. $Y$ 的取值范围是 $[0, 15]$，取值不可列，故 $Y$ 不是离散型随机变量；  
 又 $P(Y=15)=F(15)-F(15^-)=1 - (1-e^{-\frac{15}{10}})=e^{-1.5} \neq 0$，不满足连续型随机变量“单点概率为0”的性质，因此 $Y$ 也不是连续型随机变量。（事实上，从 $Y$ 的分布函数在 $y=15$ 处不连续也可知 $Y$ 不是连续型随机变量。）故 $Y$ 为非连非离型的随机变量。
 </Card>
+
+
+## §2.5 随机变量函数的分布(Distributions of Functions of a Random Variable)
+例如，若要测量一个圆的面积，总是测量其半径，而半径的测量值可看作随机变量 $X$。假设 $X \sim N(\mu, \sigma^{2})$，则面积 $S=\pi X^{2}$ 服从什么分布？
+
+问题：已知随机变量 $X$ 的概率分布，且已知 $Y=g(X)$，求 $Y$ 的概率分布。
+
+Now we are concerned about the distribution of functions of random variables. For the case that we have known the distribution of random variable $X$, $g(\cdot)$ is a measurable function, how could we get the information (distribution function) of $Y=g(X)$ ?
+
+
+<Card type="Example" title="Example 26">
+已知 $X$ 具有以下的概率分布
+
+| $X$ | $-1$ | $0$ | $1$ |
+| --- | --- | --- | --- |
+| $p_i$ | $0.2$ | $0.5$ | $0.3$ |
+
+且设 $Y=X^{2}$，求 $Y$ 的概率分布。
+
+**Solution**
+
+由题意知，$Y$ 的所有可能取值为 $0, 1$，且 $P(Y=0)=P(X=0)=0.5$
+$$
+P(Y=1)=P\{(X=1) \cup (X=-1)\}=P(X=1)+P(X=-1)=0.5
+$$
+
+即找出 $\{Y=0\}$ 的等价事件 $\{X=0\}$；
+$\{Y=1\}$ 的等价事件 $\{X=1\}$ 与 $\{X=-1\}$ 的和事件。
+</Card>
+
+
+<Card type="Example" title="Example 27">
+设随机变量 $X$ 的概率密度函数为 
+$
+f_{X}(x)= \begin{cases}\frac{x}{8}, & 0<x<4, \\ 0, & 其他\end{cases}
+$
+求 $Y=X^{2}$ 的概率密度函数。
+
+**Solution**
+
+由题意知 $P(0<X<4)=1$，而 $Y=X^{2}$，故 $P(0<Y<16)=1$。因此，当 $y<0$ 或 $y \geq16$ 时，$f_{Y}(y)=0$。
+（当 $y<0$ 时，分布函数 $F_{Y}(y)=0$；$y \geq16$ 时，$F_{Y}(y)=1$。）
+
+当 $0 \leq y<16$ 时，$Y$ 的分布函数为
+$$
+F_{Y}(y)=P(Y \leq y)=P\left(X^{2} \leq y\right)=P(-\sqrt{y} \leq X \leq \sqrt{y})=F_{X}(\sqrt{y})-F_{X}(-\sqrt{y})
+$$
+故此时
+$$
+f_{Y}(y)=F_{Y}'(y)=f_{X}(\sqrt{y}) \cdot \frac{1}{2 \sqrt{y}}-f_{X}(-\sqrt{y}) \cdot\left(-\frac{1}{2 \sqrt{y}}\right)=\frac{\sqrt{y}}{8} \cdot \frac{1}{2 \sqrt{y}}-0 \cdot\left(-\frac{1}{2 \sqrt{y}}\right)=\frac{1}{16}
+$$
+
+即
+$
+f_{Y}(y)= \begin{cases}\frac{1}{16}, & 0<y<16, \\ 0, & 其他\end{cases}
+$
+
+$Y$ 服从区间 $(0, 16)$ 上的均匀分布。
+</Card>
+
+
+一般地，若已知 $X$ 的概率分布，求 $Y=g(X)$ 的概率分布的过程为：给出 $Y$ 的可能取值；利用等价事件来给出概率分布。
+
+具体来说：
+- 若 $Y$ 为离散型随机变量，则先写出 $Y$ 的可能取值 $y_{1}, y_{2}, ..., y_{j}, ...$，再找出 $\{Y=y_{j}\}$ 的等价事件 $\{X \in I\}$，得分布律 $P(Y=y_{j})=P(X \in I)$。
+- 若 $Y$ 为连续型随机变量，先确定 $Y$ 的取值范围，再写出概率分布函数 $F_{Y}(y)=P(Y \leq y)$，找出 $\{Y \leq y\}$ 的等价事件 $\{X \in I\}$，得 $F_{Y}(y)=P(X \in I)$，再求导得 $Y$ 的概率密度函数 $f_{Y}(y)$。
+
+**关键是找出等价事件！**
+
+
+若 $Y$ 为连续型随机变量，求其概率密度函数，通常作法为：
+1. 根据 $X$ 的取值范围以及 $Y$ 与 $X$ 的关系，确定 $Y$ 的取值范围；
+2. 写出 $Y$ 的分布函数：
+    $$
+    F_{Y}(y)=P\{Y \leq y\}
+    $$
+    通过 $\{Y \leq y\}$ 的等价事件 $\{X \in I\}$ 可将之转化为 $F_{Y}(y)=P\{X \in I\}$；
+3. 对 $F_{Y}(y)$ 求导得到 $Y$ 的概率密度函数 $f_{Y}(y)$。常常会用到复合函数求导：
+$$
+\frac{d\left(F_{X}(h(y))\right)}{d y}=f_{X}(h(y)) \cdot h'(y)
+$$
+
+
+<Card type="Example" title="Example 28">
+已知 $X$ 具有概率分布
+
+| $X$ | $-1$ | $0$ | $1$ |
+| --- | --- | --- | --- |
+| $P$ | $1/3$ | $1/3$ | $1/3$ |
+
+且设 $Y=2X$，$Z=X^{2}$，求 $Y$ 和 $Z$ 的概率分布。
+
+**Solution**
+
+由题意知，$Y$ 的所有可能取值为 $-2, 0, 2$，$Z$ 的所有可能取值为 $0, 1$，且
+$$
+\{Y=-2\}=\{X=-1\}, \quad\{Y=0\}=\{X=0\}, \quad\{Y=2\}=\{X=1\}
+$$
+$$
+\{Z=0\}=\{X=0\}, \quad\{Z=1\}=\{X=-1\} \cup \{X=1\}
+$$
+
+由此可以得到 $Y$ 和 $Z$ 的概率分布律分别为
+
+| $Y$ | $-2$ | $0$ | $2$ |
+| --- | --- | --- | --- |
+| $P$ | $1/3$ | $1/3$ | $1/3$ |
+
+
+| $Z$ | $0$ | $1$ |
+| --- | --- | --- |
+| $P$ | $1/3$ | $2/3$ |
+</Card>
+
+
+<Card type="Example" title="Example 29">
+设随机变量 $X$ 具有概率密度 $f_{X}(x)$，$-\infty<x<+\infty$，分别求 $Y=|X|$ 和 $Z=X^{2}$ 的概率密度函数 $f_{Y}(y)$ 和 $f_{Z}(z)$。
+
+**Solution**
+
+记 $X, Y, Z$ 的分布函数分别为 $F_{X}(x)$，$F_{Y}(y)$，$F_{Z}(z)$。注意到 $P(Y \geq0)=1$，故当 $y<0$ 时，$F_{Y}(y)=0$；当 $y \geq 0$ 时，
+$$
+F_{Y}(y)=P(Y \leq y)=P(|X| \leq y)=P(-y \leq X \leq y)=F_{X}(y)-F_{X}(-y)
+$$
+因此
+$$
+f_{Y}(y)=F_{Y}'(y)= \begin{cases}f_{X}(y)+f_{X}(-y), & y \geq 0, \\ 0, & y<0\end{cases}
+$$
+
+
+同理，注意到 $P(Z \geq0)=1$，故当 $z<0$ 时，$F_{Z}(z)=0$；当 $z \geq0$ 时，
+$$
+F_{Z}(z)=P(Z \leq z)=P\left(X^{2} \leq z\right)=F_{X}(\sqrt{z})-F_{X}(-\sqrt{z})
+$$
+因此
+$$
+f_{Z}(z)=F_{Z}'(z)= \begin{cases}\frac{1}{2 \sqrt{z}}\left[f_{X}(\sqrt{z})+f_{X}(-\sqrt{z})\right], & z \geq 0, \\ 0, & z<0\end{cases}
+$$
+</Card>
+
+
+<Card type="Example" title="Example 30">
+设随机变量 $X \sim U(-1,2)$，求 $Y=|X|$ 的概率密度函数 $f_{Y}(y)$。
+
+**Solution**
+
+由题意可知 $X$ 的概率密度函数为
+$
+f_{X}(x)= \begin{cases}\frac{1}{3}, & -1<x<2, \\ 0, & 其他\end{cases}
+$
+
+由（1）得$Y=|X|$ 的概率密度函数为
+$$
+\begin{aligned} 
+f_{Y}(y) &= \begin{cases}f_{X}(y)+f_{X}(-y), & y \geq 0, \\ 0, & y<0\end{cases} \\ 
+&= \begin{cases}\frac{1}{3}+\frac{1}{3}, & 0 \leq y<1, \\ \frac{1}{3}+0, & 1 \leq y \leq 2, \\ 0, & 其他\end{cases} 
+= \begin{cases}\frac{2}{3}, & 0 \leq y<1, \\ \frac{1}{3}, & 1 \leq y \leq 2, \\ 0, & 其他\end{cases}
+\end{aligned}
+$$
+</Card>
+
+
+<Card type="Example" title="Example 31">
+设随机变量 $X \sim N(0,1)$，求 $Z=X^{2}$ 的概率密度函数 $f_{Z}(z)$。
+
+**Solution**
+
+由题意知 $X$ 的密度函数为
+$$
+f_{X}(x)=\frac{1}{\sqrt{2 \pi}} e^{-\frac{x^{2}}{2}}, \quad -\infty<x<+\infty
+$$
+$Z=X^{2}$ 的密度函数为
+$$
+
+f_{Z}(z)= \begin{cases}\frac{1}{2\sqrt{z}}\left[ f_{X}(\sqrt{z})+f_{X}(-\sqrt{z})\right] ,& z>0,\\ 0,& z\leq 0\end{cases} 
+= \begin{cases}\frac{1}{\sqrt{2\pi }}z^{-\frac{1}{2}}e^{-\frac{z}{2}},& z>0,\\ 0,& z\leq 0\end{cases}
+
+$$
+
+</Card>
+
+在数理统计第六章中将介绍，这实际上是 $\chi^{2}(1)$ 分布。
+
+<Card type="Theorem" title="Theorem 1">
+设 $h(y)=x \Leftrightarrow y=g(x)$，随机变量 $X$ 的概率密度函数为 $f_{X}(x)$，已知 $Y=g(X)$，其中 $g'(x)>0$（或 $g'(x)<0$），则 $Y$ 的概率密度函数为
+$$
+f_{Y}(y)= \begin{cases}f_{X}(h(y)) \cdot\left|h'(y)\right|, & \alpha<y<\beta, \\ 0, & 其它\end{cases}
+$$
+其中 $\alpha=g(-\infty)$，$\beta=g(+\infty)$（当 $g'(x)<0$ 时，$\alpha=g(+\infty)$，$\beta=g(-\infty)$）。
+
+**Proof**
+
+不妨设 $g'(x)>0$，即 $g(x)$ 为单调递增函数，且 $h'(y)>0$。
+- 当 $y<\alpha$ 时，$F_{Y}(y)=0$；
+- 当 $y \geq\beta$ 时，$F_{Y}(y)=1$；
+- 当 $\alpha \leq y<\beta$ 时，
+$$
+F_{Y}(y)=P(Y \leq y)=P(g(X) \leq y)=P(X \leq h(y))=F_{X}(h(y))
+$$
+从而
+$$
+f_{Y}(y)=f_{X}(h(y)) \cdot h'(y)=f_{X}(h(y)) \cdot\left|h'(y)\right|
+$$
+
+同理可证，当 $g'(x)<0$ 结论也成立。
+</Card>
+
+
+<Card type="推论" title="推论">
+设随机变量 $X$ 的概率密度函数为 $f_{X}(x)$，$Y=g(X)$，$X$ 的支撑为 $\{x: f(x)>0\}=(a, b)$。若当 $a<x<b$ 时，有 $g'(x)>0$（或 $g'(x)<0$），则 $Y$ 的概率密度函数为
+$$
+f_{Y}(y)= \begin{cases}f_{X}(h(y)) \cdot\left|h'(y)\right|, & \alpha<y<\beta, \\ 0, & 其它\end{cases}
+$$
+其中 $\alpha=\min(g(a), g(b))$，$\beta=\max(g(a), g(b))$，$h(y)=x \Leftrightarrow y=g(x)$。
+</Card>
+
+
+<Card type="Example" title="Example 32">
+设 $X$ 服从正态分布 $N(\mu, \sigma^{2})$，考虑随机变量 $Y=aX+b(a \neq0)$ 的分布。
+
+**Solution**
+
+注意到 $Y=g(X)$，其中 $y=g(x)=ax+b(a \neq0)$ 为 $x$ 的严格单调函数（$a>0$ 时为单调递增函数，$a<0$ 时为单调递减函数），其反函数为 $g^{-1}(y)=\frac{y-b}{a}$。则根据定理，可得
+$$
+
+f_{Y}(y)=f_{X}\left(g^{-1}(y)\right) \cdot\left|\frac{d}{d y} g^{-1}(y)\right|=\frac{1}{|a|} f_{X}\left(\frac{y-b}{a}\right)=\frac{1}{\sqrt{2 \pi}|a| \sigma} e^{-\frac{[y-(a \mu+b)]^{2}}{2 a^{2} \sigma^{2}}}
+
+$$
+
+即 $Y$ 也服从正态分布，具体为 $N(a\mu+b, a^{2}\sigma^{2})$。
+
+</Card>
+
+重要性质：若 $X \sim N(\mu, \sigma^{2})$，$Y=aX+b(a \neq0)$，则 $Y \sim N(a\mu+b, a^{2}\sigma^{2})$。
+
+<Card type="Example" title="Example 33">
+设 $X$ 服从参数为 $\lambda$ 的指数分布，$F(x)$ 为 $X$ 的分布函数。设 $Y=F(X)$，试证：$Y \sim U(0,1)$（即均匀分布）。
+
+**Solution**
+
+因此 $P(0 \leq Y \leq1)=1$。由指数分布的定义知，
+$$
+F(x)= \begin{cases}1 - e^{-\lambda x}, & x > 0, \\ 0, & x \leq0\end{cases}
+$$
+现在
+$$
+Y=F(X)= \begin{cases}1 - e^{-\lambda X}, & X>0, \\ 0, & X \leq 0\end{cases}
+$$
+
+因此$P(0 \leq Y \leq 1)=1$。
+
+- 当 $y<0$ 时，$F_{Y}(y)=P(Y \leq y)=0$；
+- 当 $y \geq 1$ 时，$F_{Y}(y)=P(Y \leq y)=1$；
+- 当 $0 \leq y<1$ 时，
+$$
+F_{Y}(y)=P\left(1 - e^{-\lambda X} \leq y\right)=P\left(X \leq-\frac{1}{\lambda} \ln (1 - y)\right)=1 - e^{-\lambda\left[-\frac{1}{\lambda} \ln (1 - y)\right]}=y
+$$
+
+所以
+$$
+F_{Y}(y)= \begin{cases}0, & y<0, \\ y, & 0 \leq y<1, \\ 1, & y \geq1\end{cases}
+$$
+即 $Y \sim U(0,1)$。
+
+</Card>
+
+注：也可利用定理（推论）来做，此时 $g^{-1}(y)=-\frac{1}{\lambda} \ln (1 - y)$，$\frac{d}{d y} g^{-1}(y)=\frac{1}{\lambda} \cdot \frac{1}{1 - y}$。
+
+更一般地，我们有如下结论（见书本例2.5.6）。
+
+<Card type="Theorem" title="Theorem 2 (Probability integral transformation)">
+Let $X$ have continuous c.d.f. $F_{X}(x)$ and define the random variable $Y$ as $Y=F_{X}(X)$. Then $Y$ is uniformly distributed on $(0, 1)$.
+</Card>
+
+
+<Card type="Example" title="Example 34">
+设随机变量 $X$ 在 $(-\pi/2, \pi/2)$ 内服从均匀分布，试求 $Y=\sin X$ 的概率密度函数。
+
+**Solution**
+
+变换 $Y=\sin X$ 对应的函数为 $y=g(x)=\sin x$，此函数在 $(-\pi/2, \pi/2)$ 上恒有 $g'(x)=\cos x>0$，且有反函数 $h(y)=\arcsin y$，其导数 $h'(y)=\frac{1}{\sqrt{1 - y^{2}}}$。因此，由定理（其实是推论）得 $Y=\sin X$ 的概率密度函数为
+$$
+f_{Y}(y)=f_{X}(h(y)) \cdot\left|h'(y)\right|= \begin{cases}\frac{1}{\pi} \cdot \frac{1}{\sqrt{1 - y^{2}}}, & -1<y<1, \\ 0, & 其他\end{cases}
+$$
+</Card>
+
+
+<Card type="Example" title="Example 35">
+设随机变量 $X$ 在 $(0, \pi)$ 内服从均匀分布，试求随机变量 $Y=\sin X$ 的概率密度函数。
+
+**Solution**
+
+![](./assets/c2r-19.png)
+
+变换 $Y=\sin X$ 对应的函数 $y=g(x)=\sin x$，在 $(0, \pi)$ 上不单调，不能利用定理和推论。
+
+对 $0 \leq y<1$，
+$$
+
+F_{Y}(y)=P(Y \leq y)=P(\sin X \leq y)=P(X \in[0, \arcsin y] \cup[\pi - \arcsin y, \pi])=\frac{2 \arcsin y}{\pi}
+
+$$
+
+故 $Y$ 的概率密度函数为
+$$
+f_{Y}(y)= \begin{cases}\frac{2}{\pi \sqrt{1 - y^{2}}}, & 0 \leq y<1, \\ 0, & 其他\end{cases}
+$$
+</Card>
+
+谢谢！

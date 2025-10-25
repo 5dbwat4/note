@@ -1,0 +1,152 @@
+---
+title: Demystifying Exploitable Bugs in Smart Contracts
+---
+
+[Demystifying Exploitable Bugs in Smart Contracts](https://doi.org/10.1109/ICSE48619.2023.00061)
+
+# Core things to take away
+
+\* MUBs = Machine Unauditable Bugs
+
+1. 已提出大量技术来检测智能合约漏洞（如重入和整数溢出），这些技术可分为模糊测试、形式化验证和运行时验证等类别。尽管这些技术取得了成功，智能合约漏洞利用在现实中仍常见，可能源于智能合约与传统软件漏洞之间的根本差异。
+2. 可导致直接资金损失的错误称为可被利用错误。
+   - 80%的可被利用错误是机器不可审计的（MUBs），即无法通过自动化工具检测。
+   - MUBs通常是功能性/业务逻辑错误，需理解合约的业务语义才能检测。
+
+3. Findings:
+   - 发现 1：尽管 DeFi 社区已大量投资于保护其产品，但目前工具和人工审计资源的供应未能满足需求。
+   - 发现 2：现有技术依赖于简单且通用的oracles或特定项目的手工编写oracles。这样的oracles可能不足以覆盖一般的函数错误。
+   - 发现 3：在野的大部分 （约80%）可利用 bug 是不可机器审计的。
+   - 发现 4：多数可利用漏洞难以发现。
+
+4. 作者对MUBs的分类：
+   *   **(C1) Price Oracle Manipulation（价格预言机操纵）**
+   *   **(C2) Erroneous Accounting（错误记账）**
+   *   **(C3) ID Uniqueness Violations（ID唯一性违反）**
+   *   **(C4) Inconsistent State Updates（不一致状态更新）**
+   *   **(C5) Privilege Escalation（权限提升）**
+   *   **(C6) Atomicity Violations（原子性违反）**
+   *   **(C7) Contract Implementation Specific Bugs（合约实现特定漏洞）**
+
+# MUBs 分类原文：
+
+## (C1) Price Oracle Manipulation
+Smart contracts usually resort to external authorities on Ethereum, which are also contracts called price oracles, to determine the price of an asset. Oracles use certain rules to determine prices(e.g., based on reserve balances). However, if an application contract does not use a price oracle's APIs properly, the adversary can interact with the price oracle in a legit way to influence the price query result returned to the application contract to gain illegal profits. More detailed explanation and an example can be found in§VII-A. It is one of the most notorious types of vulnerabilities in the DeFi history, causing at least$44.8 millions loss in the first half of 2022 alone. As shown in Figure 4, it constitutes 6% of the Code4rena bugs(the least common bug) and 34% of the real-world exploits(the most common exploit). Table V shows that the auditing difficulty of such bugs is significantly higher than others. As such many of them evade auditing and get exploited after deployment.
+
+## (C2) Erroneous Accounting
+Many smart contracts imple-ment complex business models. The implementations hence involve a lot of difficult-to-interpret numerical computation. We call incorrect implementations of underlying business model formulas erroneous accounting bugs. These bugs usu-ally introduce small errors every time they are exercised.However, these errors can accumulate and induce substantial loss. For example, Compound Finance§V.
+
+## (C3) ID Uniqueness Violations
+Most smart contract func-tionalities are in the form of some entity(e.g., a user or contract) operating on some asset(e.g., an NFT token). As such, access control is needed in these processes and enti-ties/assets ought to be uniquely represented. Within smart con-tract implementation, entities and assets are usually denoted as data structures, which often have an ID field that uniquely represents an entity/asset. However, developers may forget to ensure uniqueness of ID fields; they may mistakenly consider other data fields are unique and use them as replacement IDs.As such, the adversary could impersonate an entity or create a fake/duplicate asset that has the same field value as some real entity/asset to pass the access control checks and then perform illegal operations. We call this type of bugs ID uniqueness violations. It constitutes 16% of the Code4rena bugs(43 out of 271) and 3% of the real-world exploits(1 out of 35). It is the 4th and the 7th most commonly seen type of bugs in the two respective datasets. Such bugs are relatively easy to find,with 57% reported by multiple auditors. This could explain its distribution difference in the two datasets as ID bugs may be largely found during auditing(e.g., Code4rena contests).
+
+## (C4) Inconsistent State Updates
+Smart contracts have many state variables(e.g., debts and collaterals) with implicit corre-lations. For example, the credit limit of a user is proportional to her collateral in a lending contract. However, when the developers update one variable, they may forget to update the correlated variable(s) or update incorrectly. Depending on the state variables that are incorrectly updated, the consequences of this kind of bugs range from incorrect statistics to loss of funds. In the recent year, three exploits[89]-[91] caused around$3.8 millions loss and also the collapse of a smart con-tract's internal economy. It constitutes 18% of the Code4rena bugs(49 out of 271) and 11% of the real-world exploits. It is the 2nd and the 4th most commonly seen bugs in the two datasets. The bug difficulty level is about average.
+
+## (C5) Privilege Escalation
+Smart contracts often support a number of business flows, each denoting a unique use case.For example, a lottery contract needs to support at least three distinct flows including buying tickets, drawing winners, and claiming prizes. A business flow may consist of a sequence of transactions in the temporal order. Within a flow, sensitive operations are guarded by access control checks. However,there may be some unexpected business flow to a sensitive operation along which the access control is weaker than necessary. This is very similar to privilege escalation bugs that are very popular in mobile applications[20]. These bugs have diverse consequences, depending on the sensitive operations that are not well protected. Nearly$7.5 millions got stolen in 2022, due to privilege escalation bugs. It constitutes 9.2% of the Code4rena bugs and 22.9% of the real-world exploits. It is the second most popular type of real-world exploits. The difficulty of auditing them is about average.
+
+## (C6) Atomicity Violations
+Multiple business flows(i.e.,transaction sequences) may interleave and interfere with each other, by accessing the same state variables. Some business flows may require business level atomicity, demanding state variables cannot be accessed by other flows while they are on-going. Developers do not anticipate such interference and fail to ensure(business level) atomicity. The reason of these bugs is that developers mistakenly think atomicity is guaranteed by the runtime and hence they do not need to be concerned.However, the runtime only ensures each transaction is atomic,and business flow atomicity, if needed, has to be ensured by the developers. Atomicity violations constitute 8.1% of the Code4rena bugs and 5.7% of real-world exploits. It is the least common bugs in auditing, and the second least in the wild.They are slightly harder to find(than the others), with 57% of bugs found by only one auditor. The reason is that it is difficult to determine business flows and if they need atomicity.
+
+## (C7) Contract Implementation Specific Bugs
+We find that 16% of the Code4rena bugs and 14% of the real-world exploits are implementation specific, meaning that they do not have a general oracle and unlikely appear in a different smart contract. They hence have a low priority because abstracting them may not provide as valuable guidance as the others.The Redacted Cartel bug in Figure 1 is an example.
+
+
+# Outline
+
+## **第一章：引言**
+- **背景**：智能合约中的可利用漏洞已造成巨大经济损失（截至2022年5月达15.7亿美元）。
+- **问题**：尽管已有大量漏洞检测技术（模糊测试、形式化验证等），但真实攻击仍频繁发生。
+- **核心观点**：智能合约漏洞多为**功能性/业务逻辑漏洞**，与传统软件漏洞（如缓冲区溢出）有本质区别，检测更困难。
+- **研究目标**：系统研究2021-2022年间的516个真实漏洞，分析其根本原因、分布、检测难度及修复策略。
+- **主要贡献**：
+  - 对最新漏洞进行大规模实证研究。
+  - 提出“机器可审计漏洞”与“机器不可审计漏洞”的分类。
+  - 通过研究成果指导实战审计，已发现15个零日漏洞。
+
+
+## **第二章：背景**
+- 介绍了以太坊、智能合约、Solidity、地址、代币（ERC20/721）等基本概念。
+- 通过**Redacted Cartel实例**说明一个典型的业务逻辑漏洞：
+  - `transferFrom`函数错误地更新了`to`的授权额度而非`msg.sender`。
+  - 强调此类漏洞难以被自动化工具检测，需理解业务语义。
+
+## **第三章：研究方法**
+- **研究问题**：
+  - **RQ1**：现有工具能检测哪些漏洞？覆盖率如何？
+  - **RQ2**：漏洞的审计难度如何？
+  - **RQ3**：MUBs的根因、分类与分布？
+  - **RQ4**：MUBs是否可抽象为自动化检测模型？
+- **数据来源**：
+  - **Code4rena审计竞赛**：341个高危漏洞。
+  - **真实攻击事件**：44个漏洞。
+- **有效性威胁**：
+  - 内部：多人交叉验证以减少误分类。
+  - 外部：数据代表性可能受限，但来源权威且覆盖最新漏洞。
+
+## **第四章：（RQ1）现有自动化工具的有效性**
+- **调查结果**：
+  - 总结了37种工具（模糊测试、静态分析等），涵盖17类**机器可审计漏洞**。
+  - 大多数工具依赖**通用、简单的检测规则**，无法处理业务逻辑漏洞。
+- **实证结果**：
+  - 仅**20%** 的漏洞可被现有工具检测。
+  - 使用Slither和Oyente进行测试，**无法检测任何MUB**。
+- **结论**：
+  - 现有工具在检测业务逻辑漏洞方面存在严重不足。
+  - 学习型工具（如ESCORT）潜力大，但缺乏MUB训练数据。
+
+## **第五章：（RQ2）漏洞审计难度**
+- **度量方法**：使用“同一漏洞被多少审计员报告”作为难度指标。
+- **发现**：
+  - 超过50%的漏洞（无论MAB还是MUB）仅被**1名审计员报告**。
+  - 说明大多数漏洞极难发现，工具与人工均面临挑战。
+- **启示**：漏洞难度分布相似，说明工具难以检测的漏洞对人类也同样困难。
+
+## **第六章：（RQ3）MUBs的分类与分布**
+- **7类MUBs**：
+  1. **C1-价格预言机操纵**：真实攻击中最常见（34%），造成损失最大。
+  2. **C2-错误记账**：审计中最常见（27%），业务公式实现错误。
+  3. **C3-ID唯一性违反**：访问控制绕过。
+  4. **C4-状态不一致更新**：相关状态变量未同步更新。
+  5. **C5-权限提升**：真实攻击中第二常见（23%）。
+  6. **C6-原子性违反**：业务流之间干扰。
+  7. **C7-实现特定漏洞**：无法抽象为通用模型。
+- **分布特征**：
+  - 不同DeFi项目类型倾向于出现特定类型的漏洞（如表6所示）。
+  - 例如：DEX项目中C2和C4最常见。
+
+## **第七章：（RQ4）MUBs的症状与修复**
+- **C1-价格预言机操纵**：
+  - 示例：Deus Finance漏洞（图5），因直接使用瞬时价格而被操纵。
+  - 修复：使用TWAP/VWAP等抗操纵预言机。
+- **C5-权限提升**：
+  - 示例：投票合约（图6），通过非常规路径绕过访问控制。
+  - 修复：补全缺失的访问检查。
+- **C6-原子性违反**：
+  - 示例：PancakeSwap彩票合约（图7），因未加锁导致前端攻击。
+  - 修复：使用锁机制确保业务流原子性。
+- **抽象模型**：
+  - 除C2和C7外，其余5类均可被抽象为通用漏洞模型，具备自动化检测潜力。
+
+## **第八章：指导性审计实践**
+- **成果**：
+  - 发现15个零日漏洞，获得$102,660奖金，保护$22.52M资金。
+  - 在Code4rena竞赛中多次排名第一。
+- **方法**：
+  - 基于研究发现制定审计策略（如重点检查C1和C5）。
+  - 开发半自动化工具（如路径生成器、语法模式扫描器）。
+
+## **第九章：相关 work**
+- 与以往研究对比：
+  - 早期研究多关注机器可审计漏洞（如重入、整数溢出）。
+  - 本文首次系统研究**机器不可审计漏洞**，并从多维度（分布、难度、抽象模型）进行分析。
+- 强调本研究的**新颖性**：聚焦最新、真实漏洞，并提供可操作的抽象模型。
+
+## **第十至十二章：数据可用性、结论与致谢**
+- **数据公开**：所有数据与补充材料已在GitHub开源。
+- **结论**：
+  - 智能合约漏洞中80%是机器不可审计的。
+  - 提出7类MUBs，其中5类可被抽象为检测模型。
+  - 研究成果已成功用于实战审计，证明其有效性。
+- **致谢**：感谢Forta Foundation的资助。
+

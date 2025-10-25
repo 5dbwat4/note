@@ -4,6 +4,7 @@ export default {
     name:"杂项",
     "subcategories":[
         "./kemu1",
+        "./QSC-train",
     ],
     "entries":[ ]
 }

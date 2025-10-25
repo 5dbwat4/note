@@ -1,0 +1,73 @@
+---
+title: Leftist Heaps and Skew Heaps
+---
+
+# A heap
+
+A heap is a special tree-based data structure that satisfies the heap property. The heap property states that for any given node $X$:
+
+- If $X$ is a max-heap, then the value of $X$ is greater than or equal to the values of its children.
+- If $X$ is a min-heap, then the value of $X$ is less than or equal to the values of its children.
+
+以Min-Heap为例：
+
+- FindMin: O(1)
+- DeleteMin: O(log N)
+- Insert: O(log N)
+- Delete from given position: O(log N)
+- Build Heap: O(N)
+- Merge: O(N)  (Binary Heap)
+
+Now we want a Merge operation that merges two heaps efficiently.
+
+
+
+# Leftist Heaps
+
+Target :  Speed up merging in O(N) to O(log N)
+
+Heap: Structure Property + Order Property
+
+Leftist Heap: 
+    - Order Property – the same
+    - Structure Property – binary tree, but unbalanced
+
+【Definition】The null path length, Npl(X), of any node X is the length of the shortest path from X to a node without two children.  Define Npl(NULL) = –1.
+
+Note: 
+Npl(X) = min \{ Npl(C) + 1 for all C as children of X \}
+
+【Definition】The leftist heap property is that for every node X in the heap, the null path length of the left child is at least as large as that of the right child.
+
+
+【Theorem】A leftist tree with r nodes on the right path must have at least 2r – 1 nodes.
+Proof: By induction on r.
+
+Trouble makers:  Insert and Merge
+Note: Insertion is merely a special case of merging.
+
+
+# Skew Heaps
+
+-- a simple version of the leftist heaps
+
+Target :  Any M consecutive operations take at most O(M log N) time.
+
+
+
+Merge: Always swap the left and right children except that the largest of all the nodes on the right paths does not have its children swapped.  No Npl.
+
+
+Note:   
+- Skew heaps have the advantage that no extra space is required to maintain path lengths and no tests are required to determine when to swap children.
+- It is an open problem to determine precisely the expected right path length of both leftist and skew heaps.
+
+
+### Amortized Analysis for Skew Heaps
+- Insert & Delete are just \textcolor{blue}{Merge}
+- $ T_{\text{amortized}} = O(\log N) $?
+- $ D_i = $ the root of the resulting tree
+- $ \Phi(D_i) = $ number of \textcolor{red}{heavy} nodes
+
+### 【Definition】
+A node $ p $ is \textcolor{red}{heavy} if the number of descendants of $ p $'s right subtree is at least half of the number of descendants of $ p $, and \textcolor{green}{light} otherwise. Note that the number of descendants of a node includes the node itself.

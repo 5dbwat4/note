@@ -186,7 +186,7 @@
                     "show": true,
                     "name": "GAMES101",
                     "leaf": true,
-                    "index": "c7a4d54e017a3f679654ab9c1072ee9226e9cf23909a0ec200a0c78ffb59c96d",
+                    "index": "84139f0e775b1fc2b545ecece2e87dc94fa3651ce147be2c45a7c9e91fa3afe0",
                     "entries": [
                         {
                             "title": "Assignment 0: 虚拟机的使用",
@@ -206,9 +206,9 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1757867993509,
-                            "wordcount": 28,
-                            "unikey": "c7a4d54e017a3f679654ab9c1072ee9226e9cf23909a0ec200a0c78ffb59c96d",
+                            "updatedAt": 1761377701994,
+                            "wordcount": 1,
+                            "unikey": "84139f0e775b1fc2b545ecece2e87dc94fa3651ce147be2c45a7c9e91fa3afe0",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -525,9 +525,58 @@
                         "Schoolwork/24B/CS1028M/SYS1-labs"
                     ],
                     "show": true,
-                    "name": "SYS-labs",
+                    "name": "SYS1-labs",
                     "leaf": true,
-                    "entries": []
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1760500051872,
+                            "wordcount": 3182,
+                            "unikey": "eae455e962f07140672b125d0dcaf1f2f02ef01984539ea7d4c70abfd9210661",
+                            "pathonly": false,
+                            "path": "lab0"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1760500054104,
+                            "wordcount": 2619,
+                            "unikey": "1ff9f2f05e591785a1ab90d54ff2bf24648925eb181ece3d38552d0d21986c4d",
+                            "pathonly": false,
+                            "path": "lab1"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1760500056418,
+                            "wordcount": 1507,
+                            "unikey": "eb1e6f6460bb29f9510c127ec8beb024b63f57fdde93d13566edc751ecfd1c1d",
+                            "pathonly": false,
+                            "path": "lab2"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1760500062287,
+                            "wordcount": 3819,
+                            "unikey": "3d53c1baf6bbc2199a03a96bef4ab8d02d2635d9a1495216957ec851547ae215",
+                            "pathonly": false,
+                            "path": "lab3"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1760500067086,
+                            "wordcount": 2114,
+                            "unikey": "a35ebc8d8fe583642bccef51ec9ea329a45bbcc5b5fdc7646a1f0ac23a7215da",
+                            "pathonly": false,
+                            "path": "lab4"
+                        },
+                        {
+                            "title": "project: 单周期 CPU 设计",
+                            "updatedAt": 1749245056371,
+                            "wordcount": 3176,
+                            "unikey": "1475503aaf5e18e1762ebcf6e9835527feadd271a000b9117e2460cb29e38a22",
+                            "pathonly": false,
+                            "path": "project"
+                        }
+                    ]
                 },
                 {
                     "path": [
@@ -1480,10 +1529,26 @@
                             "path": "o6-Inv-File-Index"
                         },
                         {
+                            "title": "Leftist Heaps and Skew Heaps",
+                            "updatedAt": 1761322770819,
+                            "wordcount": 429,
+                            "unikey": "eeff54127824c8a5e597261815a6a5321ad83a24b81f9487334c6732c07fa4f1",
+                            "pathonly": false,
+                            "path": "o7-Leftist-Skew-Heap"
+                        },
+                        {
+                            "title": "Binomial Queues",
+                            "updatedAt": 1761366715673,
+                            "wordcount": 0,
+                            "unikey": "bffc14c7b77ae97d810c945e5258f5d5e0357e1e47854a198ddc29c85b1d4e69",
+                            "pathonly": false,
+                            "path": "o8-Binomial-Queue"
+                        },
+                        {
                             "title": "ADS25Project(MYC)",
-                            "updatedAt": 1760325509751,
-                            "wordcount": 3714,
-                            "unikey": "47ac1db9fe25a5a24cc2ce436dd6d0d9f74a9856547c86648c15a3b461e1928e",
+                            "updatedAt": 1760369789727,
+                            "wordcount": 3688,
+                            "unikey": "011366a4e2d2e4f848eeacfae2c3855d1629c0af114f16c0eb356f54751a485a",
                             "pathonly": false,
                             "path": "projects-rec"
                         },
@@ -1522,6 +1587,24 @@
                             "unikey": "d80a47856888e7cfec6cd721e408928ab37ba6d6e1e33b1eef260801e1628214",
                             "pathonly": false,
                             "path": "S2"
+                        }
+                    ]
+                },
+                {
+                    "path": [
+                        "SYS2-labs"
+                    ],
+                    "show": true,
+                    "name": "SYS2-labs",
+                    "leaf": true,
+                    "entries": [
+                        {
+                            "title": "Lab 1 实验报告：基础五级流水线",
+                            "updatedAt": 1760663769934,
+                            "wordcount": 3149,
+                            "unikey": "31df6e5bd504b8a02c915e4b263aab96c58b07894f2b2ed4df3fd4af9b17ec9d",
+                            "pathonly": false,
+                            "path": "lab1"
                         }
                     ]
                 },
@@ -1570,13 +1653,13 @@
                     "show": true,
                     "name": "概率论和数理统计",
                     "leaf": true,
-                    "index": "4ebf76a9f3e1301c96ac877484afa43037b20401299054bdf3e738b25c296458",
+                    "index": "842f3e706c7b0379d248c5bf812e2354de93a346a5e04860df048689d97451b4",
                     "entries": [
                         {
                             "title": "",
-                            "updatedAt": 1759579939336,
-                            "wordcount": 631,
-                            "unikey": "4ebf76a9f3e1301c96ac877484afa43037b20401299054bdf3e738b25c296458",
+                            "updatedAt": 1761186776562,
+                            "wordcount": 881,
+                            "unikey": "842f3e706c7b0379d248c5bf812e2354de93a346a5e04860df048689d97451b4",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -1598,9 +1681,9 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1759591609850,
-                            "wordcount": 9528,
-                            "unikey": "846c2a8bd63fb0821832ac89c47d69daff12612deb6e75ff8fd2b2c848af0bdd",
+                            "updatedAt": 1760528916784,
+                            "wordcount": 12031,
+                            "unikey": "1f12c89f386fe283cc7df0d7346f57b2d670131941bb244e30c5bf5858822bb9",
                             "pathonly": false,
                             "path": "L2-raw"
                         },
@@ -1611,6 +1694,22 @@
                             "unikey": "6a92fb957217a80da0ade5d5a89be1119c1e66b6b9c88a5e5740a52b3675f799",
                             "pathonly": false,
                             "path": "L2"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1761122550269,
+                            "wordcount": 6487,
+                            "unikey": "3da85128078cf5f87cf40b298a35d52f60016d87ae4010aa304eac47db859040",
+                            "pathonly": false,
+                            "path": "L3-raw"
+                        },
+                        {
+                            "title": "Chapter 3 Multivariate Random Variables and Their Distributions",
+                            "updatedAt": 1761186624031,
+                            "wordcount": 432,
+                            "unikey": "a6c519cc88b803e04c656dacbea2285099d7620c24328399c0a32cb82f7f939b",
+                            "pathonly": false,
+                            "path": "L3"
                         },
                         {
                             "title": "",
@@ -1630,8 +1729,16 @@
                     "show": true,
                     "name": "普通物理学Ⅱ（H）",
                     "leaf": true,
-                    "index": "3980ce2f83fa76d44e787db419696cb56adb9f4e028752503e3a448693cbfc8e",
+                    "index": "9862eba961e57d886117eda4c00ccd24e6d2eff12998ef60e696b6370a923dba",
                     "entries": [
+                        {
+                            "title": "MATHEMATICAL FORMULAS",
+                            "updatedAt": 1761123489349,
+                            "wordcount": 983,
+                            "unikey": "6f2aaa29cd8870bfaa7dc9fef768a95b8bb062a8380435ed7a7f725c061982d1",
+                            "pathonly": false,
+                            "path": "APD-mathematical-formulars"
+                        },
                         {
                             "title": "Electric Charge and Coulomb’s Law (电荷和库仑定律)",
                             "updatedAt": 1758521843374,
@@ -1649,18 +1756,26 @@
                             "path": "Ch26"
                         },
                         {
+                            "title": "Gauss' Law",
+                            "updatedAt": 1760552236628,
+                            "wordcount": 655,
+                            "unikey": "48958b7192d89de49f3d0f42e802f6a54a34f17551dae900b1b4c0dec351982c",
+                            "pathonly": false,
+                            "path": "Ch27"
+                        },
+                        {
                             "title": "",
-                            "updatedAt": 1759081048405,
-                            "wordcount": 104,
-                            "unikey": "3980ce2f83fa76d44e787db419696cb56adb9f4e028752503e3a448693cbfc8e",
+                            "updatedAt": 1760946392594,
+                            "wordcount": 379,
+                            "unikey": "9862eba961e57d886117eda4c00ccd24e6d2eff12998ef60e696b6370a923dba",
                             "pathonly": true,
                             "path": "index"
                         },
                         {
                             "title": "",
-                            "updatedAt": 1759081344357,
+                            "updatedAt": 1760550618518,
                             "wordcount": 45,
-                            "unikey": "69f2dde3e55a4da2606beb0c95d6466edaebfdd3433f9ad806881274da6aa832",
+                            "unikey": "40f4f10c742f568a43a60ce70d14d01834642a46c4e982b4b82d2e5254f14318",
                             "pathonly": false,
                             "path": "recite"
                         },
@@ -2301,6 +2416,24 @@
                             "unikey": "8c2bc0488f9757fde2e455aa7627dd7bd42f1195fbd83e9496ff5ed883b5f794",
                             "pathonly": false,
                             "path": "rel-law-4"
+                        }
+                    ]
+                },
+                {
+                    "path": [
+                        "Misc/QSC-train"
+                    ],
+                    "show": true,
+                    "name": "QSC内训",
+                    "leaf": true,
+                    "entries": [
+                        {
+                            "title": "从JS操作DOM，到Modern Framework",
+                            "updatedAt": 1761377416958,
+                            "wordcount": 956,
+                            "unikey": "13f536bdc8313178100c7681c4377f88dc5698278af8809008978a21d159bd4f",
+                            "pathonly": false,
+                            "path": "JSDOM-to-Frameworks"
                         }
                     ]
                 }

@@ -9,6 +9,7 @@ export default {
         // "./Science",
         "./Schoolwork",
         "./Misc",
+        // "./Papers",
         "./example",
     ],
 }

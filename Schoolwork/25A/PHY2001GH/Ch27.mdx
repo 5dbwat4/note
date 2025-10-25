@@ -1,0 +1,118 @@
+---
+title: Gauss' Law
+---
+
+# 27-1 Introduction: Fundamental Law of Electrostatics(静电学)
+
+- Coulomb’s Law: Force between two point charges
+- Gauss’ Law: Relationship between Electric Fields and charges
+- Although Gauss’ law and Coulomb’s law give the identical results.
+- Gauss’ Law offers a much simpler way to calculate E in situations with a high degree of symmetry (高对称的情况).
+- Gauss’ Law as the fundamental law of electrostatics.
+- Gauss’ Law is valid in the case of rapidly moving charges.
+- Gauss’ Law is more general than Coulomb’s law.
+
+
+# 27-2(3) The Flux of a vector field, electric field
+
+1. Flux ($\Phi$) 流量(通量), 流体的流量
+
+- **定义**：How much of something is passing through some surface  
+  *例如：How many hairs passing through your scalp.*
+
+- **两种定义方式**：
+  1. **单位面积的数量**（例如：10 hairs/mm²）  
+     *This is **NOT** what we use here.*
+  2. **通过感兴趣区域的总数量**（例如：48,788 hairs passing through my scalp）  
+     *This is what we are using here.*
+
+求一求
+
+根据您提供的图片内容，以下是整理成的 Markdown + LaTeX 格式：
+
+# A Closed Surface (闭合曲面)
+
+## Flux Calculation Through a Closed Surface
+
+Surface Elements and Their Flux
+
+For each element of the closed surface, the flux is calculated as follows:
+
+$$ \Phi_{1}=\vec{v} \cdot \vec{A}_{1}=-v A_{1} $$
+
+$$ \Phi_{2}=\vec{v} \cdot \vec{A}_{2}=0 $$
+
+$$ \Phi_{3}=\vec{v} \cdot \vec{A}_{3}=v A_{3} \cos \theta $$
+
+$$ \Phi_{4}=\vec{v} \cdot \vec{A}_{4}=0 $$
+
+$$ \Phi_{5}=\vec{v} \cdot \vec{A}_{5}=0 $$
+
+Total Net Flux
+
+The total flux through the closed surface is the sum of all individual fluxes:
+
+$$ \Phi=\Phi_{1}+\Phi_{2}+\Phi_{3}+\Phi_{4}+\Phi_{5}=-v A_{1}+v A_{3} \cos \theta $$
+
+Key Physical Principle
+
+**For incompressible fluid in steady flow through a closed surface:**
+$$ \Phi=\sum\vec{v} \cdot \vec{A} = 0 $$
+
+
+For any closed surface, the net flux of an incompressible fluid in steady flow is zero.
+
+
+$$
+\Phi = \oiint \vec{v} \cdot d\vec{A} = 0
+$$
+
+
+如果在所述体积内存在一个流体的**源**（Source），则意味着有流体从体积内部产生并向外流出。
+
+此时，通过闭合曲面的**净通量大于零**：
+
+$$
+\Phi = \oiint\limits_{S} \vec{v} \cdot d\vec{A} > 0
+$$
+
+> **物理意义**：有净流体从闭合曲面内部流出。
+
+体积内存在汇 (Sink) 的情况
+
+如果在所述体积内存在一个流体的**汇**，则意味着流体在体积内部被吸收或消失。
+
+此时，通过闭合曲面的**净通量小于零**：
+
+$$
+\Phi = \oiint\limits_{S} \vec{v} \cdot d\vec{A} < 0
+$$
+
+> **物理意义**：有净流体流入闭合曲面内部。
+
+
+
+# 2. The Flux of the Electric Field (电通量)
+
+> Even although nothing is flowing in the electrostatic case, we still use the concept of field.
+
+Let's quantify previous discussion about field-line "counting".
+
+Definition: Electric Flux ($\Phi_E$)
+
+The electric flux $\Phi_E$ through the closed surface A is defined as:
+
+**Discrete form (for small area elements):**
+$$
+\Phi_{E} = \sum \vec{E} \cdot \vec{A}
+$$
+
+**Continuous form (integral form):**
+$$
+\Phi_{E} = \oiint \vec{E} \cdot d\vec{A}
+$$
+
+## Physical Interpretation
+
+- **The number of lines of electric field (电力线数目) passing through the closed surface A.**
+- Represents the "flow" of electric field through a surface, even though nothing is physically flowing in electrostatic situations.
