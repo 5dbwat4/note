@@ -1,0 +1,30 @@
+---
+title: "Slither: A Static Analysis Framework For Smart Contracts"
+---
+
+# 读论文
+
+Slither是一个静态分析框架，旨在帮助开发人员检测智能合约中的漏洞和优化代码。它通过对Solidity代码进行静态分析，识别潜在的安全问题和性能瓶颈，从而提高智能合约的安全性和效率。
+
+具体的说，它做了这两件事情：
+-  converting Solidity smart contracts into an intermediate representation called SlithIR （就是说将Solidity智能合约转换为一种称为SlithIR的中间表示（自己写了一个AST解析））
+- 审计  
+  - Automated vulnerability detection: a large variety of smart contract bugs can be detected without user intervention.
+  - Automated optimization detection: Slither detects code optimizations that the compiler misses [5].
+  - Code understanding: printers summarize and display contracts’ information to aid in the study of the codebase.
+  - Assisted code review: through its API, a user can interact with Slither.
+
+我的看法是，它的创新点在于这个SlithIR中间表示，能够更好地捕捉Solidity语言的特性（这个还没看，但是我估计应该能做到和`clang --dump-ast`类似的程度，不然后面不好开展）
+
+> While modern compilers, such as clang, offer various APIs on top of which third-party analyzers can be built, the Solidity compiler fails to offer the same features. Ideally, a static analysis framework for Ethereum smart contracts should have the following properties...
+
+
+
+然后就是想到那一堆detector（ https://github.com/crytic/slither/wiki/Detector-Documentation ），我的看法是这一堆东西，没干过很多智能合约开发的人估计难想到。（基于AST来实现这些detector倒不是很困难）
+
+就这个：
+> We also found that SmartCheck and Solhint have a large number of false positives *due to a lack of in-depth understanding of Solidity*. For example, the Solidity attribute super, which  allows calling an inherited function, is taken as an external call by these tools.
+确实是心服口服
+
+用Binary Exp来类比，假设我要做一个静态分析工具，我会先写一个AST parser（`clang --dump-ast`），然后我就开始回想Binary Exp有哪些类型，基于这个AST写detector（比如找变量未初始化，找死代码，找gets之类的）。
+

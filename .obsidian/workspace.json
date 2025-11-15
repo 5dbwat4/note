@@ -1,0 +1,215 @@
+{
+  "main": {
+    "id": "ba4beb41893f6ec7",
+    "type": "split",
+    "children": [
+      {
+        "id": "9c088696f588ed0d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7e803fe19eb67c17",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Schoolwork/25A/PHY2001GH/recite.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "recite"
+            }
+          },
+          {
+            "id": "dca17ae90380b1ca",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Schoolwork/25A/PHY2001GH/bookcache/ch32.md",
+                "mode": "preview",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "ch32"
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "6f43c9f3af2e77f9",
+    "type": "split",
+    "children": [
+      {
+        "id": "6438e0db236e47ce",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "959499fc37d4ba9d",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "63a9483755158110",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "6b4140c875f22189",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 200,
+    "collapsed": true
+  },
+  "right": {
+    "id": "47a9ad9b157d1c88",
+    "type": "split",
+    "children": [
+      {
+        "id": "360bad5080d5e4fe",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ff0b14a49e36b991",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Schoolwork/25A/PHY2001GH/bookcache/ch26.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for ch26"
+            }
+          },
+          {
+            "id": "f3cebb8f9117c2df",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Schoolwork/25A/PHY2001GH/bookcache/ch26.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from ch26"
+            }
+          },
+          {
+            "id": "6c51499a651c0630",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "6181835daa503b6e",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Schoolwork/25A/PHY2001GH/bookcache/ch26.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of ch26"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "bases:Create new base": false,
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "dca17ae90380b1ca",
+  "lastOpenFiles": [
+    "Schoolwork/25A/PHY2001GH/bookcache/image-46.png",
+    "Schoolwork/25A/PHY2001GH/bookcache/image-45.png",
+    "Schoolwork/25A/PHY2001GH/bookcache/image-44.png",
+    "Schoolwork/25A/PHY2001GH/bookcache/image-43.png",
+    "Schoolwork/25A/PHY2001GH/bookcache/image-42.png",
+    "Schoolwork/25A/PHY2001GH/bookcache/image-41.png",
+    "Schoolwork/25A/PHY2001GH/bookcache/image-40.png",
+    "Schoolwork/25A/PHY2001GH/bookcache/image-39.png",
+    "Schoolwork/25A/PHY2001GH/bookcache/image-38.png",
+    "Schoolwork/25A/PHY2001GH/bookcache/image-37.png",
+    "Schoolwork/25A/PHY2001GH/bookcache/ch33.md",
+    "Schoolwork/25A/PHY2001GH/bookcache/ch32.md",
+    "Schoolwork/25A/PHY2001GH/bookcache/ch31.md",
+    "Schoolwork/25A/PHY2001GH/bookcache/ch30.md",
+    "Schoolwork/25A/PHY2001GH/recite.md",
+    "Schoolwork/25A/PHY2001GH/bookcache/ch29.md",
+    "Schoolwork/25A/PHY2001GH/bookcache/image-36.png",
+    "Schoolwork/25A/PHY2001GH/bookcache/ch27.md",
+    "Schoolwork/25A/PHY2001GH/bookcache/ch28.md",
+    "Schoolwork/25A/PHY2001GH/bookcache/ch26.md",
+    "Schoolwork/25A/PHY2001GH/bookcache/ch25.md",
+    "Untitled.base",
+    "Untitled 1.base",
+    "Schoolwork/int-table.md"
+  ]
+}

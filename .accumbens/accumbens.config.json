@@ -1462,7 +1462,7 @@
                     "show": true,
                     "name": "高级数据结构与算法分析",
                     "leaf": true,
-                    "index": "b82f91b554575b73328b1eec675b119d5115c123be60d0b72ff039873c5d0c44",
+                    "index": "1448f7da3a3131f68f7d404152f5d85f51a3b49da39df378d7f62e920a8f471d",
                     "entries": [
                         {
                             "title": "PTA Review",
@@ -1474,9 +1474,9 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1760325572162,
-                            "wordcount": 384,
-                            "unikey": "b82f91b554575b73328b1eec675b119d5115c123be60d0b72ff039873c5d0c44",
+                            "updatedAt": 1762365229883,
+                            "wordcount": 390,
+                            "unikey": "1448f7da3a3131f68f7d404152f5d85f51a3b49da39df378d7f62e920a8f471d",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -1487,6 +1487,22 @@
                             "unikey": "f1f93ed5881a4fcd80ffb392cbbca0a439fd318bc79e0fd892d408d43d91aabe",
                             "pathonly": false,
                             "path": "o1-AVL-Tree"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1762365253598,
+                            "wordcount": 0,
+                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "pathonly": false,
+                            "path": "o10-devide-conquer"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1762365809956,
+                            "wordcount": 0,
+                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "pathonly": false,
+                            "path": "o11-dp"
                         },
                         {
                             "title": "Red-Black Tree",
@@ -1543,6 +1559,14 @@
                             "unikey": "bffc14c7b77ae97d810c945e5258f5d5e0357e1e47854a198ddc29c85b1d4e69",
                             "pathonly": false,
                             "path": "o8-Binomial-Queue"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1761587202535,
+                            "wordcount": 0,
+                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "pathonly": false,
+                            "path": "o9-backtracing"
                         },
                         {
                             "title": "ADS25Project(MYC)",
@@ -1605,6 +1629,22 @@
                             "unikey": "31df6e5bd504b8a02c915e4b263aab96c58b07894f2b2ed4df3fd4af9b17ec9d",
                             "pathonly": false,
                             "path": "lab1"
+                        },
+                        {
+                            "title": "Lab 2 实验报告：竞争处理及 AXI4-lite 总线内存模型",
+                            "updatedAt": 1762528985888,
+                            "wordcount": 3121,
+                            "unikey": "141ccef11debf8046ce09ca219f9621f58766a045a21ee4077996053a6e3c502",
+                            "pathonly": false,
+                            "path": "lab2"
+                        },
+                        {
+                            "title": "Lab 3 实验报告：卷积加速器",
+                            "updatedAt": 1763106004265,
+                            "wordcount": 1203,
+                            "unikey": "9d5b7abf751fd5ee5d6e368ae2553c5f5bba95835a4b091864cb2051e99c8056",
+                            "pathonly": false,
+                            "path": "lab3"
                         }
                     ]
                 },
@@ -1652,7 +1692,66 @@
                     ],
                     "show": true,
                     "name": "概率论和数理统计",
-                    "leaf": true,
+                    "subcategories": [
+                        {
+                            "path": [
+                                "Schoolwork/MATH2461FZ/HW"
+                            ],
+                            "show": true,
+                            "name": "作业",
+                            "leaf": true,
+                            "entries": [
+                                {
+                                    "title": "",
+                                    "updatedAt": 1761473084937,
+                                    "wordcount": 26,
+                                    "unikey": "091e19817cef52afcb7afa34bef88e8576a0b82987e83e33e482e17b1374d554",
+                                    "pathonly": false,
+                                    "path": "W1"
+                                },
+                                {
+                                    "title": "",
+                                    "updatedAt": 1761473089162,
+                                    "wordcount": 26,
+                                    "unikey": "15625cba7158b41e58b901e7cc66fc405bf61e3e307de69c98748f3c8ffe8774",
+                                    "pathonly": false,
+                                    "path": "W2"
+                                },
+                                {
+                                    "title": "",
+                                    "updatedAt": 1761473093367,
+                                    "wordcount": 31,
+                                    "unikey": "7e9083afec27f0a9b76c852de4656451ad0e1e519ab953fa316e6f0b744187f7",
+                                    "pathonly": false,
+                                    "path": "W3"
+                                },
+                                {
+                                    "title": "",
+                                    "updatedAt": 1761473096946,
+                                    "wordcount": 31,
+                                    "unikey": "ebe276a2174694df2e5fd4b649dff291ba23be2942562e04ce6c866164bcbab4",
+                                    "pathonly": false,
+                                    "path": "W4"
+                                },
+                                {
+                                    "title": "",
+                                    "updatedAt": 1761473100625,
+                                    "wordcount": 41,
+                                    "unikey": "f8f396dafeaf751f6ebbffedc59b72142f97f67f5f3964aec2b7166b19d80f96",
+                                    "pathonly": false,
+                                    "path": "W5"
+                                },
+                                {
+                                    "title": "",
+                                    "updatedAt": 1761473104930,
+                                    "wordcount": 51,
+                                    "unikey": "9434593af1bee7e2238a1d82f862d0474540c841b358f4bccc0033b1a0f0695f",
+                                    "pathonly": false,
+                                    "path": "W6"
+                                }
+                            ]
+                        }
+                    ],
                     "index": "842f3e706c7b0379d248c5bf812e2354de93a346a5e04860df048689d97451b4",
                     "entries": [
                         {
@@ -1689,25 +1788,25 @@
                         },
                         {
                             "title": "Chapter 2 Random Variables and Distributions",
-                            "updatedAt": 1759592073407,
-                            "wordcount": 830,
-                            "unikey": "6a92fb957217a80da0ade5d5a89be1119c1e66b6b9c88a5e5740a52b3675f799",
+                            "updatedAt": 1761415399223,
+                            "wordcount": 1379,
+                            "unikey": "25ee91b9b80b174ca2d54f9c55fb7fc9dee0e74efef31acb8a2e070c2cebc385",
                             "pathonly": false,
                             "path": "L2"
                         },
                         {
                             "title": "",
-                            "updatedAt": 1761122550269,
-                            "wordcount": 6487,
-                            "unikey": "3da85128078cf5f87cf40b298a35d52f60016d87ae4010aa304eac47db859040",
+                            "updatedAt": 1762066062426,
+                            "wordcount": 13382,
+                            "unikey": "81d6e4f97dbbfa407773308f2614bd06f6700113ee07e86253ba56738588d2fd",
                             "pathonly": false,
                             "path": "L3-raw"
                         },
                         {
                             "title": "Chapter 3 Multivariate Random Variables and Their Distributions",
-                            "updatedAt": 1761186624031,
-                            "wordcount": 432,
-                            "unikey": "a6c519cc88b803e04c656dacbea2285099d7620c24328399c0a32cb82f7f939b",
+                            "updatedAt": 1762067346060,
+                            "wordcount": 937,
+                            "unikey": "92230288be6ba0a15dee4bad91bdfe4e36624492940bdea486808c71a048cf17",
                             "pathonly": false,
                             "path": "L3"
                         },
@@ -1723,13 +1822,71 @@
                 },
                 {
                     "path": [
+                        "Schoolwork/MATH2461FZ/HW"
+                    ],
+                    "show": true,
+                    "name": "作业",
+                    "leaf": true,
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1761473084937,
+                            "wordcount": 26,
+                            "unikey": "091e19817cef52afcb7afa34bef88e8576a0b82987e83e33e482e17b1374d554",
+                            "pathonly": false,
+                            "path": "W1"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1761473089162,
+                            "wordcount": 26,
+                            "unikey": "15625cba7158b41e58b901e7cc66fc405bf61e3e307de69c98748f3c8ffe8774",
+                            "pathonly": false,
+                            "path": "W2"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1761473093367,
+                            "wordcount": 31,
+                            "unikey": "7e9083afec27f0a9b76c852de4656451ad0e1e519ab953fa316e6f0b744187f7",
+                            "pathonly": false,
+                            "path": "W3"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1761473096946,
+                            "wordcount": 31,
+                            "unikey": "ebe276a2174694df2e5fd4b649dff291ba23be2942562e04ce6c866164bcbab4",
+                            "pathonly": false,
+                            "path": "W4"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1761473100625,
+                            "wordcount": 41,
+                            "unikey": "f8f396dafeaf751f6ebbffedc59b72142f97f67f5f3964aec2b7166b19d80f96",
+                            "pathonly": false,
+                            "path": "W5"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1761473104930,
+                            "wordcount": 51,
+                            "unikey": "9434593af1bee7e2238a1d82f862d0474540c841b358f4bccc0033b1a0f0695f",
+                            "pathonly": false,
+                            "path": "W6"
+                        }
+                    ]
+                },
+                {
+                    "path": [
                         "Schoolwork/PHY2001GH",
                         "Phy/PHY2001GH"
                     ],
                     "show": true,
                     "name": "普通物理学Ⅱ（H）",
                     "leaf": true,
-                    "index": "9862eba961e57d886117eda4c00ccd24e6d2eff12998ef60e696b6370a923dba",
+                    "index": "f256042f2f39d6c27d7820507258500fdbf500bf77fcf62b715ee150ace77d8f",
                     "entries": [
                         {
                             "title": "MATHEMATICAL FORMULAS",
@@ -1740,10 +1897,18 @@
                             "path": "APD-mathematical-formulars"
                         },
                         {
+                            "title": "",
+                            "updatedAt": 1762620945186,
+                            "wordcount": 7,
+                            "unikey": "e3cdd9b2ee3643812d6dcbaf0fbff271fbc5988f2e1642893d5b20c73675ab86",
+                            "pathonly": false,
+                            "path": "bookcache"
+                        },
+                        {
                             "title": "Electric Charge and Coulomb’s Law (电荷和库仑定律)",
-                            "updatedAt": 1758521843374,
-                            "wordcount": 3170,
-                            "unikey": "ab5f369dffe5434108f79cb93b11d382a35dff4a6b0ee2f9b904e13e299650c9",
+                            "updatedAt": 1762622225287,
+                            "wordcount": 3224,
+                            "unikey": "6443c9cc38e3f1a23674470bd45de99f3a92f641bb3a22ee031e7dac242442f2",
                             "pathonly": false,
                             "path": "Ch25"
                         },
@@ -1764,18 +1929,34 @@
                             "path": "Ch27"
                         },
                         {
+                            "title": "Electric Potential Energy and Potential (电势能和电势)",
+                            "updatedAt": 1761474932525,
+                            "wordcount": 156,
+                            "unikey": "af9bb0f30c666ca09fc7cdaa229d76c18adf69563acdb281cd31f4b40de65d54",
+                            "pathonly": false,
+                            "path": "Ch28"
+                        },
+                        {
                             "title": "",
-                            "updatedAt": 1760946392594,
-                            "wordcount": 379,
-                            "unikey": "9862eba961e57d886117eda4c00ccd24e6d2eff12998ef60e696b6370a923dba",
+                            "updatedAt": 1761473964068,
+                            "wordcount": 0,
+                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "pathonly": false,
+                            "path": "Ch29-30"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1761474933765,
+                            "wordcount": 386,
+                            "unikey": "f256042f2f39d6c27d7820507258500fdbf500bf77fcf62b715ee150ace77d8f",
                             "pathonly": true,
                             "path": "index"
                         },
                         {
                             "title": "",
-                            "updatedAt": 1760550618518,
-                            "wordcount": 45,
-                            "unikey": "40f4f10c742f568a43a60ce70d14d01834642a46c4e982b4b82d2e5254f14318",
+                            "updatedAt": 1762694534589,
+                            "wordcount": 541,
+                            "unikey": "03daee6522f518302d5ccc7d13017d13d280e8655a40c752e9477b8d3e3e5907",
                             "pathonly": false,
                             "path": "recite"
                         },
@@ -2341,15 +2522,23 @@
                     ]
                 }
             ],
-            "index": "f0f2407620070982b3acfcca9b3e6a123a6b2e1bc58eea6f29315f974fdf4810",
+            "index": "be28b0df8a0d47064f5f31f1f0359df7c683903419bf7305b7085fe3c8a0a49b",
             "entries": [
                 {
                     "title": "学在浙大",
-                    "updatedAt": 1759248435607,
+                    "updatedAt": 1762066450657,
                     "wordcount": 234,
-                    "unikey": "f0f2407620070982b3acfcca9b3e6a123a6b2e1bc58eea6f29315f974fdf4810",
+                    "unikey": "be28b0df8a0d47064f5f31f1f0359df7c683903419bf7305b7085fe3c8a0a49b",
                     "pathonly": true,
                     "path": "index"
+                },
+                {
+                    "title": "",
+                    "updatedAt": 1762627323287,
+                    "wordcount": 3834,
+                    "unikey": "ec02f095ab752e52f9a7620761c04d5dcde03ab8194ddd51128558fad7a61fd9",
+                    "pathonly": false,
+                    "path": "int-table"
                 }
             ]
         },

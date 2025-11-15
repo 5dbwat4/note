@@ -18,6 +18,8 @@ $$ 5.\oint\vec{B}\cdot d\vec{l}=\mu_{0}I+\mu_{0}\varepsilon_{0}\frac{d\Phi_{E}}{
 
 - [Electric Charge and Coulomb’s Law (电荷和库仑定律)](Ch25)
 - [Electric Fields (电场)](Ch26)
+- [Gauss' Law (高斯定律)](Ch27)
+
 
 
 ----

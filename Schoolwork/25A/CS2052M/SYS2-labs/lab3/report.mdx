@@ -1,0 +1,410 @@
+---
+title: "Lab 3 实验报告：卷积加速器"
+---
+
+import Asciinema from '@md-components/AsciinemaWrapper.vue'
+
+import { NImage } from 'naive-ui'
+
+实验文档：https://zju-sys.pages.zjusct.io/sys2/sys2-fa25/lab3/
+
+# 实验目的
+
+- 理解和掌握 MMIO 的外设控制方式
+- 理解加速器的原理与意义
+- 体会硬件实现和软件编程实现的区别
+
+# 实验过程
+
+## 使用卷积加速器进行一维卷积运算
+
+```c
+void conv_kernel_init(const uint64_t* kernel_array, size_t kernel_len) {
+    for (size_t i = 0; i < kernel_len; i++) {
+        *(CONV_BASE + CONV_KERNEL_OFFSET) = kernel_array[i];
+    }
+}
+
+// 计算单个字节的卷积
+void conv_compute_one_byte(uint64_t data, uint64_t* result_hi, uint64_t* result_lo) {
+    *(CONV_BASE + CONV_DATA_OFFSET) = data;
+    while ((*(CONV_BASE + CONV_STATE_OFFSET) & READY_MASK) == 0);
+    *result_lo = *(CONV_BASE + CONV_RESULT_LO_OFFSET);
+    *result_hi = *(CONV_BASE + CONV_RESULT_HI_OFFSET);
+}
+
+void conv_compute(const uint64_t* data_array, size_t data_len, 
+	const uint64_t* kernel_array, size_t kernel_len, uint64_t* dest){
+    conv_kernel_init(kernel_array, kernel_len);
+    for (size_t i = 0; i < kernel_len-1; i++) {
+        conv_compute_one_byte(0, 0, 0);
+    }
+    for (size_t i = 0; i < data_len; i++) {
+        uint64_t data;
+        data = data_array[i];
+        uint64_t result_hi, result_lo;
+        conv_compute_one_byte(data, &result_hi, &result_lo);
+
+        dest[i << 1] = result_hi;      
+        dest[(i << 1) + 1] = result_lo;
+    }
+    for (size_t i = data_len; i < data_len+kernel_len-1; i++) {
+
+        uint64_t result_hi, result_lo;
+        conv_compute_one_byte(0, &result_hi, &result_lo);
+
+        dest[i << 1] = result_hi;       
+        dest[(i << 1) + 1] = result_lo; 
+    }
+}
+```
+
+
+## 使用整数指令进行一维卷积运算
+
+由于没有128为整数指令，我们需要首先用64位加法实现128位加法：
+
+```c
+void add_128(uint64_t a_hi, uint64_t a_lo, uint64_t b_hi, uint64_t b_lo, 
+	uint64_t* result_hi, uint64_t* result_lo) {
+    uint64_t lo = a_lo + b_lo;
+    uint64_t carry = (lo < a_lo) ? 1ULL : 0ULL;
+    uint64_t hi = a_hi + b_hi + carry;
+    *result_hi = hi;
+    *result_lo = lo;
+}
+```
+
+然后我们也没有乘法指令，所以要用加法来实现乘法：
+
+
+```c
+void mul_128(const uint64_t a, const uint64_t b, uint64_t* result_hi, uint64_t* result_lo) {
+    uint64_t res_hi = 0;
+    uint64_t res_lo = 0;
+
+    uint64_t cur_hi = 0;
+    uint64_t cur_lo = a;
+
+    uint64_t bb = b;
+    while (bb) {
+        // use add_128 to add cur to res if the lowest bit of bb is 1
+        if (bb & 1) {
+            uint64_t new_res_hi, new_res_lo;
+            add_128(res_hi, res_lo, cur_hi, cur_lo, &new_res_hi, &new_res_lo);
+            res_hi = new_res_hi;
+            res_lo = new_res_lo;
+        }
+        // shift cur left by 1
+        uint64_t new_cur_hi = (cur_hi << 1) | (cur_lo >> 63);
+        uint64_t new_cur_lo = cur_lo << 1;
+        cur_hi = new_cur_hi;
+        cur_lo = new_cur_lo;
+        // shift bb right by 1
+        bb >>= 1;
+    }
+    *result_hi = res_hi;
+    *result_lo = res_lo;
+}
+```
+
+最后实现卷积函数：
+
+```c
+void mul_compute(const uint64_t* data_array, size_t data_len, 
+          const uint64_t* kernel_array, size_t kernel_len, 
+          uint64_t* dest) {
+
+    
+    for (size_t i = 0; i < data_len+2*(kernel_len-1); i++) {
+        uint64_t sum_hi = 0;
+        uint64_t sum_lo = 0;
+
+        for (size_t j = 0; j < kernel_len; j++) {
+            if(j > i) {
+                continue;
+            }
+            if(i - j >= data_len) {
+                continue;
+            }
+            size_t data_index = i - j;
+            uint64_t data = data_array[data_index];
+            uint64_t kernel_val = kernel_array[kernel_len-j-1];
+            // printf("data_index: %zu, data: %016llx, kernel_val: %016llx\n", data_index, data, kernel_val);
+
+            uint64_t mul_hi = 0;
+            uint64_t mul_lo = 0;
+            mul_128(data, kernel_val, &mul_hi, &mul_lo);
+
+            add_128(sum_hi, sum_lo, mul_hi, mul_lo, &sum_hi, &sum_lo);
+        }
+        dest[i << 1] = sum_hi;
+        dest[(i << 1) + 1] = sum_lo;
+        
+    }
+}
+```
+
+
+## 优化调试过程
+
+### 仿真太慢咋办
+
+可以先把实现的`mul_compute`函数以及相关的辅助函数放到另外一个文件中，比如`test.c`，然后将`main.c`中的`main`函数以及对数据的定义也挪到这个文件里，直接用gcc编译运行，这样就不需要每次都跑仿真了，而且可以使用`printf`来调试，比如打印中间变量的值，也可以使用`gdb`来调试。
+
+等到在主机上运行输出结果正确后，可以确保软件部分是正确的
+
+此时再把代码拷贝回`main.c`/`conv.c`中进行仿真。
+
+### 仍然炸了怎么办
+
+在`conv.c`中添加类似`printf`的调试输出：
+
+```diff
+#include "conv.h"
+#include "uart.h"
++ void print_str(const char* str);
++ void print_hex(uint64_t data);
++ void print_array(const uint64_t* array, size_t len);
+
+typedef unsigned long long int size_t;
+uint64_t* CONV_BASE = (uint64_t*)0x10001000L;
+const size_t CONV_KERNEL_OFFSET = 0;
+
+......
+
+void mul_compute(const uint64_t* data_array, size_t data_len, 
+          const uint64_t* kernel_array, size_t kernel_len, 
+          uint64_t* dest) {
+
+    
+    for (size_t i = 0; i < data_len+2*(kernel_len-1); i++) {
+        uint64_t sum_hi = 0;
+        uint64_t sum_lo = 0;
+
+        for (size_t j = 0; j < kernel_len; j++) {
+            if(j > i) {
+                continue;
+            }
+            if(i - j >= data_len) {
+                continue;
+            }
+            size_t data_index = i - j;
+            uint64_t data = data_array[data_index];
+            uint64_t kernel_val = kernel_array[kernel_len-j-1];
+
+
+            uint64_t mul_hi = 0;
+            uint64_t mul_lo = 0;
+            mul_128(data, kernel_val, &mul_hi, &mul_lo);
++           print_str("ttx:");
++           print_hex(mul_hi);
++           uart_tx(',');
++           print_hex(mul_lo);
++           uart_tx('\n');
+            // printf("mul_hi: %016llx, mul_lo: %016llx\n", mul_hi, mul_lo);
+            
+            // 累加到总和
+            add_128(sum_hi, sum_lo, mul_hi, mul_lo, &sum_hi, &sum_lo);
++           print_str("sum:");
++           print_hex(sum_hi);
++           uart_tx(',');
++           print_hex(sum_lo);
++           uart_tx('\n');
+        }
+        dest[i << 1] = sum_hi;
+        dest[(i << 1) + 1] = sum_lo;
++       print_str("commit");
++       print_hex((uint64_t)i);
++       uart_tx(':');
++       print_hex(sum_hi);
++       uart_tx(',');
++       print_hex(sum_lo);
++       uart_tx('|');
++       print_hex(dest[i << 1]);
++       uart_tx(',');
++       print_hex(dest[(i << 1) + 1]);
+
+        
+    }
+}
+```
+
+可以有助于定位问题出现的位置。
+
+## 上板结果
+
+串口返回
+
+```
+kernel_array:
+
+f55d9d0a1680b66a,946b1f6531fac827,6cb756d5576cc9a0,c8b14a7d2222601b,
+
+data_array:
+
+6b4d6751dfdce04c,78fcc0533e3a968b,16351ce76439e504,7136316864aeab1d,
+
+51f81732140fd91c,7a535be738ecc350,7e71712b5a1a573c,74dcd61d9a70a1c7,
+
+ef57ec09ecfcf060,f0e9ac148b47b525,b615d8a600ab25b1,657ade83d39783db,
+
+2fb4f2dd4fa50429,336e54fbf8783c37,311dddf42e319579,d74761d9a97755b3,
+
+conv time: 0000000000004398 cycle
+result_conv_array:
+
+541ec875397824eb,8cbf27d152802804,8c6ac08708092a68,40e6c057c74fdc29,
+
+82ffccdc9c28eda1,5206c5721f136ce0,0f2c1e31e20e6943,1ab145a60b52a134,
+
+f12ca9383a38dfda,9108f58e45fd483e,d9a0dca4266ce40e,6b186f2d686bac03,
+
+331af5118b828f38,59414421ba63009a,26cba84710fbc1bf,07c5b0b3daf06045,
+
+abd04e4b2f2fd287,ef2185bbc3959ec4,df734736f2b2d92c,fef5c63fb4887b10,
+
+efd359158dbe079a,062b6e50f392b2d1,0df47573df3304b8,af4c111630f1d81c,
+
+a0f777ed161092b0,bdc06e8d705e817c,25ef4f0c8531ccdf,e2a20a7fec636414,
+
+b945003d6b4be9c5,54f5ded43862ea10,092b8f11f89ba978,3092c448c6bf99dc,
+
+a931821dd62a3a2e,836e51f9b2f97115,abe2e5340c824182,3e60ae6d833bd05f,
+
+ce5609a31dfa744c,c3c35fa13dd6be1e,
+
+mul time: 00000000054ea394 cycle
+result_mul_array:
+
+541ec875397824eb,8cbf27d152802804,8c6ac08708092a68,40e6c057c74fdc29,
+
+82ffccdc9c28eda1,5206c5721f136ce0,0f2c1e31e20e6943,1ab145a60b52a134,
+
+f12ca9383a38dfda,9108f58e45fd483e,d9a0dca4266ce40e,6b186f2d686bac03,
+
+331af5118b828f38,59414421ba63009a,26cba84710fbc1bf,07c5b0b3daf06045,
+
+abd04e4b2f2fd287,ef2185bbc3959ec4,df734736f2b2d92c,fef5c63fb4887b10,
+
+efd359158dbe079a,062b6e50f392b2d1,0df47573df3304b8,af4c111630f1d81c,
+
+a0f777ed161092b0,bdc06e8d705e817c,25ef4f0c8531ccdf,e2a20a7fec636414,
+
+b945003d6b4be9c5,54f5ded43862ea10,092b8f11f89ba978,3092c448c6bf99dc,
+
+a931821dd62a3a2e,836e51f9b2f97115,abe2e5340c824182,3e60ae6d833bd05f,
+
+ce5609a31dfa744c,c3c35fa13dd6be1e,
+```
+
+
+# 思考题
+
+## 无法通过验收体现的问题和解决方法
+
+### 代码段内存过大导致对非法地址访存
+
+遇到了
+
+
+```
+...
+core   0: 0x00000000000000e8 (0x00000013) nop
+core   0: 3 0x00000000000000e8 (0x00000013)
+core   0: 0x00000000000000ec (0x00000013) nop
+core   0: 3 0x00000000000000ec (0x00000013)
+trap except read operation, read addr is 0000000000001008
+core   0: 0x00000000000000f0 (0x01813083) ld      ra, 24(sp)
+core   0: 3 0x00000000000000f0 (0x01813083) x1  0x00000000000001d4 mem 0x0000000000001008
+[error] WDATA SIM 00000000000001d4, DUT ffffffffffffffff
+[error] 00000000000000f0@01813083 check board clear 1 error
+ft0 = 0x0000000000000000 ft1 = 0x0000000000000000 ft2 = 0x0000000000000000 ft3 = 0x0000000000000000
+ft4 = 0x0000000000000000 ft5 = 0x0000000000000000 ft6 = 0x0000000000000000 ft7 = 0x0000000000000000
+fs0 = 0x0000000000000000 fs1 = 0x0000000000000000 fa0 = 0x0000000000000000 fa1 = 0x0000000000000000
+fa2 = 0x0000000000000000 fa3 = 0x0000000000000000 fa4 = 0x0000000000000000 fa5 = 0x0000000000000000
+fa6 = 0x0000000000000000 fa7 = 0x0000000000000000 fs2 = 0x0000000000000000 fs3 = 0x0000000000000000
+fs4 = 0x0000000000000000 fs5 = 0x0000000000000000 fs6 = 0x0000000000000000 fs7 = 0x0000000000000000
+fs8 = 0x0000000000000000 fs9 = 0x0000000000000000 fs10 = 0x0000000000000000 fs11 = 0x0000000000000000
+ft8 = 0x0000000000000000 ft9 = 0x0000000000000000 ft10 = 0x0000000000000000 ft11 = 0x0000000000000000
+x0 = 0x0000000000000000 ra = 0x00000000000001d4 sp = 0x0000000000000ff0 gp = 0x0000000000000000
+tp = 0x0000000000000000 t0 = 0x0000000000000000 t1 = 0x0000000000000000 t2 = 0x0000000000000000
+s0 = 0x0000000000001010 s1 = 0x0000000000000000 a0 = 0x000000000000000d a1 = 0x0000000000000000
+a2 = 0x0000000000000000 a3 = 0x0000000000000000 a4 = 0x000000000000000d a5 = 0x0000000000000000
+a6 = 0x0000000000000000 a7 = 0x0000000000000000 s2 = 0x0000000000000000 s3 = 0x0000000000000000
+s4 = 0x0000000000000000 s5 = 0x0000000000000000 s6 = 0x0000000000000000 s7 = 0x0000000000000000
+s8 = 0x0000000000000000 s9 = 0x0000000000000000 s10 = 0x0000000000000000 s11 = 0x0000000000000000
+t3 = 0x0000000000000000 t4 = 0x0000000000000000 t5 = 0x0000000000000000 t6 = 0x0000000000000000
+[CJ]           0 int register write Judge Failed
+```
+
+感觉像是做这个实验必遇到一次的问题，参考[Lab3: make conv时由于代码段内存过大导致对非法地址访存问题的解决方案 (#29) · Issue · zju-sys/sys2/sys2-fa24](https://git.zju.edu.cn/zju-sys/sys2/sys2-fa24/-/issues/29)的解决方案，将代码段大小从`0x1000`改为`0x2000`后问题解决。
+
+### 仿真跑不完
+
+遇到的问题是仿真时间过长，无法在设定时间内跑完。具体表现在输出时输出了一部分正确结果后直接verilator finish退出。
+
+解决方法是修改`testbensh.sv`中的`max_sim_cycle`参数：
+
+```verilog
+	localparam max_sim_cycle = 32'd...;
+```
+
+可以把这个参数改大来增加仿真的时间。
+
+### `mul_compute`结果错误
+
+在调试输出时，我们发现`mul_compute`的运算结果和写入`data`的值都是正确的，但是在`print_array(result_mul, 32+6);`时，该结果会变成错误的值。
+
+怀疑是在`mul_compute`和`print_array`之间的代码中，`result_mul`被意外修改了。最终的处理是，给那一部分的数据额外分配一点空间，防止修改碰到`result_mul`。
+
+```diff
+uint64_t result_conv[32+6];
+uint64_t result_mul[32+6];
++ uint64_t unused[32+6];
+```
+
+
+## 执行时间与加速比
+
+> 分别给出使用卷积加速器和整数指令执行测试的执行时间，计算得到卷积加速器相对于整数指令的加速比。
+
+
+使用卷积加速器的执行时间为`0x4398`周期，使用整数指令的执行时间为`0x54ea394`周期。
+
+加速比约为`0x54ea394 / 0x4398 ≈ 5145.6`倍。
+
+
+## 卷积加速器的优缺点及应用场景
+
+> 试分析卷积加速器相对于整数指令运算存在的优缺点，列举卷积加速器可以被使用的实际应用场景。
+
+
+卷积加速器的优点包括：  
+- 高效性：卷积加速器能够显著提高卷积运算的速度，特别是在处理大规模数据时，能够实现数千倍的加速。
+- 专用性：卷积加速器针对卷积操作进行了优化，能够更好地利用硬件资源，提高计算效率。
+- 并行处理：卷积加速器通常支持并行计算，能够同时处理多个数据，提高吞吐量。
+
+卷积加速器的缺点包括：  
+- 灵活性较低：卷积加速器通常只能处理特定类型的卷积操作，对于其他类型的计算任务可能不适用。
+- 成本较高：设计和制造卷积加速器需要额外的硬件资源，增加了系统的复杂性和成本。
+- 开发复杂性：使用卷积加速器需要专门的编程和调试技能，增加了开发难度。
+
+实际应用场景：  
+- 图像处理：卷积加速器广泛应用于图像滤波、边缘检测等图像处理任务中。
+- 计算机视觉：在目标检测、图像识别等计算机视觉任务中，卷积加速器能够加速卷积神经网络的推理过程。
+- 深度学习：卷积加速器是深度学习模型训练和推理中的关键组件，特别是在卷积神经网络中。
+
+
+## 用卷积加速器实现乘法运算
+
+> 如何用卷积加速器实现乘法运算？
+
+可以利用卷积的数学性质来实现乘法运算。具体来说，两个数的乘法可以通过将它们表示为多项式的系数，然后使用卷积操作来计算它们的乘积。
+
+假设有两个整数`a`和`b`，我们可以将它们以32位为单位拆分，前者作为data，后者作为kernel，进行卷积运算。卷积的结果即为`a`和`b`的乘积。
+
+
+# 心得体会
+
+通过本次实验，我深入理解了卷积加速器的工作原理及其在一维卷积运算中的应用。实验过程中，我不仅掌握了如何通过MMIO与硬件加速器进行交互，还体会到了硬件实现与软件实现之间的差异。通过对比使用卷积加速器和整数指令进行卷积运算的性能差异，我认识到专用硬件在特定计算任务中的巨大优势。此外，调试过程中遇到的问题也让我学会了如何有效地定位和解决问题，提高了我的调试能力。总体而言，这次实验不仅增强了我的硬件编程技能，也加深了我对计算机体系结构的理解。

@@ -732,3 +732,844 @@ $$
 $$
 P\left(\frac{1}{3}<X<\frac{2}{3} | Y=\frac{1}{2}\right)=?\quad P\left(X>\frac{2}{3} | Y>\frac{1}{2}\right)=?
 $$
+
+
+
+
+已经计算得到 $f_{Y}(y)= \begin{cases}1-|y| & ,|y| \leq 1 \\ 0 & ,|y|>1\end{cases}$，可见 $Y$ 不服从均匀分布。但注意到
+$$
+P\left(Y>\frac{1}{2}\right)=\int_{\frac{1}{2}}^{+\infty} f_{Y}(y) d y=\int_{\frac{1}{2}}^{1}(1-y) d y=\frac{1}{8}
+$$
+$$
+P\left(X>\frac{2}{3}, Y>\frac{1}{2}\right)=\iint_{x>\frac{2}{3}, y>\frac{1}{2}} f(x, y) d x d y=\int_{\frac{2}{3}}^{1}\left[\int_{\frac{1}{2}}^{x} 1 d y\right] d x=\frac{1}{9}
+$$
+(注: 上述两个概率均可由 $(X, Y)$ 服从二维均匀分布，利用几何概型公式，通过面积之比来得到。) 所以
+$$
+P\left(X>\frac{2}{3} | Y>\frac{1}{2}\right)=\frac{P\left(X>\frac{2}{3}, Y>\frac{1}{2}\right)}{P\left(Y>\frac{1}{2}\right)}=\frac{8}{9}
+$$
+
+### 二维(元)正态分布(Bivariate Normal Distribution)
+
+
+<Card type="Definition" title="Definition 13 (二维(元)正态分布)">
+设二维随机变量 $(X, Y)$ 具有联合概率密度函数
+$$
+f(x, y)=\frac{1}{2 \pi \sigma_{1} \sigma_{2} \sqrt{1-\rho^{2}}} e^{-\frac{1}{2\left(1-\rho^{2}\right)}\left[\frac{\left(x-\mu_{1}\right)^{2}}{\sigma_{1}^{2}}-2 \rho \frac{\left(x-\mu_{1}\right)\left(y-\mu_{2}\right)}{\sigma_{1} \sigma_{2}}+\frac{\left(y-\mu_{2}\right)^{2}}{\sigma_{2}^{2}}\right]}, x, y \in \mathbb{R}
+$$
+其中 $\mu_{1}$、$\mu_{2}$、$\sigma_{1}$、$\sigma_{2}$、$\rho$ 都是常数，且 $\mu_{1}, \mu_{2} \in \mathbb{R}$，$\sigma_{1}, \sigma_{2}>0$，$-1 \leq \rho \leq 1$，则称 $(X, Y)$ 服从参数为 $(\mu_{1}, \mu_{2}, \sigma_{1}, \sigma_{2}, \rho)$ 的二维(元)正态分布（bivariate normal distribution），记为 $(X, Y) \sim N(\mu_{1}, \mu_{2} ; \sigma_{1}^{2}, \sigma_{2}^{2} ; \rho)$。
+</Card>
+
+
+以下为 $(X, Y) \sim N(0,0 ; 1,1 ; \rho)$（其中 $\rho=0$）的顶曲面图及俯瞰图：
+![](./assets/ch3r_8.png)
+
+
+以下为 $(X, Y) \sim N(0,0 ; 1,1 ; \rho)$（其中 $\rho=0.5$）的顶曲面图及俯瞰图：
+![](./assets/ch3r_9.png)
+
+
+以下为 $(X, Y) \sim N(0,0 ; 1,1 ; \rho)$（其中 $\rho=-0.5$）的顶曲面图及俯瞰图：
+![](./assets/ch3r_10.png)
+
+
+<Card type="Example" title="Example 16">
+设二维随机变量 $(X, Y) \sim N(\mu_{1}, \mu_{2} ; \sigma_{1}^{2}, \sigma_{2}^{2} ; \rho)$，求：
+1. $X$、$Y$ 的边际概率密度函数 $f_{X}(x)$、$f_{Y}(y)$
+2. 条件概率密度 $f_{Y | X}(y | x)$、$f_{X | Y}(x | y)$
+
+**Solution**：
+
+
+1. 
+
+$$
+
+\begin{aligned} 
+f_{X}(x) & =\int_{-\infty}^{+\infty} f(x, y) d y \\ 
+& =\int_{-\infty}^{+\infty} \frac{1}{2 \pi \sigma_{1} \sigma_{2} \sqrt{1-\rho^{2}}} e^{-\frac{1}{2\left(1-\rho^{2}\right)}\left[\frac{\left(x-\mu_{1}\right)^{2}}{\sigma_{1}^{2}}-2 \rho \frac{\left(x-\mu_{1}\right)\left(y-\mu_{2}\right)}{\sigma_{1} \sigma_{2}}+\frac{\left(y-\mu_{2}\right)^{2}}{\sigma_{2}^{2}}\right]} d y \\ 
+& =\int_{-\infty}^{+\infty} \frac{1}{2 \pi \sigma_{1} \sigma_{2} \sqrt{1-\rho^{2}}} e^{-\frac{\left(x-\mu_{1}\right)^{2}}{2 \sigma_{1}^{2}}} e^{-\frac{1}{2\left(1-\rho^{2}\right)}\left[\frac{y-\mu_{2}}{\sigma_{2}}-\rho \frac{x-\mu_{1}}{\sigma_{1}}\right]^{2}} d y \\ 
+& =\frac{1}{\sqrt{2 \pi} \sigma_{1}} e^{-\frac{\left(x-\mu_{1}\right)^{2}}{2 \sigma_{1}^{2}}} \int_{-\infty}^{+\infty} \frac{1}{\sqrt{2 \pi} \sigma_{2} \sqrt{1-\rho^{2}}} e^{-\frac{1}{2 \sigma_{2}^{2}\left(1-\rho^{2}\right)}\left\{y-\left[\mu_{2}+\rho \frac{\sigma_{2}}{\sigma_{1}}\left(x-\mu_{1}\right)\right]\right\}^{2}} d y \\ 
+& =\frac{1}{\sqrt{2 \pi} \sigma_{1}} e^{-\frac{\left(x-\mu_{1}\right)^{2}}{2 \sigma_{1}^{2}}}, \quad-\infty<x<+\infty 
+\end{aligned}
+
+$$
+
+
+同理，$Y \sim N(\mu_{2}, \sigma_{2}^{2})$，且
+$$
+f_{Y}(y)=\frac{1}{\sqrt{2 \pi} \sigma_{2}} e^{-\frac{\left(y-\mu_{2}\right)^{2}}{2 \sigma_{2}^{2}}}, \quad-\infty<y<+\infty
+$$
+**结论**：
+- 二元正态分布的边际分布是正态分布，并且都不依赖于参数 $\rho$；
+
+2. 
+
+$$
+f_{Y | X}(y | x)=\frac{f(x, y)}{f_{X}(x)}=\frac{1}{\sqrt{2 \pi} \sigma_{2} \sqrt{1-\rho^{2}}} e^{-\frac{1}{2 \sigma_{2}^{2}\left(1-\rho^{2}\right)}\left\{y-\left[\mu_{2}+\rho \frac{\sigma_{2}}{\sigma_{1}}\left(x-\mu_{1}\right)\right]\right\}^{2}}
+$$
+
+- 在 $\{X=x\}$ 条件下，$Y$ 的条件分布是正态分布 $N\left(\mu_{2}+\rho \frac{\sigma_{2}}{\sigma_{1}}(x-\mu_{1}), (1-\rho^{2})\sigma_{2}^{2}\right)$；
+- 在 $\{Y=y\}$ 条件下，$X$ 的条件分布是正态分布 $N\left(\mu_{1}+\rho \frac{\sigma_{1}}{\sigma_{2}}(y-\mu_{2}), (1-\rho^{2})\sigma_{1}^{2}\right)$。
+</Card>
+
+
+### 条件分布函数与条件概率密度函数的关系
+$$
+F_{X | Y}(x | y)=\int_{-\infty}^{x} f_{X | Y}(u | y) d u=\int_{-\infty}^{x} \frac{f(u, y)}{f_{Y}(y)} d u
+$$
+
+$$
+F_{Y | X}(y | x)=\int_{-\infty}^{y} f_{Y | X}(v | x) d v=\int_{-\infty}^{y} \frac{f(x, v)}{f_{X}(x)} d v
+$$
+
+
+条件分布函数:
+
+$$
+F_{X | Y}(x | y)=P(X \leq x | Y=y)= \begin{cases}\sum_{x_{k} \leq x} P\left(X=x_{k} | Y=y\right), & 离散情形, \\ \int_{-\infty}^{x} f_{X | Y}(u | y) d u=\int_{-\infty}^{x} \frac{f(u, y)}{f_{Y}(y)} d u, & 连续情形. \end{cases}
+$$
+
+
+设 $(X, Y)$ 是二维连续型随机变量，则（注意比较）：
+$$
+P(a<X \leq b | Y=y)=\int_{a}^{b} f_{X | Y}(x | y) d x
+$$
+
+$$
+P(a<X \leq b)=\int_{a}^{b} f_{X}(x) d x
+$$
+
+
+**说明**：联合分布、边缘分布、条件分布的关系如下：
+
+
+![](./assets/ch3r_11.png)
+
+
+## §3.4 Independence of Random Variables
+
+<Card type="Definition" title="Definition 14 (随机变量的相互独立)">
+设 $F(x, y)$ 及 $F_{X}(x)$ , $F_{Y}(y)$ 分别是二维随机变量 $(X, Y)$ 的联合分布函数及边际分布函数，若对所有的 $x, y \in \mathbb{R}$，有 
+$$
+P(X \leq x, Y \leq y)=P(X \leq x) P(Y \leq y),
+$$
+即 
+$$
+F(x, y)=F_{X}(x) F_{Y}(y), \forall x, y \in \mathbb{R},
+$$
+则称随机变量 $X, Y$ **相互独立**。
+</Card>
+
+- 若 $(X, Y)$ 是**离散型**随机变量，则 $X, Y$ 相互独立等价于 
+   $$
+   P\left(X=x_{i}, Y=y_{j}\right)=P\left(X=x_{i}\right) P\left(Y=y_{j}\right),
+   $$
+   即 $p_{i j}=p_{i \cdot} p_{\cdot j}$ 对一切 $i, j$ 都成立。
+
+- 若 $(X, Y)$ 是**连续型**随机变量，$f(x, y)$ , $f_{X}(x)$ , $f_{Y}(y)$ 分别是 $(X, Y)$ 的联合概率密度函数和边际概率密度函数，则 $X, Y$ 相互独立等价于 
+   $$
+   f(x, y)=f_{X}(x) f_{Y}(y),  \,\text{几乎处处成立}
+   $$
+   即在平面上除去“面积”为零的集合以外，处处成立（可以在不连续点上不相等）。
+
+<Card type="Example" title="Example 17">
+在Example 10中，若 $(X, Y)$ 具有概率密度 
+$
+f(x, y)= \begin{cases}6 e^{-(2 x+3 y)}, & x > 0, y > 0, \\ 0, & 其他,\end{cases}
+$
+
+$X$ 和 $Y$ 的边际概率密度函数分别为 
+$$
+f_{X}(x)=\left\{ \begin{array} {ll}{2e^{-2 x},}&{x>0,}\\ {0,}&{x\leq 0,}\end{array} \right.,
+$$
+$$
+f_{Y}(y)={\left\{ \begin{array} {ll}{3e^{-3y},}&{y>0,}\\ {0,}&{y\leq 0,}\end{array} \right.}
+$$
+故有对于任意的实数 $x, y$，有 $f(x, y)=f_{X}(x) f_{Y}(y)$，因而 $X, Y$ 是相互独立的。
+</Card>
+
+问：连续型随机变量 $X, Y$ 相互独立，其概率密度函数 $f(x, y)$ 有何特征？
+
+<Card type="Theorem" title="Theorem 1">
+若 $(X, Y)$ 为二维连续型随机变量，$f(x, y)$ 是 $(X, Y)$ 的联合概率密度函数，则连续型随机变量 $X, Y$ 相互独立的充分必要条件是 
+$$
+f(x, y)=m(x) \cdot n(y), \forall x, y \in \mathbb{R} .
+$$
+（注意范围，结合例子）
+</Card>
+
+
+<Card type="Question" title="思考题">
+
+若随机变量 $(X, Y)$ 的联合概率密度函数如下所示，问哪些对应的 $X$ 与 $Y$ 是相互独立的？哪些不独立？并说明理由。
+1. （独立）
+$$
+f(x, y)= \begin{cases}e^{-2 x}, & x>0,0<y<2, \\ 0, & 其他. \end{cases}
+$$
+2. （不独立）
+$$
+f(x, y)= \begin{cases}\frac{xy}{2}, & 0<x<y<2, \\ 0, & 其他. \end{cases}
+$$
+3. （不独立）
+$$
+f(x, y)= \begin{cases}x+y, & 0<x<1,0<y<1, \\ 0, & 其他. \end{cases}
+$$
+4. （独立）
+$$
+f(x, y)= \begin{cases}xy, & 0<x<2,0<y<1, \\ 0, & 其他. \end{cases}
+$$
+</Card>
+
+<Card type="Example" title="Example 18">
+若 $(X, Y)$ 具有联合概率分布律如下表：
+
+| $X \setminus Y$ | 0   | 1   | $P(X = i)$ |
+|-------------------|-----|-----|--------------|
+| 1                 | 1/6 | 2/6 | 1/2          |
+| 2                 | 1/6 | 2/6 | 1/2          |
+| $P(Y = j)$      | 1/3 | 2/3 | 1            |
+
+则
+$$
+P(X=1, Y=0)=\frac{1}{6}=P(X=1) P(Y=0),
+$$
+$$
+P(X=2, Y=0)=\frac{1}{6}=P(X=2) P(Y=0),
+$$
+$$
+P(X=1, Y=1)=\frac{2}{6}=P(X=1) P(Y=1),
+$$
+$$
+P(X=2, Y=1)=\frac{2}{6}=P(X=2) P(Y=1),
+$$
+因而 $X, Y$ 是相互独立的。
+</Card>
+
+<Card type="Example" title="Example 19">
+若 $(X, Y)$ 具有分布律如下表：
+
+| $X \setminus Y$ | 0   | 1   | $P(X = i)$ |
+|-------------------|-----|-----|--------------|
+| 1                 | 1/6 | 2/6 | 1/2          |
+| 2                 | 2/6 | 1/6 | 1/2          |
+| $P(Y = j)$      | 1/2 | 1/2 | 1            |
+
+而 
+$$
+P(X=1, Y=0)=\frac{1}{6} \neq P(X=1) P(Y=0)=\frac{1}{2} \times \frac{1}{2}=\frac{1}{4},
+$$
+因而 $X$ 与 $Y$ 不相互独立。
+</Card>
+
+<Card type="Example" title="Example 20">
+设 $X$ 与 $Y$ 是相互独立的随机变量，已知 $(X, Y)$ 的联合分布律如下表，求其余未知的概率值。
+
+| $X \setminus Y$ | 0    | 1    | 2    | $P(X = i)$ |
+|-------------------|------|------|------|--------------|
+| 1                 | 0.01 | 0.2  | 0.04 | 0.25         |
+| 2                 | 0.03 | 0.6  | 0.12 | 0.75         |
+| $P(Y = j)$      | 0.04 | 0.8  | 0.16 | 1            |
+</Card>
+
+<Card type="Example" title="Example 21">
+证明：对于二维正态随机变量 $(X, Y) \sim N(\mu_{1}, \mu_{2} ; \sigma_{1}^{2}, \sigma_{2}^{2} ; \rho)$，$X$ 与 $Y$ 相互独立的充要条件是参数 $\rho=0$。
+
+**Proof：**
+
+因为 $(X, Y)$ 的概率密度为 
+$$
+f(x, y)=\frac{1}{2 \pi \sigma_{1} \sigma_{2} \sqrt{1-\rho^{2}}} e^{-\frac{1}{2\left(1-\rho^{2}\right)}\left[\frac{\left(x-\mu_{1}\right)^{2}}{\sigma_{1}^{2}}-2 \rho \frac{\left(x-\mu_{1}\right)\left(y-\mu_{2}\right)}{\sigma_{1} \sigma_{2}}+\frac{\left(y-\mu_{2}\right)^{2}}{\sigma_{2}^{2}}\right]},
+$$
+由Example 16可知每个分量各自的边际概率密度，故其乘积为 
+$$
+f_{X}(x) f_{Y}(y)=\frac{1}{2 \pi \sigma_{1} \sigma_{2}} e^{-\frac{1}{2}\left[\frac{\left(x-\mu_{1}\right)^{2}}{\sigma_{1}^{2}}+\frac{\left(y-\mu_{2}\right)^{2}}{\sigma_{2}^{2}}\right]} .
+$$
+
+
+“$\Leftarrow$” 如果 $\rho=0$，则对于所有 $x, y \in \mathbb{R}$，有 $f(x, y)=f_{X}(x) f_{Y}(y)$，故 $X, Y$ 相互独立。
+
+“$\Rightarrow$” 反之，若 $X, Y$ 相互独立，由于 $f(x, y)$，$f_{X}(x)$，$f_{Y}(y)$ 都是连续函数，故对于所有的 $x, y \in \mathbb{R}$，有 $f(x, y)=f_{X}(x) f_{Y}(y)$。特别地，有 
+$$
+f\left(\mu_{1}, \mu_{2}\right)=f_{X}\left(\mu_{1}\right) f_{Y}\left(\mu_{2}\right) \Rightarrow \frac{1}{2 \pi \sigma_{1} \sigma_{2} \sqrt{1-\rho^{2}}}=\frac{1}{2 \pi \sigma_{1} \sigma_{2}} \Rightarrow \rho=0 .
+$$
+</Card>
+
+<Card type="Example" title="Example 22">
+设甲、乙两种元件的寿命 $X$、$Y$ 相互独立，服从同一分布，其概率密度函数均为 
+$$
+f(x)= \begin{cases}\frac{1}{2} e^{-\frac{x}{2}}, & x>0, \\ 0, & x \leq 0 .\end{cases}
+$$
+求甲元件寿命不大于乙元件寿命2倍的概率。
+
+![](./assets/ch3r_12.png)
+
+**Solution:**
+
+$(X, Y)$ 的联合概率密度函数为 
+$$
+f(x, y)=f_{X}(x) f_{Y}(y)= \begin{cases}\frac{1}{4} e^{-\frac{x+y}{2}}, & x>0, y>0, \\ 0, & 其他.\end{cases}
+$$
+$$
+P(X \leq 2 Y)=\iint_{x \leq 2 y} f(x, y) d x d y=\int_{0}^{+\infty}\left[\int_{\frac{x}{2}}^{+\infty} \frac{1}{4} e^{-\frac{x+y}{2}} d y\right] d x=\int_{0}^{+\infty} \frac{1}{2} e^{-\frac{3 x}{4}} d x=\frac{2}{3} .
+$$
+</Card>
+
+### n 维随机变量的一些概念和性质
+- n 维随机变量  
+   设 $E$ 是一个随机试验，它的样本空间是 $S=\{e\}$。设 $X_{1}=X_{1}(e)$，$X_{2}=X_{2}(e)$，…，$X_{n}=X_{n}(e)$ 是定义在 $S$ 上的随机变量，由它们构成的一个 $n$ 维向量 $(X_{1}, X_{2}, ..., X_{n})$ 称为 $n$ 维随机变量（向量）。
+
+- 联合分布函数  
+   对于任意 $n$ 个实数 $x_{1}, x_{2}, ..., x_{n}$，$n$ 元函数 
+   $$
+   F\left(x_{1}, x_{2}, ..., x_{n}\right)=P\left(X_{1} \leq x_{1}, X_{2} \leq x_{2}, ..., X_{n} \leq x_{n}\right)
+   $$
+   称为 $n$ 维随机变量 $(X_{1}, X_{2}, ..., X_{n})$ 的联合分布函数。
+
+- 离散型随机变量的联合分布律  
+   设 $(X_{1}, X_{2}, ..., X_{n})$ 的所有可能取值为 $(x_{1 i_{1}}, x_{2 i_{2}}, ..., x_{n i_{n}})$（$i_{j}=1,2, ...$；$j=1,2, ..., n$），则 
+   $$
+   P\left(X_{1}=x_{1 i_{1}}, X_{2}=x_{2 i_{2}}, ..., X_{n}=x_{n i_{n}}\right), i_{j}=1,2, ... ; j=1,2, ..., n
+   $$
+   称为 $n$ 维离散型随机变量 $(X_{1}, X_{2}, ..., X_{n})$ 的联合分布律。
+
+- 连续型随机变量的联合概率密度函数  
+   若存在非负函数 $f(x_{1}, x_{2}, ..., x_{n})$ 使得对于任意实数 $x_{1}, x_{2}, ..., x_{n}$，有 
+   $$
+   F\left(x_{1}, x_{2}, ..., x_{n}\right)=\int_{-\infty}^{x_{1}} \int_{-\infty}^{x_{2}} ... \int_{-\infty}^{x_{n}} f\left(t_{1}, t_{2}, ..., t_{n}\right) d t_{1} d t_{2} \cdots d t_{n},
+   $$
+   则称 $f(x_{1}, x_{2}, ..., x_{n})$ 为 $n$ 维连续型随机变量 $(X_{1}, X_{2}, ..., X_{n})$ 的联合概率密度函数。
+
+- 边际分布  
+   若 $(X_{1}, X_{2}, ..., X_{n})$ 的联合分布函数 $F(x_{1}, x_{2}, ..., x_{n})$ 已知，则 $(X_{1}, X_{2}, ..., X_{n})$ 的任意 $k(1 ≤k ≤n)$ 维边际分布函数就随之确定。例如：
+   1. 一维边际分布函数：
+   $$
+   F_{X_{1}}\left(x_{1}\right)=F\left(x_{1},+\infty,+\infty, ...,+\infty\right),
+   $$
+   2. 二维边际分布函数：
+   $$
+   F_{\left(X_{1}, X_{2}\right)}\left(x_{1}, x_{2}\right)=F\left(x_{1}, x_{2},+\infty,+\infty, ...,+\infty\right),
+   $$
+   3. 离散型一维边际分布律：
+   $$
+   P\left(X_{1}=x_{1 i_{1}}\right)=\sum_{i_{2}, i_{3}, ..., i_{n}} P\left(X_{1}=x_{1 i_{1}}, X_{2}=x_{2 i_{2}}, ..., X_{n}=x_{n i_{n}}\right),
+   $$
+   4. 离散型二维边际分布律：
+   $$
+   P\left(X_{1}=x_{1 i_{1}}, X_{2}=x_{2 i_{2}}\right)=\sum_{i_{3}, ..., i_{n}} P\left(X_{1}=x_{1 i_{1}}, X_{2}=x_{2 i_{2}}, ..., X_{n}=x_{n i_{n}}\right),
+   $$
+   5. 连续型一维边际概率密度：
+   $$
+   f_{X_{1}}\left(x_{1}\right)=\int_{-\infty}^{+\infty} \cdots \int_{-\infty}^{+\infty} f\left(x_{1}, x_{2}, ..., x_{n}\right) d x_{2} d x_{3} \cdots d x_{n},
+   $$
+   6. 连续型二维边际概率密度：
+   $$
+   f_{\left(X_{1}, X_{2}\right)}\left(x_{1}, x_{2}\right)=\int_{-\infty}^{+\infty} \cdots \int_{-\infty}^{+\infty} f\left(x_{1}, x_{2}, ..., x_{n}\right) d x_{3} d x_{4} \cdots d x_{n} .
+   $$
+
+- 相互独立  
+   若对于所有的 $x_{1}, x_{2}, ..., x_{n} \in \mathbb{R}$，有 
+   $$
+   F\left(x_{1}, x_{2}, ..., x_{n}\right)=F_{X_{1}}\left(x_{1}\right) F_{X_{2}}\left(x_{2}\right) \cdots F_{X_{n}}\left(x_{n}\right),
+   $$
+   则称 $X_{1}, X_{2}, ..., X_{n}$ 是相互独立的。
+
+- $(X_{1}, X_{2}, ..., X_{m})$ 与 $(Y_{1}, Y_{2}, ..., Y_{n})$ 的独立性  
+   设 $(X_{1}, X_{2}, ..., X_{m})$ 的分布函数为 $F_{1}(x_{1}, x_{2}, ..., x_{m})$，$(Y_{1}, Y_{2}, ..., Y_{n})$ 的分布函数为 $F_{2}(y_{1}, y_{2}, ..., y_{n})$，$(X_{1}, X_{2}, ..., X_{m}, Y_{1}, Y_{2}, ..., Y_{n})$ 的分布函数为 $F(x_{1}, x_{2}, ..., x_{m}, y_{1}, y_{2}, ..., y_{n})$。若
+   $$
+   F\left(x_{1}, x_{2}, ..., x_{m}, y_{1}, y_{2}, ..., y_{n}\right)=F_{1}\left(x_{1}, x_{2}, ..., x_{m}\right) F_{2}\left(y_{1}, y_{2}, ..., y_{n}\right),
+   $$
+   则称 $(X_{1}, X_{2}, ..., X_{m})$ 与 $(Y_{1}, Y_{2}, ..., Y_{n})$ 相互独立。
+
+<Card type="Theorem" title="Theorem 2">
+设 $(X_{1}, X_{2}, ..., X_{m})$ 与 $(Y_{1}, Y_{2}, ..., Y_{n})$ 相互独立，则 $X_{i}(i=1,2, ..., m)$ 与 $Y_{j}(j=1,2, ..., n)$ 相互独立。
+</Card>
+
+<Card type="Theorem" title="Theorem 3">
+设 $(X_{1}, X_{2}, ..., X_{m})$ 与 $(Y_{1}, Y_{2}, ..., Y_{n})$ 相互独立，若 $h(x_{1}, x_{2}, ..., x_{m})$ 和 $g(y_{1}, y_{2}, ..., y_{n})$ 是连续函数，则 $h(X_{1}, X_{2}, ..., X_{m})$ 与 $g(Y_{1}, Y_{2}, ..., Y_{n})$ 相互独立。
+</Card>
+
+### 独立性的几点说明
+- $X, Y$ 相互独立，则 $f(X)$ 与 $g(Y)$ 也相互独立，其中 $f(\cdot)$ 与 $g(\cdot)$ 均为一元连续函数；
+- 任意常数 $C$ 与任意随机变量 $X$ 均独立；
+- $X, Y$ 相互独立，则 $\{X \in A\}$ 与 $\{Y \in B\}$ 两个事件也相互独立。
+
+## §3.5 多维随机变量函数的分布(Functions of Multivariate Random Variables)
+设二维离散型随机变量 $(X, Y)$ 具有概率分布 
+$$
+P\left(X=x_{i}, Y=y_{j}\right)=p_{i j}, i, j=1,2, ...
+$$
+
+请问：
+1. 设 $Z=g(X, Y)$，则 $Z$ 的分布律是什么？  
+   1. 先确定 $Z$ 的可能取值 $z_{i}$（$i=1,2, ...$）；
+   2. 再找出 $\{Z=z_{i}\}=\{(X, Y) \in D\}$；
+   3. 从而计算出分布律。
+
+
+2. 设 $U=u(X, Y)$，$V=v(X, Y)$，则 $(U, V)$ 的分布律是什么？  
+   1. 先确定 $(U, V)$ 的可能取值 $(u_{i}, v_{j})$（$i, j=1,2, ...$）；
+   2. 再找出 $\{U=u_{i}, V=v_{j}\}=\{(X, Y) \in D\}$；
+   3. 从而计算出分布律。
+
+
+<Card type="Example" title="Example 23">
+设 $X$ 与 $Y$ 的联合分布律为
+
+| $X \setminus Y$ | 1   | 2   |
+|-------------------|-----|-----|
+| 1                 | 0.2 | 0.1 |
+| 2                 | 0.3 | 0.4 |
+
+令 $U=X+Y$，$V=\max (X, Y)$，求 $(U, V)$ 的联合分布律。
+
+**Solution:**
+$(U, V)$ 的联合分布律如下表所示：
+
+| $V \setminus U$ | 2   | 3   | 4   |
+|-------------------|-----|-----|-----|
+| 1                 | 0.2 | 0   | 0   |
+| 2                 | 0   | 0.4 | 0.4 |
+</Card>
+
+
+<Card type="Example" title="Example 24">
+设 $X$ 的概率密度函数为 $f(x)= \begin{cases}e^{-x}, & x > 0 \\ 0, & x \leq0\end{cases}$，令 $U=\begin{cases}1, & X > 1 \\ 0, & X \leq1\end{cases}$，$V=\begin{cases}1, & X > 2 \\ 0, & X \leq2\end{cases}$，求 $(U, V)$ 的联合分布律。
+
+**Solution:**
+
+由 $U, V$ 的定义，$(U, V)$ 的联合分布律为 
+$$
+P(U=1, V=1)=P(X>1, X>2)=P(X>2)=e^{-2}
+$$
+$$
+P(U=1, V=0)=P(X>1, X \leq 2)=P(1<X \leq 2)=e^{-1}-e^{-2}
+$$
+$$
+P(U=0, V=1)=P(X \leq 1, X>2)=0
+$$
+$$
+P(U=0, V=0)=P(X \leq 1, X \leq 2)=P(X \leq 1)=1-e^{-1}
+$$
+</Card>
+
+
+### $Z=X+Y$ 的分布（离散型）
+若 $(X, Y)$ 为二维离散型随机变量，联合分布律为 
+$$
+P\left(X=x_{i}, Y=y_{j}\right)=p_{i j}, i, j=1,2, ...
+$$
+
+设 $Z$ 的可能取值为 $z_{1}, z_{2}, ..., z_{k}, ...$，则 $Z=X+Y$ 的分布律为 
+$$
+P\left(Z=z_{k}\right)=P\left(X+Y=z_{k}\right)=\sum_{i=1}^{+\infty} P\left(X=x_{i}, Y=z_{k}-x_{i}\right), k=1,2, ...
+$$
+或 
+$$
+P\left(Z=z_{k}\right)=P\left(X+Y=z_{k}\right)=\sum_{j=1}^{+\infty} P\left(X=z_{k}-y_{j}, Y=y_{j}\right), k=1,2, ...
+$$
+
+
+特别的，当 $X$ 与 $Y$ 相互独立时，
+$$
+P\left(Z=z_{k}\right)=\sum_{i=1}^{+\infty} P\left(X=x_{i}\right) P\left(Y=z_{k}-x_{i}\right), k=1,2, ...
+$$
+或 
+$$
+P\left(Z=z_{k}\right)=\sum_{j=1}^{+\infty} P\left(X=z_{k}-y_{j}\right) P\left(Y=y_{j}\right), k=1,2, ...
+$$
+
+
+<Card type="Example" title="Example 25">
+设随机变量 $X \sim P(\lambda_{1})$，$Y \sim P(\lambda_{2})$，且 $X, Y$ 相互独立。若 $Z=X+Y$，求 $Z$ 的概率分布律。
+
+**Solution:**
+
+由题意，$X$ 和 $Y$ 的概率分布律为 
+$$
+P(X=i)=\frac{\lambda_{1}^{i} e^{-\lambda_{1}}}{i !}, i=0,1, ... ; P(Y=j)=\frac{\lambda_{2}^{j} e^{-\lambda_{2}}}{j !}, j=0,1, ...
+$$
+
+首先可得 $Z$ 的可能取值为 $0, 1, ...$。
+
+
+因 $X, Y$ 相互独立，所以 $Z$ 的概率分布律为 
+
+$$
+
+\begin{aligned} 
+P(Z=k) & =\sum_{i=0}^{+\infty} P(X=i) P(Y=k-i) \\ 
+& =\sum_{i=0}^{k} \frac{\lambda_{1}^{i} e^{-\lambda_{1}}}{i !} \frac{\lambda_{2}^{k-i} e^{-\lambda_{2}}}{(k-i) !}+\sum_{i=k+1}^{+\infty} \frac{\lambda_{1}^{i} e^{-\lambda_{1}}}{i !} \cdot 0 \\
+& =e^{-\left(\lambda_{1}+\lambda_{2}\right)} \sum_{i=0}^{k} \frac{1}{i !(k-i) !} \lambda_{1}^{i} \lambda_{2}^{k-i} \\
+& =\frac{e^{-\left(\lambda_{1}+\lambda_{2}\right)}}{k !} \sum_{i=0}^{k} \frac{k !}{i !(k-i) !} \lambda_{1}^{i} \lambda_{2}^{k-i} \\
+& =\frac{\left(\lambda_{1}+\lambda_{2}\right)^{k} e^{-\left(\lambda_{1}+\lambda_{2}\right)}}{k !}, k=0,1, ... 
+\end{aligned}
+
+$$
+即 $Z \sim P(\lambda_{1}+\lambda_{2})$。
+
+</Card>
+
+
+## $Z=X+Y$ 的分布（连续型）
+若 $(X, Y)$ 为二维连续型随机变量，其联合概率密度函数为 $f(x, y)$，则 $Z=X+Y$ 的分布函数为 
+$$
+
+\begin{aligned}
+F_{Z}(z)&=P(X+Y \leq z)\\
+&=\iint_{x+y \leq z} f(x, y) d x d y\\
+&=\int_{-\infty}^{+\infty}\left[\int_{-\infty}^{z-x} f(x, y) d y\right] d x\\
+&\stackrel{u=x+y}{=} \int_{-\infty}^{+\infty}\left[\int_{-\infty}^{z} f(x, u-x) d u\right] d x\\
+&=\int_{-\infty}^{z}\left[\int_{-\infty}^{+\infty} f(x, u-x) d x\right] d u\\
+&= \int_{-\infty}^{z} f_{Z}(u) d u
+\end{aligned}
+
+$$
+
+因此，$Z$ 的概率密度函数为 
+$$
+f_{Z}(z)=\int_{-\infty}^{+\infty} f(x, z-x) d x
+$$
+由 $X$ 与 $Y$ 的对称性，也可写为 
+$$
+f_{Z}(z)=\int_{-\infty}^{+\infty} f(z-y, y) d y
+$$
+
+
+### 卷积公式
+当 $X$ 和 $Y$ 相互独立时，$Z=X+Y$ 的概率密度函数公式称为卷积公式，即 
+$$
+f_{X} * f_{Y}=\int_{-\infty}^{+\infty} f_{X}(x) f_{Y}(z-x) d x=\int_{-\infty}^{+\infty} f_{X}(z-y) f_{Y}(y) d y
+$$
+
+
+<Card type="Example" title="Example 26">
+设 $X$ 和 $Y$ 是相互独立的标准正态随机变量，求 $Z=X+Y$ 的概率密度函数。
+
+**Solution:**
+由于 $X$ 与 $Y$ 相互独立，故利用卷积公式可得 
+$$
+
+\begin{aligned} 
+f_{Z}(z) & =\int_{-\infty}^{+\infty} f_{X}(x) f_{Y}(z-x) d x \\ 
+& =\frac{1}{2 \pi} \int_{-\infty}^{+\infty} e^{-\frac{x^{2}}{2}} e^{-\frac{(z-x)^{2}}{2}} d x \\
+& =\frac{1}{2 \pi} e^{-\frac{z^{2}}{4}} \int_{-\infty}^{+\infty} e^{-\left(x-\frac{z}{2}\right)^{2}} d x 
+\end{aligned}
+
+$$
+
+令 $t=x-\frac{z}{2}$，则 
+$$
+
+\begin{aligned}
+f_{Z}(z)&=\frac{1}{2 \pi} e^{-\frac{z^{2}}{4}} \int_{-\infty}^{+\infty} e^{-t^{2}} d t\\
+&=\frac{1}{2 \pi} e^{-\frac{z^{2}}{4}} \sqrt{\pi}\\
+&=\frac{1}{2 \sqrt{\pi}} e^{-\frac{z^{2}}{4}}
+\end{aligned}
+
+$$
+即 $Z \sim N(0,2)$。
+</Card>
+
+
+<Card type="Corollary" title="Corollary 1">
+设 $X \sim N(\mu_{1}, \sigma_{1}^{2})$，$Y \sim N(\mu_{2}, \sigma_{2}^{2})$，且 $X, Y$ 相互独立，则 
+$$
+X+Y \sim N\left(\mu_{1}+\mu_{2}, \sigma_{1}^{2}+\sigma_{2}^{2}\right)
+$$
+更一般地，有 
+$$
+a X+b Y+c \sim N\left(a \mu_{1}+b \mu_{2}+c, a^{2} \sigma_{1}^{2}+b^{2} \sigma_{2}^{2}\right)
+$$
+
+**补**：四个分布的卷积
+</Card>
+
+
+<Card type="Example" title="Example 27">
+设 $X$ 和 $Y$ 相互独立同分布，均服从$[0, 1]$ 上的均匀分布，求 $Z=X+Y$ 的密度函数。
+
+**Solution:**
+
+由于 $X$ 与 $Y$ 相互独立，故利用卷积公式可得 
+$$
+f_{Z}(z)=\int_{-\infty}^{+\infty} f_{X}(x) f_{Y}(z-x) d x
+$$
+
+上述积分的被积函数不为零当且仅当 
+$$
+
+\left\{\begin{array} { l } 
+{ 0 \leq x \leq 1 } \\ 
+{ 0 \leq z - x \leq 1 } 
+\end{array} \Leftrightarrow \left\{\begin{array}{l} 
+0 \leq x \leq 1 \\ 
+z-1 \leq x \leq z 
+\end{array}\right.\right.
+
+$$
+
+![](./assets/ch3r_13.png)
+
+于是 
+$$
+
+f_{Z}(z)= 
+\begin{cases}
+\int_{0}^{z} 1 d x=z, & 0<z<1 \\ 
+\int_{z-1}^{1} 1 d x=2-z, & 1 \leq z<2 \\ 
+0, & 其他
+\end{cases}
+
+$$
+</Card>
+
+
+<Card type="Example" title="Example 28">
+设 $(X, Y)$ 的联合概率密度为 $f(x, y)= \begin{cases}3 x, & 0<y<x<1 \\ 0, & 其他\end{cases}$，求 $Z=X+Y$ 的概率密度。
+
+**Solution:**
+
+利用公式 $f_{Z}(z)=\int_{-\infty}^{+\infty} f(x, z-x) d x$（不可以用卷积公式，因为 $X$ 与 $Y$ 不独立），其中 
+$$
+f(x, z-x)= \begin{cases}3 x, & 0<z-x<x<1 \\ 0, & 其他\end{cases}
+$$
+
+![](./assets/ch3r_14.png)
+
+于是 
+$$
+
+f_{Z}(z)= 
+\begin{cases}
+\int_{\frac{z}{2}}^{z} 3 x d x=\frac{9}{8} z^{2}, & 0<z<1 \\ 
+\int_{\frac{z}{2}}^{1} 3 x d x=\frac{3}{2}\left(1-\frac{z^{2}}{4}\right), & 1 \leq z<2 \\ 
+0, & 其他
+\end{cases}
+
+$$
+</Card>
+
+
+<Card type="Example" title="Example 29">
+某人一天做两份工作，一份工作的酬金 $X$ 为10元、20元、30元的概率各为$\frac{1}{3}$，另一份工作的酬金 $Y \sim N(15,4)$，且设 $X, Y$ 相互独立。记一天的酬金总数为 $Z=X+Y$，求：
+1. $Z$ 的概率密度函数；
+2. 一天酬金多于30元的概率。
+
+**Solution:**
+
+1. 先求 $Z$ 的分布函数，利用全概率公式 
+$$
+
+\begin{aligned}
+F_{Z}(z)&=P(X+Y \leq z)\\
+&=\sum_{i=1}^{3} P(X+Y \leq z | X=10i) P(X=10i)
+\end{aligned}
+
+$$
+
+
+$$
+
+\begin{aligned}
+F_{Z}(z) & =\sum_{i=1}^{3} P(X+Y \leq z | X=10i) P(X=10i) \\ 
+& =\frac{1}{3}[P(Y \leq z-10 | X=10)+P(Y \leq z-20 | X=20)+P(Y \leq z-30 | X=30)] \\ 
+& =\frac{1}{3}[P(Y \leq z-10)+P(Y \leq z-20)+P(Y \leq z-30)] \\ 
+& =\frac{1}{3}\left[F_{Y}(z-10)+F_{Y}(z-20)+F_{Y}(z-30)\right]
+\end{aligned}
+
+$$
+
+因此 
+$$
+f_{Z}(z)=F_{Z}'(z)=\frac{1}{6 \sqrt{2 \pi}}\left[e^{-\frac{(z-25)^{2}}{8}}+e^{-\frac{(z-35)^{2}}{8}}+e^{-\frac{(z-45)^{2}}{8}}\right]
+$$
+
+
+2. 由上题的结果 
+$$
+
+\begin{aligned}
+P(Z>30) & =1-F_{Z}(30) \\ 
+& =1-\frac{1}{3}\left[F_{Y}(20)+F_{Y}(10)+F_{Y}(0)\right] \\ 
+& =1-\frac{1}{3}\left[\Phi\left(\frac{5}{2}\right)+\Phi\left(-\frac{5}{2}\right)+\Phi\left(-\frac{15}{2}\right)\right] \\ 
+& \approx \frac{2}{3}
+\end{aligned}
+
+$$
+</Card>
+
+
+### $M=\max (X, Y)$，$N=\min (X, Y)$ 的分布
+设 $X, Y$ 是两个相互独立的随机变量，它们的分布函数分别为 $F_{X}(x)$ 和 $F_{Y}(y)$。
+
+于是$M$ 的分布函数
+$$
+
+\begin{aligned} 
+F_{\max }(z) & =P(M \leq z)\\
+&=P(X \leq z, Y \leq z) \quad (\text{这里无需独立})\\
+&=P(X \leq z) P(Y \leq z) \\ 
+&=F_{X}(z) F_{Y}(z)
+\end{aligned}
+
+$$
+
+$N$ 的分布函数
+$$
+
+\begin{aligned} 
+F_{\min }(z) & =P(N \leq z)\\
+&=1-P(N>z) \\ 
+&=1-P(X>z, Y>z) \quad (\text{这里无需独立})\\
+&=1-P(X>z) P(Y>z) \\ 
+&=1-\left[1-F_{X}(z)\right]\left[1-F_{Y}(z)\right]
+\end{aligned}
+
+$$
+
+
+### 推广到 $n$ 个相互独立的随机变量情形
+设 $X_{1}, X_{2}, ..., X_{n}$ 是 $n$ 个相互独立的随机变量，它们的分布函数分别为 $F_{X_{i}}(x_{i})$（$i=1,2, ..., n$）。
+
+$M=\max _{1 \leq i \leq n} X_{i}$ 的分布函数
+
+$$
+F_{\max }(z)=F_{X_{1}}(z)F_{X_{2}}(z)\cdots F_{X_{n}}(z)
+$$
+
+$N=\min _{1 \leq i \leq n} X_{i}$ 的分布函数
+
+$$
+F_{\min }(z)=1-[1-F_{X_{1}}(z)][1-F_{X_{2}}(z)]\cdots [1-F_{X_{n}}(z)]
+$$
+
+
+特别的，当 $X_{1}, X_{2}, ..., X_{n}$ 相互独立且具有相同分布函数 $F(x)$ 时，
+$$
+F_{\max }(z)=[F(z)]^{n}, F_{\min }(z)=1-[1-F(z)]^{n}
+$$
+
+
+<Card type="Example" title="Example 30">
+$X$ 与 $Y$ 独立同分布，均服从 $U(0,1)$，求 $M=\max (X, Y)$，$N=\min (X, Y)$ 的概率密度函数。
+
+**Solution:**
+
+$X, Y$ 的分布函数均为 $F(x) = \begin{cases}0, & x<0 \\ x, & 0 \leq x<1 \\ 1, & x \geq 1\end{cases}$
+
+于是 $M=\max (X, Y)$ 的分布函数为 
+$$
+F_{M}(x)=[F(x)]^{2}=\left\{\begin{array}{ll}0, & x<0 \\ x^{2}, & 0 \leq x<1 \\ 1, & x \geq 1\end{array}\right.
+$$
+其概率密度函数为 
+$$
+f_{M}(x)= \begin{cases}2 x, & 0<x<1 \\ 0, & 其他\end{cases}
+$$
+
+$N=\min (X, Y)$ 的分布函数为 
+$$
+F_{N}(x)=1-[1-F(x)]^{2}= \begin{cases}0, & x<0 \\ 1-(1-x)^{2}, & 0 \leq x<1 \\ 1, & x \geq 1\end{cases}
+$$
+其概率密度函数为 
+$$
+f_{N}(x)= \begin{cases}2(1-x), & 0<x<1 \\ 0, & 其他\end{cases}
+$$
+</Card>
+
+
+<Card type="Example" title="Example 31">
+设系统 $L$ 由两个相互独立的子系统 $L_{1}$，$L_{2}$ 联结而成，联结的方式分别为：(1) 串联；(2) 并联；(3) 备用（当系统 $L_{1}$ 损坏时，系统 $L_{2}$ 开始工作）。设 $L_{1}$，$L_{2}$ 的寿命分别为 $X, Y$，已知它们的概率密度分别为 
+$$
+f_{X}(x)=\left\{ \begin{array} {ll}{\alpha e^{-\alpha x},}&{x>0} \\ {0,}&{x\leq 0}\end{array} \right., f_{Y}(y)=\left\{ \begin{array} {ll}{\beta e^{-\beta y},}&{y>0} \\ {0,}&{y\leq 0}\end{array} \right., (\alpha >0,\beta >0,\alpha \neq \beta)
+$$
+试分别就以上三种联结方式写出 $L$ 的寿命 $Z$ 的概率密度。
+
+![](./assets/ch3r_15.png)
+
+**Example 31 (串联情形)**
+
+![](./assets/ch3r_16.png)
+
+
+当 $L_{1}$，$L_{2}$ 中有一个损坏时，系统 $L$ 就停止工作，所以 $L$ 的寿命为 $Z=\min (X, Y)$。因此 $Z$ 的分布函数为 
+$$
+F_{Z}(z)=1-\left[1-F_{X}(z)\right]\left[1-F_{Y}(z)\right]= \begin{cases}1-e^{-(\alpha+\beta) z}, & z>0 \\ 0, & z \leq 0\end{cases}
+$$
+于是 $Z$ 的概率密度函数为 
+$$
+f_{Z}(z)= \begin{cases}(\alpha+\beta) e^{-(\alpha+\beta) z}, & z>0 \\ 0, & z \leq 0\end{cases}
+$$
+即 $Z$ 仍服从指数分布。
+
+**Example 31 (并联情形)**
+
+![](./assets/ch3r_17.png)
+
+当且仅当 $L_{1}$，$L_{2}$ 都损坏时，系统 $L$ 才停止工作，所以 $L$ 的寿命为 $Z=\max (X, Y)$。因此 $Z$ 的分布函数为 
+$$
+F_{Z}(z)=F_{X}(z) F_{Y}(z)= \begin{cases}\left(1-e^{-\alpha z}\right)\left(1-e^{-\beta z}\right), & z>0 \\ 0, & z \leq 0\end{cases}
+$$
+于是 $Z$ 的概率密度函数为 
+$$
+f_{Z}(z)= \begin{cases}\alpha e^{-\alpha z}+\beta e^{-\beta z}-(\alpha+\beta) e^{-(\alpha+\beta) z}, & z>0 \\ 0, & z \leq 0\end{cases}
+$$
+
+**Example 31 (备用情形)**
+
+
+![](./assets/ch3r_18.png)
+
+当系统 $L_{1}$ 损坏时，系统 $L_{2}$ 才开始工作，所以整个系统 $L$ 的寿命 $Z$ 是 $L_{1}$，$L_{2}$ 寿命之和，即 $Z=X+Y$。因此当 $z \leq0$ 时，$f_{Z}(z)=0$；当 $z>0$ 时，由卷积公式 
+$$
+
+\begin{aligned}
+f_{Z}(z)&=\int_{-\infty}^{+\infty} f_{X}(z-y) f_{Y}(y) d y\\
+&=\int_{0}^{z} \alpha e^{-\alpha(z-y)} \beta e^{-\beta y} d y\\
+&=\frac{\alpha \beta}{\beta-\alpha}\left(e^{-\alpha z}-e^{-\beta z}\right)
+\end{aligned}
+
+$$
+即 
+$$
+f_{Z}(z)= \begin{cases}\frac{\alpha \beta}{\beta-\alpha}\left(e^{-\alpha z}-e^{-\beta z}\right), & z>0 \\ 0, & z \leq 0\end{cases}
+$$
+</Card>
+
+
+<Card type="Example" title="Example 32">
+设 $Z=A X+(1-A) Y$，$A \sim B(1, p)$，$F_{X}(x)$，$F_{Y}(y)$ 已知，且 $A, X, Y$ 相互独立。
+1. 求 $Z$ 的分布函数 $F_{Z}(z)$；
+2. 若 $p=\frac{1}{2}$，$P(X=2)=1$，$Y \sim U(0,1)$，求 $F_{Z}(z)$，并判断此时 $Z$ 是什么类型的随机变量？
+
+**Solution:**
+
+1. 由全概率公式，$Z$ 的分布函数 
+$$
+
+\begin{aligned}
+F_{Z}(z) & =P(Z \leq z)\\
+&=P(A X+(1-A) Y \leq z) \\ 
+&=P(A=1) P(A X+(1-A) Y \leq z | A=1)+P(A=0) P(A X+(1-A) Y \leq z | A=0) \\ 
+&=P(A=1) P(X \leq z | A=1)+P(A=0) P(Y \leq z | A=0) \\ 
+&=p P(X \leq z)+(1-p) P(Y \leq z)\\
+&=p F_{X}(z)+(1-p) F_{Y}(z)
+\end{aligned}
+
+$$
+
+2. 由题意，可知 $X$ 和 $Y$ 的分布函数为 
+$$
+F_{X}(x)=\left\{\begin{array}{ll} 0, & x<2 \\ 1, & x \geq 2 \end{array}\right., F_{Y}(y)= \begin{cases}0, & y<0 \\ y, & 0 \leq y<1 \\ 1, & y \geq 1\end{cases}
+$$
+又 $p=\frac{1}{2}$，故 $Z$ 的分布函数为 
+$$
+F_{Z}(z)=\frac{1}{2} F_{X}(z)+\frac{1}{2} F_{Y}(z)= \begin{cases}0, & z<0 \\ \frac{z}{2}, & 0 \leq z<1 \\ \frac{1}{2}, & 1 \leq z<2 \\ 1, & z \geq 2\end{cases}
+$$
+
+$Z$ 的分布函数如图所示：
+![](./assets/ch3r_19.png)
+
+由此判断 $Z$ 既不是连续型也不是离散型的随机变量。
+</Card>
+
+谢谢！
