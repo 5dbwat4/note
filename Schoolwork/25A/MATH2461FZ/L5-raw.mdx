@@ -1,0 +1,565 @@
+import Card from "@md-components/card.vue"
+
+
+# Chapter 5 Laws of Large Numbers and Central Limit Theorems
+## §5.1 大数定律(Laws of Large Numbers)
+### 内容
+设 $X_{1}, X_{2}, ..., X_{n}, ...$ 是一列随机变量，则在一定的条件下随机变量序列 $Y_{n}=\frac{X_{1}+X_{2}+\cdots+X_{n}}{n}$ 收敛到 $\mu$（当 $n \to +\infty$ 时）
+
+### 问题
+1. 随机变量序列 $Y_{n}$ 收敛到 $\mu$ 的含义？
+2. $\mu$ 是什么？
+3. 一定的条件是什么？
+
+### 依概率收敛(Convergence in Probability)
+<Card type="Definition" title="Definition 1 (依概率收敛)">
+设 $Y_{1}, Y_{2}, ..., Y_{n}, ...$ 为一列随机变量，$Y$ 为随机变量，若对于 $\forall \varepsilon>0$ 均有 
+$$
+lim _{n \to+\infty} P\left\{\left|Y_{n}-Y\right| \geq \varepsilon\right\}=0
+$$
+成立，则称随机变量序列 $\{Y_{n}, n ≥1\}$ 依概率收敛于 $Y$（$Y_{n}$ converge to $Y$ in probability），记为 $Y_{n} \stackrel{P}{\to } Y$ 当 $n \to +\infty$。
+
+特别地，当 $Y=c$ 为一常数时，称 $\{Y_{n}, n ≥1\}$ 依概率收敛于常数 $c$。
+
+注意：这种收敛性是在概率意义下的一种收敛，而不是在数学意义上的一般收敛。
+</Card>
+
+<Card type="Example" title="Example 1">
+设 $Y_{n} \sim N(0, \frac{1}{n})$，$n=1,2, ...$，证明：当 $n \to +\infty$ 时，$Y_{n} \stackrel{P}{\to } 0$。
+
+**Proof**：
+对任意 $\varepsilon>0$，
+$$
+
+\begin{aligned}
+P\left(\left|Y_{n}-0\right| \geq \varepsilon\right) & =P\left(Y_{n} \geq \varepsilon\right)+P\left(Y_{n} \leq-\varepsilon\right) \\
+& =1-\Phi\left(\frac{\varepsilon-0}{\sqrt{1 / n}}\right)+\Phi\left(\frac{-\varepsilon-0}{\sqrt{1 / n}}\right) \\
+& =2[1-\Phi(\varepsilon \sqrt{n})] \to 0,
+\end{aligned}
+
+$$
+所以当 $n \to +\infty$ 时，$Y_{n} \stackrel{P}{\to } 0$。
+</Card>
+
+### 依概率收敛的性质
+若当 $n \to +\infty$ 时，$X_{n} \stackrel{P}{\to } a$，$Y_{n} \stackrel{P}{\to } b$ 且函数 $g(x, y)$ 在点 $(a, b)$ 处连续，则当 $n \to +\infty$ 时，$g(X_{n}, Y_{n}) \stackrel{P}{\to } g(a, b)$。
+
+例如：
+- 当 $n \to +\infty$ 时，$X_{n} \stackrel{P}{\to } a$，$Y_{n} \stackrel{P}{\to } b$，则 $X_{n}+Y_{n} \stackrel{P}{\to } a+b$；
+- 当 $n \to +\infty$ 时，$X_{n} \cdot Y_{n} \stackrel{P}{\to } a \cdot b$；
+- 当 $n \to +\infty$ 时，$X_{n} / Y_{n} \stackrel{P}{\to } a / b$（$b ≠0$）。
+
+特别地，若当 $n \to +\infty$ 时，$X_{n} \stackrel{P}{\to } a$ 且 $f(x)$ 在点 $a$ 处连续，则当 $n \to +\infty$ 时，$f(X_{n}) \stackrel{P}{\to } f(a)$。
+
+### Markov 不等式(Markov Inequality)
+<Card type="Theorem" title="Theorem 1 (Markov 不等式)">
+设随机变量 $Y$ 的 $k(k ≥1)$ 阶矩存在，即 $E(Y^{k})$ 存在，则对于任意 $\varepsilon>0$ 有 
+$$
+P\{|Y| \geq \varepsilon\} \leq \frac{E\left(|Y|^{k}\right)}{\varepsilon^{k}}
+$$
+成立。
+
+定理的等价形式为：$P\{|Y|<\varepsilon\} ≥1-\frac{E(|Y|^{k})}{\varepsilon^{k}}$。
+
+当 $Y$ 为取非负值的随机变量时，则有 $P\{Y ≥\varepsilon\} ≤\frac{E(Y^{k})}{\varepsilon^{k}}$。
+</Card>
+
+<Card type="Proof" title="Proof (Markov 不等式)">
+对于 $\varepsilon>0$，令 $Z=\begin{cases}\varepsilon, & |Y| ≥\varepsilon \\ 0, & |Y|<\varepsilon\end{cases}$，则 $0 ≤Z ≤|Y|$。于是对任意的 $k ≥1$，当 $E(|Y|^{k})$ 存在时，$E(Z^{k})$ 也存在，且 $E(Z^{k}) ≤E(|Y|^{k})$。
+
+而根据 $Z$ 的定义，$E\left(Z^{k}\right)=\varepsilon^{k} P\{|Y| \geq \varepsilon\}$，因此 
+$$
+P\{|Y| \geq \varepsilon\}=\frac{E\left(Z^{k}\right)}{\varepsilon^{k}} \leq \frac{E\left(|Y|^{k}\right)}{\varepsilon^{k}} .
+$$
+</Card>
+
+### 切比雪夫不等式(Chebyshev Inequality)
+<Card type="Theorem" title="Theorem 2 (Chebyshev 不等式)">
+设随机变量 $X$ 具有数学期望 $E(X)=\mu$，方差 $Var(X)=\sigma^{2}$，则对于任意 $\varepsilon>0$ 都有 
+$$
+P\{|X-\mu| \geq \varepsilon\} \leq \frac{\sigma^{2}}{\varepsilon^{2}} .
+$$
+
+定理的等价形式为：$P\{|X-\mu|<\varepsilon\} ≥1-\frac{\sigma^{2}}{\varepsilon^{2}}$。
+</Card>
+
+<Card type="Proof" title="Proof (Chebyshev 不等式)">
+在 Markov 不等式中取 $Y=X-\mu$，$k=2$ 即可得到 Chebyshev 不等式。或类似 Markov 不等式的证明也可直接证得。
+</Card>
+
+### Chebyshev 不等式的直观意义
+![](image)
+
+<Card type="Example" title="Example 2">
+设 $E(X)=\mu$，$Var(X)=\sigma^{2}$，取 $\varepsilon=K \sqrt{Var(X)}=K \sigma$，则有 
+$$
+P(|X-\mu| \geq K \sigma) \leq \frac{Var(X)}{K^{2} \sigma^{2}}=\frac{1}{K^{2}} .
+$$
+
+若取 $K=3$，则有 
+$$
+P(|X-\mu| \geq 3 \sigma)=P(X \notin(\mu-3 \sigma, \mu+3 \sigma)) \leq \frac{1}{9},
+$$
+
+而当 $X \sim N(\mu, \sigma^{2})$ 时，
+$$
+P(|X-\mu| \geq 3 \sigma)=2(1-\Phi(3))=0.0027<\frac{1}{9} .
+$$
+
+Chebyshev 不等式的适用面广泛，但结果较为粗糙。
+</Card>
+
+<Card type="Example" title="Example 3">
+在 $n$ 重 Bernoulli 试验中，若已知每次试验事件 $A$ 出现的概率为 0.75，试利用 Chebyshev 不等式：
+1. 若 $n=7500$，估计 $A$ 出现的频率在 0.74 至 0.76 之间的概率至少有多大？
+2. 估计 $n$，使得 $A$ 出现的频率在 0.74 至 0.76 之间的概率不小于 0.90。
+
+**Solution**：
+设在 $n$ 重 Bernoulli 试验中，事件 $A$ 出现的次数为 $X_{n}$，则 $X_{n} \sim B(n, 0.75)$，于是 
+$$
+E\left(X_{n}\right)=n p=0.75 n, Var\left(X_{n}\right)=n p(1-p)=0.1875 n .
+$$
+
+又 $f_{n}(A)=X_{n} / n$，故由 Chebyshev 不等式，可得 
+$$
+P\left\{0.74<\frac{X_{n}}{n}<0.76\right\}=P\left\{\left|X_{n}-0.75 n\right|<0.01 n\right\} \geq 1-\frac{0.1875 n}{(0.01 n)^{2}}=1-\frac{1875}{n} .
+$$
+
+已知 $n=7500$，那么此概率至少为 $1-\frac{1875}{7500}=0.75$。
+
+若要求此概率不小于 0.90，则 $1-\frac{1875}{n} ≥0.90$，解得 $n ≥18750$。
+</Card>
+
+<Card type="Example" title="Example 4">
+某天文机构想测量宇宙中两颗行星的距离，进行了 $n$ 次独立的观测，测量值分别为 $X_{i}$（光年），$i=1,2, ..., n$。若 $E(X_{i})=\mu$（为两颗行星的真实距离，未知），$Var(X_{i})=5$。现取这 $n$ 次观测的平均作为实际距离 $\mu$ 的估计。
+1. 若 $n=100$，则估计值与实际值间的误差在±0.5 光年之内的概率至少有多大？
+2. 若要以不低于 95% 的把握控制估计值与实际值间的误差在±0.5 光年之内，至少要观测多少次？
+
+**Solution**：
+由于对 $i=1,2, ..., n$ 都有 $E(X_{i})=\mu$，$Var(X_{i})=5$，且诸 $X_{i}$ 相互独立，故 
+$$
+E\left(\frac{1}{n} \sum_{i=1}^{n} X_{i}\right)=\mu, Var\left(\frac{1}{n} \sum_{i=1}^{n} X_{i}\right)=\frac{1}{n^{2}} \sum_{i=1}^{n} Var\left(X_{i}\right)=\frac{5}{n} .
+$$
+
+由 Chebyshev 不等式，
+$$
+P\left\{\left|\frac{1}{n} \sum_{i=1}^{n} X_{i}-\mu\right|<0.5\right\} \geq 1-\frac{5 / n}{0.5^{2}}=1-\frac{20}{n} .
+$$
+
+已知 $n=100$，因此此概率至少为 $1-\frac{20}{100}=0.8$。
+
+若要求此概率不小于 0.95，则 $1-\frac{20}{n} ≥0.95$，解得 $n ≥400$。
+</Card>
+
+<Card type="Example" title="Example 5">
+设 $X_{1}, ..., X_{n}$ 是随机变量序列，$E(X_{n})=0$，$Var(X_{n})=\frac{1}{n}$，证明当 $n \to +\infty$ 时，$X_{n} \stackrel{P}{\to } 0$。
+
+**Proof**：
+利用 Chebyshev 不等式，对于任意的 $\forall \varepsilon>0$，
+$$
+0 ≤P(|X_{n}-0| ≥\varepsilon) ≤\frac{Var(X_{n})}{\varepsilon^{2}}=\frac{1}{n \varepsilon^{2}} \to 0,
+$$
+当 $n \to +\infty$ 时，因此 $\lim _{n \to +\infty} P(|X_{n}-0| ≥\varepsilon)=0$，即当 $n \to +\infty$ 时，$X_{n} \stackrel{P}{\to } 0$。
+</Card>
+
+### 几种大数定律
+<Card type="Definition" title="Definition 2 (大数定律)">
+设 $\{X_{i}, i ≥1\}$ 为一随机变量序列，若存在常数序列 $\{c_{n}, n ≥1\}$，使得对 $\forall \varepsilon>0$ 均有 
+$$
+lim _{n \to+\infty} P\left\{\left|\frac{1}{n} \sum_{i=1}^{n} X_{i}-c_{n}\right| \geq \varepsilon\right\}=0
+$$
+或 
+$$
+lim _{n \to+\infty} P\left\{\left|\frac{1}{n} \sum_{i=1}^{n} X_{i}-c_{n}\right|<\varepsilon\right\}=1
+$$
+成立，即有 $\frac{1}{n} \sum_{i=1}^{n} X_{i}-c_{n} \stackrel{P}{\to } 0$（当 $n \to +\infty$ 时），则称随机变量序列 $\{X_{i}, i ≥1\}$ 服从大数定律（weak law of large numbers）。
+
+特别地，若 $c_{n}$ 与 $n$ 无关，则可以写为 $\frac{1}{n} \sum_{i=1}^{n} X_{i} \stackrel{P}{\to } c$（当 $n \to +\infty$ 时）。
+</Card>
+
+<Card type="Theorem" title="Theorem 3 (贝努里(Bernoulli) 大数定律)">
+设 $n_{A}$ 为 $n$ 重 Bernoulli 试验中事件 $A$ 发生的次数，并记事件 $A$ 在每次试验中发生的概率为 $p$，则对 $\forall \varepsilon>0$，有 
+$$
+lim _{n \to+\infty} P\left\{\left|\frac{n_{A}}{n}-p\right| \geq \varepsilon\right\}=0
+$$
+成立。即，事件的频率 $\frac{n_{A}}{n} \stackrel{P}{\to }$ 事件概率 $p$（当 $n \to \infty$ 时）。
+</Card>
+
+<Card type="Proof" title="Proof (Bernoulli 大数定律)">
+引入随机变量 $X_{i}=\begin{cases}1, & 第i次试验中A发生 \\ 0, & 第i次试验中A不发生\end{cases}$，$i=1,2, ..., n$，则 $X_{i} \sim B(1, p)$，且相互独立，$E(X_{i})=p$，$Var(X_{i})=p(1-p)$，$i=1, ..., n$，且 $n_{A}=\sum_{i=1}^{n} X_{i}$。
+
+故 $\frac{n_{A}}{n}=\frac{1}{n} \sum_{i=1}^{n} X_{i}$，$E\left(\frac{n_{A}}{n}\right)=p$，$Var\left(\frac{n_{A}}{n}\right)=\frac{p(1-p)}{n}$。
+
+由 Chebyshev 不等式，可知 
+$$
+0 ≤P\left\{\left|\frac{n_{A}}{n}-p\right| ≥\varepsilon\right\} ≤\frac{Var\left(\frac{n_{A}}{n}\right)}{\varepsilon^{2}}=\frac{p(1-p)}{n \varepsilon^{2}} \to 0,
+$$
+当 $n \to +\infty$ 时，因此有 
+$$
+lim _{n \to+\infty} P\left\{\left|\frac{n_{A}}{n}-p\right| ≥\varepsilon\right\}=0.
+$$
+</Card>
+
+#### Bernoulli 大数定律的重要意义
+1. Bernoulli 大数定律证明了在大量重复独立试验中事件发生的频率的稳定性，正因为这种稳定性，概率的概念才有客观意义。
+2. Bernoulli 大数定律还提供了通过试验来确定事件概率的方法，既然当 $n$ 充分大时，频率 $\frac{n_{A}}{n}$ 与概率 $p$ 有较大偏差的可能性很小，因此可以通过做试验确定某事件发生的频率并把它作为相应的概率估计，这是一种参数估计方法，该方法的重要理论基础之一就是大数定律。
+
+<Card type="Theorem" title="Theorem 4 (辛钦(Khinchin) 大数定律)">
+设 $\{X_{i}, i ≥1\}$ 为独立同分布的随机变量序列，且其期望存在，记为 $\mu$，则对 $\forall \varepsilon>0$，有 
+$$
+lim _{n \to+\infty} P\left\{\left|\frac{1}{n} \sum_{i=1}^{n} X_{i}-\mu\right| ≥\varepsilon\right\}=0
+$$
+即 $\frac{1}{n} \sum_{i=1}^{n} X_{i} \stackrel{P}{\to } \mu$（当 $n \to +\infty$ 时），则 $\{X_{i}, i ≥1\}$ 服从大数定律。
+
+Khinchin 大数定律的证明需要用到特征函数(characteristic function)，感兴趣的同学可以自行了解，此处从略。
+</Card>
+
+<Card type="Corollary" title="Corollary 1">
+设 $\{X_{i}, i ≥1\}$ 为独立同分布的随机变量序列，若 $h(x)$ 为一连续函数，且 $E(|h(X_{1})|)<+\infty$，则对 $\forall \varepsilon>0$，有 
+$$
+lim _{n \to+\infty} P\left\{\left|\frac{1}{n} \sum_{i=1}^{n} h(X_{i})-a\right| ≥\varepsilon\right\}=0
+$$
+成立，其中 $a=E(h(X_{1}))$，即 $\frac{1}{n} \sum_{i=1}^{n} h(X_{i}) \stackrel{P}{\to } a=E(h(X_{1}))$（当 $n \to +\infty$ 时），则随机变量序列 $\{h(X_{i}), i ≥1\}$ 也服从大数定律。
+
+Khinchin 大数定律及其推论很常用，值得理解并熟记。
+</Card>
+
+<Card type="Example" title="Example 6">
+设随机变量 $X_{1}, ..., X_{n}, ...$ 相互独立同分布，$X_{1} \sim U(-1,1)$。请问：
+1. $\frac{1}{n} \sum_{k=1}^{n} X_{k}$；
+2. $\frac{1}{n} \sum_{k=1}^{n}|X_{k}|$；
+3. $\frac{1}{n} \sum_{k=1}^{n} X_{k}^{2}$。
+
+分别依概率收敛吗？如果依概率收敛，分别收敛于什么？
+
+**Solution**：
+注意到 $X_{1}, ..., X_{n}, ...$ 相互独立同分布，$E(X_{i})$ 存在；$|X_{1}|, ...,|X_{n}|, ...$ 相互独立同分布，$E(|X_{i}|)$ 存在；$X_{1}^{2}, ..., X_{n}^{2}, ...$ 相互独立同分布，$E(X_{i}^{2})$ 存在。因此利用辛钦大数定律，可知 $\frac{1}{n} \sum_{k=1}^{n} X_{k}$、$\frac{1}{n} \sum_{k=1}^{n}|X_{k}|$、$\frac{1}{n} \sum_{k=1}^{n} X_{k}^{2}$ 均依概率收敛。
+
+计算得 
+$$
+E\left(X_{1}\right)=0, E\left(\left|X_{1}\right|\right)=\int_{-1}^{1} \frac{|x|}{2} d x=\frac{1}{2}, E\left(X_{1}^{2}\right)=\int_{-1}^{1} \frac{x^{2}}{2} d x=\frac{1}{3} .
+$$
+
+因此 
+$$
+\frac{1}{n} \sum_{k=1}^{n} X_{k} \stackrel{P}{\to} 0, \frac{1}{n} \sum_{k=1}^{n}\left|X_{k}\right| \stackrel{P}{\to} \frac{1}{2}, \frac{1}{n} \sum_{k=1}^{n} X_{k}^{2} \stackrel{P}{\to} \frac{1}{3},
+$$
+当 $n \to +\infty$ 时。
+</Card>
+
+<Card type="Example" title="Example 7">
+设随机变量 $X_{1}, ..., X_{n}, ...$ 相互独立同分布，$X_{1} \sim U(0,1)$，请问：当 $n \to +\infty$ 时，$\sqrt[n]{X_{1} X_{2} \cdots X_{n}}$ 依概率收敛吗？如果依概率收敛，收敛于什么？
+
+**Solution**：
+记 $Y_{n}=\sqrt[n]{X_{1} X_{2} \cdots X_{n}}$，令 $Z_{n}=\frac{1}{n} \sum_{k=1}^{n} \ln X_{k}$。由于 $X_{1}, ..., X_{n}, ...$ 相互独立同分布，可知 $\ln X_{1}, ..., \ln X_{n}, ...$ 相互独立同分布。计算 $E(\ln X_{1})=\int_{0}^{1} \ln x d x = -1$，那么利用辛钦大数定律知当 $n \to +\infty$ 时，$Z_{n} \stackrel{P}{\to }-1$。
+
+进一步利用依概率收敛的性质，可知当 $n \to +\infty$ 时，$Y_{n}=e^{Z_{n}} \stackrel{P}{\to } e^{-1}$。
+</Card>
+
+<Card type="Theorem" title="Theorem 5 (*Markov 大数定律, 仅需了解)">
+设 $\{X_{i}, i ≥1\}$ 为一随机变量序列，若对 $\forall i ≥1$，$X_{i}$ 的方差都存在，并且 
+$$
+lim _{n \to+\infty} \frac{1}{n^{2}} Var\left(\sum_{i=1}^{n} X_{i}\right)=0,
+$$
+则对 $\forall \varepsilon>0$ 有 
+$$
+lim _{n \to+\infty} P\left\{\left|\frac{1}{n} \sum_{i=1}^{n} X_{i}-\frac{1}{n} \sum_{i=1}^{n} E\left(X_{i}\right)\right| \geq \varepsilon\right\}=0
+$$
+成立，即随机变量序列 $\{X_{i}, i ≥1\}$ 服从大数定律。
+</Card>
+
+<Card type="Proof" title="Proof (Markov 大数定律)">
+记 $Y_{n}=\frac{1}{n} \sum_{i=1}^{n} X_{i}$，则 $E(Y_{n})=\frac{1}{n} \sum_{i=1}^{n} E(X_{i})$，$Var(Y_{n})=\frac{1}{n^{2}} Var\left(\sum_{i=1}^{n} X_{i}\right)$。对 $Y_{n}$ 应用 Chebyshev 不等式，并结合定理条件，可得 
+$$
+0 ≤P\left\{\left|Y_{n}-E(Y_{n})\right| ≥\varepsilon\right\} ≤\frac{Var(Y_{n})}{\varepsilon^{2}}=\frac{1}{n^{2} \varepsilon^{2}} Var\left(\sum_{i=1}^{n} X_{i}\right) \to 0,
+$$
+当 $n \to +\infty$ 时，因此 
+$$
+lim _{n \to+\infty} P\left\{\left|\frac{1}{n} \sum_{i=1}^{n} X_{i}-\frac{1}{n} \sum_{i=1}^{n} E\left(X_{i}\right)\right| \geq \varepsilon\right\}=0 .
+$$
+</Card>
+
+<Card type="Theorem" title="Theorem 6 (*Chebyshev 大数定律, 仅需了解)">
+设 $\{X_{i}, i ≥1\}$ 为相互独立的随机变量序列，若存在常数 $C$ 使得 $Var(X_{i}) ≤C$（$i=1,2, ...$），即所有的 $X_{i}$ 的方差有共同的上界，则对 $\forall \varepsilon>0$ 有 
+$$
+lim _{n \to+\infty} P\left\{\left|\frac{1}{n} \sum_{i=1}^{n} X_{i}-\frac{1}{n} \sum_{i=1}^{n} E\left(X_{i}\right)\right| \geq \varepsilon\right\}=0
+$$
+成立，即随机变量序列 $\{X_{i}, i ≥1\}$ 服从大数定律。
+</Card>
+
+<Card type="Proof" title="Proof (Chebyshev 大数定律)">
+由于 
+$$
+\frac{1}{n^{2}} Var\left(\sum_{i=1}^{n} X_{i}\right)=\frac{1}{n^{2}} \sum_{i=1}^{n} Var(X_{i}) ≤\frac{n C}{n^{2}}=\frac{C}{n} \to 0,
+$$
+当 $n \to +\infty$ 时，因此由 Markov 大数定律知结论成立。
+</Card>
+
+<Card type="Corollary" title="Corollary 2 (*Chebyshev 大数定律的推论, 仅需了解)">
+设 $\{X_{i}, i ≥1\}$ 为相互独立的随机变量序列，若它们的方差存在并相同（记为 $\sigma^{2}$），则随机变量序列 $\{X_{i}, i ≥1\}$ 也服从大数定律。
+</Card>
+
+<Card type="Proof" title="Proof (Chebyshev 大数定律的推论)">
+记 $Y_{n}=\frac{1}{n} \sum_{i=1}^{n} X_{i}$，则 $E(Y_{n})=\frac{1}{n} \sum_{i=1}^{n} E(X_{i})$，$Var(Y_{n})=\frac{1}{n^{2}} Var\left(\sum_{i=1}^{n} X_{i}\right)=\frac{\sigma^{2}}{n}$。
+
+对 $Y_{n}$ 应用 Chebyshev 不等式，并结合定理条件，可得 
+$$
+0 ≤P\left\{\left|Y_{n}-E(Y_{n})\right| ≥\varepsilon\right\} ≤\frac{Var(Y_{n})}{\varepsilon^{2}}=\frac{\sigma^{2}}{n \varepsilon^{2}} \to 0,
+$$
+当 $n \to +\infty$ 时，因此随机变量序列 $\{X_{i}, i ≥1\}$ 也服从大数定律。
+</Card>
+
+### 常用结论
+特别地，$\{X_{i}, i ≥1\}$ 为相互独立的随机变量序列，具有相同的期望 $\mu$ 和相同的方差 $\sigma^{2}$，那么当 $n \to +\infty$ 时，$\frac{1}{n} \sum_{i=1}^{n} X_{i} \stackrel{P}{\to } \mu$。
+
+<Card type="Example" title="Example 8">
+设随机变量 $X_{1}, ..., X_{n}, ...$ 相互独立，且它们的分布律为 
+$$
+P\left(X_{i}=\sqrt{i}\right)=P\left(X_{i}=-\sqrt{i}\right)=\frac{1}{2 i}, P\left(X_{i}=0\right)=1-\frac{1}{i}, i=1,2, ...
+$$
+试判断 $\{X_{i}, i ≥1\}$ 是否服从大数定律？
+
+**Solution**：
+由于对任意的 $i ≥1$，有 
+$$
+E\left(X_{i}\right)=0, Var\left(X_{i}\right)=E\left(X_{i}^{2}\right)=0+(\sqrt{i})^{2} \cdot \frac{1}{2 i}+(-\sqrt{i})^{2} \cdot \frac{1}{2 i}=1,
+$$
+所以 $\{X_{i}, i ≥1\}$ 相互独立，期望存在并且相同，方差存在并且相同，由 Chebyshev 大数定律的推论知满足大数定律，且当 $n \to +\infty$ 时，$\frac{1}{n} \sum_{i=1}^{n} X_{i} \stackrel{P}{\to } 0$。
+</Card>
+
+
+## §5.2 Central Limit Theorem
+背景：有许多随机变量，它们是由大量的相互独立的随机变量的综合影响所形成的，而其中每个个别的因素作用都很小，这种随机变量往往服从或近似服从正态分布，或者说它的极限分布是正态分布。
+
+中心极限定理（Central Limit Theorem, CLT）正是从数学上论证了这一现象，它在长达两个世纪的时期内曾是概率论研究的中心课题。
+
+### Theorem 7（Lindeberg-Lévy 中心极限定理，亦称为独立同分布的中心极限定理）
+设随机变量 $X_{1}, X_{2}, ..., X_{n}, ...$ 相互独立且同分布，满足 $E(X_{i})=\mu$，$Var(X_{i})=\sigma^{2}$，$i=1,2, ...,$ 则对于充分大的 $n$ 有：
+$$
+\sum_{i=1}^{n} X_{i} \stackrel{ 近似 }{\sim} N\left(n \mu, n \sigma^{2}\right)
+$$
+此时：
+$$
+P\left(a<\sum_{i=1}^{n} X_{i} \leq b\right) \approx \Phi\left(\frac{b-n \mu}{\sqrt{n} \sigma}\right)-\Phi\left(\frac{a-n \mu}{\sqrt{n} \sigma}\right)
+$$
+类似地，有 $\bar{X}=\frac{1}{n} \sum_{i=1}^{n} X_{i}$ 的近似分布是 $N(\mu, \frac{\sigma^{2}}{n})$
+
+### 注意事项
+当随机变量 $X_{1}, X_{2}, ..., X_{n}, ...$ 相互独立同分布，满足 $E(X_{i})=\mu$，$Var(X_{i})=\sigma^{2}$，$i=1,2, ...$ 时：
+$$
+E\left(\sum_{i=1}^{n} X_{i}\right)=\sum_{i=1}^{n} E\left(X_{i}\right)=n \mu, \quad Var\left(\sum_{i=1}^{n} X_{i}\right)=\sum_{i=1}^{n} Var\left(X_{i}\right)=n \sigma^{2}
+$$
+据 CLT，当 $n$ 充分大时，有：
+$$
+\sum_{i=1}^{n} X_{i} \stackrel{ 近似 }{\sim} N(n \mu, n \sigma^{2}), \quad \bar{X}=\frac{1}{n} \sum_{i=1}^{n} X_{i} \stackrel{ 近似 }{\sim} N\left(\mu, \frac{\sigma^{2}}{n}\right)
+$$
+故 CLT 仅仅是分布类型上的一种近似。（“万物归一”）
+
+### Corollary 3（De Moivre-Laplace 中心极限定理）
+设 $n_{A}$ 为在 $n$ 重 Bernoulli 试验中事件 $A$ 发生的次数，$P(A)=p(0<p<1)$，则对任何实数 $x$ 有：
+$$
+\lim _{n \to+\infty} P\left(\frac{n_{A}-n p}{\sqrt{n p(1-p)}} \leq x\right)=\int_{-\infty}^{x} \frac{1}{\sqrt{2 \pi}} e^{-\frac{t^{2}}{2}} d t=\Phi(x)
+$$
+
+#### Proof
+引入随机变量：
+$$
+X_{i}= \begin{cases}1 & \text{第}i\text{次试验时}A\text{发生} \\ 0 & \text{第}i\text{次试验时}A\text{未发生}\end{cases}
+$$
+则 $X_{1}, X_{2}, ..., X_{n}, ...$ 相互独立同分布，$X_{i} \sim B(1, p)$。由于 $n_{A}=X_{1}+X_{2}+\cdots+X_{n}$，由 Lindeberg-Lévy 中心极限定理可知：
+$$
+n_{A} \stackrel{ 近似 }{\sim} N(n p, n p(1-p))
+$$
+说明：当 $n$ 很大时，二项分布可以用正态分布去近似。（期望与方差不变）
+
+<Card type="Example" title="Example 9">
+某宴会上提供一瓶 6 升（L）的大瓶法国红酒，假定与会者每次所倒红酒的重量服从同一分布，期望值为 100 毫升（mL），标准差为 32 毫升（mL）。若每次所倒红酒都是相互独立的，试问：倒了 55 次后该瓶红酒仍有剩余的概率约为多少？
+
+**Solution**
+
+设 $X_{i}$ 为第 $i$ 次所倒的红酒重量（单位：mL），则 $X_{i}$ 相互独立且分布相同，且 $E(X_{i})=100$，$Var(X_{i})=32^{2}$，$i=1,2, ..., 55$。
+
+由 Lindeberg-Lévy 中心极限定理：
+$$
+\frac{\sum_{i=1}^{55} X_{i}-55 \times 100}{32 \sqrt{55}} \stackrel{ 近似 }{\sim} N(0,1)
+$$
+
+**Solution (Cont.)**
+
+所以 $P \{ \text{倒了} 55 \text{次后该瓶红酒仍有剩余}\}$：
+$$
+=P\left\{\sum_{i=1}^{55} X_{i}<6000\right\} =P\left\{\frac{\sum_{i=1}^{55} X_{i}-55 \times 100}{32 \sqrt{55}}<\frac{6000-55 \times 100}{32 \sqrt{55}}\right\}
+$$
+</Card>
+
+<Card type="Example" title="Example 10">
+某校 1500 名学生选修“概率论与数理统计”课程，共有 10 名教师主讲此课，假定每位学生可以随意地选择一位教师（即选择任意一位教师的可能性均为 1/10），而且学生之间的选择是相互独立的。问：每位教师的上课教室应该设有多少座位才能保证因没有座位而使学生离开的概率小于 5%？
+
+**Solution**
+
+由于每位学生可以随意地选择一位老师，因此我们只需要考虑某个老师甲的上课教室的座位即可。引入随机变量：
+$$
+X_{i}= \begin{cases}1 & \text{第}i\text{个学生选择老师甲} \\ 0 & \text{其他情况}\end{cases}, \quad i=1,2, ..., 1500
+$$
+则 $X_{i}$ 独立同分布，$X_{i} \sim B(1,1 / 10)$。
+
+**Solution (Cont.)**
+
+记 $Y=\sum_{i=1}^{1500} X_{i}$，则 $Y \sim B(1500,1 / 10)$。由中心极限定理：
+$$
+\frac{Y-1500 \times 1 / 10}{\sqrt{1500 \times 1 / 10 \times 9 / 10}} \stackrel{ 近似 }{\sim} N(0,1)
+$$
+设教室需要设 $a$ 个座位，则由题意，$a$ 需要满足：
+$$
+\Phi(1.645)=95\% \leq P\{Y \leq a\} \approx \Phi\left(\frac{a-1500 \times 1 / 10}{\sqrt{1500 \times 1 / 10 \times 9 / 10}}\right)=\Phi\left(\frac{a-150}{\sqrt{135}}\right)
+$$
+即：
+$$
+\frac{a-150}{\sqrt{135}} \geq1.645 \Rightarrow a \geq169.11
+$$
+故每位教师的上课教室应该至少设 170 个座位。
+</Card>
+
+<Card type="Example" title="Example 11">
+某保险公司的老年人寿保险有 1 万人参加（这些人的健康状况相互独立），每人每年交 200 元，若老人在该年内死亡，公司付给受益人 1 万元。设老年人死亡率为 0.017，试求保险公司在一年内这项保险亏本的概率约为多少？
+
+**Solution**
+
+设 $X$ 为一年中投保老人的死亡数，则 $X \sim B(10000,0.017)$。现求 $P(X>200)$。
+
+由 De Moivre-Laplace 中心极限定理：
+$$
+\frac{X-10000 \times 0.017}{\sqrt{10000 \times 0.017 \times 0.983}} \stackrel{ 近似 }{\sim} N(0,1)
+$$
+故保险公司亏本的概率为：
+$$
+P(X>200) \approx 1-\Phi\left(\frac{200-10000 \times 0.017}{\sqrt{10000 \times 0.017 \times 0.983}}\right)=1-\Phi(2.321)=0.01
+$$
+</Card>
+
+<Card type="Example" title="Example 10 (Cont.)">
+求保险公司盈利 10 万元以上的概率。
+
+**Solution (Cont.)**
+
+保险公司盈利 10 万元以上的概率：
+$$
+\begin{aligned}
+& P(10000 \times 200-10000 X>100000) \\
+& =P(X<190)=P(X \leq 189) \\
+& \approx \Phi\left(\frac{189-10000 \times 0.017}{\sqrt{10000 \times 0.017 \times 0.983}}\right)-\Phi\left(\frac{0-10000 \times 0.017}{\sqrt{10000 \times 0.017 \times 0.983}}\right) \\
+& =\Phi(1.47)-\Phi(-13.15)=0.9292
+\end{aligned}
+$$
+</Card>
+
+<Card type="Example" title="Example 12">
+一颗骰子投掷了 11520 次，出现“1 点”的次数超过了 2160 次，由此可否推断该骰子是不均匀的呢？
+
+**Solution**
+
+记 $n_{A}$ 为骰子投掷了 11520 次出现“1 点”的次数。假设骰子是均匀的，则 $n_{A} \sim B(11520,1 / 6)$。那么：
+$$
+P\left\{n_{A}>2160\right\}=\sum_{k=2161}^{11520} C_{11520}^{k}\left(\frac{1}{6}\right)^{k}\left(\frac{5}{6}\right)^{11520-k}
+$$
+
+**Solution (Cont.)**
+
+考虑用近似计算，利用 De Moivre-Laplace 中心极限定理：
+$$
+\frac{n_{A}-11520 \times 1 / 6}{\sqrt{11520 \times 1 / 6 \times 5 / 6}} \stackrel{ 近似 }{\sim} N(0,1)
+$$
+所以：
+$$
+P\left\{n_{A}>2160\right\} \approx 1-\Phi\left(\frac{2160-11520 \times 1 / 6}{\sqrt{11520 \times 1 / 6 \times 5 / 6}}\right)=1-\Phi(6)=0
+$$
+因此可以认为该骰子是不均匀的。
+</Card>
+
+<Card type="Example" title="Example 13">
+设某工厂有 400 台同类机器，各台机器发生故障的概率都是 0.02，各台机器工作是相互独立的，试求机器出故障的台数不小于 2 的概率。
+
+**Solution**
+
+设机器出故障的台数为 $X$，则 $X \sim B(400,0.02)$，分别用三种方法计算：
+
+1. 用二项分布计算：
+$$
+P(X \geq 2)=1-P(X=0)-P(X=1)=1-0.98^{400}-400 \times 0.02 \times 0.98^{399}=0.9972
+$$
+
+2. 用泊松分布近似计算，$\lambda=n p=400 \times0.02=8$
+
+3. 用正态分布近似计算：
+$$
+\begin{aligned}
+P(X \geq 2)=1-P(X \leq 1) & \approx 1-\Phi\left(\frac{1-n p}{\sqrt{n p(1-p)}}\right) \\
+& =1-\Phi\left(\frac{1-400 \times 0.02}{\sqrt{400 \times 0.02 \times 0.98}}\right) \\
+& =\Phi(2.5)=0.9938
+\end{aligned}
+$$
+</Card>
+
+<Card type="Example" title="Example 14">
+设随机变量 $X_{1}, X_{2}, ..., X_{50}$ 相互独立同分布，$X_{1} \sim U(-1,1)$，分别求：
+1. $\frac{1}{50} \sum_{k=1}^{50} X_{k}$
+2. $\frac{1}{50} \sum_{k=1}^{50}|X_{k}|$
+3. $\frac{1}{50} \sum_{k=1}^{50} X_{k}^{2}$
+
+的近似分布。
+
+**Solution**
+
+由中心极限定理，$\frac{1}{50} \sum_{k=1}^{50} X_{k}$、$\frac{1}{50} \sum_{k=1}^{50}|X_{k}|$、$\frac{1}{50} \sum_{k=1}^{50} X_{k}^{2}$ 均近似服从正态分布。
+
+1. 因为 $E(X_{1})=0$，$Var(X_{1})=\frac{1}{3}$，所以 $\frac{1}{50} \sum_{k=1}^{50} X_{k}$ 近似 $\sim N(0, \frac{1}{150})$
+
+2. $\frac{1}{50} \sum_{k=1}^{50}|X_{k}|$ 近似 $\sim N\left(\frac{1}{2}, \frac{1}{600}\right)$
+
+3. $\frac{1}{50} \sum_{k=1}^{50} X_{k}^{2}$ 近似 $\sim N\left(\frac{1}{3}, \frac{2}{1125}\right)$
+</Card>
+
+<Card type="Example" title="Example 15">
+在 $n$ 重 Bernoulli 试验中，若已知每次试验事件 $A$ 出现的概率为 0.75，试利用中心极限定理：
+1. 若 $n=7500$，估计 $A$ 出现的频率在 0.74 至 0.76 之间的概率至少有多大；
+2. 估计 $n$，使 $A$ 出现的频率在 0.74 至 0.76 之间的概率不小于 0.90。
+
+**Solution**
+
+设在 $n$ 重 Bernoulli 试验中，事件 $A$ 出现的次数为 $X_{n}$，则 $X_{n} \sim B(n, 0.75)$，于是：
+$$
+E\left(X_{n}\right)=n p=0.75 n, \quad Var\left(X_{n}\right)=n p(1-p)=0.1875 n
+$$
+当 $n$ 充分大时，$X_{n}$ 近似 $\sim N(0.75n, 0.1875n)$。
+
+**Solution (Cont.)**
+
+所以：
+$$
+P\left\{0.74<\frac{X_{n}}{n}<0.76\right\} \approx \Phi\left(\frac{0.76 n-0.75 n}{\sqrt{0.1875 n}}\right)-\Phi\left(\frac{0.74 n-0.75 n}{\sqrt{0.1875 n}}\right)=2 \Phi\left(\frac{0.04 \sqrt{n}}{\sqrt{3}}\right)-1
+$$
+
+1. 已知 $n=7500$，因此此概率至少为：
+$$
+2 \Phi\left(\frac{0.04 \sqrt{7500}}{\sqrt{3}}\right)-1=2 \Phi(2)-1=0.9544
+$$
+
+2. 若要求此概率不小于 0.90，则：
+$$
+2 \Phi\left(\frac{0.04 \sqrt{n}}{\sqrt{3}}\right)-1 \geq0.90
+$$
+$$
+\Rightarrow \Phi\left(\frac{0.04 \sqrt{n}}{\sqrt{3}}\right) \geq 0.95=\Phi(1.645)
+$$
+$$
+\Rightarrow n \geq(25 \times 1.645)^{2} \times 3=5074
+$$
+（与 Chebyshev 不等式估计 $n \geq18750$ 作比较。）
+</Card>
+
+## 第五章的主要知识点
+1. 依概率收敛的定义：若对于 $\forall \varepsilon>0$ 均有 $\lim _{n \to +\infty} P\{|Y_{n}-c| \geq\varepsilon\}=0$ 成立，则 $Y_{n} \stackrel{P}{\to } c$（当 $n \to +\infty$）；
+2. 依概率收敛的性质；
+3. Markov 不等式和 Chebyshev 不等式；
+4. 大数律：本书中的大数律均为：在一定条件下，有 $\frac{1}{n} \sum_{i=1}^{n} X_{i}-E\left(\frac{1}{n} \sum_{i=1}^{n} X_{i}\right) \stackrel{P}{\to } 0$（当 $n \to +\infty$），需掌握：贝努里大数律、辛钦大数律、Chebyshev 大数律的推论；
+5. 中心极限定理（CLT）：独立同分布的 CLT、De Moivre-Laplace CLT。

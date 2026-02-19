@@ -20,7 +20,9 @@
 - [Chapter 1 Introduction to Probability](./L1) · [Raw PPT for reference](./L1-raw)
 - [Chapter 2 Random Variables and Distributions](./L2) · [Raw PPT for reference](./L2-raw)
 - [Chapter 3 Multivariate Random Variables and Their Distributions](./L3) · [Raw PPT for reference](./L3-raw)
-
+- [Chapter 4 Numerical Characteristics of Random Variables](./L4) · [Raw PPT for reference](./L4-raw)
+- [Chapter 5 Laws of Large Numbers and Central Limit Theorems](./L5) · [Raw PPT for reference](./L5-raw)
+- [Chapter 6 Statistics and Sampling Distributions](./L6) · [Raw PPT for reference](./L6-raw)
 
 
 ---

@@ -1,0 +1,66 @@
+Divide and Conquer
+
+
+### Recursively:
+- **Divide** the problem into a number of sub-problems
+- **Conquer** the sub-problems by solving them recursively
+- **Combine** the solutions to the sub-problems into the solution for the original problem
+
+General recurrence: $T(N) = aT(N/b) + f(N)$
+
+### Cases solved by divide and conquer
+- The maximum subsequence sum – the $O(N \log N)$ solution
+- Tree traversals – $O(N)$
+- Mergesort and quicksort – $O(N \log N)$
+
+## Example： Closest Points Problem
+
+
+
+### Master method(主方法)
+
+ref: https://starstone3.github.io/incourse/ADS/divide/
+
+我愿称之为背公式大法。
+
+
+    设 $a \geq 1$ 且 $b > 1$ 为常数，设 $f(N)$ 为一个函数，并且 $T(N)$ 在非负整数上由递推关系 $T(N) = aT(N/b) + f(N)$ 定义。那么我们可以根据$f(N)$的情况直接得出$T(N)$的时间复杂度。
+
+
+
+
+#### 形式一
+
+    1. 若 $f(N)=O(N^{(\log_b{a})-\varepsilon}), \text{ 对于某些 }\varepsilon>0$，那么 $T(N)=\Theta(N^{\log_b{a}})$；
+    2. 若 $f(N)=\Theta(N^{\log_b{a}})$，那么 $T(N)=\Theta(N^{\log_b{a}}\log{N})$；
+    3. 若 $f(N)=\Omega(N^{(\log_b{a})+\varepsilon}), \text{ 对于某些 }\varepsilon>0$ 且 $af(\frac{N}{b})<cf(N), \text{ 对于 } c<1 \text{ 与 } \forall N > N_0$，那么 $T(N)=\Theta(f(N))$；
+
+
+#### 形式二
+
+    1. 若 $af(\frac{N}{b}) = \kappa f(N) \text{ 对于确定的 } \kappa < 1$，那么 $T(N) = \Theta(f(N))$
+    2. 若 $af(\frac{N}{b}) = K f(N) \text{ 对于确定的 } K > 1$，那么 $T(N) = \Theta(N^{\log_b{a}})$
+    3. 若 $af(\frac{N}{b}) = f(N)$，那么 $T(N) = \Theta(f(N) \log_b N)$
+
+#### 形式三
+
+    特别的，若$T(N)$满足
+
+    $$
+    \begin{aligned}
+    & T(N) = a T(\frac{n}{b}) + \Theta(N^k \log^p{N})
+    &  a \geq 1,\; b > 1,\; p \geq 0
+    \end{aligned}
+    $$
+
+    其复杂度的结论为：
+
+    $$
+    T(N) = \left\{
+    \begin{aligned}
+        & O(N^{\log_b{a}}) & \text{若 } a > b^{k} \\
+        & O(N^k \log^{p+1}{N}) & \text{若 } a = b^{k} \\
+        & O(N^k \log^{p}{N}) & \text{若 } a < b^{k}
+    \end{aligned}
+    \right.
+    $$

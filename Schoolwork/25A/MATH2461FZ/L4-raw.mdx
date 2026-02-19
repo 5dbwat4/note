@@ -1,0 +1,1470 @@
+import Card from "@md-components/card.vue"
+
+# Chapter 4 随机变量的数字特征
+在一些实际问题中，我们需要了解随机变量的分布函数外，更关心的是随机变量的某些特征。
+
+<Card type="Example" title="Example 1">
+- 在评定某地区粮食产量的水平时，最关心的是平均产量。
+- 在检查一批棉花的质量时，既需要注意纤维的平均长度，又需要注意纤维长度与平均长度的偏离程度。
+- 考察杭州市区居民的家庭收入情况，我们既要知家庭的年平均收入，又要研究贫富之间的差异程度。
+</Card>
+
+## §4.1 数学期望(Mathematical Expectation)
+<Card type="Example" title="Example 2 (谁的技术比较好?)">
+有甲、乙两个射手，他们的某次射击成绩如下表所示：
+
+| 甲射手 | 击中环数 | 次数 |
+| ---- | ---- | ---- |
+|      | 8    | 10   |
+|      | 9    | 80   |
+|      | 10   | 10   |
+
+| 乙射手 | 击中环数 | 次数 |
+| ---- | ---- | ---- |
+|      | 8    | 20   |
+|      | 9    | 65   |
+|      | 10   | 15   |
+
+试问哪个射手技术较好？
+
+### Solution
+甲的平均成绩：$\frac{8 \times 10+9 \times 80+10 \times 10}{100}=9$
+
+乙的平均成绩：$\frac{8 \times 20+9 \times 65+10 \times 15}{100}=8.95$
+
+所以甲的成绩好于乙的成绩。
+</Card>
+
+设射手的平均击中的环数为 $\bar{x}$，即 $\bar{x}=\frac{1}{n} \sum_{k} x_{k} n_{k}=\sum_{k} x_{k} \frac{n_{k}}{n}=\sum_{k} x_{k} f_{k}$，其中 $f_{k}$ 为击中 $x_{k}$ 环的频率。
+
+设射手的射击环数为 $X$，$f_{k}$ 的稳定值为 $p_{k}=P(X=x_{k})$，因此 $\bar{x}$ 的稳定值为 $\sum_{k} x_{k} p_{k}$。
+
+即 $\sum_{k} x_{k} f_{k}$ 稳定于 $\sum_{k} x_{k} p_{k}$，后者是一个确定值，反映了射手的平均水平，也就是给出了 $X$ 的平均值。
+
+<Card type="Definition" title="Definition 1 (离散型随机变量的数学期望)">
+设离散型随机变量 $X$ 的分布律为 $P(X=x_{k})=p_{k}$，$k=1,2, ...$。
+
+若级数 $\sum_{k=1}^{+\infty} x_{k} p_{k}$ 绝对收敛（即 $\sum_{k=1}^{+\infty}|x_{k}| p_{k}<+\infty$），则称 $X$ 的（数学）期望存在，其值为 $\sum_{k=1}^{+\infty} x_{k} p_{k}$，即随机变量 $X$ 的数学期望（mathematical expectation）（通常记为 $E(X)$）为：
+$$
+E(X)=\sum_{k=1}^{+\infty} x_{k} p_{k}
+$$
+</Card>
+
+<Card type="Definition" title="Definition 2 (连续型随机变量的数学期望)">
+设连续型随机变量 $X$ 的概率密度函数为 $f(x)$。
+
+若积分 $\int_{-\infty}^{+\infty} x f(x) d x$ 绝对收敛（即 $\int_{-\infty}^{+\infty}|x| f(x) d x<+\infty$），则称 $X$ 的（数学）期望存在，其值为 $\int_{-\infty}^{+\infty} x f(x) d x$，即随机变量 $X$ 的数学期望（mathematical expectation）（通常记为 $E(X)$）为：
+$$
+E(X)=\int_{-\infty}^{+\infty} x f(x) d x
+$$
+
+数学期望也常简称为期望，又称为均值（mean）。
+</Card>
+
+<Card type="Example" title="Example 3">
+设随机变量 $X$ 的分布律为：
+$$
+P\left(X=(-1)^{k+1} \frac{3^{k}}{k}\right)=\frac{2}{3^{k}}, k=1,2, ...
+$$
+
+证明：$X$ 不存在数学期望。
+
+### Proof
+注意到：
+$$
+\sum_{k=1}^{+\infty}\left|x_{k}\right| p_{k}=\sum_{k=1}^{+\infty} \frac{3^{k}}{k} \cdot \frac{2}{3^{k}}=\sum_{k=1}^{+\infty} \frac{2}{k}=+\infty
+$$
+
+即该无穷级数是发散的。因此由期望定义知，$X$ 不存在数学期望。
+</Card>
+
+<Card type="Example" title="Example 4">
+设随机变量 $X$ 的概率密度函数为：
+$$
+f(x)=\frac{1}{\pi\left(1+x^{2}\right)}, \quad-\infty<x<+\infty
+$$
+
+证明：$X$ 不存在数学期望。
+
+### Proof
+由于：
+$$
+\int_{-\infty}^{+\infty}|x| f(x) d x=\int_{-\infty}^{+\infty} \frac{|x|}{\pi\left(1+x^{2}\right)} d x=\int_{0}^{+\infty} \frac{2 x}{\pi\left(1+x^{2}\right)} d x=\left.\frac{1}{\pi} \ln \left(1+x^{2}\right)\right|_{0} ^{+\infty}=+\infty
+$$
+
+即该积分是发散的。因此由定义知，$X$ 不存在数学期望。
+</Card>
+
+<Card type="Example" title="Example 5">
+一种常见的赌博游戏，其规则为：投掷一颗均匀的骰子，赌客猜精确的骰子点数，凡猜中者以1比5得到奖金，否则其押金归庄家所有。问此规则对庄家还是赌客更有利？
+
+### Solution
+由题意知，猜中点数的概率为 $\frac{1}{6}$。不妨设一赌徒押了10元，那么根据规则，他收回50元的可能性为 $\frac{1}{6}$，血本无归的可能性为 $\frac{5}{6}$。因此，经过一次赌博，他能“期望”得到的金额（即平均所得）为：
+$$
+50 \times  \frac{1}{6}+0 \times  \frac{5}{6}=\frac{50}{6} \approx 8.33 (元) <10 (元)
+$$
+
+所以可得此规则对庄家有利。
+</Card>
+
+<Card type="Example" title="Example 6 (分赌本问题——“期望”名称的起源)">
+17世纪中叶，有甲、乙两赌徒，赌技相同，各出赌注50法郎。两人约定无平局，谁先赢3局就获得全部赌注。现因一些原因，当甲赢2局、乙赢1局时，赌博中止。问：如何分赌本才算公平？
+
+### Solution
+均分，对甲不公平；全部归甲，对乙不公平！
+
+按已赌局数和再赌下去的“期望”分！（帕斯卡、费马提出）
+
+### Solution (Cont.)
+因为最多再赌两局，必然可以分出胜负，共三种情况：
+1. 第四局甲赢；（概率 $\frac{1}{2}$）
+2. 第四局乙赢，第五局甲赢；（概率 $\frac{1}{4}$）
+3. 第四局乙赢，第五局乙赢。（概率 $\frac{1}{4}$）
+
+所以甲获得100法郎的可能性为 $\frac{3}{4}$，乙获得100法郎的可能性为 $\frac{1}{4}$。
+
+### Solution (Cont.)
+因此，甲的所得 $X$ 可视为一个可能取值为0或100的随机变量，其分布律为：
+
+| $X$  | 0   | 100 |
+| ---- | ---- | ---- |
+| $P$  | $\frac{1}{4}$ | $\frac{3}{4}$ |
+
+那么甲的“期望”所得是：
+$$
+100 \times  \frac{3}{4}+0 \times  \frac{1}{4}=75 (法郎)
+$$（占总赌本的 $\frac{3}{4}$）
+
+所以最终决定：甲分总赌本的 $\frac{3}{4}$，乙分总赌本的 $\frac{1}{4}$。这种分法既考虑了已赌局数，又包含了再赌下去的“期望”，因此更为合理一些。
+</Card>
+
+### 常见分布的数学期望
+（附表一，第二版Page 362，第一版Page 293）
+
+<Card type="Example" title="Example 7 (两点分布 $0-1(p)$)">
+设随机变量 $X$ 服从参数为 $p$ 的0-1分布，其分布律为：
+$$
+P(X=0)=1-p, P(X=1)=p
+$$
+
+则：
+$$
+E(X)=0 \times(1-p)+1 \times  p=p
+$$
+
+0-1分布的期望即为它的参数 $p$。
+</Card>
+
+<Card type="Example" title="Example 8 (二项分布 $B(n, p)$)">
+设随机变量 $X$ 服从二项分布 $B(n, p)$，其分布律为：
+$$
+P(X=k)=C_{n}^{k} p^{k}(1-p)^{n-k}, k=0,1, ..., n
+$$
+
+则：
+$$
+\begin{aligned} E(X) & =\sum_{k=0}^{n} k \cdot C_{n}^{k} p^{k}(1-p)^{n-k}=\sum_{k=1}^{n} n \cdot C_{n-1}^{k-1} p^{k}(1-p)^{n-k} \\ & =n p \sum_{k=1}^{n} C_{n-1}^{k-1} p^{k-1}(1-p)^{(n-1)-(k-1)}=n p \sum_{j=0}^{n-1} C_{n-1}^{j} p^{j}(1-p)^{(n-1)-j}=n p \end{aligned}
+$$
+
+二项分布的期望即为它的两个参数之乘积 $n p$。
+</Card>
+
+<Card type="Example" title="Example 9 (泊松分布 $P(\lambda)$)">
+设随机变量 $X$ 服从泊松分布 $P(\lambda)$，其分布律为：
+$$
+P(X=k)=\frac{\lambda^{k} e^{-\lambda}}{k !}, k=0,1, \cdots
+$$
+
+则：
+$$
+E(X)=\sum_{k=0}^{+\infty} k \frac{\lambda^{k} e^{-\lambda}}{k !}=\sum_{k=1}^{+\infty} k \frac{\lambda^{k} e^{-\lambda}}{k !}=\lambda e^{-\lambda} \sum_{k=1}^{+\infty} \frac{\lambda^{k-1}}{(k-1) !}=\lambda e^{-\lambda} \cdot e^{\lambda}=\lambda
+$$
+
+泊松分布的期望即为它的参数 $\lambda$。
+</Card>
+
+<Card type="Example" title="Example 10 (几何分布 $Geom(p)$)">
+设随机变量 $X$ 服从几何分布 $Geom(p)$，其分布律为：
+$$
+P(X=k)=p(1-p)^{k-1}, k=1,2, ...
+$$
+
+则：
+$$
+E(X)=\sum_{k=1}^{+\infty} k p(1-p)^{k-1}=p \cdot \sum_{k=1}^{+\infty}\left((1-p)^{k}\right)'=\left.p \cdot\left(\frac{x}{1-x}\right)'\right|_{x=1-p}=p \cdot \frac{1}{p^{2}}=\frac{1}{p}
+$$
+
+几何分布的期望即为它的参数的倒数 $\frac{1}{p}$。
+</Card>
+
+<Card type="Example" title="Example 11 (均匀分布 $U(a, b)$)">
+设随机变量 $X$ 服从均匀分布 $U(a, b)$，其概率密度为：
+$$
+f(x)= \begin{cases}\frac{1}{b-a}, & a<x<b, \\ 0, & 其他\end{cases}
+$$
+
+则：
+$$
+E(X)=\int_{-\infty}^{+\infty} x f(x) d x=\int_{a}^{b} \frac{x}{b-a} d x=\frac{a+b}{2}
+$$
+
+均匀分布的期望即为它的支撑区间 $(a, b)$ 的中点 $\frac{a+b}{2}$。
+</Card>
+
+<Card type="Example" title="Example 12 (指数分布 $E(\lambda)$)">
+设随机变量 $X$ 服从指数分布 $E(\lambda)$，其概率密度为：
+$$
+f(x)= \begin{cases}\lambda e^{-\lambda x}, & x>0, \\ 0, & x \leq 0\end{cases}
+$$
+
+则：
+$$
+\begin{aligned} E(X)=\int_{-\infty}^{+\infty} x f(x) d x & =\int_{0}^{+\infty} x \cdot \lambda e^{-\lambda x} d x \\ & =-\left.x e^{-\lambda x}\right|_{0} ^{+\infty}+\int_{0}^{+\infty} e^{-\lambda x} d x=-\left.\frac{1}{\lambda} e^{-\lambda x}\right|_{0} ^{+\infty}=\frac{1}{\lambda} \end{aligned}
+$$
+
+指数分布的期望即为它的参数的倒数 $\frac{1}{\lambda}$。
+</Card>
+
+若已知 $X$ 服从期望为2的指数分布，则其概率密函数为：
+$$
+f(x)= \begin{cases}\frac{1}{2} e^{-x / 2}, & x>0, \\ 0, & x \leq 0\end{cases}
+$$
+
+<Card type="Example" title="Example 13 (正态分布 $N(\mu, \sigma^{2})$)">
+设随机变量 $Z$ 服从标准正态分布 $N(0,1)$，则其期望为0。
+
+设随机变量 $X$ 服从正态分布 $N(\mu, \sigma^{2})$，其概率密度函数为：
+$$
+f(x)=\frac{1}{\sqrt{2 \pi} \sigma} e^{-\frac{(x-\mu)^{2}}{2 \sigma^{2}}}, \quad-\infty<x<+\infty
+$$
+
+则：
+$$
+\begin{aligned} E(X)&=\int_{-\infty}^{+\infty} x f(x) d x=\int_{-\infty}^{+\infty} \frac{x}{\sqrt{2 \pi} \sigma} e^{-\frac{(x-\mu)^{2}}{2 \sigma^{2}}} d x \\ &=\mu+\int_{-\infty}^{+\infty} \frac{x-\mu}{\sqrt{2 \pi} \sigma} e^{-\frac{(x-\mu)^{2}}{2 \sigma^{2}}} d x \end{aligned}
+$$
+
+令 $t=\frac{x-\mu}{\sigma}$，则：
+$$
+E(X)=\mu+\frac{\sigma}{\sqrt{2 \pi}} \int_{-\infty}^{+\infty} t e^{-\frac{t^{2}}{2}} d t=\mu+0=\mu
+$$
+
+正态分布的期望即为它的位置参数 $\mu$。
+</Card>
+
+<Card type="Example" title="Example 14">
+某厂生产的电子产品的寿命（单位：年）服从均值为3的指数分布。若每件产品的生产成本为350元，出售价格为500元，且该厂向顾客承诺，如果售出一年之内发生故障，则可免费调换一件，如果在三年之内发生故障，则予以免费维修，维修成本为50元。在这样的价格体系下，问该厂每售出一件产品，其平均净收入是多少？
+
+### Solution
+记某件产品的寿命为 $X$（年），则 $X \sim E(\frac{1}{3})$，售出一件产品的净收入为 $Y$（元），则：
+$$
+Y= \begin{cases}500-350 \times  2=-200, & 若 0<X \leq 1 \\ 500-350-50=100, & 若 1<X \leq 3 \\ 500-350=150, & 若 X>3 \end{cases}
+$$
+
+### Solution (Cont.)
+由于 $X \sim E(\frac{1}{3})$，那么 $Y$ 的分布律为：
+$$
+P(Y=-200)=P(0<X \leq 1)=\int_{0}^{1} \frac{1}{3} e^{-\frac{x}{3}} d x=1-e^{-\frac{1}{3}}
+$$
+$$
+P(Y=100)=P(1<X \leq 3)=\int_{1}^{3} \frac{1}{3} e^{-\frac{x}{3}} d x=e^{-\frac{1}{3}}-e^{-1}
+$$
+$$
+P(Y=150)=P(X>3)=\int_{3}^{+\infty} \frac{1}{3} e^{-\frac{x}{3}} d x=e^{-1}
+$$
+
+所以售出一件产品的平均净收入为：
+$$
+\begin{aligned} E(Y) & =-200 \times\left(1-e^{-\frac{1}{3}}\right)+100 \times\left(e^{-\frac{1}{3}}-e^{-1}\right)+150 \times  e^{-1} \\ & =-200+300 e^{-\frac{1}{3}}+50 e^{-1} \approx 33.35( 元) \end{aligned}
+$$
+</Card>
+
+<Card type="Example" title="Example 15">
+设一台机器一天内发生故障的概率为0.2，机器发生故障时全天停工。若一周5个工作日里无故障可获利10万元，发生1次故障获利5万元，发生2次故障获利0元，发生3次或以上故障亏损2万元。求一周内的期望利润。
+
+### Solution
+设 $X$ 表示一周5天内机器发生故障天数，则 $X \sim B(5,0.2)$。设 $Y$ 表示一周内所获利润，则 $Y$ 的分布律为：
+$$
+P(Y=10)=P(X=0)=0.8^{5}=0.32768
+$$
+$$
+P(Y=5)=P(X=1)=C_{5}^{1} 0.2 \times  0.8^{4}=0.4096
+$$
+$$
+P(Y=0)=P(X=2)=C_{5}^{2} 0.2^{2} \times  0.8^{3}=0.2048
+$$
+$$
+P(Y=-2)=P(X=3)+P(X=4)+P(X=5)=0.05792
+$$
+
+则期望利润为：
+$$
+E(Y) = 10\times  0.32768+5\times  0.4096+0\times  0.2048-2\times  0.05792=5.20896(万元)
+$$
+</Card>
+
+<Card type="Example" title="Example 16">
+设 $X$ 与 $Y$ 独立同分布，均服从 $E(\lambda)$，$\lambda>0$。令 $N=min (X, Y)$，$M=max (X, Y)$，求 $E(N)$，$E(M)$。
+
+### Solution
+由题意可知 $X$ 与 $Y$ 的分布函数均为 $F(x)= \begin{cases}1-e^{-\lambda x}, & x>0 \\ 0, & x \leq 0\end{cases}$。
+
+$N$ 的分布函数为 $F_{N}(x)=1-[1-F(x)]^{2}$，因此 $N$ 的概率密度函数为：
+$$
+f_{N}(x)= \begin{cases}2 \lambda e^{-2 \lambda x}, & x>0, \\ 0, & x \leq 0\end{cases}
+$$
+
+即 $N \sim E(2 \lambda)$，所以 $E(N)=\frac{1}{2 \lambda}$。
+
+### Solution (Cont.)
+$M$ 的分布函数为 $F_{M}(x)=[F(x)]^{2}$，因此 $M$ 的概率密度函数为：
+$$
+f_{M}(x)= \begin{cases}2 \lambda e^{-\lambda x}-2 \lambda e^{-2 \lambda x}, & x>0, \\ 0, & x \leq 0\end{cases}
+$$
+
+所以：
+$$
+E(M)=\int_{-\infty}^{+\infty} x f_{M}(x) d x=2 \int_{0}^{+\infty} \lambda x e^{-\lambda x} d x-\int_{0}^{+\infty} 2 \lambda x e^{-2 \lambda x} d x=\frac{2}{\lambda}-\frac{1}{2 \lambda}=\frac{3}{2 \lambda}
+$$
+</Card>
+
+### 一般定义（仅作参考）
+设随机变量 $X$ 的分布函数为 $F(x)$，若 $\int_{-\infty}^{+\infty}|x| d F(x)<\infty$（斯梯尔吉斯（Stieltjes）积分），则随机变量 $X$ 的期望存在，其值为 $\int_{-\infty}^{+\infty} x d F(x)$。
+
+一般可用以下公式进行计算：
+$$
+E(X)=\int_{0}^{+\infty}(1-F(x)) d x-\int_{-\infty}^{0} F(x) d x
+$$
+
+特别地，当 $X$ 为非负随机变量（即 $P(X ≥0)=1$）时，有：
+$$
+E(X)=\int_{0}^{+\infty}(1-F(x)) d x
+$$
+
+当 $X$ 为取非负整数值的随机变量时，有：
+$$
+E(X)=\sum_{k=1}^{+\infty} P(X ≥k)
+$$
+
+### 随机变量函数的数学期望
+<Card type="Example" title="Example 17">
+设随机变量 $X$ 的概率分布律如下，令 $Y=X^{2}$，求 $Y$ 的数学期望 $E(Y)$。
+
+| $X$ | -1  | 0   | 1   | 2   |
+| ---- | ---- | ---- | ---- | ---- |
+| $P$ | 0.1 | 0.4 | 0.2 | 0.3 |
+
+### Solution
+由题意可知 $Y$ 的概率分布律为：
+
+| $Y$ | 0   | 1   | 4   |
+| ---- | ---- | ---- | ---- |
+| $P$ | 0.4 | 0.3 | 0.3 |
+
+所以 $E(Y) = 0 \times  0.4 + 1 \times  0.3 + 4 \times  0.3 = 1.5$。
+</Card>
+
+在上例中，事实上，$Y$ 的期望还可以通过如下方式计算：
+$$
+E(Y)=(-1)^{2} \times  0.1+0^{2} \times  0.4+1^{2} \times  0.2+2^{2} \times  0.3=1.5
+$$
+
+也就是说，对于随机变量 $X$ 的函数有时可以根据 $X$ 的分布以及函数表达式来直接得到其期望。
+
+**说明**：下文中，若无特殊说明，当使用 $E(\cdot)$ 时，则说明对应的随机变量其期望是存在的。
+
+
+# Chapter 4 随机变量的数字特征
+## §4.1 Mathematical Expectation
+
+### Theorem 1
+设 $Y$ 是随机变量 $X$ 的函数: $Y=g(X)$, 其中 $g(\cdot)$ 是连续函数.
+- 若 $X$ 是离散型随机变量，其分布律为 $P(X=x_{k})=p_{k}$（$k=1,2, ...$），且 $\sum_{k=1}^{+\infty} g(x_{k}) p_{k}$ 绝对收敛，则有
+$$
+ E(Y)=E[g(X)]=\sum_{k=1}^{+\infty} g\left(x_{k}\right) p_{k} .
+$$
+- 若 $X$ 是连续型随机变量，其概率密度为 $f(x)$，且 $\int_{-\infty}^{+\infty} g(x) f(x) d x$ 绝对收敛，则有
+$$
+ E(Y)=E[g(X)]=\int_{-\infty}^{+\infty} g(x) f(x) d x .
+$$
+
+<Card type="Example" title="Example 18">
+设 $X \sim U(-1,2)$，令 $Y=max (X, 0)$，求 $E(Y)$.
+
+### Solution
+设 $g(x)=max (x, 0)$，则 $Y=g(X)$ 的期望为
+$$
+
+\begin{aligned}
+E(Y) & =E[g(X)]=\int_{-\infty}^{+\infty} g(x) f_{X}(x) d x \\
+& =\int_{-\infty}^{+\infty} max (x, 0) f_{X}(x) d x=\int_{-1}^{2} max (x, 0) \cdot \frac{1}{3} d x+0 \\
+& =\int_{-1}^{0} 0 \cdot \frac{1}{3} d x+\int_{0}^{2} x \cdot \frac{1}{3} d x=\frac{2}{3} .
+\end{aligned}
+
+$$
+</Card>
+
+定理1的重要意义在于求 $E(Y)$ 时，不必算出 $Y$ 的分布律或概率密度，而只要利用 $X$ 的分布律或概率密度即可进行计算.
+这一结果也可以推广到两个或两个以上随机变量的函数的情况.
+
+### Theorem 2
+设 $Z$ 是随机变量 $X, Y$ 的函数: $Z=h(X, Y)$，其中 $h(\cdot, \cdot)$ 是连续函数.
+- 若二维离散型随机变量 $(X, Y)$ 的分布律为 $P(X=x_{i}, Y=y_{j})=p_{i j}$（$i, j=1,2, ...$），则有
+$$
+ E(Z)=E[h(X, Y)]=\sum_{i=1}^{+\infty} \sum_{j=1}^{+\infty} h\left(x_{i}, y_{j}\right) p_{i j}, 
+$$
+这里设上式右边的级数绝对收敛.
+
+### Theorem 2 (Cont.)
+- 若二维连续型随机变量 $(X, Y)$ 的概率密度为 $f(x, y)$，则有
+$$
+ E(Z)=E[h(X, Y)]=\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} h(x, y) f(x, y) d x d y, 
+$$
+这里设上式右边的积分绝对收敛.
+
+特别地，
+$$
+ E(X)=\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} x f(x, y) d x d y, \quad E(Y)=\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} y f(x, y) d x d y .
+$$
+
+<Card type="Example" title="Example 19">
+设二维随机变量 $(X, Y)$ 的联合分布律为
+
+| X\Y | 0   | 1    | 2    |
+|-----|-----|------|------|
+| 0   | 0.1 | 0.25 | 0.15 |
+| 1   | 0.15| 0.2  | 0.15 |
+
+求随机变量 $Z=sin \frac{\pi(X+Y)}{2}$ 的数学期望.
+
+### Solution
+由定理2可知
+$$
+
+\begin{aligned}
+E(Z) & =E\left[sin \frac{\pi(X+Y)}{2}\right] \\
+& =sin \frac{\pi(0+0)}{2} \times  0.1+sin \frac{\pi(0+1)}{2} \times  0.25+sin \frac{\pi(0+2)}{2} \times  0.15+ \\
+& sin \frac{\pi(1+0)}{2} \times  0.15+sin \frac{\pi(1+1)}{2} \times  0.2+sin \frac{\pi(1+2)}{2} \times  0.15 \\
+& =0.25 .
+\end{aligned}
+
+$$
+</Card>
+
+<Card type="Example" title="Example 20">
+设二维随机变量 $(X, Y)$ 的概率密度为 $f(x, y)= \begin{cases}\frac{3}{2 x^{3} y^{2}}, & x>1, \frac{1}{x}<y<x, \\ 0, & 其他.\end{cases}$，求数学期望 $E(Y)$ 和 $E(\frac{1}{X Y})$.
+
+### Solution
+$$
+
+\begin{aligned}
+E(Y) & =\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} y f(x, y) d x d y=\int_{1}^{+\infty}\left[\int_{\frac{1}{x}}^{x} \frac{3}{2 x^{3} y} d y\right] d x \\
+& =\int_{1}^{+\infty} \frac{3 ln x}{x^{3}} d x=-\left.\frac{3}{2} \frac{ln x}{x^{2}}\right|_{1} ^{+\infty}+\frac{3}{2} \int_{1}^{+\infty} \frac{1}{x^{3}} d x=\frac{3}{4} .
+\end{aligned}
+
+$$
+
+### Solution (Cont.)
+$$
+
+\begin{aligned}
+E\left(\frac{1}{X Y}\right) & =\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} \frac{1}{x y} f(x, y) d x d y=\int_{1}^{+\infty}\left[\int_{\frac{1}{x}}^{x} \frac{3}{2 x^{4} y^{3}} d y\right] d x \\
+& =\left.\int_{1}^{+\infty} \frac{3}{2 x^{4}}\left(-\frac{1}{2 y^{2}}\right)\right|_{\frac{1}{x}} ^{x} d x=\frac{3}{4} \int_{1}^{+\infty}\left(-\frac{1}{x^{6}}+\frac{1}{x^{2}}\right) d x \\
+& =\frac{3}{4}\left(-\frac{1}{5}+1\right)=\frac{3}{5} .
+\end{aligned}
+
+$$
+
+思考：如果先求 $f_{Y}(y)$ 再来求 $E(Y)$，或先求 $\frac{1}{X Y}$ 的密度函数再求其期望，复杂度是否更高？
+</Card>
+
+<Card type="Example" title="Example 21">
+某商店经销某种商品，每周进货量 $X$ 与需求量 $Y$ 是相互独立的随机变量，且都服从区间 [10,20] 上的均匀分布. 商店每售出一单位商品可获利1000元；若需求量超过进货量，商店可从他处调剂供应，这时每单位商品可获利500元. 试计算此商店经销该种商品每周所获得利润的数学期望.
+
+### Solution
+设 $Z$ 表示此商店经销该种商品每周所获得利润，则
+$$
+
+Z=g(X, Y)= \begin{cases}1000 Y, & Y \leq X, \\ 1000 X+500(Y-X)=500(X+Y), & Y>X .\end{cases}
+
+$$
+又 $X$ 和 $Y$ 相互独立，因此 $(X, Y)$ 的联合概率密度函数为
+$$
+
+f(x, y)=f_{X}(x) f_{Y}(y)= \begin{cases}1 / 100, & 10 \leq x, y \leq 20, \\ 0, & 其他. \end{cases}
+
+$$
+
+### Solution (Cont.)
+于是
+$$
+
+\begin{aligned}
+E(Z) & =\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} g(x, y) f(x, y) d x d y \\
+& =\int_{10}^{20}\left(\int_{10}^{x} 10 y d y\right) d x+\int_{10}^{20}\left(\int_{x}^{20} 5(x+y) d y\right) d x \\
+& =\int_{10}^{20}\left[5 x^{2}-500+5 x(20-x)+\frac{5}{2}\left(20^{2}-x^{2}\right)\right] d x \\
+& =\int_{10}^{20}\left(-\frac{5}{2} x^{2}+100 x+500\right) d x=\frac{42500}{3}(元) \approx 14166.67(元) .
+\end{aligned}
+
+$$
+</Card>
+
+<Card type="Example" title="Example 22 (极值问题)">
+设按季节出售的某种应时产品的销售量 $X$（单位：吨）是一个服从 [5, 10] 上的均匀分布的随机变量. 若销售出一吨产品可盈利2万元；但若在销售季节未能售完，造成积压，则每吨产品将会净亏损0.5万元. 若该厂家需要提前生产该种商品，为使厂家能获得最大的期望利润，问在该季生产多少吨产品最为合适？
+
+### Solution
+设应在该季生产 $a$ 吨产品（$5 ≤a ≤10$），所获利润为 $Y$ 万元. 则 $Y$ 依赖于销售量 $X$ 及产量 $a$，即
+$$
+
+Y=g(X, a)= \begin{cases}2 a, & X \geq a, \\ 2 X-0.5(a-X)=2.5 X-0.5 a, & X<a .\end{cases}
+
+$$
+
+### Solution (Cont.)
+于是
+$$
+
+\begin{aligned}
+E(Y) & =\int_{-\infty}^{+\infty} g(x, a) f_{X}(x) d x=\int_{5}^{10} g(x, a) \frac{1}{5} d x \\
+& =\int_{5}^{a} \frac{2.5 x-0.5 a}{5} d x+\int_{a}^{10} \frac{2 a}{5} d x=-\frac{a^{2}}{4}+\frac{9 a}{2}-\frac{25}{4} .
+\end{aligned}
+
+$$
+
+令 $\frac{d}{d a} E(Y)=0$，得 $a=9$. 又由于此时 $\frac{d^{2}}{d a^{2}} E(Y)=-\frac{1}{2}<0$，所以 $a=9$ 时，$E(Y)$ 达到最大. 因此，在该季生产9吨产品最为合适.
+</Card>
+
+### 数学期望的性质
+1. 设 $C$ 是常数，则有 $E(C)=C$
+   - **Proof**：因为 $C$ 为常数，随机变量 $X$ 满足 $P(X=C)=1$，则 $E(X)=E(C)=1 \times C=C$.
+
+2. 设 $X$ 是一个随机变量，$C$ 是常数，则有 $E(C X)=C \cdot E(X)$
+   - **Proof（以连续型随机变量为例）**：
+$$
+ E(C X)=\int_{-\infty}^{+\infty} C x f(x) d x=C \int_{-\infty}^{+\infty} x f(x) d x=C \cdot E(X) .
+$$
+
+3. 设 $X, Y$ 是两个随机变量，则有 $E(X+Y)=E(X)+E(Y)$
+   - **Proof（以连续型随机变量为例）**：
+$$
+
+\begin{aligned}
+E(X+Y) & =\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty}(x+y) f(x, y) d x d y \\
+& =\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} x f(x, y) d x d y+\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} y f(x, y) d x d y=E(X)+E(Y)
+\end{aligned}
+
+$$
+
+4. 综合上面三条可以推广得到任意有限个随机变量线性组合的情形.
+   - **Proposition 1**：若 $n$ 个随机变量 $X_{1}, X_{2}, ..., X_{n}(n ≥1)$ 的数学期望都存在，则对任意 $n+1$ 个实数 $c_{0}, c_{1}, c_{2}, ..., c_{n}$，随机变量 $c_{0}+\sum_{i=1}^{n} c_{i} X_{i}$ 的数学期望也存在，且
+$$
+ E\left(c_{0}+\sum_{i=1}^{n} c_{i} X_{i}\right)=c_{0}+\sum_{i=1}^{n} c_{i} E\left(X_{i}\right) .
+$$
+
+5. 设 $X, Y$ 是两个相互独立的随机变量，则有 $E(X Y)=E(X) E(Y)$.
+   - **Proof（以连续型随机变量为例）**：
+$$
+
+\begin{aligned}
+E(X Y) & =\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} x y f(x, y) d x d y \\
+& =\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} x y f_{X}(x) f_{Y}(y) d x d y \\
+& =\int_{-\infty}^{+\infty} x f_{X}(x) d x \int_{-\infty}^{+\infty} y f_{Y}(y) d y=E(X) E(Y)
+\end{aligned}
+
+$$
+   - 注：此性质的条件可以减弱.
+
+6. 性质(4)可以推广到任意有限个相互独立的随机变量之积的情形.
+   - **Proposition 2**：若 $n$ 个随机变量 $X_{1}, X_{2}, ..., X_{n}(n ≥1)$ 相互独立，且数学期望都存在，则 $\prod_{i=1}^{n} X_{i}$ 的数学期望也存在，且
+$$
+ E\left(\prod_{i=1}^{n} X_{i}\right)=\prod_{i=1}^{n} E\left(X_{i}\right) .
+$$
+
+<Card type="Example" title="Example 23">
+下面从另一方式来得到：正态分布 $N(\mu, \sigma^{2})$ 的均值为 $\mu$.
+
+设随机变量 $X$ 服从正态分布 $N(\mu, \sigma^{2})$（$-\infty<\mu<+\infty$，$\sigma>0$）.
+由于 $Z=\frac{X-\mu}{\sigma} \sim N(0,1)$，故有 $X=\sigma Z+\mu$，其中 $Z$ 服从标准正态分布. 已知 $E(Z)=0$，于是
+$$
+ E(X)=E(\sigma Z+\mu)=\sigma E(Z)+\mu=\mu .
+$$
+</Card>
+
+<Card type="Example" title="Example 24">
+下面从另一方式来得到：二项分布 $B(n, p)$ 的均值为 $n p$.
+
+设随机变量 $X$ 服从二项分布 $B(n, p)$（$0<p<1$，$n ≥1$），则随机变量 $X$ 可看成是 $n$ 重Bernoulli试验中 $A$ 发生的次数，且 $P(A)=p$. 引入随机变量
+$$
+ Y_{i}= \begin{cases}1, & A 在第i次试验发生, \\ 0, & A 在第i次试验不发生,\end{cases} \quad i=1,2, ..., n. 
+$$
+于是 $Y_{1}, Y_{2}, ..., Y_{n}$ 相互独立，服从同一分布 $0-1(p)$，且 $E(Y_{i})=p$（$i=1, ..., n$）. 注意到 $X=Y_{1}+\cdots+Y_{n}=\sum_{i=1}^{n} Y_{i}$，则
+$$
+ E(X)=E(\sum_{i=1}^{n} Y_{i})=\sum_{i=1}^{n} E(Y_{i})=n p .
+$$
+
+注：参数为 $n, p$ 的二项分布的随机变量可分解为 $n$ 个相互独立且都服从以 $p$ 为参数的0-1分布的随机变量之和.
+</Card>
+
+<Card type="Example" title="Example 25">
+计算机程序随机产生0∼9中的数字，记 $X_{i}$ 为第 $i$ 次产生的数字（$i=1,2, ..., n$）. 将这 $n$ 个数依次排列，得到一数，记为 $Y$，求 $E(Y)$.
+
+### Solution
+由题意知，诸 $X_{i}$ 独立同分布，其分布律为 $P(X_{i}=k)=\frac{1}{10}$（$k=0,1, ..., 9$），故 $E(X_{i})=\sum_{k=0}^{9} k \cdot \frac{1}{10}=4.5$.
+又 $Y=\sum_{i=1}^{n} 10^{i-1} X_{i}$，则
+$$
+ E(Y)=\sum_{i=1}^{n} 10^{i-1} E\left(X_{i}\right)=4.5 \sum_{i=1}^{n} 10^{i-1}=\frac{10^{n}-1}{2} .
+$$
+</Card>
+
+<Card type="Example" title="Example 26">
+一民航送客车载有20位旅客自机场出发，旅客有10个车站可以下车，如到达一个车站没有旅客下车就不停车，以 $X$ 表示停车的次数，求 $E(X)$.（设每位旅客在各个车站下车是等可能的，并设各旅客是否下车相互独立.）（思考：$X$ 是否服从二项分布？）
+
+### Solution
+引入随机变量
+$$
+ Y_{i}= \begin{cases}1, & 第i站有旅客下车, \\ 0, & 第i站没有旅客下车,\end{cases} \quad i=1,2, ..., 10, 
+$$
+则 $X=\sum_{i=1}^{10} Y_{i}$，且
+$$
+ E\left(Y_{i}\right)=P\left(Y_{i}=1\right)=1-P (第i站没有人下车 )=1-0.9^{20} .
+$$
+因此
+$$
+ E(X)=E\left(Y_{1}\right)+E\left(Y_{2}\right)+\cdots+E\left(Y_{10}\right)=10\left(1-0.9^{20}\right) \approx 8.784 (次).
+$$
+
+注：这里诸 $Y_{i}$ 不是相互独立的，而且 $X$ 不服从二项分布.
+</Card>
+
+在上例中，我们将 $X$ 分解成数个随机变量之和，然后利用随机变量和的数学期望等于随机变量数学期望之和来求数学期望，这种处理方法具有一定的普遍意义.（注意，它并不要求随机变量之间需要满足独立性假设.）
+
+<Card type="Example" title="Example 27 (配对问题, Chapter 1 Example 21)">
+一个小班有 $n$ 个同学，编号为 $1,2, ..., n$ 号，中秋节前每人准备一件礼物，相应编号为 $1,2, ..., n$. 将所有礼物集中放在一起，然后每个同学随机取一件，若同学拿到自己准备的礼物，则称配对成功. 记 $X$ 为总的配对数，求 $E(X)$.
+
+### Solution
+引入随机变量
+$$
+ Y_{i}= \begin{cases}1, & 第i人拿到自己的礼物, \\ 0, & 第i人未拿到自己的礼物,\end{cases} \quad i=1,2, ..., n, 
+$$
+则 $X=\sum_{i=1}^{n} Y_{i}$. 注意到
+$$
+ E\left(Y_{i}\right)=P\left(Y_{i}=1\right)=1 / n, 
+$$
+因此
+$$
+ E(X)=\sum_{i=1}^{n} E\left(Y_{i}\right)=1 .
+$$
+</Card>
+
+<Card type="Example" title="Example 28">
+设随机变量 $X_{1}, X_{2}, X_{3}, X_{4}$ 相互独立，且 $X_{i} \sim U(0,2 i)$，求 $Y=\begin{vmatrix} X_{1} & X_{2} \\ X_{3} & X_{4} \end{vmatrix}$ 的数学期望 $E(Y)$.
+
+### Solution
+由题设，$E(X_{i})=i$（$i=1,2,3,4$），行列式 $Y=X_{1} X_{4}-X_{2} X_{3}$，因此
+$$
+ E(Y)=E\left(X_{1} X_{4}\right)-E\left(X_{2} X_{3}\right)=E\left(X_{1}\right) E\left(X_{4}\right)-E\left(X_{2}\right) E\left(X_{3}\right)=-2 .
+$$
+
+（Page168, 思考题四, 第1题）
+</Card>
+
+### 条件数学期望(Conditional Expectation)（仅作参考）
+<Card type="Definition" title="Definition 3 (条件数学期望)">
+若 $(X, Y)$ 为二维离散型随机变量，且在给定 $X=x$ 下，$Y$ 的条件分布律为 $P(Y=y_{j} | X=x)=p_{j}(x)$（$j=1,2, ...$）；或者 $(X, Y)$ 为二维连续型随机变量，且在给定 $X=x$ 下，$Y$ 的条件分布概率密度函数为 $f_{Y | X}(y | x)$，则在给定了随机变量 $X$ 取值为 $x$ 的条件下，$Y$ 的条件期望为
+$$
+
+E(Y|X = x) = 
+\begin{cases} 
+\sum_{j=1}^{+\infty} y_j p_j(x), & 若 (X, Y) 为离散型随机变量, \\
+\int_{-\infty}^{+\infty} y \cdot f_{Y|X}(y|x) dy, & 若 (X, Y) 为连续型随机变量.
+\end{cases}
+
+$$
+</Card>
+
+<Card type="Theorem" title="Theorem 3 (全期望公式, Total Expectation Formula)">
+设 $(X, Y)$ 为二维随机变量，若 $E(Y)$ 存在，则有
+$$
+ E(Y)=E[E(Y | X)].
+$$
+
+### Proof
+若 $(X, Y)$ 为二维连续型随机变量，则
+$$
+
+\begin{aligned}
+E[E(Y | X)] & =\int_{-\infty}^{+\infty} E(Y | X=x) f_{X}(x) d x=\int_{-\infty}^{+\infty}\left(\int_{-\infty}^{+\infty} y f_{Y | X}(y | x) d y\right) f_{X}(x) d x \\
+& =\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} y \frac{f(x, y)}{f_{X}(x)} f_{X}(x) d x d y=\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} y f(x, y) d x d y=E(Y) .
+\end{aligned}
+
+$$
+
+### Proof (Cont.)
+若 $(X, Y)$ 为二维离散型随机变量，则
+$$
+
+\begin{aligned}
+E[E(Y | X)] & =\sum_{i=1}^{+\infty} E\left(Y | X=x_{i}\right) P\left(X=x_{i}\right) \\
+& =\sum_{i=1}^{+\infty} \sum_{j=1}^{+\infty} y_{j} P\left(Y=y_{j} | X=x_{i}\right) P\left(X=x_{i}\right) \\
+& =\sum_{i=1}^{+\infty} \sum_{j=1}^{+\infty} y_{j} P\left(Y=y_{j}, X=x_{i}\right)=E(Y),
+\end{aligned}
+
+$$
+其中 $x_{i}$（$i=1,2, ...$）为 $X$ 的所有可能取值.
+</Card>
+
+<Card type="Example" title="Example 29">
+游戏迷宫的入口处有四个门（无明显标记），其中一个是自由之门，选择此门5分钟后即可走出迷宫，剩下的三门将分别在走了10分钟、20分钟、30分钟后重回该四门选择处. 设游戏者每次都是随机地从四个门中选择，求他走出迷宫所需的平均时间.
+
+### Solution
+设一个游客走出迷宫的时间为 $T$ 分钟，并设他对门的选择情况为 $X$，用1, 2, 3, 4分别表示自由之门及走了10分钟、20分钟、30分钟后重回该处的门号，那么
+$$
+
+T=\begin{cases} 
+5, & X=1, \\ 
+10+T_{1}, & X=2, \\ 
+20+T_{1}, & X=3, \\ 
+30+T_{1}, & X=4,
+\end{cases}
+
+$$
+且 $P(X=i)=\frac{1}{4}$（$i=1,2,3,4$）. 其中 $T_{1}$ 为选择非自由之门返回该处后到走出迷宫的时间.
+
+### Solution (Cont.)
+由题意知，$T_{1}$ 的分布与 $T$ 的分布是一致的. 因此 $E\left(T_{1} | X=i\right)=E(T)$（$i=2,3,4$）.
+
+利用全期望公式，得
+$$
+
+\begin{aligned}
+E(T) & =E[E(T | X)]=\sum_{i=1}^{4} E(T | X=i) P(X=i) \\
+& =\frac{1}{4}\left[5+E\left(10+T_{1} | X=2\right)+E\left(20+T_{1} | X=3\right)+E\left(30+T_{1} | X=4\right)\right] \\
+& =\frac{1}{4}[5+10+20+30+3 E(T)],
+\end{aligned}
+
+$$
+由此解得 $E(T)=65$（分钟）.
+</Card>
+
+
+# 第四章 随机变量的数字特征
+## §4.2 方差、变异系数（Variance, Coefficient of Variation）
+
+<Card type="Example" title="Example 30">
+设有一批灯泡寿命为：一半约950小时，另一半约1050小时。
+- 平均寿命约为1000小时；
+另一批灯泡寿命为：一半约1300小时，另一半约700小时。
+- 平均寿命约为1000小时。
+问：哪一批灯泡的质量更好？
+单从平均寿命这一指标无法判断，通常会进一步考察灯泡质量的稳定性，也就是灯泡寿命X与期望（均值）1000小时的偏离程度。
+</Card>
+
+随机变量X的期望（均值）为$E(X)$。
+随机变量X对于期望（均值$E(X)$的离差：$X-E(X)$（仍然随机）。
+随机变量X对于期望的平均离差$E(X-E(X))=0$。
+（因为出现了正负离差的抵消，故用此值衡量偏离程度无意义）
+常常用$E[X-E(X)]^2$来衡量随机变量的波动性。
+（这一数字特征称为方差）
+
+<Card type="Definition" title="Definition 4（方差）">
+它是与随机变量X具有相同量纲的量。设X是一个随机变量，若$E\{[X-E(X)]^2\}$存在，则称其为X的方差（variance），记为$Var(X)$或$D(X)$，即
+$$Var(X)=D(X)=E\left\{[X-E(X)]^2\right\}.$$
+将$\sqrt{Var(X)}$记为$\sigma(X)$或$SD(X)$，称为X标准差（standard deviation）或均方差。
+方差$Var(X)$和标准差$SD(X)$均可刻画X取值的分散程度，是衡量X取值分散程度的常用标准。
+若X的取值比较集中，则$Var(X)$（$SD(X)$）较小；若X的取值比较分散，则$Var(X)$（$SD(X)$）较大。
+</Card>
+
+方差的计算可以看成随机变量的函数$g(X)$的数学期望，其中函数
+$$g(x)=[x-E(X)]^2.$$
+因此由定理1，可得：
+- 对于离散型随机变量X，其分布律为$P(X=x_i)=p_i$，$i=1,2,...$，当其方差存在时，有
+$$Var(X)=\sum_{i=1}^{+\infty}\left[x_i-E(X)\right]^2 p_i.$$
+- 对于连续型随机变量X，其概率密度函数为$f(x)$，当其方差存在时，有
+$$Var(X)=\int_{-\infty}^{+\infty}[x-E(X)]^2 f(x) dx.$$
+
+在实际操作中，我们常常采用下面的公式来计算方差。
+
+<Card type="Theorem" title="Theorem 4">
+若随机变量X的方差存在，则$Var(X)=E(X^2)-[E(X)]^2$。（方差的常用计算公式）
+</Card>
+
+<Card type="Proof" title="Proof">
+由方差的定义和期望的性质，可得
+$$\begin{aligned} Var(X) & =E\left\{[X-E(X)]^2\right\} \\ & =E\left\{X^2-2 X E(X)+[E(X)]^2\right\} \\ & =E\left(X^2\right)-2 E(X) E(X)+[E(X)]^2 \\ & =E\left(X^2\right)-[E(X)]^2 . \end{aligned}$$
+</Card>
+
+<Card type="Example" title="Example 31">
+设随机变量X具有数学期望$E(X)=\mu$，方差$Var(X)=\sigma^2 ≠0$，记$X^*=\frac{X-\mu}{\sigma}$（称为X的标准化变量）。证明$E(X^*)=0$，$Var(X^*)=1$。
+</Card>
+
+<Card type="Proof" title="Proof">
+由期望的性质，可得
+$$E\left(X^*\right)=E\left(\frac{X-\mu}{\sigma}\right)=\frac{1}{\sigma} E(X-\mu)=\frac{1}{\sigma}(E(X)-\mu)=0.$$
+由方差的计算公式和期望的性质，可得
+$$Var\left( X^{*}\right)=E\left( X^{* 2}\right) -\left[ E\left( X^{*}\right) \right] ^{2}=E\left[ \left( \frac {X-\mu }{\sigma }\right) ^{2}\right] -0=\frac {1}{\sigma ^{2}}E\left[ (X-\mu )^{2}\right] =\frac {\sigma ^{2}}{\sigma ^{2}}=1.$$
+</Card>
+
+<Card type="Example" title="Example 32">
+设随机变量X服从0-1(p)分布（0<p<1），其分布律为$P(X=0)=1-p$，$P(X=1)=p$，求方差$Var(X)$。
+</Card>
+
+<Card type="Solution" title="Solution">
+之前已知期望$E(X)=p$。
+（法一）
+$$Var(X)=E\left\{[X-E(X)]^2\right\}=P(X=0) \cdot(0-p)^{2}+P(X=1) \cdot(1-p)^{2}=p(1-p).$$
+（法二）由于$E(X^2)=0^2 \cdot(1-p)+1^2 \cdot p=p$，故利用方差的计算公式，可得
+$$Var(X)=E\left(X^2\right)-[E(X)]^2=p-p^2=p(1-p).$$
+</Card>
+
+<Card type="Example" title="Example 33">
+设随机变量X服从泊松分布$P(\lambda)(\lambda>0)$，求方差$Var(X)$。
+</Card>
+
+<Card type="Solution" title="Solution">
+泊松分布$E(X)=\lambda$，$P(\lambda)$的分布律为$P(X=k)=\frac{\lambda^k e^{-\lambda}}{k!}$，$k=0,1,...$。之前也已得到期望$E(X)=\lambda$，利用方差的计算公式，先计算$E(X^2)$：
+$$\begin{aligned} E\left(X^{2}\right) & =E[X(X-1)+X]=E[X(X-1)]+E(X) \\ & =\sum_{k=0}^{+\infty} k(k-1) \frac{\lambda^{k} e^{-\lambda}}{k !}+\lambda=\lambda^{2} e^{-\lambda} \sum_{k=2}^{+\infty} \frac{\lambda^{k-2}}{(k-2) !}+\lambda \\ & =\lambda^{2} e^{-\lambda} e^{\lambda}+\lambda=\lambda^{2}+\lambda . \end{aligned}$$
+泊松分布的均值和方差相等，都等于参数$\lambda$。
+</Card>
+
+<Card type="Proposition" title="Proposition 3">
+设随机变量X服从泊松分布$P(\lambda)(\lambda>0)$，则
+$$E[X(X-1) \cdots(X-m)]=\lambda^{m+1}, m \in \mathbb{N} .$$
+</Card>
+
+<Card type="Proof" title="Proof">
+$$\begin{aligned} E[X(X-1) \cdots(X-m)] & =\sum_{k=0}^{+\infty} k(k-1) \cdots(k-m) \frac{\lambda^{k} e^{-\lambda}}{k !} \\ & =\lambda^{m+1} e^{-\lambda} \sum_{k=m+1}^{+\infty} \frac{\lambda^{k-(m+1)}}{(k-(m+1)) !}=\lambda^{m+1} e^{-\lambda} e^{\lambda}=\lambda^{m+1} . \end{aligned}$$
+</Card>
+
+<Card type="Example" title="Example 34">
+设随机变量X具有几何分布$Geom(p)(0<p<1)$，求方差$Var(X)$。
+</Card>
+
+<Card type="Solution" title="Solution">
+之前已得期望$E(X)=1/p$，而
+$$\begin{aligned} E\left(X^{2}\right) & =E[X(X-1)+X]=E[X(X-1)]+E(X) \\ & =\sum_{k=2}^{+\infty} k(k-1) p(1-p)^{k-1}+\frac{1}{p}=\left.p(1-p) \cdot\left(\frac{x^{2}}{1-x}\right)''\right|_{x=1-p}+\frac{1}{p} \\ & =p(1-p) \frac{2}{p^{3}}+\frac{1}{p}=\frac{2}{p^{2}}-\frac{1}{p} \\ Var(X) & =E\left(X^{2}\right)-[E(X)]^{2}=\frac{1-p}{p^{2}} . \end{aligned}$$
+</Card>
+
+<Card type="Example" title="Example 35">
+设随机变量X具有均匀分布$U(a, b)(a<b)$，求方差$Var(X)$。
+</Card>
+
+<Card type="Solution" title="Solution">
+之前已得期望$E(X)=\frac{a+b}{2}$，而
+$$E\left(X^{2}\right)=\int_{-\infty}^{+\infty} x^{2} f(x) d x=\int_{a}^{b} \frac{x^{2}}{b-a} d x=\frac{b^{3}-a^{3}}{3(b-a)}=\frac{a^{2}+b^{2}+a b}{3} .$$
+$$\begin{aligned} \Rightarrow Var(X) & =E\left(X^{2}\right)-[E(X)]^{2} \\ & =\frac{a^{2}+b^{2}+a b}{3}-\frac{a^{2}+b^{2}+2 a b}{4}=\frac{(b-a)^{2}}{12} . \end{aligned}$$
+</Card>
+
+<Card type="Example" title="Example 36">
+设随机变量X服从指数分布$E(\lambda)(\lambda>0)$，求方差$Var(X)$。
+</Card>
+
+<Card type="Solution" title="Solution">
+之前已得期望$E(X)=1/\lambda$，而
+$$\begin{aligned} E\left(X^{2}\right) & =\int_{-\infty}^{+\infty} x^{2} f(x) d x=\int_{0}^{+\infty} x^{2} \lambda e^{-\lambda x} d x \\ & =-\left.x^{2} e^{-\lambda x}\right|_{0} ^{+\infty}+\int_{0}^{+\infty} 2 x e^{-\lambda x} d x=\frac{2}{\lambda^{2}} . \\ \Rightarrow Var(X) & =E\left(X^{2}\right)-[E(X)]^{2}=\frac{1}{\lambda^{2}} . \end{aligned}$$
+指数分布的方差是其期望的平方。
+</Card>
+
+### 方差的性质
+1. 设C是常数，则有$Var(C)=0$。
+<Card type="Proof" title="Proof">
+由定义，$Var(C)=E\{[C-E(C)]^2\}=E[(C-C)^2]=0$。
+</Card>
+
+2. 设X是一个随机变量，C是常数，则有$Var(C X)=C^2 Var(X)$。
+<Card type="Proof" title="Proof">
+由方差的计算公式和期望的性质，可得
+$$\begin{aligned} Var(C X) & =E(C X)^{2}-[E(C X)]^{2} \\ & =C^{2} E\left(X^{2}\right)-C^{2}[E(X)]^{2} \\ & =C^{2}\left\{E\left(X^{2}\right)-[E(X)]^{2}\right\}=C^{2} Var(X) . \end{aligned}$$
+</Card>
+
+3. 设X，Y是两个随机变量，则有
+$$Var(X+Y)=Var(X)+Var(Y)+2 E\{[X-E(X)][Y-E(Y)]\} .$$
+特别地，若X，Y相互独立，则有$Var(X+Y)=Var(X)+Var(Y)$。
+<Card type="Proof" title="Proof">
+$$\begin{aligned} Var(X+Y) & =E\left\{[(X+Y)-E(X+Y)]^{2}\right\}=E\left\{[(X-E(X))+(Y-E(Y))]^{2}\right\} \\ & =E\left\{[X-E(X)]^{2}\right\}+E\left\{[Y-E(Y)]^{2}\right\}+2 E\{[X-E(X)][Y-E(Y)]\} \\ & =Var(X)+Var(Y)+2 E\{[X-E(X)][Y-E(Y)]\} . \end{aligned}$$
+特别地，当X，Y相互独立时，$X-E(X)$与$Y-E(Y)$相互独立，此时第三项
+$$E\{[X-E(X)][Y-E(Y)]\}=E[X-E(X)] E[Y-E(Y)]=0 .$$
+</Card>
+
+综合上面三条可以推广得到任意有限个独立随机变量线性组合的情形。
+
+<Card type="Proposition" title="Proposition 4">
+若n个随机变量$X_1, X_2, ..., X_n(n ≥2)$相互独立，且方差都存在。对任意$n+1$个有限实数$c_0, c_1, c_2, ..., c_n$，则$c_0+\sum_{i=1}^{n} c_i X_i$的方差也存在，且$Var\left(c_0 + \sum_{i=1}^{n} c_i X_i\right) = \sum_{i=1}^{n} c_i^2 Var(X_i)$。
+注：没有$c_0$。
+</Card>
+
+4. $Var(X)=0 \Leftrightarrow P(X=C)=1$且$C = E(X)$。
+必要性显然，但充分性的证明需要用到Chebyshev不等式（第五章），此处从略。
+
+<Card type="Example" title="Example 37">
+设随机变量X具有二项分布$B(n, p)$，$n ≥1$，$0<p<1$。求方差$Var(X)$。
+</Card>
+
+<Card type="Solution" title="Solution">
+（与求期望采用相同的方法）随机变量X可视为n重贝努里试验中事件A发生的次数，其中$P(A)=p$。引入随机变量$Y_i= \begin{cases}1 & \text{事件A在第i次试验发生} \\ 0 & \text{事件A在第i次试验不发生}\end{cases}$，$i=1,2,...,n$。于是$Y_1, Y_2, ..., Y_n$相互独立，服从同一0-1(p)分布，且$Var(Y_i)=p(1-p)$，$\forall i$。又$X=Y_1+\cdots+Y_n=\sum_{i=1}^{n} Y_i$，结合$Y_1, Y_2, ..., Y_n$的独立性，可得
+$$Var(X)=Var\left(\sum_{i=1}^{n} Y_i\right)=\sum_{i=1}^{n} Var\left(Y_i\right)=n p(1-p).$$
+</Card>
+
+<Card type="Example" title="Example 38">
+设随机变量X服从正态分布$N(\mu, \sigma^2)$，求方差$Var(X)$。
+</Card>
+
+<Card type="Solution" title="Solution">
+先求标准正态随机变量$Z=\frac{X-\mu}{\sigma}$的方差。已知$E(Z)=0$，故
+$$Var(Z)=E\left(Z^{2}\right)-0^{2}=\int_{-\infty}^{+\infty} z^{2} \varphi(z) d z=\int_{-\infty}^{+\infty} \frac{z^{2}}{\sqrt{2 \pi}} e^{-\frac{z^{2}}{2}} d z=\int_{-\infty}^{+\infty} \frac{1}{\sqrt{2 \pi}} e^{-\frac{z^{2}}{2}} d z=1.$$
+注意到$X=\mu+\sigma Z$，利用方差的性质可得
+$$Var(X)=Var(\mu+\sigma Z)=\sigma^{2} Var(Z)=\sigma^{2}.$$
+正态分布$N(\mu, \sigma^2)$中的$\mu$，$\sigma^2$分别是该分布的数学期望和方差。
+</Card>
+
+独立的n个正态变量的线性组合仍服从正态分布。
+若$X_i \sim N(\mu_i, \sigma_i^2)$，$i=1,2,...,n$，且它们相互独立，则它们的线性组合
+$$c_0+\sum_{i=1}^{n} c_i X_i \sim N\left(c_0+\sum_{i=1}^{n} c_i \mu_i, \sum_{i=1}^{n} c_i^2 \sigma_i^2\right),$$
+其中$c_1, c_2, ..., c_n$是不全为零的常数。
+
+<Card type="Example" title="Example 39">
+设$X \sim N(1,3)$，$Y \sim N(2,4)$，且X，Y相互独立，则
+$$Z_1=2 X-3 Y \sim N(-4,48), Z_2=2 X-3 Y+4 \sim N(0,48) .$$
+</Card>
+
+<Card type="Example" title="Example 40">
+设活塞的直径（单位：cm）$X \sim N(22.40,0.03^2)$，汽缸的直径（单位：cm）$Y \sim N(22.50,0.04^2)$，X，Y相互独立。现任取一只活塞，任取一只汽缸，求活塞能装入汽缸的概率。
+</Card>
+
+<Card type="Solution" title="Solution">
+由题意需求$P(X<Y)=P(X-Y<0)$，由于$X-Y \sim N(-0.10,0.05^2)$，所以
+$$P(X<Y)=P(X-Y<0)=\Phi\left(\frac{0-(-0.10)}{0.05}\right)=\Phi(2)=0.9772 .$$
+</Card>
+
+### 几种常见分布的均值与方差
+
+| 分布 | 分布律或密度函数 | 期望 | 方差 |
+| --- | --- | --- | --- |
+| 0-1分布 0−1(p) | $P(X=k)=p^k (1-p)^{1-k}, k=0,1$ | $p$ | $p(1-p)$ |
+| 二项分布 $B(n,p)$ | $P(X=k)=C_n^k p^k (1-p)^{n-k}, k=0,1,...,n$ | $np$ | $np(1-p)$ |
+| 泊松分布 $P(\lambda)$ | $P(X=k)=\lambda^k e^{-\lambda}/k!, k=0,1,...$ | $\lambda$ | $\lambda$ |
+| 均匀分布 $U(a,b)$ | $f(x)=\begin{cases}1/(b-a), & a<x<b \\ 0, & 其他\end{cases}$ | $\frac{a+b}{2}$ | $\frac{(b-a)^2}{12}$ |
+| 指数分布 $E(\lambda)$ | $f(x)=\begin{cases}\lambda e^{-\lambda x}, & x>0 \\ 0, & x \leq 0\end{cases}$ | $\frac{1}{\lambda}$ | $\frac{1}{\lambda^2}$ |
+| 正态分布 $N(\mu,\sigma^2)$ | $f(x)=\frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x-\mu)^2}{2\sigma^2}}, -\infty<x<+\infty$ | $\mu$ | $\sigma^2$ |
+
+### 变异系数（Coefficient of Variation）
+
+<Card type="Definition" title="Definition 5（变异系数）">
+设随机变量X具有数学期望$E(X)=\mu$，方差$Var(X)=\sigma^2 ≠0$，则称
+$$C_{v}(X)=\frac{\sqrt{Var(X)}}{E(X)}=\frac{\sigma}{\mu}$$
+为X的变异系数（coefficient of variation）。
+变异系数是一个无量纲的指标，它反映了随机变量X在以它的中心位置为标准时，取值的离散程度。
+</Card>
+
+
+# 第四章 随机变量的数字特征
+## §4.3 协方差、相关系数（Covariance, Correlation Coefficient）
+对于二维随机变量 \((X, Y)\)，除了讨论 \(X\) 与 \(Y\) 各自的数学期望和方差外，还需要讨论描述 \(X\) 和 \(Y\) 之间相互关系的数字特征。
+
+### 协方差（Covariance）
+<Card type="Definition" title="Definition 6（协方差）">
+对于数学期望都存在的随机变量 \(X\) 和 \(Y\)，当 \((X-E(X))(Y-E(Y))\) 的数学期望存在时，称 \(E[(X-E(X))(Y-E(Y))]\) 为随机变量 \(X\) 与 \(Y\) 的协方差（covariance），记为 \(Cov(X, Y)\)，即：
+$$
+Cov(X, Y)=E\{[X-E(X)][Y-E(Y)]\}
+$$
+</Card>
+
+协方差的计算可以看成二维随机变量函数 \(h(X, Y)\) 的数学期望，其中 \(h(x, y)=[x-E(X)][y-E(Y)]\)，因此由定理2，可得：
+- 对于二维离散型随机变量 \((X, Y)\)，其联合分布律为 \(P(X=x_{i}, Y=y_{j})=p_{ij}\)（\(i,j=1,2,...\)），则：
+$$
+Cov(X, Y)=\sum_{i=1}^{+\infty} \sum_{j=1}^{+\infty}\left[x_{i}-E(X)\right]\left[y_{j}-E(Y)\right] p_{ij}
+$$
+- 对于二维连续型随机变量 \((X, Y)\)，其联合概率密度函数为 \(f(x, y)\)，则：
+$$
+Cov(X, Y)=\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty}[x-E(X)][y-E(Y)] f(x, y) dx dy
+$$
+
+在实际操作中，我们常常采用下面的公式来计算协方差：
+
+<Card type="Theorem" title="Theorem 5">
+若随机变量 \(X\) 与 \(Y\) 的期望存在，则 \(Cov(X, Y) = E(XY) - E(X)E(Y)\)（协方差的计算公式）。
+</Card>
+
+<Card type="Proof" title="Proof">
+由协方差的定义：
+$$
+
+\begin{aligned}
+Cov(X, Y) & = E\{[X-E(X)][Y-E(Y)]\} \\
+& = E\{XY - XE(Y) - YE(X) + E(X)E(Y)\} \\
+& = E(XY) - E(X)E(Y) - E(Y)E(X) + E(X)E(Y) \\
+& = E(XY) - E(X)E(Y)
+\end{aligned}
+
+$$
+</Card>
+
+<Card type="Theorem" title="Theorem 6">
+当随机变量 \(X\) 与 \(Y\) 的方差存在时，有：
+$$
+Var(X+Y)=Var(X)+Var(Y)+2Cov(X, Y)
+$$
+这一性质也可推广到任意有限个随机变量之和的情形：若 \(n\) 个随机变量 \(X_{1}, X_{2}, ..., X_{n}(n \geq2)\) 的方差存在，则 \(\sum_{i=1}^{n} X_{i}\) 的方差也存在，且：
+$$
+Var\left(\sum_{i=1}^{n} X_{i}\right)=\sum_{i=1}^{n} Var\left(X_{i}\right)+2\sum_{1 \leq i<j \leq n} Cov\left(X_{i}, X_{j}\right)
+$$
+</Card>
+
+### 协方差的性质
+1. \(Cov(X, Y)=Cov(Y, X)\)
+2. \(Cov(X, X)=Var(X)\)
+3. \(Cov(aX, bY)=ab \cdot Cov(X, Y)\)，其中 \(a, b\) 为两个实数
+4. \(Cov\left(X_{1}+X_{2}, Y\right)=Cov\left(X_{1}, Y\right)+Cov\left(X_{2}, Y\right)\)
+
+<Card type="思考题" title="思考题">
+对随机变量 \(X, Y\) 及实数 \(a, b, c, d\)，协方差 \(Cov(aX + bY, cX + dY)=?\)
+</Card>
+
+<Card type="Solution" title="Solution">
+$$
+
+\begin{aligned}
+& Cov(aX + bY, cX + dY) \\
+= & Cov(aX, cX) + Cov(aX, dY) + Cov(bY, cX) + Cov(bY, dY) \\
+= & acVar(X) + bdVar(Y) + (ad + bc)Cov(X, Y)
+\end{aligned}
+
+$$
+</Card>
+
+<Card type="Proof" title="协方差性质的证明">
+1. \(Cov(X, Y)=E\{[X-E(X)][Y-E(Y)]\}=E\{[Y-E(Y)][X-E(X)]\}=Cov(Y, X)\)
+2. \(Cov(X, X)=E\{[X-E(X)][X-E(X)]\}=E\left\{[X-E(X)]^{2}\right\}=Var(X)\)
+3. 
+$$
+
+\begin{aligned}
+Cov(aX, bY) & = E\{[aX - E(aX)][bY - E(bY)]\} \\
+& = ab \cdot E\{[X-E(X)][Y-E(Y)]\} = ab \cdot Cov(X, Y)
+\end{aligned}
+
+$$
+4. 
+$$
+
+\begin{aligned}
+Cov\left(X_{1}+X_{2}, Y\right) & = E\left\{\left[X_{1}+X_{2}-E\left(X_{1}+X_{2}\right)\right][Y-E(Y)]\right\} \\
+& = E\left\{\left[X_{1}-E\left(X_{1}\right)\right][Y-E(Y)]\right\} + E\left\{\left[X_{2}-E\left(X_{2}\right)\right][Y-E(Y)]\right\} \\
+& = Cov\left(X_{1}, Y\right) + Cov\left(X_{2}, Y\right)
+\end{aligned}
+
+$$
+</Card>
+
+### 相关系数（Correlation Coefficient）
+<Card type="Definition" title="Definition 7（相关系数）">
+对于随机变量 \(X\) 和 \(Y\)，当 \(E(X^{2})\) 与 \(E(Y^{2})\) 均存在且 \(Var(X)\)、\(Var(Y)\) 均为非零实数时，称：
+$$
+
+\rho_{XY}=\frac{Cov(X, Y)}{\sqrt{Var(X)} \sqrt{Var(Y)}}
+
+$$
+为 \(X\) 与 \(Y\) 的相关系数（correlation coefficient），有时也简记为 \(\rho\)，且 \(\rho_{XY}=Cov(X^*, Y^*)\)，其中 \(X^*\)、\(Y^*\) 分别是 \(X\)、\(Y\) 的标准化变量。
+\(\rho_{XY}\) 是一个无量纲的数字特征，是刻画两个变量之间相依关系的一种数字特征。
+</Card>
+
+### 相关系数的性质
+1. \(|\rho_{XY}| \leq 1\)
+2. \(|\rho_{XY}|=1 \Leftrightarrow\) 存在常数 \(a, b(b \neq0)\)，使得 \(P(Y=a+bX)=1\)。特别地，\(\rho_{XY}=1\) 时，\(b>0\)；\(\rho_{XY}=-1\) 时，\(b<0\)
+
+<Card type="Proposition" title="Proposition 5">
+对方差存在的随机变量 \(X, Y\)，当 \(Var(X)Var(Y) \neq0\) 时，有：
+$$
+
+[Cov(X, Y)]^{2} \leq Var(X)Var(Y)
+
+$$
+其中等号成立当且仅当 \(X\) 与 \(Y\) 之间在概率意义下具有严格的线性关系，即存在常数 \(a, b(b \neq0)\)，使得：
+$$
+
+P(Y=a+bX)=1
+
+$$
+</Card>
+
+<Card type="Proof" title="Proof">
+考虑以 \(X\) 的线性函数 \(a+bX\) 来近似表示 \(Y\)，以均方误差 \(e(a, b)=E\{[Y-(a+bX)]^{2}\}\) 来衡量以 \(a+bX\) 近似表示 \(Y\) 的好坏程度。如果 \(e(a, b)\) 越小，则 \(a+bX\) 与 \(Y\) 的近似程度越好。
+又Hessen矩阵正定，因此 \((a_{0}, b_{0})\) 为 \(e(a, b)\) 的极（最）小值点。下面来求最佳近似式 \(e(a_{0}, b_{0})=min_{a, b} e(a, b)\)，计算得：
+$$
+
+e(a, b)=E\left(Y^{2}\right)+b^{2}E\left(X^{2}\right)+a^{2}-2aE(Y)-2bE(XY)+2abE(X)
+
+$$
+由 \(\begin{cases} \frac{\partial e(a, b)}{\partial a}=2a + 2bE(X) - 2E(Y)=0 \\ \frac{\partial e(a, b)}{\partial b}=2aE(X) + 2bE\left(X^{2}\right) - 2E(XY)=0 \end{cases}\)，可得 \(\begin{cases} a_{0}=E(Y)-b_{0}E(X) \\ b_{0}=\frac{Cov(X, Y)}{Var(X)} \end{cases}\)
+</Card>
+
+<Card type="Proof" title="Proof (Cont.)">
+注意到 \(a_{0}=E(Y)-b_{0}E(X)\)，\(b_{0}=\frac{Cov(X, Y)}{Var(X)}\)，则有：
+$$
+
+\begin{aligned}
+e\left(a_{0}, b_{0}\right) & = E\left\{\left[Y-\left(a_{0}+b_{0}X\right)\right]^{2}\right\} = Var\left[Y-\left(a_{0}+b_{0}X\right)\right] + \left\{E\left[Y-\left(a_{0}+b_{0}X\right)\right]\right\}^{2} \\
+& = Var\left(Y - b_{0}X\right) + 0 = Var(Y) + b_{0}^{2}Var(X) - 2b_{0}Cov(X, Y) \\
+& = Var(Y) - \frac{[Cov(X, Y)]^{2}}{Var(X)} = \left(1 - \rho_{XY}^{2}\right)Var(Y)
+\end{aligned}
+
+$$
+由 \(e(a_{0}, b_{0}) \geq0\) 可得 \(1 - \rho_{XY}^{2} \geq0\)，即 \(|\rho_{XY}| \leq1\)。
+$$
+
+\begin{aligned}
+|\rho_{XY}|=1 & \Leftrightarrow E\left\{\left[Y-\left(a_{0}+b_{0}X\right)\right]^{2}\right\}=0 \\
+& \Leftrightarrow Var\left[Y-\left(a_{0}+b_{0}X\right)\right]=0 且 E\left[Y-\left(a_{0}+b_{0}X\right)\right]=0 \\
+& \Leftrightarrow P\left\{Y-\left(a_{0}+b_{0}X\right)=0\right\}=1
+\end{aligned}
+
+$$
+当 \(\rho_{XY}>0\) 时，\(Cov(X, Y)>0\)，\(b_{0}>0\)；当 \(\rho_{XY}<0\) 时，\(Cov(X, Y)<0\)，\(b_{0}<0\)。
+</Card>
+
+相关系数 \(\rho_{XY}\) 是一个用来表征 \(X\)、\(Y\) 之间线性关系紧密程度的数字特征：
+- 当 \(|\rho_{XY}|\) 较大时，\(e(a_{0}, b_{0})\) 较小，表明 \(X, Y\) 线性关系的程度较强；
+- 当 \(|\rho_{XY}|=1\) 时，\(e(a_{0}, b_{0})=0\)，表明 \(X, Y\) 之间以概率1存在线性关系；
+- 当 \(|\rho_{XY}|\) 较小时，\(e(a_{0}, b_{0})\) 较大，表明 \(X, Y\) 线性关系的程度较弱。
+
+<Card type="Definition" title="Definition 8（正相关、负相关）">
+当 \(\rho_{XY}>0\) 时，称 \(X\) 与 \(Y\) 为正相关；当 \(\rho_{XY}<0\) 时，称 \(X\) 与 \(Y\) 为负相关。
+</Card>
+
+<Card type="Definition" title="Definition 9（不相关）">
+当 \(\rho_{XY}=0\) 时，称 \(X\) 与 \(Y\) 为不相关或零相关。
+随机变量 \(X\) 与 \(Y\) 不相关，即 \(\rho_{XY}=0\) 的等价条件：
+1. \(Cov(X, Y)=0\)；
+2. \(E(XY)=E(X)E(Y)\)（较常用）；
+3. \(Var(X+Y)=Var(X)+Var(Y)\)。
+</Card>
+
+### 相关性与独立性的关系
+- \(X\) 与 \(Y\) 不相关，仅针对于二者的线性关系而言；
+- \(X\) 与 \(Y\) 相互独立，是就一般关系而言的；
+- \(X\) 与 \(Y\) 相互独立 \(\Rightarrow X\) 与 \(Y\) 不相关；
+- \(X\) 与 \(Y\) 不相关 \(\nRightarrow X\) 与 \(Y\) 相互独立。
+
+<Card type="Example" title="Example 41">
+设 \(X\) 的分布律如下所示，问 \(X\) 与 \(X^{2}\) 是否相关？是否独立？
+| \(X\) | -1 | 0 | 1 |
+| ---- | ---- | ---- | ---- |
+| \(P\) | 1/4 | 1/2 | 1/4 |
+</Card>
+
+<Card type="Solution" title="Solution">
+注意到 \(E(X)=E(X^{3})=0\)，因此有 \(E(X)E(X^{2})=E(X \cdot X^{2})\)，所以 \(X\) 与 \(X^{2}\) 不相关。而 \(X\) 与 \(X^{2}\) 是有关系的，是不独立的。事实上：
+$$
+P\left(X=-1, X^{2}=0\right)=0 \neq P(X=-1)P\left(X^{2}=0\right)=1/8
+$$
+在本例中也可以看出，“相关性”度量的是随机变量之间的线性关系。
+</Card>
+
+<Card type="Example" title="Example 42">
+设 \(X, Y\) 服从同一分布，其分布律为：
+| \(X\) | -1 | 0 | 1 |
+| ---- | ---- | ---- | ---- |
+| \(P\) | 1/4 | 1/2 | 1/4 |
+已知 \(P\{|X|=|Y|\}=0\)，判断 \(X\) 和 \(Y\) 是否相关？是否独立？
+</Card>
+
+<Card type="Solution" title="Solution">
+由题意可得 \(X, Y\) 的联合分布律：
+| \(X\setminus Y\) | -1 | 0 | 1 | \(P(X=i)\) |
+| ---- | ---- | ---- | ---- | ---- |
+| -1 | 0 | 1/4 | 0 | 1/4 |
+| 0 | 1/4 | 0 | 1/4 | 1/2 |
+| 1 | 0 | 1/4 | 0 | 1/4 |
+| \(P(Y=j)\) | 1/4 | 1/2 | 1/4 | 1 |
+
+计算得 \(E(XY)=0\)，\(E(X)=E(Y)=0\)，所以 \(E(XY)=E(X)E(Y)\)，即 \(X\) 与 \(Y\) 不相关。此外，注意到 \(P(X=-1, Y=-1)=0 \neq P(X=-1)P(Y=-1)=1/16\)，所以 \(X\) 与 \(Y\) 不独立。
+</Card>
+
+<Card type="Example" title="Example 43">
+设 \((X, Y)\) 服从二维正态分布 \(N(\mu_{1}, \mu_{2} ; \sigma_{1}^{2}, \sigma_{2}^{2} ; \rho)\)，它的联合概率密度函数为：
+$$
+f(x, y)=\frac{1}{2\pi\sigma_{1}\sigma_{2}\sqrt{1-\rho^{2}}} e^{-\frac{1}{2(1-\rho^{2})}\left[\frac{(x-\mu_{1})^{2}}{\sigma_{1}^{2}} - 2\rho\frac{(x-\mu_{1})(y-\mu_{2})}{\sigma_{1}\sigma_{2}} + \frac{(y-\mu_{2})^{2}}{\sigma_{2}^{2}}\right]}
+$$
+求 \(X\) 和 \(Y\) 的相关系数，并证明 \(X\) 与 \(Y\) 相互独立 \(\Leftrightarrow X\) 与 \(Y\) 不相关。
+</Card>
+
+<Card type="Solution" title="Solution">
+由前面对二维正态分布的分析可知：
+$$
+E(X)=\mu_{1}, Var(X)=\sigma_{1}^{2} ; E(Y)=\mu_{2}, Var(Y)=\sigma_{2}^{2}
+$$
+下面计算 \(X\) 与 \(Y\) 的协方差 \(Cov(X, Y)\)：
+$$
+
+\begin{aligned}
+Cov(X, Y) & = E\left[(X-\mu_{1})(Y-\mu_{2})\right] \\
+& = \int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} (x-\mu_{1})(y-\mu_{2}) f(x, y) dx dy \\
+& = \int_{-\infty}^{+\infty} \frac{x-\mu_{1}}{\sqrt{2\pi}\sigma_{1}} e^{-\frac{(x-\mu_{1})^{2}}{2\sigma_{1}^{2}}} dx \int_{-\infty}^{+\infty} \frac{y-\mu_{2}}{\sqrt{2\pi}\sigma_{2}\sqrt{1-\rho^{2}}} e^{-\frac{\left[y - \left(\mu_{2} + \frac{\rho\sigma_{2}}{\sigma_{1}}(x-\mu_{1})\right)\right]^{2}}{2(1-\rho^{2})\sigma_{2}^{2}}} dy \\
+& = \int_{-\infty}^{+\infty} \frac{x-\mu_{1}}{\sqrt{2\pi}\sigma_{1}} e^{-\frac{(x-\mu_{1})^{2}}{2\sigma_{1}^{2}}} \left[\mu_{2} + \frac{\rho\sigma_{2}}{\sigma_{1}}(x-\mu_{1}) - \mu_{2}\right] dx \\
+& = \frac{\rho\sigma_{2}}{\sigma_{1}} \int_{-\infty}^{+\infty} \frac{(x-\mu_{1})^{2}}{\sqrt{2\pi}\sigma_{1}} e^{-\frac{(x-\mu_{1})^{2}}{2\sigma_{1}^{2}}} dx = \frac{\rho\sigma_{2}}{\sigma_{1}} \cdot \sigma_{1}^{2} = \rho\sigma_{1}\sigma_{2}
+\end{aligned}
+
+$$
+因此：
+$$
+
+\rho_{XY}=\frac{Cov(X, Y)}{\sqrt{Var(X)} \sqrt{Var(Y)}}=\rho
+
+$$
+即二维正态变量 \((X, Y)\) 中的参数 \(\rho\) 就是 \(X, Y\) 的相关系数，因而二维正态变量的分布完全可由 \(X, Y\) 各自的均值、方差以及它们的相关系数所确定。
+因此，对于二维正态变量 \((X, Y)\) 来说，\(X\) 与 \(Y\) 相互独立 \(\Leftrightarrow X\) 与 \(Y\) 不相关。之前我们已经证明，若 \((X, Y)\) 服从二维正态分布，那么 \(X\) 和 \(Y\) 相互独立 \(\Leftrightarrow \rho=0\)。
+</Card>
+
+<Card type="Example" title="Example 44">
+设 \(X, Y\) 相互独立服从同一分布，方差存在，记 \(U=X-Y\)，\(V=X+Y\)，则随机变量 \(U\) 与 \(V\) 是否一定不相关？是否一定独立？
+</Card>
+
+<Card type="Solution" title="Solution">
+先求 \(U, V\) 的协方差：
+$$
+
+Cov(U, V)=Cov(X-Y, X+Y)=Var(X)-Var(Y)=0
+
+$$
+所以 \(U\) 与 \(V\) 一定不相关。
+但 \(U\) 与 \(V\) 不一定独立，也不一定不独立。举例如下：
+1. 设 \(X\) 与 \(Y\) 独立服从正态分布，则 \((U, V)\) 也服从正态分布，而对于二维正态分布，独立与不相关等价，从而 \(U\) 与 \(V\) 独立。
+2. 设 \(X\) 与 \(Y\) 独立服从两点分布 \(B(1,0.5)\)（或写为 \(0-1(0.5)\)），则：
+$$
+
+P(U=1, V=0)=P(X-Y=1, X+Y=0)=0
+
+$$
+$$
+
+P(U=1)=P(X-Y=1)=P(X=1, Y=0)=0.25
+
+$$
+$$
+
+P(V=0)=P(X+Y=0)=P(X=0, Y=0)=0.25
+
+$$
+\(P(U=1, V=0) \neq P(U=1)P(V=0)\)，因此 \(U\) 与 \(V\) 不独立。
+</Card>
+
+## §4.4 其它数字特征
+### 矩（Moment）
+<Card type="Definition" title="Definition 10（矩）">
+设 \(X, Y\) 为随机变量：
+- 若 \(E(X^{k})\)（\(k=1,2,...\)）存在，则称它为 \(X\) 的 \(k\) 阶（原点）矩；
+- 若 \(E\{[X-E(X)]^{k}\}\)（\(k=2,3,...\)）存在，则称它为 \(X\) 的 \(k\) 阶中心矩；
+- 若 \(E(X^{k}Y^{l})\)（\(k,l=1,2,...\)）存在，则称它为 \(X\) 和 \(Y\) 的 \(k+l\) 阶混合（原点）矩；
+- 若 \(E\{[X-E(X)]^{k}[Y-E(Y)]^{l}\}\)（\(k,l=1,2,...\)）存在，则称它为 \(X\) 和 \(Y\) 的 \(k+l\) 阶混合中心矩。
+</Card>
+
+### 分位数（Quantile）
+<Card type="Definition" title="Definition 11（分位数）">
+设连续型随机变量 \(X\) 的分布函数和密度函数分别为 \(F(x)\) 与 \(f(x)\)，称满足条件：
+$$
+
+P\left(X>x_{\alpha}\right)=1-F\left(x_{\alpha}\right)=\int_{x_{\alpha}}^{+\infty} f(x) dx=\alpha
+
+$$
+的实数 \(x_{\alpha}\) 为随机变量 \(X\)（或此分布）的上 \(\alpha\) 分位数（\(0<\alpha<1\)）。
+特别地：
+- 当 \(\alpha=1/2\) 时，\(x_{1/2}\) 称为 \(X\) 的中位数；
+- 当 \(\alpha=1/4\) 时，\(x_{1/4}\) 称为 \(X\) 的上1/4分位数；
+- 当 \(\alpha=3/4\) 时，\(x_{3/4}\) 称为 \(X\) 的上3/4分位数。
+</Card>
+
+![](image)
+
+设 \(X \sim N(0,1)\)，若 \(z_{\alpha}\) 满足条件：
+$$
+
+P\left(X>z_{\alpha}\right)=\alpha, 0<\alpha<1
+
+$$
+则称点 \(z_{\alpha}\) 为标准正态分布的上 \(\alpha\) 分位数（Excel实现：NORMSINV）。
+- \(z_{1/2}=0\)
+- \(z_{1-\alpha}=-z_{\alpha}\)
+
+![](image)
+
+### 众数（Mode）
+<Card type="Definition" title="Definition 12（众数）">
+随机变量 \(X\) 最可能取的数值，称为众数（mode）。
+对于离散型随机变量，众数是其分布律中最大概率所对应的那个可能取值。
+</Card>
+
+
+# 4 随机变量的数字特征
+## §4.5 多维随机变量的数字特征（Numerical Characteristics of Multivariate Random Variables）
+
+<Card type="Definition" title="Definition 13 (数学期望(向量))">
+设 $n$ 维随机变量 $X=(X_{1}, X_{2}, ..., X_{n})^{T}$，若其每一分量的数学期望都存在，则称
+$$
+ E(X)=\left(E\left(X_{1}\right), E\left(X_{2}\right), ..., E\left(X_{n}\right)\right)^{T} 
+$$
+为 $n$ 维随机变量 $X$ 的数学期望(向量)。
+</Card>
+
+<Card type="Definition" title="Definition 14 (协方差矩阵)">
+设二维随机变量 $(X_{1}, X_{2})$ 的四个二阶中心矩存在，则称
+$$
+ \left(\begin{array}{cc}Var\left(X_{1}\right) & Cov\left(X_{1}, X_{2}\right) \\ Cov\left(X_{2}, X_{1}\right) & Var\left(X_{2}\right)\end{array}\right) 
+$$
+为 $(X_{1}, X_{2})$ 的协方差矩阵。
+</Card>
+
+<Card type="Definition" title="Definition 15 (协方差矩阵)">
+设 $n$ 维随机变量 $(X_{1}, X_{2}, ..., X_{n})$ 的任意二者协方差 $Cov(X_{i}, X_{j})$ 存在（$i,j=1,2, ..., n$），则称矩阵
+$$
+ \left(Cov\left(X_{i}, X_{j}\right)\right)_{n \times  n}=\left(\begin{array}{cccc} Var\left(X_{1}\right) & Cov\left(X_{1}, X_{2}\right) & \cdots & Cov\left(X_{1}, X_{n}\right) \\ Cov\left(X_{2}, X_{1}\right) & Var\left(X_{2}\right) & \cdots & Cov\left(X_{2}, X_{n}\right) \\ \vdots & \vdots & \ddots & \vdots \\ Cov\left(X_{n}, X_{1}\right) & Cov\left(X_{n}, X_{2}\right) & \cdots & Var\left(X_{n}\right)\end{array}\right) 
+$$
+为 $n$ 维随机变量 $(X_{1}, X_{2}, ..., X_{n})$ 的协方差矩阵。
+
+协方差矩阵是一个对称的非负定矩阵。
+</Card>
+
+利用协方差矩阵，可将二维正态变量的概率密度推广至 $n$ 维正态变量的概率密度。已知 $X=(X_{1}, X_{2})$ 服从二维正态分布，其概率密度为
+$$
+ f\left(x_{1}, x_{2}\right)=\frac{1}{2 \pi \sigma_{1} \sigma_{2} \sqrt{1-\rho^{2}}} e^{-\frac{1}{2\left(1-\rho^{2}\right)}\left[\frac{\left(x_{1}-\mu_{1}\right)^{2}}{\sigma_{1}^{2}}-2 \rho \frac{\left(x_{1}-\mu_{1}\right)\left(x_{2}-\mu_{2}\right)}{\sigma_{1} \sigma_{2}}+\frac{\left(x_{2}-\mu_{2}\right)^{2}}{\sigma_{2}^{2}}\right]} 
+$$
+
+引入列向量 $x=(\begin{array}{l}x_{1} \\ x_{2}\end{array})$、$\mu=(\begin{array}{l}\mu_{1} \\ \mu_{2}\end{array})$，$X$ 的协方差矩阵 $C=(\begin{array}{cc}\sigma_{1}^{2} & \rho \sigma_{1} \sigma_{2} \\ \rho \sigma_{1} \sigma_{2} & \sigma_{2}^{2}\end{array})$，它的行列式为 $|C|=\sigma_{1}^{2} \sigma_{2}^{2}(1-\rho^{2})$，逆矩阵为
+$$
+ C^{-1}=\frac{1}{|C|}\left( \begin{array}{cc}\sigma _{2}^{2}&-\rho \sigma _{1}\sigma _{2}\\ -\rho \sigma _{1}\sigma _{2}&\sigma _{1}^{2}\end{array} \right) =\frac{1}{1-\rho ^{2}}\left( \begin{array}{cc}\frac{1}{\sigma _{1}^{2}}&-\frac{\rho }{\sigma _{1}\sigma _{2}}\\ -\frac{\rho }{\sigma _{1}\sigma _{2}}&\frac{1}{\sigma _{2}^{2}}\end{array} \right) 
+$$
+
+经计算得
+$$
+ (x-\mu)^{\top} C^{-1}(x-\mu)=\frac{1}{1-\rho^{2}}\left[\frac{\left(x_{1}-\mu_{1}\right)^{2}}{\sigma_{1}^{2}}-2 \rho \frac{\left(x_{1}-\mu_{1}\right)\left(x_{2}-\mu_{2}\right)}{\sigma_{1} \sigma_{2}}+\frac{\left(x_{2}-\mu_{2}\right)^{2}}{\sigma_{2}^{2}}\right] 
+$$
+于是 $X$ 的概率密度可写成
+$$
+ f(x)=\frac{1}{(2 \pi)^{\frac{2}{2}}|C|^{\frac{1}{2}}} exp \left\{-\frac{1}{2}(x-\mu)^{\top} C^{-1}(x-\mu)\right\} 
+$$
+由此，我们可以推广到 $n$ 维正态变量的情况。
+
+设 $X=(X_{1}, X_{2}, ..., X_{n})^{\top}$ 服从 $n$ 维正态分布，其数学期望为
+$$
+ E(X)=\left(E\left(X_{1}\right), E\left(X_{2}\right), ..., E\left(X_{n}\right)\right)^{\top}=\left(\mu_{1}, \mu_{2}, ..., \mu_{n}\right) \stackrel{记为}{=} \mu, 
+$$
+
+协方差矩阵为
+$$
+ \sum=E\left[(X-\mu)(X-\mu)^{\top}\right] . 
+$$
+
+引入列向量 $x=(x_{1}, x_{2}, ..., x_{n})^{\top}$，则 $X$ 的概率密度为
+$$
+ f(x)=\frac{1}{(2 \pi)^{\frac{n}{2}}|\sum|^{\frac{1}{2}}} exp \left\{-\frac{1}{2}(x-\mu)^{\top} \sum^{-1}(x-\mu)\right\} . 
+$$
+
+### $n$ 维正态变量的重要性质
+1. $n$ 维正态变量 $(X_{1}, X_{2}, ..., X_{n})^{\top}$ 中的任意子向量 $(X_{i_{1}}, X_{i_{2}}, ..., X_{i_{k}})^{\top}(1 ≤k ≤n)$ 也服从 $k$ 维正态分布。特别地，每一个分量 $X_{i}$（$i=1,2, ..., n$）都是正态变量；反之，若 $X_{1}, X_{2}, ..., X_{n}$ 都是正态变量，且相互独立，则 $(X_{1}, X_{2}, ..., X_{n})^{\top}$ 是 $n$ 维正态变量。
+2. $n$ 维随机变量 $(X_{1}, X_{2}, ..., X_{n})^{\top}$ 服从 $n$ 元正态分布 $\Leftrightarrow X_{1}, X_{2}, ..., X_{n}$ 的任意线性组合 $l_{1} X_{1}+l_{2} X_{2}+\cdots+l_{n} X_{n}$ 服从一元正态分布（其中 $l_{1}, l_{2}, ..., l_{n}$ 不全为零）。
+3. 若 $(X_{1}, X_{2}, ..., X_{n})^{\top}$ 服从 $n$ 元正态分布，设 $Y_{1}, Y_{2}, ..., Y_{k}$ 是 $X_{j}(j=1,2, ..., n)$ 的线性函数，则 $(Y_{1}, Y_{2}, ..., Y_{k})^{\top}$ 服从 $k$ 维正态分布，这一性质称为正态变量的线性变换不变性。
+4. 设 $(X_{1}, X_{2}, ..., X_{n})^{\top}$ 服从 $n$ 元正态分布，则 $X_{1}, ..., X_{n}$ 相互独立 $\Leftrightarrow X_{1}, ..., X_{n}$ 两两不相关 $\Leftrightarrow$ 协方差矩阵为对角矩阵。
+
+<Card type="Example" title="Example 45">
+设二元随机变量 $(X, Y)$ 服从二元正态分布，$X ~ N(0,1)$，$Y ~ N(1,4)$，$X$ 与 $Y$ 的相关系数 $\rho=-\frac{1}{2}$。求：
+- $Var(2 X-Y)$；
+- $P(2 X>Y)$；
+- $(Z_{1}, Z_{2})=(X+Y, X-Y)$ 的分布。
+
+### Solution
+利用相关系数定义，可知协方差
+$$
+ Cov(X, Y)=\rho_{X Y} \sqrt{Var(X)} \sqrt{Var(Y)}=-\frac{1}{2} \times  1 \times  2=-1 . 
+$$
+
+1. 于是
+$$
+ \begin{aligned} Var(2 X-Y) & =Var(2 X)+Var(-Y)+2 Cov(2 X,-Y) \\ & =2^{2} Var(X)+(-1)^{2} Var(Y)-4 Cov(X, Y) \\ & =4 \times  1+1 \times  4-4 \times(-1)=12 \end{aligned} 
+$$
+
+2. 注意到多元正态变量的线性组合仍服从正态分布，因而有 $2 X-Y ~ N(-1,12)$，所以
+$$
+ P(2 X>Y)=P(2 X-Y>0)=1-\Phi\left(\frac{0-(-1)}{\sqrt{12}}\right)=1-\Phi\left(\frac{1}{2 \sqrt{3}}\right) . 
+$$
+
+3. 根据正态变量的线性变换不变性，$(Z_{1}, Z_{2})$ 也服从二维正态分布。
+$$
+ E\left(Z_{1}\right)=E(X+Y)=E(X)+E(Y)=1 
+$$
+$$
+ E\left(Z_{2}\right)=E(X-Y)=E(X)-E(Y)=-1 
+$$
+$$
+ Var\left(Z_{1}\right)=Var(X)+Var(Y)+2 Cov(X, Y)=3, 
+$$
+$$
+ Var\left(Z_{2}\right)=Var(X)+Var(Y)-2 Cov(X, Y)=7; 
+$$
+$$
+ Cov\left(Z_{1}, Z_{2}\right)=Cov(X+Y, X-Y)=Var(X)-Var(Y)=-3 
+$$
+$$
+ \Rightarrow \rho_{Z_{1} Z_{2}}=\frac{Cov\left(Z_{1}, Z_{2}\right)}{\sqrt{Var(Z_{1})} \sqrt{Var(Z_{2})}}=\frac{-3}{\sqrt{3} \cdot \sqrt{7}}=-\sqrt{\frac{3}{7}} . 
+$$
+所以 $\left(Z_{1}, Z_{2}\right) \sim N\left(1,-1 ; 3,7 ;-\sqrt{\frac{3}{7}}\right)$。
+</Card>
+
+<Card type="Example" title="Example 46">
+设二维随机变量 $(X, Y)$ 服从二维正态分布，$X ~ N(1,1)$，$Y ~ N(2,4)$，$X$ 与 $Y$ 的相关系数 $\rho$，即 $(X, Y) ~ N(1,2 ; 1,4 ; \rho)$。
+1. 若 $\rho=0$，求 $Z=3 X-2 Y$ 的密度函数、$Cov(2 X-Y, X-2 Y)$ 及 $E(X Y)$；
+2. 若 $\rho=1 / 3$，求 $Var(2 X-Y)$、$E(X Y)$ 及 $P(3 Y>4+2 X)$。
+
+### Solution
+1. 注意到 $Z$ 为二维正态随机变量分量的线性组合，故 $Z$ 服从正态分布，而
+$$
+ E(Z)=3 E(X)-2 E(Y)=-1, Var(Z) \stackrel{\rho=0}{=} 9 Var(X)+4 Var(Y)=25 . 
+$$
+所以 $Z ~ N(-1,25)$，其密度函数为 $f(z)=\frac{1}{5 \sqrt{2 \pi}} e^{-\frac{(z+1)^{2}}{50}}$。
+
+$$
+ \begin{aligned} Cov(2 X-Y, X-2 Y) & =2 Var(X)+2 Var(Y)-5 Cov(X, Y) \\ & =2 \times  1+2 \times  4-5 \times  0=10, \end{aligned} 
+$$
+$$
+ E(X Y) \stackrel{\rho=0}{=} E(X) E(Y)=1 \times  2=2 . 
+$$
+
+2. 由于 $Cov(X, Y) = \rho · \sqrt{Var(X)} · \sqrt{Var(Y)} = \frac{1}{3} \times  \sqrt{1} \times  2 = \frac{2}{3}$，故
+$$
+ Var(2 X-Y)=4 Var(X)+Var(Y)-4 Cov(X, Y)=4 \times  1+1 \times  4-4 \times  \frac{2}{3}=\frac{16}{3}, 
+$$
+$$
+ E(X Y)=Cov(X, Y)+E(X) E(Y)=\frac{2}{3}+1 \times  2=\frac{8}{3} . 
+$$
+
+同样地，注意到 $\xi=3 Y-2 X$ 服从正态分布，而
+$$
+ E(\xi)=3 E(Y)-2 E(X)=4, 
+$$
+$$
+ Var(\xi)=9 Var(Y)+4 Var(X)+2 Cov(3 Y,-2 X)=36+4-12 \times  \frac{2}{3}=32 . 
+$$
+所以 $\xi ~ N(4,32)$，因此
+$$
+ P(3 Y>4+2 X)=P(3 Y-2 X>4)=P(\xi>4)=1-\Phi\left(\frac{4-E(\xi)}{\sqrt{Var(\xi)}}\right)=1-\Phi(0)=0.5 . 
+$$
+</Card>
+
+## 复习思考题
+1. 叙述 $E(X)$ 和 $Var(X)$ 的定义。
+2. 设有一批数据 $x_{1}, x_{2}, ..., x_{n}$，记 $\bar{x}=\frac{1}{n} \sum_{i=1}^{n} x_{i}$，则 $\sum_{i=1}^{n}(x_{i}-\bar{x})=0$ 成立吗？
+3. 已知随机变量 $X$ 具有概率密度 $f(x)= \begin{cases}\frac{3(2 x-x^{2})}{4}, & 0<x<2 \\ 0, & 其他\end{cases}$，试问下列哪种解法是正确的？
+   - 解法 1：$E(X)=\int_{-\infty}^{+\infty} x f(x) d x=\int_{0}^{2} \frac{3 x\left(2 x-x^{2}\right)}{4} d x=1$。
+   - 解法 2：$E(X)= \begin{cases}\int_{0}^{2} \frac{3 x\left(2 x-x^{2}\right)}{4} d x=1, & 0<x<2 \\ \int_{-\infty}^{0} 0 \cdot x d x+\int_{2}^{+\infty} 0 \cdot x d x=0, & 其他\end{cases}$
+4. 试述计算随机变量 $X$ 的函数 $g(X)$ 的数学期望 $E[g(X)]$ 的两种方法。
+5. 设 $X ~ N(\mu, \sigma^{2})$，用如下两种方法求 $E(X^{2})$：
+   - $E\left(X^{2}\right)=Var(X)+[E(X)]^{2}=\sigma^{2}+\mu^{2}$；
+   - $E\left(X^{2}\right)=E(X \cdot X)=E(X) \cdot E(X)=\mu^{2}$；
+   两种结果不一样，问哪一种错？为什么？
+6. 设 $X$ 和 $Y$ 为两随机变量，且已知 $Var(X)=6$，$Var(Y)=7$，则 $Var(X-Y)=Var(X)-Var(Y)=6-7=-1<0$，这与任意一个随机变量的方差都不小于零相矛盾，为什么？
+7. 试问 $Var(X-Y)=Var(X)+Var(Y)-2 Cov(X, Y)$ 对吗？
+8. 叙述独立性与不相关性的关系。
+9. 设 $X$ 服从 $U(1,3)$，则 $E(1 / X)=1 / E(X)=1 / 2$ 对吗？
+10. 某企业生产的袋装水泥，每袋重量服从 $N(50,2.5^{2})$（单位：斤）。现考虑随机抽取的100包水泥的总重量 $Y$，用以下两种方式表示：
+    - 设第 $i$ 袋水泥的重量为 $X_{i}$（$i=1,2, ..., 100$），由题意知 $X_{i} ~ N(50,2.5^{2})$，则 $Y=\sum_{i=1}^{100} X_{i}$，因此 $Y ~ N(100 \times 50,100 \times 2.5^{2})$。
+    - 设一包水泥的重量为 $X$，由题意知 $X ~ N(50,2.5^{2})$。若将100包水泥的总重量看成是1包水泥的100倍，即 $Y=100 X$ 是 $X$ 的线性函数，则 $E(Y)=100 E(X)=100 \times  50$，$Var(Y)=100^{2} Var(X)=100^{2} \times  2.5^{2}$。
+    这两种方法得到的总重量的分布不一样（因为方差不同，后者方差是前者的100倍），试问哪一种正确？
+11. 求：(i) $Var(X_{1}-X_{2})$；(ii) $Y$ 与 $X_{1}$ 的相关系数；(iii) $P(Y>E(Y))$；(iv) $P(Y = E(Y))$。
+
+谢谢。

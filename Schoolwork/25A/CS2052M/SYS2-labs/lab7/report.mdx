@@ -1,0 +1,162 @@
+---
+title: "Lab 6 实验报告：综合实验"
+---
+
+import Asciinema from '@md-components/AsciinemaWrapper.vue'
+
+
+# 实验目的
+
+- 学习 OS 在硬件层面的抽象
+- 完善自己的 CPU Core，并运行起自己编写的 Mini Kernel
+
+# 实验内容
+
+## 为 CSR 流水线添加一个新的 ALU
+
+> ...
+> 为 CSR 流水线添加一个新的 ALU（**为什么？**），并构建相关的数据通路；
+> ...
+
+在 RISC-V 架构中，CSR（Control and Status Registers）寄存器用于存储控制和状态信息。CSR 指令需要对这些寄存器进行读写操作，这些操作通常涉及到算术和逻辑运算。因此，为了高效地处理 CSR 指令，我们需要为 CSR 流水线添加一个专门的 ALU（算术逻辑单元）。 这个新的 ALU 主要用于执行 CSR 指令中的算术和逻辑操作，如 CSRRS（读并设置位）、CSRRC（读并清除位）等。
+
+最重要的是，CSR ALU 与普通 ALU 的实现存在区别，需要专用。
+
+普通 ALU 的实现：
+
+```verilog
+  always_comb begin
+    case (alu_op)
+      ALU_ADD:  result = a + b;
+      ALU_SUB:  result = a - b;
+      ALU_AND:  result = a & b;
+      ALU_OR:   result = a | b;
+      ALU_XOR:  result = a ^ b;
+      ALU_SLT:  result = ($signed(a) < $signed(b)) ? 1 : 0;
+      ALU_SLTU: result = (a < b) ? 1 : 0; // unsigned comparison
+      ALU_SLL:  result = a << b[5:0]; // shift by lower 5 bits
+      ALU_SRL:  result = a >> b[5:0]; // shift by lower 5 bits
+      ALU_SRA:  result = $signed(a) >>> b[5:0]; 
+      ALU_ADDW: result = {32'b0,{a[31:0] + b[31:0]}};
+      ALU_SUBW: result = {32'b0,{a[31:0] - b[31:0]}}; 
+      ALU_SLLW: result = {32'b0,{a[31:0] << $signed(b[4:0])}};
+      ALU_SRLW: result = {32'b0,{a[31:0] >> $signed(b[4:0])}};
+      ALU_SRAW: result = {32'b0,{$signed(a[31:0]) >>> $signed(b[4:0])}};
+      ALU_DEFAULT: result = 0; 
+      default:  result = 0;
+  end
+```
+
+CSR ALU 的实现：
+
+```verilog
+    always_comb begin
+        case (csr_alu_op)
+            CSR_ALU_ADD:    res = a + b;
+            CSR_ALU_OR:     res = a | b;
+            CSR_ALU_ANDNOT: res = a & (~b);
+            default:        res = '0;
+        endcase
+    end
+```
+
+
+
+
+## switch_mode发生时，如果 FSM 正在访问内存怎么处理
+
+> ...
+> `CSRModule` 一旦检测到异常信息暂存站 `EX4` 中存在异常信号、需要特权级改变，或者收到时钟中断的信号，就会发出 `switch_mode` 信号，并且给出 `pc_csr` 表示应该跳转到的地址，同时在内部进行特权级的切换。此时，需要**将所有的流水线清空、所有的使能信号关闭、修改 PC**。思考一下，**这个时候如果 FSM 正在访问内存怎么处理？**
+> ...
+
+因为在有了Axi总线之后，读内存变成了一个比较漫长的过程，这个时候可能就会发生上述情况。
+
+假如现在总线正在向内存取指令，这时突然发生了时钟中断，时钟中断发生后，我们会将 pc 改为 pc_csr ，但这时下一条从MEM中返回的指令是与旧的pc对应的，而不是跳转之后的。那么这个时候就需要将这个读到的内容舍弃，等待新读到的内容到达。
+
+假如总线正在向内存写回数据，这时突然发生了时钟中断，那么这个时候就需要等到写回完成之后再进行特权级的切换。因为写回操作是不可中断的。
+
+## 仿真
+
+import cast1 from './k1.cast?raw'
+
+<Asciinema cast={cast1} />
+
+# 思考题
+
+## `printk` 的特权切换
+
+> 1. 使用 `printk` 函数输出一个字符 `a` 的过程中需要发生几次特权态切换？请将切换前后的特权态和切换的原因一一列举出来。
+
+在使用 `printk` 函数输出一个字符 `a` 的过程中，总共需要发生两次特权态切换：
+
+1. S态->M态
+   - 切换前特权态：Supervisor Mode (S)
+   - 切换后特权态：Machine Mode (M)
+   - 切换原因：`printk` 函数需要访问硬件资源（如 UART），而这些资源只能在 Machine Mode 下访问，因此需要从 Supervisor Mode 切换到 Machine Mode。
+
+   `printk` 函数间接调用`printk_sbi_write`，后者通过 `sbi_ecall`，触发一个环境调用（ECALL），从而切换到 Machine Mode。
+
+   ```c
+     struct sbiret ret = sbi_ecall(SBI_DEBUG_CONSOLE_EXTENSION_ID, 
+         0, (uint64_t)len, LOBYTE(buf), HIBYTE(buf), 0, 0, 0);
+   ```
+2. M态->S态
+   - 切换前特权态：Machine Mode (M)
+   - 切换后特权态：Supervisor Mode (S)
+   - 切换原因：完成对硬件资源的访问后，需要返回到 Supervisor Mode 继续执行内核代码。
+
+   相关的代码位于minisbi中。
+
+可以绘出如下的特权态切换流程图：
+
+
+```
+Supervisor (priv == 01)                         Machine (priv == 11)
+    printk()
+      |
+   printk_sbi_write()
+      |
+  sbi_ecall()
+      |
+      +-----------------------ecall-----------------------+
+                                                          |
+                                                  _sbi_trap_entry()
+                                                          |
+                                                 sbi_trap_handler()
+                                                          |
+                                                 sbi_scall_handler()
+                                                          |
+                                                sbi_debug_console_write()
+                                                          |
+                                                sbi_debug_console_write_byte()
+                                                          |
+                                                   uart_tx()
+                                                          |
+                                        (... return back to _sbi_trap_entry)
+                                                          |
+      +-----------------------mret------------------------+
+      |
+    ... further code
+```
+
+## 异常的选择
+
+> 2. 如果流水线的 IF、ID、MEM 阶段都检测到了异常发生，应该选择哪个流水级的异常作为 trap_handler 处理的异常? 请说说为什么这么选择。
+
+如果同一时间在流水线的 IF、ID、MEM 阶段都检测到了异常发生，应该选择最早发生异常的流水级的异常作为 trap_handler 处理的异常，也就是MEM阶段的指令，因为MEM阶段在执行顺序上是最靠前的。
+
+## 设计
+
+> 3. 现在你能够在你自己设计的 CPU 上运行你自己编写的操作系统内核了，这给你带来了很大的自由度，你可以做到很多你直接在自己的电脑上编程可能做不到的事情。你想挑战在你的最小系统上实现什么？无需真的实现，给出大致思路即可。
+
+我想挑战在我的最小系统上实现一个简单的文件系统，以便能够在内核中进行文件的读写操作。大致思路如下：
+
+1. 设计文件系统的数据结构，包括文件控制块（FCB）、目录结构等。
+2. 实现基本的文件操作函数，如创建文件、删除文件、读文件、写文件等。
+3. 在内核中集成文件系统模块，使其能够与内核的其他部分协同工作。
+4. 通过 UART 接口实现文件系统的交互界面，允许用户通过串口命令进行文件操作。
+5. 测试文件系统的功能，确保其稳定性和可靠性。
+
+# 心得体会
+
+通过本次实验，我深入理解了 CPU 设计中的CSR，特权级切换和异常处理等。特别是在实现 CSR 流水线的过程中，我学会了如何为特定功能添加专用的硬件单元，以及如何处理复杂的控制流（如特权级切换时的流水线清空）。此外，通过运行自己编写的 Mini Kernel，我体会到了操作系统与硬件之间的紧密联系，这为我今后的学习和研究打下了坚实的基础。 

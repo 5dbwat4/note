@@ -1,0 +1,883 @@
+---
+title: "Lab 5 实验报告：RV64 时钟中断处理"
+---
+
+import Asciinema from '@md-components/AsciinemaWrapper.vue'
+
+import { NImage } from 'naive-ui'
+
+实验文档：https://zju-sys.pages.zjusct.io/sys2/sys2-fa25/lab5/
+
+
+# 实验目的
+
+* 学习 RISC-V 的 trap 处理相关寄存器与指令，完成对 trap 处理的初始化
+* 理解 CPU 上下文切换机制，并正确实现上下文切换功能
+* 编写 trap 处理函数，完成对特定 trap 的处理
+* 调用 OpenSBI 提供的接口，完成对时钟中断事件的设置
+
+# 实验过程
+
+## 完成 `printk` 周边工作
+
+- 使用 `man 3 memset` 与 `man 3 strnlen` 命令阅读函数的使用方法，并在 `lib/string.c` 中实现 `memset` 与 `strnlen` 函数。  
+    
+    `memset` 函数手册节选如下：
+    ```plain
+    SYNOPSIS       
+         #include <string.h>
+
+         void *memset(size_t n;
+                      void s[n], int c, size_t n);
+    DESCRIPTION        
+         The memset() function fills the first n bytes of the memory area
+         pointed to by s with the constant byte c.
+    RETURN VALUE        
+         The memset() function returns a pointer to the memory area s.
+    ```
+    `strnlen` 函数手册节选如下：
+    ```plain
+    SYNOPSIS         top
+       #include <string.h>
+
+       size_t strnlen(size_t maxlen;
+                      const char s[maxlen], size_t maxlen);
+
+   Feature Test Macro Requirements for glibc (see
+   feature_test_macros(7)):
+
+        strnlen():
+           Since glibc 2.10:
+               _POSIX_C_SOURCE >= 200809L
+           Before glibc 2.10:
+               _GNU_SOURCE
+    DESCRIPTION        
+       The strnlen() function returns the number of bytes in the string
+       pointed to by s, excluding the terminating null byte ('\0'), but
+       at most maxlen.  In doing this, strnlen() looks only at the first
+       maxlen characters in the string pointed to by s and never beyond
+       s[maxlen-1].
+    RETURN VALUE        
+       The strnlen() function returns strlen(s), if that is less than
+       maxlen, or maxlen if there is no null terminating ('\0') among the
+       first maxlen characters pointed to by s.
+    ```
+
+    简易实现如下：
+    ```c
+    void *memset(void *s, int c, size_t n) {
+        unsigned char *p = s;
+        for (size_t i = 0; i < n; i++) {
+            p[i] = (unsigned char)c;
+        }
+        return s;
+    }
+    ```
+
+    ```c
+    size_t strnlen(const char *s, size_t maxlen) {
+        size_t len = 0;
+        while (len < maxlen && s[len] != '\0') {
+            len++;
+        }
+        return len;
+    }
+    ```
+    查阅glibc源码发现`memset`和`strnlen`的实现会更加复杂以提高性能，但上述实现已经足够完成实验要求。
+
+    例如：
+    ```c
+    void *
+    memset (void *dstpp, int c, size_t len)
+    {
+      long int dstp = (long int) dstpp;
+
+      if (len >= 8)
+        {
+          size_t xlen;
+          op_t cccc;
+
+          cccc = (unsigned char) c;
+          cccc |= cccc << 8;
+          cccc |= cccc << 16;
+          if (OPSIZ > 4)
+            /* Do the shift in two steps to avoid warning if long has 32 bits.  */
+            cccc |= (cccc << 16) << 16;
+
+          /* There are at least some bytes to set.
+             No need to test for LEN == 0 in this alignment loop.  */
+          while (dstp % OPSIZ != 0)
+            {
+              ((byte *) dstp)[0] = c;
+              dstp += 1;
+              len -= 1;
+            }
+
+          /* Write 8 `op_t' per iteration until less than 8 `op_t' remain.  */
+          xlen = len / (OPSIZ * 8);
+          while (xlen > 0)
+            {
+              ((op_t *) dstp)[0] = cccc;
+              ((op_t *) dstp)[1] = cccc;
+              ((op_t *) dstp)[2] = cccc;
+              ((op_t *) dstp)[3] = cccc;
+              ((op_t *) dstp)[4] = cccc;
+              ((op_t *) dstp)[5] = cccc;
+              ((op_t *) dstp)[6] = cccc;
+              ((op_t *) dstp)[7] = cccc;
+              dstp += 8 * OPSIZ;
+              xlen -= 1;
+            }
+          len %= OPSIZ * 8;
+
+          /* Write 1 `op_t' per iteration until less than OPSIZ bytes remain.  */
+          xlen = len / OPSIZ;
+          while (xlen > 0)
+            {
+              ((op_t *) dstp)[0] = cccc;
+              dstp += OPSIZ;
+              xlen -= 1;
+            }
+          len %= OPSIZ;
+        }
+
+      /* Write the last few bytes.  */
+      while (len > 0)
+        {
+          ((byte *) dstp)[0] = c;
+          dstp += 1;
+          len -= 1;
+        }
+
+      return dstpp;
+    }
+    ```
+    glibc中的该实现利用了按字长对齐和批量写入来提高性能。
+    
+- 修改 `lib/Makefile` 文件，使其能够编译 `.c` 文件。
+
+  ```diff
+  ASM_SRC := $(wildcard *.S)
+  +C_SRC := $(wildcard *.c)
+  +OBJ := $(ASM_SRC:.S=.o) $(C_SRC:.c=.o)
+  
+  .PHONY: all clean
+  
+  all: $(OBJ)
+  
+  clean:
+  	rm -f *.o
+  
+  %.o: %.S
+  	$(GCC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -c $<
+  
+  +%.o: %.c
+  +	$(GCC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -c $<
+  ```
+
+- 修改 `arch/riscv/kernel/printk.c` 文件，实现 `printk_sbi_write` 函数。你可以在 lab4 文档中找到任何你可能需要查阅的内容.
+
+  ```c
+  #if UINTPTR_MAX > 0xFFFFFFFFu
+  #define LOBYTE(p) ((uint64_t)((uintptr_t)(p) & 0xFFFFFFFFu))
+  #define HIBYTE(p) ((uint64_t)(((uintptr_t)(p) >> 32) & 0xFFFFFFFFu))
+  #else
+  #define LOBYTE(p) ((uint64_t)((uintptr_t)(p)))
+  #define HIBYTE(p) ((uint64_t)0)
+  #endif
+
+  static int printk_sbi_write(FILE *restrict fp, const void *restrict buf, size_t len) {
+    (void)fp;
+    struct sbiret ret = sbi_ecall(SBI_DEBUG_CONSOLE_EXTENSION_ID, 0, (uint64_t)len,LOBYTE(buf),HIBYTE(buf), 0, 0, 0);
+    if (ret.error) {
+      return 0;
+    }
+    return ret.value;
+  }
+  ```
+
+  `sbi_ecall` 函数用于发起对 SBI 的调用。[根据 SBI v2.0 规范](https://github.com/riscv-non-isa/riscv-sbi-doc/blob/master/src/ext-debug-console.adoc#function-console-write-fid-0)，`SBI_DEBUG_CONSOLE_EXTENSION_ID` 是调试控制台扩展的 ID ()，函数号 `0` 对应于写操作。参数包括要写入的字节数和缓冲区的低高地址部分。
+
+  > ```c
+  > struct sbiret sbi_debug_console_write(unsigned long num_bytes,
+  >                                       unsigned long base_addr_lo,
+  >                                       unsigned long base_addr_hi)
+  > ```
+  > 
+  > Write bytes to the debug console from input memory.
+  > 
+  > The `num_bytes` parameter specifies the number of bytes in the input
+  > memory. The physical base address of the input memory is represented
+  > by two XLEN bits wide parameters. The `base_addr_lo` parameter specifies
+  > the lower XLEN bits and the `base_addr_hi` parameter specifies the upper
+  > XLEN bits of the input memory physical base address.
+  > 
+  > This is a non-blocking SBI call and it may do partial/no writes if
+  > the debug console is not able to accept more bytes.
+  > 
+  > The number of bytes written is returned in `sbiret.uvalue` and the
+  > possible error codes returned in `sbiret.error` are shown in
+  > below.
+
+## 修改 `main.c`
+
+> - 将 `main.c` 中使用 `puti` 与 `puts` 函数的地方修改为使用 `printk` 函数。
+> - 将 `main.c` 中出现的 `ecall_test` 函数修改为如下 `test` 函数。
+> 
+>     ```c title="arch/riscv/kernel/main.c" linenums="0"
+>     #include <private_kdefs.h>
+> 
+>     _Noreturn static void test(void) __attribute__((noinline));
+>     _Noreturn static void test(void) {
+>       uint64_t last_timeval = 0;
+> 
+>       while (1) {
+>         uint64_t timeval;
+>         asm volatile("rdtime %0" : "=r"(timeval));
+>         timeval /= TIMECLOCK;
+>         if (timeval != last_timeval) {
+>           last_timeval = timeval;
+>           printk("Kernel is running! timeval = %" PRIu64 "\n", timeval);
+>         }
+>       }
+>     }
+>     ```
+
+具体实现略，参见代码。
+
+## 开启 trap 处理
+
+
+- 将 `_traps` 函数的地址写入 `stvec` 中。`_traps` 函数在[实现上下文切换](#_11)一节中实现。
+- 开启时钟中断，将 `sie[STIE]` 置 1。
+- 参考 `clock_set_next_event` 函数的实现，使用汇编指令设置第一次时钟中断的时间。
+- 开启 S-mode 下的 trap 响应，将 `sstatus[SIE]` 置 1。
+
+实现如下：
+
+```asm
+#include "private_kdefs.h"
+
+    .section .text.init
+    .globl _start
+_start:
+    # 0. 设置 sp 为 _ekernel 之后 4 KiB 的位置
+    la sp, _ekernel
+    li t0, 0x1000
+    add sp, sp, t0
+
+    # 1. 将 stvec 设置为 _traps
+    la t0, _traps
+    csrw stvec, t0
+
+    # 2. 设置 sie[STIE]
+    csrr t0, sie
+    ori t0, t0, 0x20      # STIE 是第 5 位 (1 << 5 = 0x20)
+    csrw sie, t0
+
+    # 3. 设置第一次时钟中断的时间
+    rdtime t0               # 读取当前时间
+    li t1, TIMECLOCK    # 加上一个时间间隔
+    add t0, t0, t1
+    li a7, 0x54494d45
+    li a6, 0
+    ecall
+
+    # 4. 设置 sstatus[SIE]
+    csrr t0, sstatus
+    ori t0, t0, 0x02      # SIE 是第 1 位 (1 << 1 = 0x02)
+    csrw sstatus, t0
+
+    # 5. 跳转到 start_kernel
+    j start_kernel
+```
+
+## 实现上下文切换
+
+- 保存 CPU 的寄存器（上下文）到栈上。
+- 将 `scause` 和 `sepc` 作为参数传递给 `trap_handler` 函数。`trap_handler` 函数在[实现 trap 处理函数](#trap_2)一节中实现。
+- 在完成对 trap 的处理之后，从内存中恢复 CPU 的上下文。
+- 从 `_traps` 中返回。
+
+
+```asm
+    .section .text.entry
+    .align 4
+    .globl _traps
+_traps:
+    # 1. 将寄存器和 sepc 保存到栈上
+    # 保存通用寄存器 (x1-x31) 到栈上
+    addi sp, sp, -256
+    sd x1, 0(sp)
+    sd x2, 8(sp)
+    sd x3, 16(sp)
+    sd x4, 24(sp)
+    sd x5, 32(sp)
+    sd x6, 40(sp)
+    sd x7, 48(sp)
+    sd x8, 56(sp)
+    sd x9, 64(sp)
+    sd x10, 72(sp)
+    sd x11, 80(sp)
+    sd x12, 88(sp)
+    sd x13, 96(sp)
+    sd x14, 104(sp)
+    sd x15, 112(sp)
+    sd x16, 120(sp)
+    sd x17, 128(sp)
+    sd x18, 136(sp)
+    sd x19, 144(sp)
+    sd x20, 152(sp)
+    sd x21, 160(sp)
+    sd x22, 168(sp)
+    sd x23, 176(sp)
+    sd x24, 184(sp)
+    sd x25, 192(sp)
+    sd x26, 200(sp)
+    sd x27, 208(sp)
+    sd x28, 216(sp)
+    sd x29, 224(sp)
+    sd x30, 232(sp)
+    sd x31, 240(sp)
+    
+    # 保存 sepc
+    csrr t0, sepc
+    sd t0, 248(sp)
+
+    # 2. 调用 trap_handler
+    # 将 scause 和 sepc 作为参数传递给 trap_handler
+    csrr a0, scause
+    csrr a1, sepc
+    call trap_handler
+
+    # 3. 恢复寄存器和 sepc
+    # 恢复 sepc
+    ld t0, 248(sp)
+    csrw sepc, t0
+    
+    # 恢复通用寄存器 (x1-x31)
+    ld x31, 240(sp)
+    ld x30, 232(sp)
+    ld x29, 224(sp)
+    ld x28, 216(sp)
+    ld x27, 208(sp)
+    ld x26, 200(sp)
+    ld x25, 192(sp)
+    ld x24, 184(sp)
+    ld x23, 176(sp)
+    ld x22, 168(sp)
+    ld x21, 160(sp)
+    ld x20, 152(sp)
+    ld x19, 144(sp)
+    ld x18, 136(sp)
+    ld x17, 128(sp)
+    ld x16, 120(sp)
+    ld x15, 112(sp)
+    ld x14, 104(sp)
+    ld x13, 96(sp)
+    ld x12, 88(sp)
+    ld x11, 80(sp)
+    ld x10, 72(sp)
+    ld x9, 64(sp)
+    ld x8, 56(sp)
+    ld x7, 48(sp)
+    ld x6, 40(sp)
+    ld x5, 32(sp)
+    ld x4, 24(sp)
+    ld x3, 16(sp)
+    ld x2, 8(sp)   
+    ld x1, 0(sp)
+    
+    # 恢复 sp 寄存器
+    addi sp, sp, 256
+
+    # 4. 返回
+    sret
+```
+
+## 实现 trap 处理函数
+
+- 通过 `scause` 判断 trap 类型。如果是 Supervisor Timer Interrupt，则打印输出相关信息，并调用 `clock_set_next_event` 设置下一次时钟中断。
+
+```c
+
+void trap_handler(uint64_t scause, uint64_t sepc) {
+    // 判断是否是中断（最高位为1）
+    if (scause & INTERRUPT_MASK) {
+        // 提取中断代码（清除最高位）
+        uint64_t interrupt_code = scause & INTERRUPT_CODE_MASK;
+        
+        // 判断是否是 Supervisor Timer Interrupt
+        if (interrupt_code == SUPERVISOR_TIMER_INTERRUPT) {
+            printk("[Trap Handler] Supervisor Timer Interrupt at sepc: 0x%llx\n", sepc);
+            
+            // 调用 clock_set_next_event 设置下一次时钟中断
+            clock_set_next_event();
+        } else {
+            printk("[Trap Handler] Unknown interrupt: scause=0x%llx, sepc=0x%llx\n", 
+                   scause, sepc);
+        }
+    }
+}
+```
+
+
+具体的数值对应参考了文档：[ref](https://github.com/riscv/riscv-isa-manual/blob/761b5284a2ac0b0e2907048473e3f7dff432a0f8/src/machine.adoc#machine-cause-mcause-register)
+
+>  Machine Cause (mcause) Register
+> 
+> The `mcause` register is an XLEN-bit read-write register formatted as shown in *Machine Cause > (mcause) register*. When a trap is taken into M-mode, `mcause` is written with a code > indicating the event that caused the trap. Otherwise, `mcause` is never written by the > implementation, though it may be explicitly written by a code.
+> 
+> 
+> The **Interrupt bit** in the `mcause` register is set if the trap was caused by an interrupt. > The **Exception Code** field contains a code identifying the last exception or interrupt. > *Machine cause (mcause) register values after trap* lists the possible machine-level exception > codes. The Exception Code is a WLR field, so only machine-caused values are guaranteed to hold > supported exception codes.
+> 
+> 
+> Machine Cause (mcause) register:
+> *images/bytefield/mcausereg.eps*
+> 
+> 
+> Note that load and load-reserved instructions generate load exceptions, whereas store, > store-conditional, and AMO instructions generate store/AMO exceptions.
+> 
+> 
+> Interrupts can be separated from other traps with a single branch on the sign of the `mcause` > register value. A shift left can remove the interrupt bit and scale the exception codes to > index into a trap vector table.
+> 
+> 
+> Note
+> We do not distinguish privileged instruction exceptions from illegal-instruction exceptions. > This simplifies the architecture and also hides details of which higher-privilege instructions > are supported by an implementation. The privilege level servicing the trap can implement a > policy on whether these need to be distinguished, and if so, whether a given opcode should be > treated as illegal or privileged.
+> 
+> 
+> If an instruction may raise multiple synchronous exceptions, the decreasing priority order of > *Synchronous exception priority in decreasing priority order* indicates which exception is > taken and reported in `mcause`. The priority of any custom synchronous exceptions is > implementation-defined.
+> 
+> 
+> Table 6. Machine cause (mcause) register values after trap
+> 
+> | Interrupt | Exception Code | Description |
+> |-----------|----------------|-------------|
+> | 1         | 0              | Reserved |
+> | 1         | 1              | Supervisor software interrupt |
+> | 1         | 2              | Reserved |
+> | 1         | 3              | Machine software interrupt |
+> | 1         | 4              | Reserved |
+> | 1         | 5              | Supervisor timer interrupt |
+> | 1         | 6              | Reserved |
+> | 1         | 7              | Machine timer interrupt |
+> | 1         | 8              | Reserved |
+> | 1         | 9              | Supervisor external interrupt |
+> | 1         | 10             | Reserved |
+> | 1         | 11             | Machine external interrupt |
+> | 1         | 12             | Reserved |
+> | 1         | 13             | Counter-overflow interrupt |
+> | 1         | 14-15          | Reserved |
+> | 1         | ≥16            | Designated for platform use |
+> | 0         | 0              | Instruction address misaligned |
+> | 0         | 1              | Instruction access fault |
+> | 0         | 2              | Illegal instruction |
+> | 0         | 3              | Breakpoint |
+> | 0         | 4              | Load address misaligned |
+> | 0         | 5              | Load access fault |
+> | 0         | 6              | Store/AMO address misaligned |
+> | 0         | 7              | Store/AMO access fault |
+> | 0         | 8              | Environment call from U-mode |
+> | 0         | 9              | Environment call from S-mode |
+> | 0         | 10             | Reserved |
+> | 0         | 11             | Environment call from M-mode |
+> | 0         | 12             | Instruction page fault |
+> | 0         | 13             | Load page fault |
+> | 0         | 14             | Reserved |
+> | 0         | 15             | Store/AMO page fault |
+> | 0         | 16             | Double trap |
+> | 0         | 17             | Reserved |
+> | 0         | 18             | Software check fault |
+> | 0         | 19             | Hardware error |
+> | 0         | 20-23          | Reserved |
+> | 0         | 24-31          | Designated for custom use |
+> | 0         | 32-47          | Reserved |
+> | 0         | 48-63          | Designated for custom use |
+> | 0         | ≥64            | Reserved |
+
+## 实现时钟中断相关函数
+
+```c
+void clock_set_next_event(void) {
+  uint64_t time;
+
+  // 1. 使用 rdtime 指令读取当前时间
+  __asm__ volatile("rdtime %0" : "=r"(time));
+
+  // 2. 计算下一次中断的时间
+  uint64_t next = time + TIMECLOCK;
+
+  // 3. 调用 sbi_set_timer 设置下一次时钟中断
+  sbi_ecall(0x54494D45 , 0, next, 0, 0, 0, 0, 0);
+
+  printk("[Clock] Next timer event set for %llu\n", (unsigned long long)next);
+}
+```
+
+## 编译及测试
+
+import cast1 from "./5-1.cast?raw";
+
+<Asciinema cast={cast1} />
+
+# 思考题
+
+
+> 1. 在实现上下文切换部分，我们需要保存寄存器，谈谈为什么需要保存寄存器和sepc，其他的特权寄存器则不需要，以及为什么要保存在栈上
+> 
+> 要求：请通过gdb调试截图来分别回答如果不保存寄存器和sepc会有什么后果
+
+
+```
+$zero: 0x0
+$ra  : 0x0
+$sp  : 0x0
+$gp  : 0x0
+$tp  : 0x0
+$t0  : 0x0
+$t1  : 0x0
+$t2  : 0x0
+$fp  : 0x0
+$s1  : 0x0
+$a0  : 0x3
+$a1  : 0x0
+$a2  : 0x0
+$a3  : 0x0
+$a4  : 0x0
+$a5  : 0x0
+$a6  : 0x0
+$a7  : 0x0
+$s2  : 0x5442
+$s3  : 0x1
+$s4  : 0x0
+$s5  : 0x0
+$s6  : 0x0
+$s7  : 0x9
+$s8  : 0x0
+$s9  : 0x0
+[ Legend: Modified register | Code | Heap | Stack | String ]
+```
+
+通过gdb调试发现如果不保存寄存器，程序回到中断点时寄存器的值已经完全混乱，导致程序无法正确执行。
+
+
+## 保存寄存器的原因
+
+
+在实现上下文切换和 Trap 处理时，我们需要保存当前的硬件执行状态，以便在处理完中断或切换回该进程时，能够无缝地从中断点继续执行。
+
+- 通用寄存器由于资源冲突需要状态保护。通用寄存器（x1-x31）是 CPU 执行指令时用于存放临时变量、函数参数、返回地址和计算结果的最主要场所。当 Trap 发生时，当前正在运行的程序（用户程序或内核线程）正使用这些寄存器保存其关键的上下文信息。随后调用的 `trap_handler`（通常由 C/Rust 编写）本身也是一段程序，它在运行时也**必须**使用这些通用寄存器来完成逻辑控制、变量计算和函数调用。如果不预先保存，`trap_handler` 的执行会覆盖掉寄存器中原本属于被中断程序的数据。当 `sret` 返回时，原来的程序将面对被篡改的数据，导致计算错误或程序崩溃。
+-  `sepc`记录了触发异常或中断的那条指令的地址。它相当于被中断程序的PC备份（实际的pc会正常进入trap处理的相关代码），在处理完 Trap 后需要恢复，以便程序能够从正确的位置继续执行。
+- 其他的特权寄存器（如 scause, stval 等）是**临时性信息**且**无需恢复**。`scause`（中断原因）和 `stval`（附加信息）是硬件用来告诉操作系统“发生了什么事”的寄存器。它们只在进入 Trap 的那一刻有意义。`trap_handler` 会读取这些值来处理异常（代码中通过 `csrr a0, scause` 传递）。一旦异常被处理完毕，返回用户程序时，用户程序并不关心刚才是因为什么进入了内核，也不需要这些寄存器恢复到 Trap 发生前的状态（实际上 Trap 发生前它们的值对用户程序执行流没有直接影响）。
+
+## 为什么要保存在栈上
+
+*   **原因：动态性、隔离性与重入支持。**
+    1.  **每个线程/进程独享：** 每个线程通常都有自己独立的内核栈。通过 `addi sp, sp, -256` 在当前线程的内核栈上开辟空间，天然地将保存的上下文（Context）与当前线程绑定在一起。切换线程只需切换 `sp` 指针，就能自动找到对应线程的上下文。
+    2.  **支持嵌套与递归（重入）：** 相比于保存在一个全局静态数组中，保存在栈上允许 Trap 处理过程中再次发生 Trap（嵌套中断）。每次 Trap 都会在栈上压入一个新的“帧（Frame）”，处理完一层弹出一层，遵循先进后出（LIFO）的原则，不会出现数据相互覆盖的情况。
+    3.  **符合函数调用惯例：** 保存上下文的过程类似于一个特殊的函数调用（Trap Frame），将其保存在栈上符合计算机体系结构中过程调用的通用设计模式。
+
+
+
+> 2. 在我们使用 `make run` 时，OpenSBI 会产生如下输出:
+>     ``` linenums="0"
+>     Boot HART MIDELEG         : 0x0000000000001666
+>     Boot HART MEDELEG         : 0x0000000000f0b509
+>     ```
+>     查阅 The RISC-V Instruction Set Manual: Volume II - Privileged Architecture，解释**你的** OpenSBI 给出的 `MIDELEG` 和 `MEDELEG` 值的含义。如果实验中 `mideleg` 和 `medeleg` CSR 没有被正确设定，会有什么影响？
+
+
+
+## `MIDELEG` 和 `MEDELEG` 的含义
+
+这两个寄存器用于控制**委托（Delegation）**机制。默认情况下，所有的 Trap（中断和异常）都会陷入 M-Mode（Machine Mode）。通过设置这两个寄存器，M-Mode 软件（如 OpenSBI）可以将特定的中断和异常直接“委托”给 S-Mode（Supervisor Mode，即操作系统内核）处理，从而避免 M-Mode 成为性能瓶颈，并允许操作系统完全控制这些事件。
+
+(1) `MIDELEG`: 0x0000000000001666
+
+`MIDELEG` (Machine Interrupt Delegation Register) 控制**中断**的委托。
+值 `0x1666` 展开为二进制是：`... 0001 0110 0110 0110`。
+根据手册 **Table 14 (Machine cause register values)** 和 **mip/mie** 寄存器定义，置位的比特位含义如下：
+
+*   **Bit 1 (SSIP):** Supervisor Software Interrupt。委托 S 态软件中断（通常用于核间通信 IPI）。
+*   **Bit 5 (STIP):** Supervisor Timer Interrupt。委托 S 态时钟中断（操作系统的时间片轮转依赖此中断）。
+*   **Bit 9 (SEIP):** Supervisor External Interrupt。委托 S 态外部中断（如键盘、磁盘等外设中断）。
+*   **Bit 2, 6, 10, 12:** 对应 VS-mode (Virtual Supervisor) 的相关中断（VSSIP, VSTIP, VSEIP, SGEIP）。这是因为当前的 QEMU 或硬件环境开启了 H 扩展（Hypervisor），OpenSBI 默认将虚拟化相关的中断也进行了委托。
+
+**总结：** 此设置意味着 OpenSBI 将属于操作系统的**软件中断、时钟中断和外部中断**全部交由操作系统（S-Mode）自己处理。
+
+(2) `MEDELEG`: 0x0000000000f0b509
+
+`MEDELEG` (Machine Exception Delegation Register) 控制**同步异常**的委托。
+值 `0xf0b509` 展开为二进制是：`... 1111 0000 1011 0101 0000 1001`。
+根据手册 **Table 14** 中 Exception Code 的定义，置位的比特位含义如下：
+
+*   **Bit 0:** Instruction Address Misaligned。指令地址不对齐。
+*   **Bit 3:** Breakpoint。断点异常（用于调试）。
+*   **Bit 8:** **Environment call from U-mode**。用户态系统调用（**这是 OS 处理系统调用的核心**）。
+*   **Bit 12:** Instruction Page Fault。指令缺页异常。
+*   **Bit 13:** Load Page Fault。读取缺页异常。
+*   **Bit 15:** Store/AMO Page Fault。写入/原子操作缺页异常。
+*   **Bit 20-23:** Instruction/Load/Store Guest Page Fault 等。这些是 H 扩展相关的虚拟化缺页异常。
+
+**总结：** 此设置意味着 OpenSBI 将**用户系统调用**（ecall）和**虚拟内存缺页**（Page Fault）等关键异常委托给了操作系统处理。注意 Bit 9 (Environment call from S-mode) 为 0，意味着 S 态自己的 SBI 调用（ecall）仍然由 M 态（OpenSBI）处理，这是符合预期的。
+
+
+
+## 如果 CSR 没有正确设定……
+
+如果 `mideleg` 和 `medeleg` 没有被 OpenSBI 正确设定，会导致实验无法进行，具体的说：
+
+1.  无法响应中断（或响应极慢）：
+    *   如果 `MIDELEG` 未设置，当 S 态时钟中断（Timer Interrupt）到来时，CPU 会陷入 M-Mode 而不是 S-Mode。
+    *   OpenSBI 的陷阱处理程序（Trap Handler）会捕获到这个中断，发现它不是 M 态中断，通常会将其忽略或报错，导致操作系统**无法收到时钟中断**，进而导致任务调度失效，系统卡死。
+
+2.  系统调用失效：
+    *   如果 `MEDELEG` 的 Bit 8 未置位，当用户程序执行 `ecall` 发起系统调用时，CPU 会跳转到 M-Mode 的 `mtvec` 地址，而不是 S-Mode 的 `stvec` 地址。
+    *   M-Mode 固件（OpenSBI）会认为这是一个非法操作（因为它不负责处理用户态业务），可能会打印 "Illegal Instruction" 或 "Unhandled Trap" 并**终止系统运行**。操作系统内核永远无法获得控制权来处理该系统调用。
+
+
+## 在不支持 M 扩展的处理器上执行 M 扩展指令
+
+> 3. 如何在不支持 M 扩展的处理器上执行 M 扩展指令？
+>    提示：请查阅 The RISC-V Instruction Set Manual: Volume I - Unprivileged Architecture 第 1.2 节。
+
+通过 **“操作码陷阱和软件模拟”（opcode traps and software emulation）**。
+
+具体过程如下：
+
+1.  **触发异常**：当处理器遇到一条其硬件不支持的 M 扩展指令（如 `mul` 或 `div`）时，会抛出一个 **非法指令异常（Illegal Instruction Exception）**。
+2.  **捕获陷阱**：**执行环境（Execution Environment）**（通常是操作系统内核、Hypervisor 或固件，如 OpenSBI）会捕获这个陷阱。
+3.  **软件模拟**：陷阱处理程序（Trap Handler）会识别出导致异常的指令，并使用基础整数指令集（如 RV32I/RV64I）的指令序列在软件中模拟该乘法或除法操作。
+4.  **恢复执行**：模拟完成后，执行环境将结果写入目标寄存器，更新程序计数器（PC）跳过该指令，并恢复程序的执行。对于用户程序而言，这看起来就像指令被硬件执行了一样（尽管速度较慢）。
+
+Reference: [riscv-isa-manual/src/intro.adoc · riscv/riscv-isa-manual · GitHub](https://github.com/riscv/riscv-isa-manual/blob/761b5284a2ac0b0e2907048473e3f7dff432a0f8/src/intro.adoc?plain=1#L129)
+> The behavior of a RISC-V program depends on the execution environment in
+> which it runs. A RISC-V execution environment interface (EEI) defines
+> the initial state of the program, the number and type of harts in the
+> environment including the privilege modes supported by the harts, the
+> accessibility and attributes of memory and I/O regions, the behavior of
+> all legal instructions executed on each hart (i.e., the ISA is one
+> component of the EEI), and the handling of any interrupts or exceptions
+> raised during execution including environment calls. Examples of EEIs
+> include the Linux application binary interface (ABI), or the RISC-V
+> supervisor binary interface (SBI). The implementation of a RISC-V
+> execution environment can be pure hardware, pure software, or a
+> combination of hardware and software. For example, opcode traps and
+> software emulation can be used to implement functionality not provided
+> in hardware. Examples of execution environment implementations include:
+> 
+> * "Bare metal" hardware platforms where harts are directly implemented
+> by physical processor threads and instructions have full access to the
+> physical address space. The hardware platform defines an execution
+> environment that begins at power-on reset.
+> * RISC-V operating systems that provide multiple user-level execution
+> environments by multiplexing user-level harts onto available physical
+> processor threads and by controlling access to memory via virtual
+> memory.
+> * RISC-V hypervisors that provide multiple supervisor-level execution
+> environments for guest operating systems.
+> * RISC-V emulators, such as Spike, QEMU or rv8, which emulate RISC-V
+> harts on an underlying x86 system, and which can provide either a
+> user-level or a supervisor-level execution environment.
+
+
+> 4. 如果是完全按照我们的实验指导实现的，那么在运行一段时间后，你应当会看到 `test` 函数的输出和时钟中断的输出出现失去同步的情况：
+>     ``` 
+>     [S] Supervisor timer interrupt
+>     Kernel is running! timeval = 195
+>     [S] Supervisor timer interrupt
+>     Kernel is running! timeval = 196
+>     Kernel is running! timeval = 197
+>     [S] Supervisor timer interrupt
+>     Kernel is running! timeval = 198
+>     [S] Supervisor timer interrupt
+>     ```
+>     请分析这种现象的原因，问题出在 `test` 函数还是时钟中断上？请通过gdb调试截图或者printk打印关键信息来说明问题。请修改代码，来保持两者的同步
+>     tips：请备份修改前的代码，这个修改在完成思考题5之后可以复原，便于后续实验的进行
+    
+## 输出失去同步的原因
+
+问题出在时钟中断处理上。`uint64_t next = time + TIMECLOCK;` 没有考虑到处理时钟中断所花费的时间，导致每次设置的下一个中断时间点都比预期的要晚一些，从而引起 `test` 函数中的 `timeval` 变量与实际时钟中断之间的不同步。
+
+![](ex1.svg)
+
+通过printk打印的时间戳可以看出：
+
+```
+Kernel is running! timeval = 1; time = 10000004
+[Trap Handler] Supervisor Timer Interrupt at sepc: 0x8020020c
+[Clock] Current time read as 12327793; delay 37436
+[Clock] Next timer event set for 22327793
+Kernel is running! timeval = 2; time = 20000004
+[Trap Handler] Supervisor Timer Interrupt at sepc: 0x8020020c
+[Clock] Current time read as 22426242; delay 98449
+[Clock] Next timer event set for 32426242
+Kernel is running! timeval = 3; time = 30000008
+[Trap Handler] Supervisor Timer Interrupt at sepc: 0x8020020c
+[Clock] Current time read as 32448513; delay 22271
+[Clock] Next timer event set for 42448513
+Kernel is running! timeval = 4; time = 40000008
+[Trap Handler] Supervisor Timer Interrupt at sepc: 0x8020020c
+[Clock] Current time read as 42473194; delay 24681
+[Clock] Next timer event set for 52473194
+Kernel is running! timeval = 5; time = 50000002
+[Trap Handler] Supervisor Timer Interrupt at sepc: 0x8020020c
+[Clock] Current time read as 52509364; delay 36170
+[Clock] Next timer event set for 62509364
+Kernel is running! timeval = 6; time = 60000006
+[Trap Handler] Supervisor Timer Interrupt at sepc: 0x8020020c
+[Clock] Current time read as 62529362; delay 19998
+[Clock] Next timer event set for 72529362
+Kernel is running! timeval = 7; time = 70000192
+[Trap Handler] Supervisor Timer Interrupt at sepc: 0x80200210
+[Clock] Current time read as 72562534; delay 33172
+[Clock] Next timer event set for 82562534
+```
+
+## 修改代码，来保持两者的同步
+
+```diff
++uint64_t global_expected_time = 0;
+
+void clock_set_next_event(void) {
+  uint64_t time;
+
+  // 1. 使用 rdtime 指令读取当前时间
+  __asm__ volatile("rdtime %0" : "=r"(time));
+  printk("[Clock] Current time read as %llu; delay %llu\n", (unsigned long long)time, (unsigned long long)time-global_expected_time);
+
+  // 2. 计算下一次中断的时间
+-  uint64_t next;
+-  next = time + TIMECLOCK;
++  global_expected_time = global_expected_time + TIMECLOCK;
+
+  // 3. 调用 sbi_set_timer 设置下一次时钟中断
+  sbi_ecall(0x54494D45 , 0, global_expected_time, 0, 0, 0, 0, 0);
+  // printk("[Clock] Next timer event set for %llu\n", (unsigned long long)global_expected_time+5000);
+}
+```
+
+我们的解决方案是：在全局变量 `global_expected_time` 中维护一个预期的下一个中断时间点。每次时钟中断处理时，我们将其增加 `TIMECLOCK`，确保每次中断都严格按照预定的时间间隔发生，而不受中断处理时间的影响。
+
+    
+> 5. 请自行设计方案，测试 `test` 函数中的 `printk` 输出信息需要的时间。假定时钟频率为 10 MHz，在确保每次 `timeval` 变化时，信息都能被完整输出的情况下，每秒最多可以发生多少次时钟中断？请尝试修改 `TIMECLOCK` 和其他可能需要修改的地方，验证这个值。只需近似计算即可。
+
+
+
+首先实现一个简易的缓冲区来确保printk只要能够运行到ecall就一定能够输出完整的信息。（由于vfprintf.c中调用out（也就是printk_sbi_write）是碎片化的，当trap_handler和主函数抢printk时，会导致控制台中的输出支离破碎）
+
+```c
+
+char buf0[3000];size_t buf_top = 0;bool buf_busy = false;
+
+static int printk_sbi_write(FILE *restrict fp, const void *restrict buf, size_t len) {
+  (void)fp;
+
+  // 调用 SBI 接口输出 buf 中长度为 len 的内容
+  // 返回实际输出的字节数
+  // Hint：阅读 SBI v2.0 规范！
+
+
+  struct sbiret ret = sbi_ecall(SBI_DEBUG_CONSOLE_EXTENSION_ID, 0, (uint64_t)len,LOBYTE(buf),HIBYTE(buf), 0, 0, 0);
+  if (ret.error) {
+    return 0;
+  }
+  return ret.value;
+}
+
+static size_t strlen_kernel(const char *s) {
+  size_t len = 0;
+  while (s[len] != '\0') {
+    len++;
+  }
+  return len;
+}
+
+static int printk_buf_write(FILE *restrict fp, const void *restrict buf, size_t len) {
+  (void)fp;
+  // if(buf_busy) {
+  //   while(!buf_busy);
+  // }
+  // buf_busy = true;
+  if (buf_top + len >= sizeof(buf0)) {
+    len = sizeof(buf0) - buf_top - 1;
+  }
+  for (size_t i = 0; i < len; i++) {
+    buf0[buf_top++] = ((const char *)buf)[i];
+  }
+  buf0[buf_top] = '\0';
+  // buf_busy = false;
+  return len;
+}
+static int printk_flush(FILE *restrict fp) {
+  (void)fp;
+  // if(buf_busy) {
+  //   while(!buf_busy);
+  // }
+  // buf_busy = true;
+  size_t len = buf_top;
+  int res = printk_sbi_write(NULL, buf0, len);
+  buf_top = 0;
+  buf0[0] = '\0';
+  // buf_busy = false;
+  return res;
+}
+
+void printk(const char *fmt, ...) {
+  FILE printk_out = {
+      .write = printk_buf_write,
+  };
+
+  va_list ap;
+  va_start(ap, fmt);
+  vfprintf(&printk_out, fmt, ap);
+  va_end(ap);
+  // 使用 SBI 输出缓冲区内容
+  printk_flush(NULL);
+}
+```
+
+这样我们可以无需考虑“信息都能被完整输出”（不需要考虑ecall）而是可以直接测试printk的时间开销。
+
+
+修改test如下：
+
+```c
+  while (1) {
+      uint64_t time0;
+      asm volatile("rdtime %0" : "=r"(time0));
+      for (volatile int j = 0; j < 100; j++)
+      printk("123456789098765432123456789876543212345678987654\r", time0);
+      uint64_t time1;
+      asm volatile("rdtime %0" : "=r"(time1));
+      printk("\ntime = %" PRIu64 "\n", time1-time0  );
+  }
+```
+
+经过多次测试：
+
+```
+Kernel is running!
+123456789098765432123456789876543212345678987654
+time = 1629785
+123456789098765432123456789876543212345678987654
+time = 1589110
+123456789098765432123456789876543212345678987654
+time = 1696510
+123456789098765432123456789876543212345678987654
+time = 1569312
+123456789098765432123456789876543212345678987654
+time = 1395272
+123456789098765432123456789876543212345678987654
+```
+
+100次printk大约需要 1.5 million cycles，平均每次大约需要 15000 cycles。
+
+
+然后我们在trap_handler中打印时间戳，这样可以计算包括printk包括各种杂七杂八的时间，在一个完整的时钟中断周期内所花费的时间。
+
+经过实验，将TIMECLOCK设置为20000，可以保证每次timeval变化时，信息都能被完整输出。在确保每次 `timeval` 变化时，信息都能被完整输出的情况下，每秒最多可以发生时钟中断的次数为500。
+
+# 心得体会
+
+在本次实验中，我完成了 S 态时钟中断处理的完整实现，对 RISC‑V 的特权级、trap 机制和 OpenSBI 的调用流程有了较为深入的理解。

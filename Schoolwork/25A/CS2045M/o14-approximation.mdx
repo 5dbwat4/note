@@ -1,0 +1,185 @@
+Approximation
+
+
+# Approximation Ratio
+
+**【Definition】** An algorithm has an *approximation ratio* of $\rho(n)$ if, for any input of size $n$, the cost $C$ of the solution produced by the algorithm is within a factor of $\rho(n)$ of the cost $C^*$ of an optimal solution:
+
+$$
+\max\left(\frac{C}{C^*}, \frac{C^*}{C}\right) \le \rho(n)
+$$
+
+If an algorithm achieves an approximation ratio of $\rho(n)$, we call it a *$\rho(n)$-approximation algorithm*.
+
+**【Definition】** An *approximation scheme* for an optimization problem is an approximation algorithm that takes as input not only an instance of the problem, but also a value $\varepsilon > 0$ such that for any fixed $\varepsilon$, the scheme is a *(1+ε)-approximation algorithm*.
+
+We say that an approximation scheme is a *polynomial-time approximation scheme (PTAS)* if for any fixed $\varepsilon > 0$, the scheme runs in time polynomial in the size $n$ of its input instance.
+
+$$
+O(n^{2/\varepsilon}) \quad O((1/\varepsilon)^2 n^3)
+$$
+
+# example of Approximation Algorithms
+
+Examples：
+
+**Load balancing problem： **
+
+Input: A set of $m$ identical machines and a set of $n$ jobs with processing times $t_1, t_2, \ldots, t_n$.
+Goal: Assign jobs to machines to minimize the makespan (the maximum load on any machine).
+
+This is an NP-hard problem. 
+
+**List-scheduling algorithm** (Greedy Algorithm):
+1. Sort jobs in non-increasing order of processing times.
+2. Assign each job to the machine with the current smallest load.
+
+Approximation Ratio Analysis:
+Let $C$ be the makespan produced by the list-scheduling algorithm, and let $C^*$ be the optimal makespan.
+1. Each job is assigned to the machine with the smallest load, so at the time of assigning job $j$, the load on that machine is at most $C - t_j$.
+2. Therefore, we have:
+$$C \leq C^* + t_j \leq C^* + \max_{i} t_i$$
+3. Since the total processing time of all jobs is $\sum_{i=1}^{n} t_i$, the optimal makespan $C^*$ must be at least $\frac{1}{m} \sum_{i=1}^{n} t_i$.
+4. Combining these inequalities, we get:
+$$C \leq C^* + \max_{i} t_i \leq C^* + C^* = 2C^*$$
+Thus, the list-scheduling algorithm is a 2-approximation algorithm for the load balancing problem.
+
+Least processing time first (LPT) rule:
+
+1. Sort jobs in non-increasing order of processing times.
+2. Assign each job to the machine with the current smallest load.
+
+Approximation Ratio Analysis for LPT:
+
+Let $C$ be the makespan produced by the LPT algorithm, and let $C^*$ be the optimal makespan.
+1. Let $t_k$ be the processing time of the last job assigned to the machine that determines the makespan $C$.
+2. Since jobs are sorted in non-increasing order, we have $t_k \leq \frac{1}{2} C^*$ (otherwise, the optimal makespan would be at least $C^*$).
+3. Therefore, we have:
+$$C \leq C^* + t_k \leq C^* + \frac{1}{2} C^* = \frac{3}{2} C^*$$
+Thus, the LPT algorithm is a $\frac{3}{2}$-approximation algorithm for the load balancing problem.
+
+# Bin-packing Problem
+
+输入：一组物品，每个物品有一个大小 $s_i$，且 $0 < s_i \leq 1$，以及无限数量的容量为 1 的箱子。
+目标：将所有物品装入尽可能少的箱子中，使得每个箱子中的物品总大小不超过 1。
+
+by gemini
+
+### 1. 基础定义与数学模型
+
+
+#### 1.2 近似比 (Approximation Ratio)
+对于一个最小化问题，如果一个算法 $A$ 能够在多项式时间内运行，且对于任意输入实例 $I$，其产生的解 $A(I)$ 满足：
+$$ A(I) \le \rho \cdot OPT(I) $$
+其中 $\rho \ge 1$，则称算法 $A$ 是一个 **$\rho$-approximation algorithm**（$\rho$-近似算法）。
+
+**注意一个显而易见的下界（Lower Bound）：**
+无论怎么装，所有物品的总体积除以箱子容量，一定小于等于最优箱子数。即：
+$$ \lceil \sum_{i=1}^{n} s_i \rceil \le OPT(I) $$
+这个不等式是后续所有证明的核心基石。
+
+---
+
+### 2. Next Fit (NF) 算法及其分析
+
+这是最简单的策略。
+
+#### 2.1 算法逻辑
+始终只维持**一个**当前打开的箱子。
+1. 处理下一个物品 $s_i$。
+2. 如果当前箱子还能装下 $s_i$，就装进去。
+3. 如果装不下，**封死**当前箱子（以后再也不回头看它），打开一个新箱子放入 $s_i$。
+
+#### 2.2 数学结论
+**Theorem:** Next Fit 算法是一个 **2-approximation** 算法。即对于任意 $I$，有：
+$$ NF(I) \le 2 \cdot OPT(I) $$
+
+#### 2.3 证明 (Proof)
+假设 NF 算法使用了 $k$ 个箱子，记为 $B_1, B_2, \dots, B_k$。
+令 $L(B_j)$ 表示第 $j$ 个箱子中物品大小的总和。
+
+**观察关键性质：**
+为什么我们会开启第 $j+1$ 个箱子？是因为第 $j$ 个箱子装不下某个物品 $s_x$。这意味着，如果我们把 $B_j$ 和 $B_{j+1}$ 里的东西通过某种方式合并，它们的总和一定超过 1（否则 $s_x$ 应该能装进 $B_j$ 里）。
+
+更严格地说，对于任何相邻的两个箱子 $B_{2j-1}$ 和 $B_{2j}$（即第1和2个，第3和4个...）：
+$$ L(B_{2j-1}) + L(B_{2j}) > 1 $$
+*理由：如果 $L(B_{2j-1}) + L(B_{2j}) \le 1$，那么 $B_{2j}$ 中的第一个物品本应该能放入 $B_{2j-1}$ 中，根据 NF 策略，它不会开启新箱子。*
+
+现在，我们将 $k$ 个箱子两两分组：
+*   如果 $k$ 是偶数，共有 $k/2$ 组。总物品大小：
+    $$ \sum_{i=1}^n s_i = \sum_{j=1}^{k} L(B_j) = \sum_{j=1}^{k/2} [L(B_{2j-1}) + L(B_{2j})] > \sum_{j=1}^{k/2} 1 = \frac{k}{2} $$
+*   如果 $k$ 是奇数，共有 $(k-1)/2$ 组，外加最后一个箱子（大小 $>0$）。
+    $$ \sum_{i=1}^n s_i > \frac{k-1}{2} $$
+
+综上，我们有：
+$$ \sum s_i > \frac{k-1}{2} \implies 2 \sum s_i > k - 1 $$
+由于 $OPT(I) \ge \sum s_i$（最优解至少要装完所有体积），代入得：
+$$ 2 \cdot OPT(I) > k - 1 $$
+即：
+$$ k < 2 \cdot OPT(I) + 1 $$
+因为 $k$ 和 $OPT$ 都是整数，这在渐进意义上意味着 $NF(I) \approx 2 \cdot OPT(I)$。
+
+*(注：实际上可以构造出使得 NF 效果趋近于 2 倍 OPT 的恶劣例子，例如一堆 0.5 和 一堆极小值交替出现，证明了该界是 Tight 的)*
+
+---
+
+### 3. First Fit (FF) 算法及其分析
+
+NF 的问题在于它“甚至不愿回头看一眼”。First Fit 改进了这一点。
+
+#### 3.1 算法逻辑
+当处理物品 $s_i$ 时：
+1. 从第 1 个箱子开始扫描到当前第 $k$ 个箱子。
+2. 找到**第一个**能容纳 $s_i$ 的箱子并放入。
+3. 如果所有已有的箱子都装不下，才开启第 $k+1$ 个箱子。
+
+#### 3.2 数学结论
+**Theorem:** First Fit 算法也是一个 **2-approximation** 算法（实际上它的界比 2 更紧，约为 1.7，但在考试或基础推导中，证明 2 是标准要求）。
+$$ FF(I) \le 2 \cdot OPT(I) $$
+
+#### 3.3 证明 (Proof of ratio 2)
+这个证明非常漂亮，利用了**反证法**或**分类讨论**。
+
+假设 FF 算法使用了 $k$ 个箱子 $B_1, \dots, B_k$。
+**关键观察**：在 FF 算法产生的解中，**不可能**有两个箱子的填充量都小于等于 $1/2$。
+
+*反证*：假设 $B_i$ 和 $B_j$ ($i < j$) 的内容物之和都 $\le \frac{1}{2}$。
+当 $B_j$ 中的任何物品（记为 $x$）被放入 $B_j$ 时，$B_i$ 已经存在了（因为 $i < j$）。
+由于 $L(B_i) \le 1/2$ 且 $s(x) \le L(B_j) \le 1/2$，那么 $L(B_i) + s(x) \le 1$。
+这意味着物品 $x$ 本应该被放入 $B_i$ 中，而不会落入 $B_j$。矛盾！
+
+**结论**：在 $k$ 个箱子中，**最多只有一个**箱子的填充量 $\le \frac{1}{2}$。
+这意味着至少有 $k-1$ 个箱子的填充量 $> \frac{1}{2}$。
+
+计算总物品大小：
+$$ \sum_{i=1}^n s_i > (k-1) \cdot \frac{1}{2} $$
+$$ 2 \sum s_i > k - 1 $$
+同样代入下界 $OPT(I) \ge \sum s_i$：
+$$ 2 \cdot OPT(I) > k - 1 $$
+$$ FF(I) \le 2 \cdot OPT(I) $$
+
+*(进阶注：通过更复杂的平摊分析，可以证明 $FF(I) \le 1.7 \cdot OPT(I) + 2$。但上述 2 的证明在 ADS 课程中通常已经足够)*
+
+---
+
+### 4. First Fit Decreasing (FFD) 算法
+
+能否做得更好？
+如果我们先处理大物品，再用小物品填缝，效果应该更好。
+
+#### 4.1 算法逻辑
+1. 将所有物品按大小**降序**排列（$s_1 \ge s_2 \ge \dots \ge s_n$）。
+2. 运行 First Fit 算法。
+
+#### 4.2 数学结论 (了解即可，证明极其复杂)
+**Theorem:** FFD 算法的近似比显著优于 2。
+经典的界限由 Johnson (1973) 给出：
+$$ FFD(I) \le \frac{11}{9} OPT(I) + \frac{6}{9} $$
+也就是说，FFD 不会比最优解多出约 **22.2%**。
+
+#### 4.3 直观理解 (Intuition)
+为什么排序很重要？
+在普通 FF 中，如果先来一堆小物品占据了许多箱子的“底部”，后来一个大物品（比如 0.6）可能谁都装不下，只能新开箱子。
+FFD 强制先装大块头。
+可以证明：如果 $OPT$ 使用了 $k$ 个箱子，那么 FFD 算法在这个序列上，直到放入所有大小 $> 1/3$ 的物品时，使用的箱子数也就是 $k$ 个（这需要复杂的推导）。这意味着FFD对于“大件”处理得接近最优，只是在最后极小的碎片填充上可能稍微浪费一点。
+

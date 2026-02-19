@@ -26,9 +26,9 @@ Term Dictionary - Posting List (Times; Documents Words)
 
 构建倒排索引时：
 
-​- ​词干提取​​：将单词的不同形态（如 "processing", "processed", "processes") 还原为其词根形式 "process"。这增加了检索的召回率，用户用不同形式搜索都能找到相关文档。 <font color="grey">Word Stemming : Process a word so that only its stem or root form is left. </font>
+​- ​词干提取​（Word Stemming）​：将单词的不同形态（如 "processing", "processed", "processes") 还原为其词根形式 "process"。这增加了检索的召回率，用户用不同形式搜索都能找到相关文档。 <font color="grey">Word Stemming : Process a word so that only its stem or root form is left. </font>
 
-​- ​去除停用词​​：过滤掉那些极其常见但信息量很小的词（如英文中的 "the", "a", "an", "in"）。这能显著减小索引的规模。<font color="grey">Stop Words : Some words are so common that almost every document contains them, such as “a” “the” “it”.  It is useless to index them.  They are called stop words.  We can eliminate them from the original documents.</font>
+​- ​去除停用词​（Stop Words）​：过滤掉那些极其常见但信息量很小的词（如英文中的 "the", "a", "an", "in"）。这能显著减小索引的规模。<font color="grey">Stop Words : Some words are so common that almost every document contains them, such as “a” “the” “it”.  It is useless to index them.  They are called stop words.  We can eliminate them from the original documents.</font>
 
 While accessing a term ……
 - Solution 1:  Search trees ( B- trees, B+ trees, Tries, ... )

@@ -1,0 +1,713 @@
+import Recited from '@md-components/Recite_Hidden.vue';
+
+# 期末复习
+
+## 第一章：概率论的基本概念
+
+**1.1, 1.2 基本概念**
+
+最基本概念: 随机试验、样本空间、随机事件, 等等
+
+- 事件的关系及运算, 如: 加法公式.
+
+- 互斥 (即, 互不相容), 独立, 注意区分;
+  - 互斥事件:  <Recited> $A \cap B = \varnothing$ </Recited>
+  - 互逆事件:  <Recited> $B = \bar{A}$ </Recited>
+  - 独立事件:  <Recited> $P(AB) = P(A)P(B)$ </Recited>
+
+- 会进行一些事件概率的运算.
+
+**1.3 古典概型** (即, 等可能概型): 会计算.
+
+**1.4 条件概率**
+定义: $P (A | B ) = $
+<Recited>
+$$
+P(A | B)=\frac{P(A B)}{P(B)}
+$$
+</Recited>
+, 其中 $P(B) = 0$.
+
+三个相关公式：
+1. **乘法公式**
+    <Recited>
+    $$
+    P(AB) = P(A) \cdot P(B | A)
+    $$
+    </Recited>
+
+2. **全概率公式**
+    <Recited>
+    $$
+    P(A)  = \sum_{j=1}^n P(AB_j)  = \sum_{j=1}^{n} P\left(B_{j}\right) P\left(A | B_{j}\right)
+    $$
+    </Recited>
+
+    其中 $ \{B_j, j = 1, 2, \cdots, n\} $ 为一完备事件组;
+3. **Bayes 公式**
+
+    <Recited>
+    $$
+    P\left(B_{i} | A\right)= \frac{P(AB_i)}{P(A)} =\frac{P\left(B_{i}\right) P\left(A | B_{i}\right)}{\sum_{j=1}^{n} P\left(B_{j}\right) P\left(A | B_{j}\right)}
+    $$
+    </Recited>
+
+条件概率的全概率公式, 在全概率公式的基础上去理解：
+<Recited>
+$$
+P(A | C) = \sum_{j=1}^{n} P(A | B_j C) P(B_j | C)
+$$
+</Recited>
+
+**1.5 独立性**  
+- **两事件独立**：  
+  $A \text{ 与 } B \text{ 独立} \iff $ <Recited> $P(AB) = P(A)P(B)$ </Recited>
+
+- **n 个事件相互独立**：  
+  $A_1, A_2, \cdots, A_n \text{ 相互独立} \iff $
+  <Recited>
+  $$
+  P(A_{i_1} \cap \cdots \cap A_{i_k}) = P(A_{i_1}) \cdots P(A_{i_k}), \forall 2 \le k \le n
+  $$
+  </Recited>
+- **注意区分**：
+  - 两两独立 vs. 相互独立：[SUPP](./recite-supp#两两独立-vs-相互独立)
+  - 独立 vs. 互斥
+
+
+## 第二章：随机变量及其概率分布
+
+- 从这一章开始涉及随机变量（r.v.）
+  一维随机变量 $\boldsymbol{X}: S \longmapsto \mathbb{R}$;
+
+- 任何一个随机变量均有分布函数:
+  $$
+  F(x) = \mathrm{P}(X \leq x), \quad \forall x \in \mathbb{R};
+  $$
+
+- 主要的两类随机变量: 离散型随机变量, 连续型随机变量.
+
+- 离散型随机变量: 常用分布律描述其性质
+  - 可能取值
+  - 取各可能值的概率
+    $$
+    \mathrm{P}(X = x_k) = p_k, \quad k = 1,2,\cdots
+    $$
+  或
+
+  | $X$ | $x_1$ | $x_2$ | $\cdots$ | $x_k$ | $\cdots$ |
+  |:-----: |:-------: |:-------: |:----------: |:-------: |:----------: |
+  | $\mathrm{P}$ | $p_1$ | $p_2$ | $\cdots$ | $p_k$ | $\cdots$ |
+
+
+  均需满足: $p_k \geq 0, \ k = 1,2,\cdots$, 且 $\sum_{k=1}^{\infty} p_k = 1$.
+
+- 离散型随机变量的分布函数为阶梯型函数
+  $$
+  F(x) = \begin{cases}
+  0, & x < x_{(1)}; \\
+  p_{(1)}, & x_1 \leq x < x_{(2)}; \\
+  \vdots & \vdots
+  \end{cases}
+  $$
+  其中 $x_{(1)} < x_{(2)} < \cdots$
+
+- 要求: 分布律 $\rightleftharpoons$ 分布函数
+
+例题： <font face="楷体">设随机变量$ X $的概率分布律为$ P\{X = 0\}=0.4 $,$ P\{X = 2\}=0.5 $,$ P\{X = 3\}=0.1 $,求$ X $的分布函数及$ P\{1\leq X < 3\} $.</font> [ANS](./recite-supp#例题-2-1).
+
+
+- 注意: "条件分布律也是分布律的一种".
+  也要求: 条件分布律 $\rightleftharpoons$ 条件分布函数.
+
+
+- 连续型随机变量: 其定义伴随着概率密度函数的给出
+
+    <Recited>
+    **连续型随机变量**
+    若随机变量 $X$ 的分布函数 $F(x)$ 可以写成:
+    $$
+    F(x) = \int_{-\infty}^{x} f(t)\mathrm{d}t, \quad \forall x \in \mathbb{R}.
+    $$
+    则 $X$ 为连续型随机变量, $f(\cdot)$ 为该连续型随机变量的概率密度函数.
+    </Recited>
+
+
+- 需掌握概率密度函数的性质.
+
+- 对于连续型随机变量 $X$，有以下计算概率的常用公式:
+  $$
+  \mathrm{P}(X \in [a, b]) = \int_{a}^{b} f(t)\mathrm{d}t
+  $$
+
+- 注: $\mathrm{P}(X = c) = 0, \quad \forall c \in \mathbb{R}$
+
+- 通过求导/定义，可相互推导: $F(x) \rightleftharpoons f(x)$.
+
+
+也要求: 条件分布函数 $\rightleftharpoons$ 条件密度函数
+
+
+
+例题：
+
+
+
+- 六大常用分布: 离散型 (3 个), 连续型 (3 个).
+  - 离散型: (0-1)分布, 二项分布, 泊松分布.
+  - 连续型: 均匀分布, 指数分布, 正态分布.
+
+- 要掌握:
+  - 分布律或概率密度函数, 会灵活利用其性质
+  - 参数与数字特征的关系
+  - 二项分布要会判别
+
+| 分布 | 参数 | 概率分布律或密度函数 | 数学期望 | 方差 |
+| --- | --- | --- | --- | --- |
+| (0-1)分布 | $0 < p < 1$ | <Recited>$P\{X = k\} = p^k(1 - p)^{1 - k}, k = 0,1$ </Recited>| <Recited> $p$ </Recited> | <Recited>$p(1 - p)$ </Recited> |
+| 二项分布 <br/> （$B(n,p)$） | $n \geq 1，0 < p < 1$ | <Recited> $P\{X = k\} = C_n^k p^k(1 - p)^{n - k}, k = 0,1,\dots,n$ </Recited>| <Recited> $np$ </Recited> | <Recited> $np(1 - p)$ </Recited> |
+| 泊松分布 <br/> （$P(\lambda)$） | $\lambda > 0$ | <Recited> $P\{X = k\} = \frac{\lambda^k e^{-\lambda}}{k!}, k = 0,1,2,\dots$ </Recited>| <Recited> $\lambda$ </Recited> | <Recited> $\lambda$ </Recited> |
+| 均匀分布 <br/> （$U(a,b)$） | $a < b$ | <Recited> $f(x) = \begin{cases} \frac{1}{b - a}, & a < x < b \\ 0, & \text{其他} \end{cases}$ </Recited>| <Recited> $\frac{a + b}{2}$ </Recited> | <Recited> $\frac{(b - a)^2}{12}$ </Recited> |
+| 指数分布 <br/> （$E(\lambda)$） | $\lambda > 0$ | <Recited> $f(x) = \begin{cases} \lambda e^{-\lambda x}, & x > 0 \\ 0, & \text{其他} \end{cases}$ </Recited>| <Recited> $\frac{1}{\lambda}$ </Recited> | <Recited> $\frac{1}{\lambda^2}$ </Recited> |
+| 正态分布 <br/> （$N(\mu, \sigma^2)$） | $\mu，\sigma > 0$ | <Recited> $f(x) = \frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(x - \mu)^2}{2\sigma^2}}$ </Recited>| <Recited> $\mu$ </Recited> | <Recited> $\sigma^2$ </Recited> |
+
+性质：
+- 正态分布的标准化: $Z = \frac{X - \mu}{\sigma} \sim N(0,1)$
+- 正态分布的对称性: $P(X \leq \mu - a) = P(X \geq \mu + a)$
+- 正态分布的最大值点: $x = \mu$，最大值为 $\frac{1}{\sqrt{2\pi}\sigma}$
+- 指数分布的无记忆性: $P(X > s + t | X > s) = P(X > t)$
+
+--------
+
+随机变量及其概率分布: 随机变量函数的分布
+
+- 无论一维还是二维, 甚至多维, 基本思想是一样的:
+  利用"等价事件"
+
+- 离散型随机变量
+  1. 先**给出可能取值**
+  2. 再由"等价事件"给出 $p_k$
+
+- 连续型随机变量
+  1. **先给出支撑** (即密度函数的非零区域)
+  2. 一般**先求分布函数** $F_Y(y) = \mathrm{P}(g(X) \leq y)$ (其中利用"等价事件"), **再对其求导**得到密度函数 (常利用复合函数求导);
+
+  
+    例题：<font face="楷体">设 $X$ 的密度函数为 $f_X(x)$，$Y = |X|$，$Z = X^2$，分别求 $Y$ 与 $Z$ 的密度函数 $f_Y(y)$，$f_Z(t)$。</font> [ANS](./recite-supp#例题-2-2).
+
+    特例: $Y = g(X)$, 当 $g(x)$ 单调时, 参考书中定理 2.5.1.  
+     **定理2.5.1** 设 $X$ 为一连续型随机变量, 其密度函数为 $f_X(x)$, 随机变量 $Y = g(X)$. 若函数 $y = g(x)$ 为一处处可导的严格单调增函数（或严格单调减函数）, 记 $y = g(x)$ 的反函数为 $x = h(y)$,  则 $Y$ 的密度函数为
+     <Recited>
+        $$
+        f_Y(y) = \begin{cases}
+        f_X(h(y)) \cdot |h'(y)|, & y \in D, \\
+        0, & y \notin D,
+        \end{cases}
+        $$
+        </Recited>
+        其中 $D$ 为函数 $y = g(x)$ 的值域.
+
+
+
+# Ch3. 多元随机变量及其分布
+
+
+- 定义
+- 联合分布函数
+  $$
+  F(x, y) = \mathrm{P}(X \leq x, Y \leq y), \quad \forall x, y \in \mathbb{R}.
+  $$
+- 离散型: 联合分布律 $\rightleftharpoons$ 联合分布函数
+  $$
+  \mathrm{P}(X = x_i, Y = y_i) = p_{ij}, \quad i,j = 1,2,\cdots
+  $$
+  或, 表格形式
+
+- 连续型: 定义
+- 联合密度函数 $f(x,y)$ 的性质
+
+    1.  $f(x,y) \geq 0;$
+
+    2.  $\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} f(x,y)\mathrm{d}x\mathrm{d}y = F   (+\infty,+\infty) = 1;$
+
+    3.  在 $f(x,y)$ 的连续点处有
+    $$
+    \frac{\partial^2 F(x,y)}{\partial x \partial y} = f(x,y);
+    $$
+
+    4.  $(X,Y)$ 落入 $xOy$ 平面任一区域 $ D$ 的概率为
+    $$
+    P\{(X,Y) \in D\} = \iint_{D} f(x,y)\mathrm{d}x\mathrm{d}y.
+    $$
+
+- 计算公式
+- 联合密度函数与联合分布函数之间的关系
+  - $F(x,y) = \int_{-\infty}^{x} \int_{-\infty}^{y} f(u, v)\mathrm{d}v\mathrm{d}u, \forall x,y \in \mathbb{R};$
+  - $f(x,y) = \frac{\partial^2 F(x,y)}{\partial x \partial y}$
+
+
+------
+
+联合 $\Rightarrow$ 边际
+- 分布函数
+  $$
+  F_X(x) = F(x, +\infty), \quad F_Y(y) = F(+\infty, y)
+  $$
+
+- 分布律: 行和、列和, 即"加花边"
+
+- 密度函数: 三步走, 注意支撑, 建议"结合图"
+  $$
+  f_X(x) = \int_{-\infty}^{+\infty} f(x, y)\mathrm{d}y
+  $$
+
+--------
+
+**条件分布**
+
+- 离散型变量的条件分布律: 按照条件概率定义求
+- 连续型变量的条件密度函数:
+  $$
+  f_{X|Y}(x|y) = \frac{f(x,y)}{f_Y(y)}, \quad \forall x \in \mathbb{R}
+  $$
+- 条件分布函数
+
+
+<font face="楷体">
+例题：设二维连续型随机变量 $(X,Y)$ 的联合密度函数为
+$$
+f(x,y) = \begin{cases}
+\dfrac{2x + y}{4}, & 0 < x < 1, 0 < y < 2, \\
+0, & \text{其他}.
+\end{cases}
+$$
+
+
+1. 分别求 $X$ 与 $Y$ 的边际密度函数；（直接积分）
+2. 分别求条件密度函数 $f_{X|Y}(x|y)$ 和 $f_{Y|X}(y|x)$；（用上面的公式）
+3. 分别求 $P\{X \leqslant 0.5|Y = 0.5\}$ 和 $P\{Y \leqslant 0.5|X = 0.5\}$。（已知的值直接代入，未知的部分直接积分）
+
+</font>
+
+--------
+
+**随机变量的独立性**
+- 定义: $F(x, y) = F_X(x) \cdot F_Y(y)$
+- 离散型: 从其联合分布列来判断;
+- 连续型: 从其联合密度函数与边缘密度函数的关系来判断, （$f(x,y) = f_X(x)f_Y(y)$）  
+  或利用 $f(x, y)$ 可否分解成为两个一元函数的乘积来判断.（可以写出$f(x,y) = m(x) \cdot n(y)$）  
+  注意支撑范围.
+
+<font face="楷体">
+例题：问在下面两种情况下, $X$ 与 $Y$ 是否相互独立:
+
+(1) 设 $(X,Y)$ 的联合密度函数为
+$$
+f(x,y) = \begin{cases}
+\frac{\mathrm{e}^{-x}}{2}, & x > 0, 0 < y < 2, \\
+0, & \text{其他};
+\end{cases}
+$$
+
+(2) 设 $(X,Y)$ 的联合密度函数为
+$$
+f(x,y) = \begin{cases}
+\frac{1}{x}, & 0 < y < x < 1, \\
+0, & \text{其他}.
+\end{cases}
+$$
+</font>
+
+---------
+
+两维或多维随机变量的函数的分布
+- 离散型: 思路类似一维
+- 连续型: 思路类似一维, 先求分布函数
+- 特例一: $Z = X + Y$
+  $$
+  f_Z(z) = \int_{-\infty}^{+\infty} f(x, z - x)\mathrm{d}x = \int_{-\infty}^{+\infty} f(z - y, y)\mathrm{d}y.
+  $$
+  若 $X$ 与 $Y$ 独立, 则可使用"卷积公式":
+  $$
+  f_Z(z) = \int_{-\infty}^{+\infty} f_X(x)f_Y(z - x)\mathrm{d}x = \int_{-\infty}^{+\infty} f_X(z - y)f_Y(y)\mathrm{d}y.
+  $$
+
+建议“结合图”
+
+- 特例二: $M = \max\{X, Y\}, N = \min\{X, Y\}$
+  则 $M$ 的分布函数为
+  $$
+  F_M(z) = \mathrm{P}(X \leq z, Y \leq z) \ (\text{若独立} = \mathrm{P}(X \leq z)\mathrm{P}(Y \leq z) = F_X(z)F_Y(z))
+  $$
+
+  $N$ 的分布函数为
+  $$
+  F_N(z) = 1 - \mathrm{P}(N > z) = 1 - \mathrm{P}(X > z, Y > z)
+  $$
+  $$
+  (\text{若独立} = 1 - \mathrm{P}(X > z)\mathrm{P}(Y > z) = 1 - (1 - F_X(z))(1 - F_Y(z)))
+  $$
+
+
+" $n$ 个随机变量"时, 类似.
+
+，特别提醒: "结合数字特征", 求 $E(M), E(N)$ 时, 需要先求 $M, N$ 的分布函数, 再求导得到密度函数, 然后结合密度函数来得到数字特征.
+
+# Ch4. 随机变量的数字特征
+
+## 期望
+
+- 定义 (注意: 存在性)
+  - 离散型随机变量
+    $$
+    EX = \sum_{k=1}^{+\infty} x_k p_k
+    $$
+  - 连续型随机变量
+    $$
+    EX = \int_{-\infty}^{+\infty} x f(x) dx
+    $$
+- 两个"懒人定理"——求随机变量函数的期望
+
+  设 $Y$ 是随机变量 $X$ 的函数: $Y = g(X)$，其中 $g(\cdot)$ 是连续函数.
+
+  - **若 $X$ 是离散型随机变量**，它的分布律为 $P(X = x_k) = p_k, \, k = 1,2,\dots$. 若 $\sum_{k=1}^{+\infty} g(x_k)p_k$ 绝对收敛，则有
+    $$
+    E(Y) = E\left[g(X)\right] = \sum_{k=1}^{+\infty} g(x_k)p_k.
+    $$
+
+
+  - **若 $X$ 是连续型随机变量**，它的概率密度为 $f(x)$. 若 $\int_{-\infty}^{+\infty} g(x)f(x)\mathrm{d}x$ 绝对收敛，则有
+    $$
+    E(Y) = E\left[g(X)\right] = \int_{-\infty}^{+\infty} g(x)f(x)\mathrm{d}x.
+    $$
+    省流：函数值 $g(x)$ 乘以概率密度 $f(x)$ 再积分.
+
+
+
+- 期望的四条性质
+  1. $\text{E}c = c$
+  2. $\text{E}[cX] = c\text{E}X$
+  3. $\text{E}[X + Y] = \text{E}X + \text{E}Y$
+  4. 若 $X$ 和 $Y$ 不相关，$\text{E}[XY] = \text{E}X \cdot \text{E}Y$（独立时，也成立）
+
+会灵活应用，特别是第三条.
+
+
+## 方差
+
+
+*   **定义**: $\text{Var}(X) = \text{E}[X - \text{E}X]^2$
+*   **计算公式**: $\text{Var}(X) = \text{E}[X^2] - (\text{E}X)^2$
+*   **四条性质**
+    1.  $\text{Var}(c) = 0$;
+    2.  $\text{Var}(cX) = c^2\text{Var}(X)$;
+    3.  $\text{Var}(X + Y) = \text{Var}X + \text{Var}Y + \color{blue}{2}\text{Cov}(X, Y)$
+        若 $X$ 与 $Y$ 独立, 则 $\text{Cov}(X, Y) = 0$, 即
+        $\text{Var}[X + Y] = \text{Var}(X) + \text{Var}(Y)$;
+    4.  $\text{Var}(X) = 0 \Leftrightarrow P(X = c) = 1, c = \text{E}X$.
+
+
+*   **协方差定义**
+    $\text{Cov}(X, Y) = \text{E}[(X - \text{E}X)(Y - \text{E}Y)] = \text{E}[XY] - \text{E}X\text{E}Y$
+
+*   **相关系数定义**
+    $\rho_{XY} = \frac{\text{Cov}(X, Y)}{\sqrt{\text{Var}(X)\text{Var}(Y)}}$
+
+*   **性质** 
+
+*   **不相关的定义及其等价条件**
+    $\rho_{XY} = 0 \Leftrightarrow \text{Cov}(X, Y) = 0$
+    $\Leftrightarrow \text{E}[XY] = \text{E}X \cdot \text{E}Y$
+    $\Leftrightarrow \text{Var}(X + Y) = \text{Var}(X) + \text{Var}(Y)$
+
+*   **不相关和独立的关系及区别:**
+    不相关 $\nLeftarrow\Rightarrow$ 独立, 但对于多元正态, 分量不相关 $\Leftrightarrow$ 分量独立
+
+*   **矩的定义, 协方差矩阵**
+
+*   **多元正态的 4 条性质 (会灵活应用)**
+
+
+# Ch5. 大数定律和中心极限定理
+
+## Markov 不等式
+设随机变量 $Y $ 的 $k $ 阶矩存在（$k \geq 1 $），即 $\mathrm{E}[Y^k] $ 存在，则对于任意 $\epsilon > 0 $，都有
+$$
+\mathrm{P}(|Y| \geq \epsilon) \leq \frac{\mathrm{E}[|Y|^k]}{\epsilon^k}
+$$
+成立。
+
+
+定理的等价形式为
+$$
+\mathrm{P}(|Y| < \epsilon) \geq 1 - \frac{\mathrm{E}[|Y|^k]}{\epsilon^k};
+$$
+
+特别地，当 $Y $ 为取非负值的随机变量时，有 $\mathrm{P}(Y \geq \epsilon) \leq \frac{\mathrm{E}[Y^k]}{\epsilon^k} $。
+
+## Chebyshev 不等式
+设随机变量 $X $ 具有数学期望 $\mathrm{E}X = \mu $，方差 $\mathrm{Var}X = \sigma^2 $，则对于任意 $\epsilon > 0 $，都有
+$$
+\mathrm{P}(|X - \mu| \geq \epsilon) \leq \frac{\sigma^2}{\epsilon^2}
+$$
+成立。
+
+
+定理的等价形式为
+$$
+\mathrm{P}(|X - \mu| < \epsilon) \geq 1 - \frac{\sigma^2}{\epsilon^2};
+$$
+
+
+可应用于大数定律，和估计量相合性的判别及证明。
+
+## 大数定律内容
+设 $X_1, \dots, X_n $ 是一列随机变量，则在一定条件下，随机变量序列 $Y_n = \frac{X_1 + \dots + X_n}{n} = \frac{1}{n}\sum_{k=1}^n X_k $ 收敛到某数 $\mu $。
+
+
+## 依概率收敛
+设随机变量序列 $Y_1, Y_2, \dots $，若存在某常数 $a $ 使得 $\forall \epsilon > 0 $，都有
+$$
+\lim_{n \to +\infty} \mathrm{P}(|Y_n - a| < \epsilon) = 1,
+$$
+或
+$$
+\lim_{n \to +\infty} \mathrm{P}(|Y_n - a| \geq \epsilon) = 0,
+$$
+则称随机变量序列 $\{Y_n\} $ 依概率收敛于常数 $a $，记作 $Y_n \xrightarrow{P} a $，当 $n \to \infty $。
+
+
+## 辛钦定理
+设随机变量序列 $X_1, X_2, \dots, X_n, \dots $ 独立同分布，且存在数学期望 $\mu $。取前 $n $ 个随机变量的算术平均 $Y_n = \frac{1}{n}\sum_{k=1}^n X_k $，则对于任意 $\epsilon > 0 $ 有
+$$
+\lim_{n \to +\infty} \mathrm{P}(|Y_n - \mu| \geq \epsilon) = \lim_{n \to +\infty} \mathrm{P}\left[\left| \frac{1}{n}\sum_{k=1}^n X_k - \mu \right| \geq \epsilon\right] = 0,
+$$
+即 $Y_n \xrightarrow{P} \mu $，当 $n \to +\infty $。
+
+## 贝努里大数定律
+设事件 $A $ 在每次试验中发生的概率为 $p $，记 $n_A $ 为 $n $ 次独立重复实验中 $A $ 发生的次数（则 $n_A \sim B(n, p) $），那么对于任意 $\epsilon > 0 $ 有
+$$
+\lim_{n \to +\infty} \mathrm{P}\left[\left| \frac{n_A}{n} - p \right| \geq \epsilon\right] = 0,
+$$
+即 $\frac{n_A}{n} \xrightarrow{P} p $，当 $n \to +\infty $。
+
+...........
+
+[分析]：当出现“n个变量”，“独立”，“同分布”——中心极限定理
+若$ X_1,X_2,\cdots,X_n $独立同分布，则$ \sum_{i=1}^{n} X_i \stackrel{近似}{\sim} N\left( E\left( \sum_{i=1}^{n} X_i \right), D\left( \sum_{i=1}^{n} X_i \right) \right) $
+
+
+
+
+# Ch6. 数理统计的基本概念
+
+总体：通常, 我们用随机变量 $X,Y,Z,\cdots$等表示总体. 当我们说到总体,就是指一个具有确定概率分布的随机变量 (或随机向量).
+
+## 简单随机样本 $X = (X_1, \dots, X_n) $
+### “独立同分布”
+- **代表性**：$X_1, X_2, \dots, X_n $ 中的每一个都与所考察的总体 $X $ 具有相同的分布；
+- **独立性**：$X_1, X_2, \dots, X_n $ 是相互独立的随机变量。
+
+
+说明：
+后面提到的样本均指简单随机样本。由概率论知，若总体 $X $ 具有概率密度或分布律 $f(x) $，则样本 $(X_1, X_2, \dots, X_n) $ 具有联合密度函数或联合分布律：
+$$
+f_n(x_1, x_2, \dots, x_n) = \prod_{i=1}^n f(x_i)
+$$
+
+统计量：统计量是不含任何未知参数的样本的函数.
+
+
+### 常用统计量及其性质
+设 $(X_1, X_2, \dots, X_n) $ 为取自总体 $X $ 的简单随机样本：
+
+- **样本均值**：$\bar{X} = \frac{1}{n}\sum_{i=1}^n X_i $；
+
+- **样本方差**：$S^2 = \frac{1}{n-1}\sum_{i=1}^n (X_i - \bar{X})^2 $，$S $ 为样本标准差；
+
+- **样本矩**
+  - $k $ 阶矩：$A_k = \frac{1}{n}\sum_{i=1}^n X_i^k $（$k \geq 1 $）；
+  - $k $ 阶中心矩：$B_k = \frac{1}{n}\sum_{i=1}^n (X_i - \bar{X})^k $（$k \geq 2 $）。
+
+
+当获得样本 $(X_1, X_2, \dots, X_n) $ 的观察值 $(x_1, x_2, \dots, x_n) $ 后，上述统计量的观察值记为：
+$$
+\bar{x} = \frac{1}{n}\sum_{i=1}^n x_i,\ s^2 = \frac{1}{n-1}\sum_{i=1}^n (x_i - \bar{x})^2,
+$$
+$$
+a_k = \frac{1}{n}\sum_{i=1}^n x_i^k (k \geq 1),\ b_k = \frac{1}{n}\sum_{i=1}^n (x_i - \bar{x})^k (k \geq 2).
+$$
+
+
+
+---------------
+### $\chi^2 $ 分布
+设随机变量 $X_1, X_2, \dots, X_n $ 相互独立，$X_i \sim N(0,1) $（$i=1,2,\dots,n $）。则称
+$$
+\chi_n^2 = \sum_{i=1}^n X_i^2 \tag{1}
+$$
+服从自由度为 $n $ 的 $\chi^2 $ 分布，记为 $\chi_n^2 \sim \chi^2(n) $。
+自由度指(1)式右端包含的独立变量的个数。
+
+
+**说明**：若随机变量 $K \sim \chi^2(n) $，那么一定存在相互独立的随机变量 $X_1, X_2, \dots, X_n $（$X_i \sim N(0,1) $，$i=1,2,\dots,n $），使得 $K $ 可以表示为
+$$
+K = \sum_{i=1}^n X_i^2
+$$
+
+
+
+### $\chi^2 $ 分布的一些重要性质
+1. 设 $\chi^2 \sim \chi^2(n) $，则有 $\mathrm{E}(\chi^2) = n, \mathrm{Var}(\chi^2) = 2n $；
+2. 设 $Y_1 \sim \chi^2(n_1), Y_2 \sim \chi^2(n_2) $，且 $Y_1, Y_2 $ 相互独立，则有 $Y_1 + Y_2 \sim \chi^2(n_1 + n_2) $。
+
+性质2称为 $\chi^2 $ 分布的可加性，可以推广到有限个的情形：
+设 $Y_i \sim \chi^2(n_i) $（$i=1,2,\dots,m $），且 $Y_1, Y_2, \dots, Y_m $ 相互独立，则有 $\sum_{i=1}^m Y_i \sim \chi^2\left( \sum_{i=1}^m n_i \right) $
+
+
+### $\chi^2 $ 分布的上 $\alpha $ 分位数
+对给定的概率 $\alpha $（$0 < \alpha < 1 $），称满足条件
+$$
+\int_{\chi_\alpha^2(n)}^{+\infty} f_n(y)\mathrm{d}y = \alpha
+$$
+的点 $\chi_\alpha^2(n) $ 为 $\chi^2(n) $ 分布的上 $\alpha $ 分位数。即，$\mathrm{P}\left( \chi^2 \geq \chi_\alpha^2(n) \right) = \alpha $。
+
+上 $\alpha $ 分位数 $\chi_\alpha^2(n) $ 的值可查 $\chi^2 $ 分布表。
+
+------
+
+
+# 第七章 参数估计
+
+关键词：
+- 矩估计法
+- 极大似然估计法
+- 评价标准
+- 置信区间（枢轴量法）
+
+{/* 
+设总体$ X $的分布函数为$ F\left(x ; \theta_{1}, \theta_{2}, \cdots, \theta_{k}\right),\left(\theta_{1}, \theta_{2}, \cdots, \theta_{k}\right) $是待估计的未知参数
+
+- 工具：通过抽取样本，由样本来估计待估参数
+- 方式：$ \begin{cases}\text { 点估计 } \\ \text { 区间估计 }\end{cases} $ */}
+
+## §1 参数的点估计
+
+点估计的问题是：根据样本$(X_1,X_2,\cdots,X_n)$，对每个未知参数$\theta_i(i=1,2,\cdots,k)$，构造统计量$\hat{\theta}_i = \theta_i(X_1,X_2,\cdots,X_n)$，作为$\theta_i$的**估计量**；若已知样本观察值$(x_1,x_2,\cdots,x_n)$，则$\hat{\theta}_i = \theta_i(x_1,x_2,\cdots,x_n)$称为$\theta_i$的**估计值**。
+
+本章介绍的两种点估计方法：
+- 矩估计法
+- 极大似然估计法
+
+{/* 
+### (一) 矩估计法
+
+**思想**：用样本矩去估计相应的总体矩
+
+设总体$X$的分布函数为$F(x;\theta_1,\theta_2,\cdots,\theta_k)$，$(\theta_1,\theta_2,\cdots,\theta_k)$是待估未知参数；假定总体$X$的$k$阶原点矩$E(X^k)$存在，则有：
+$$
+\mu_v = E(X^v) = \mu_v(\theta_1,\theta_2,\cdots,\theta_k) \quad (v=1,2,\cdots,k)
+$$
+这是含$k$个未知参数的联立方程组，从中解出$\theta_i = \theta_i(\mu_1,\mu_2,\cdots,\mu_k)\ (i=1,2,\cdots,k)$。
+
+
+对于样本$(X_1,X_2,\cdots,X_n)$，其样本$v$阶（原点）矩为：
+$$
+A_v = \frac{1}{n}\sum_{i=1}^n X_i^v \quad (v=1,2,\cdots,k)
+$$
+
+
+以$A_i$代替上述方程中的$\mu_i$，得到：
+$$
+\widehat{\theta}_i = \theta_i(A_1,A_2,\cdots,A_k) \quad (i=1,2,\cdots,k)
+$$
+将其作为$\theta_i$的矩法估计量。
+
+
+### 基本步骤：
+（1）写出总体前$ k $阶矩关于$ k $个待估参数的函数
+（此步的目的是为了下一步，有时这步可以省略）
+$$\mu_i = E(X^i) = h_i(\theta_1,\cdots,\theta_k), \quad i=1,\cdots,k; $$
+
+
+（2）写出待估参数关于总体矩的函数表达式
+$$\theta_i = g_i(\mu_1,\cdots,\mu_k), \quad i=1,\cdots,k; $$
+
+
+（3）将（2）中出现的总体矩用**相应**的样本矩代替
+$$\hat{\theta}_i = g_i(A_1,\cdots,A_k), \quad i=1,\cdots,k. $$
+
+
+
+### （二）极大似然估计法（Maximum Likelihood Estimation）
+（简记MLE）
+
+**思想**：用“最像”$\theta$真值的值去估计$\theta$；即采样得到一组样本$\boxed{x}$，现取使得这组样本出现的概率达到最大的那个参数值就作为该参数的MLE。
+
+
+### 步骤：
+设总体$X$的概率密度或者分布律为$f(x,\theta)$，$\theta=(\theta_1,\theta_2,\cdots,\theta_k)$为未知参数，$\theta \in \Theta$，$\Theta$为参数空间（即$\theta$的取值范围）。设$(x_1,x_2,\cdots,x_n)$是样本$(X_1,X_2,\cdots,X_n)$的一个观察值：
+
+1. **作似然函数**
+$$L(\theta;x_1,x_2,\cdots,x_n)=\prod_{i=1}^n f(x_i,\theta),\theta \in \Theta;$$
+（对于离散总体：$L(\theta)=P(\text{样本取样本观测值})=P(X=x)$；
+对于连续总体：$L(\theta)=\prod_{i=1}^n f(x_i,\theta),\theta \in \Theta$；特别注意$L(\theta) \neq 0$的范围）
+
+2. **求最大值对应的$\theta$**
+求使$L(x_1,x_2,\cdots,x_n,\theta)$达到最大的$\theta$值，称为$\theta$的**最大似然估计值**，对应的统计量为$\theta$的**最大似然估计量**。（用定义法或者微分法）
+
+$L(x_1,x_2,\cdots,x_n,\theta)$通常记为$L(\theta)$
+
+
+### 微分法求解MLE：
+1. **写出似然函数**
+$$L(\theta)=L(\theta;x_1,x_2,\cdots,x_n)=\prod_{i=1}^n f(x_i,\theta),\theta \in \Theta;$$
+（有时需要写出对数似然函数
+$$\ln L(\theta)=\ln L(x_1,x_2,\cdots,x_n,\theta)=\sum_{i=1}^n \ln f(x_i,\theta),\theta \in \Theta;$$）
+
+2. **写出似然方程**
+$$\frac{d}{d\theta}L(\theta)=0$$
+（有时需要写出对数似然方程$\frac{d}{d\theta}\ln L(\theta)=0$）
+
+3. **解方程**
+解（对数）似然方程，得$\theta=h(x_1,\cdots,x_n)$；
+
+4. **得到MLE**
+得$\theta$的MLE为$\hat{\theta}=h(X_1,\cdots,X_n)$。
+
+
+
+------- */}
+
+[分析]：
+(1) 矩估计法：
+第1步：先求总体X的一阶段：E(X)；
+第2步：令$\bar{X} = E(X)$再解得$\hat{\theta}$即为$\theta$的矩估计量
+（思想：n较大时，总体矩=样本矩）
+
+
+(2) 最大似然估计法：
+（思想：使得样本$x_1,x_2,\cdots,x_n$发生的概率最大的$\theta$值是恰当）
+第1步：写出样本似然函数：$L(x_1,x_2,\cdots,x_n;\theta)$
+$\begin{cases}
+\underline{离散型}：P\{X=x_1\}\cdot P\{X=x_2\}\cdots P\{X=x_n\} \\
+\underline{连续型}：f(x_1;\theta)\cdot f(x_2;\theta)\cdots f(x_n;\theta)
+\end{cases}$
+第2步：取对数：$\ln L(\theta)$；
+第3步：求驻点：$\frac{d\ln L(\theta)}{d\theta} \stackrel{令}{=} 0$得驻点$\hat{\theta}$即为$\theta$的最大似然估计
+
+
+### 定义法求解MLE
+
+
+### 极大似然估计的不变原则
+**不变原则：**
+设$\hat{\theta}$为未知参数$\theta$的最大似然估计，$g(\theta)$是$\theta$的连续函数，则$g(\theta)$的极大似然估计为$g(\hat{\theta})$。
+
+
+### §2 估计量的评选标准
+通常用以下四条标准检验：
+**无偏性，有效性，均方误差标准，相合性，**
+掌握具体含义，并要求会验证，会比较。
+
+

@@ -1,0 +1,14 @@
+
+
+# Rationale of the Backtracking Algorithms
+- A sure-fire way to find the answer to a problem is to **make a list of all candidate answers, examine each**, and following the examination of all or some of the candidates, declare the identified answer.
+- Backtracking enables us to **eliminate** the explicit examination of **a large subset** of the candidates while still guaranteeing that the answer will be found if the algorithm is run to termination.
+- The **basic idea** is that suppose we have a partial solution ( $x_1, ... , x_i$ ) where each $x_k \in S_k$ for $1 \leq k \leq i < n$. First we add $x_{i+1} \in S_{i+1}$ and check if ( $x_1, ... , x_i, x_{i+1}$ ) satisfies the constrains. **If** the answer is “**yes**” we **continue** to add the next $x$, **else** we delete $x_i$ and **backtrack** to the previous partial solution ( $x_1, ... , x_{i-1}$ ).
+
+
+- 找到问题答案的一个稳妥方法是**列出所有候选答案并逐一检查**，在检查了全部或部分候选答案后，确定最终的答案。
+- 回溯算法使我们能够**排除**对一大部分候选答案的显式检查，同时仍能保证如果算法运行至结束，就一定能找到答案。
+- 其**基本思想**是：假设我们有一个部分解（$x_1, \dots, x_i$），其中对于 $1 \leq k \leq i < n$，每个 $x_k \in S_k$。首先我们添加 $x_{i+1} \in S_{i+1}$，并检查（$x_1, \dots, x_i, x_{i+1}$）是否满足约束条件。**如果**答案是“**是**”，我们就**继续**添加下一个 $x$；**否则**，我们删除 $x_i$ 并**回溯**到前一个部分解（$x_1, \dots, x_{i-1}$）。
+
+**（感觉其实就是剪枝）**
+ 

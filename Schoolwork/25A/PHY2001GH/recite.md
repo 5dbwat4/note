@@ -16,6 +16,12 @@
 
 **高斯定律（Gauss' Law）**：$\epsilon_0 \oint \vec{E} \cdot d\vec{A} = q_{\text{enc}}$ or $\Phi_E = \dfrac{Q_{\text{enc}}}{\varepsilon_0}$，其中 $Q_{\text{enc}}$ 是包围在闭合曲面内的总电荷。
 
+- 两点间势能变化：$\Delta U = U_f - U_i = -W_{if} = -\int_i^f \vec{F} \cdot d\vec{s}$
+- 两个点电荷系统的电势能（以无限远为参考点）：$U(r) = \frac{1}{4\pi\epsilon_0} \frac{q_1 q_2}{r}$
+- **由电场求电势差**： $\Delta V = V_b - V_a = -\int_a^b \vec{E} \cdot d\vec{s}$
+- **由电势求电场**（电场是电势的负梯度）：$E_x = -\frac{\partial V}{\partial x},\quad E_y = -\frac{\partial V}{\partial y},\quad E_z = -\frac{\partial V}{\partial z}$
+
+
 导体在电场中-静态条件：导体**内部电场为零**
 
 - **电流定义**：$i = \frac{dq}{dt}$，单位：安培（A）
@@ -49,3 +55,19 @@
 导体棒在均匀磁场中垂直切割磁感线的情况：$\mathcal{E} = B L v$
 
 长度为 $R$ 的导体绕一端在磁场中旋转：$\mathcal{E} = \frac{1}{2} B \omega R^2$
+
+
+运动电荷在磁场中的受力：$\vec{F} = q \vec{v} \times \vec{B}$，$F = |q| v B \sin\phi$，$\phi$：$\overrightarrow{v}$ 与 $\overrightarrow{B}$ 的夹角
+
+电荷在均匀磁场中的圆周运动：半径 $r = \frac{m v}{|q| B}$，周期 $T = \frac{2 \pi m}{|q| B}$
+
+洛伦兹力（电场 + 磁场）：$\vec{F} = q \left( \vec{E} + \vec{v} \times \vec{B} \right)$
+
+载流导线在磁场中的受力：$\vec{F} = i \vec{L} \times \vec{B}$，$F = i L B \sin\phi$
+
+载流线圈在磁场中的力矩：$\tau = N i A B \sin\phi$
+
+
+运动电荷产生的磁场：$\vec{B} = \frac{\mu_0}{4\pi} \cdot \frac{q \vec{v} \times \hat{r}}{r^2}$；电流元产生的磁场（毕奥-萨伐尔定律）：$d\vec{B} = \frac{\mu_0}{4\pi} \cdot \frac{i d\vec{l} \times \hat{r}}{r^2}$；$\mu_0$ 是真空磁导率，$\mu_0 = 4\pi \times 10^{-7} \ \text{T} \cdot \text{m/A}$
+
+安培定律：$\oint \vec{B} \cdot d\vec{s} = \mu_0 i_{\text{enc}}$

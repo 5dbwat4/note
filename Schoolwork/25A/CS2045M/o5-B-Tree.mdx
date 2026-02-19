@@ -99,6 +99,9 @@ Any keys in leaves of $T_{i+1} \ge k_i$
     $$O(\log_{2} M \cdot \log_{\lceil M/2 \rceil} N) = O\left( (\log_{2} M/2 + 1) \cdot \frac{\log_{2} N}{\log_{2} M/2} \right) = O(\log N),$$
     注意推导中使用了换底公式。
 
+	
+    **The time bound of the FIND operation in a B+ tree containing N numbers is $O(\log N)$, no matter what the degree of the tree is.**
+
 2. 插入：PPT 上的伪代码已经十分清楚，就是找到插入的位置，然后插入看结点是否放得下，放不下就分裂，如果分裂后子结点个数也过多则继续向上一层分裂，直到根结点孩子爆满则将根结点分裂并生成新的根结点，当然还要注意即使不分裂也可能需要按 B+ 树定义更新上层结点。我们知道树有 $O(\log_{\lceil M/2\rceil} N)$ 层，每层操作最多是 $O(M)$ 的（如更新结点或者分裂，无非就是更改 $O(M)$ 个键值以及修改 $O(M)$ 个父子指针），因此整体时间复杂度为 $O(M\cdot\log_{\lceil M/2\rceil} N)=O\left(\frac{M}{\log M}\log N\right)$。
 
 3. 删除：PPT 没有要求，但想法很简单，因为只需把插入时分裂结点改为合并键值或孩子数量少的结点，当然需要注意的是，为了确保合并后键值数量不会超过 $M$ 且减少合并次数，可以先看看兄弟结点是不是键值还很多，多的话拿一个过来即可，事实上整体时间复杂度和插入分析类似，也为 $O\left(\frac{M}{\log M}\log N\right)$。

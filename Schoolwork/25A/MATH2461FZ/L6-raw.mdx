@@ -1,0 +1,597 @@
+import Card from "@md-components/card.vue"
+
+# Chapter 6 Statistics and Sampling Distributions
+## §6.1 Random Sample and Statistics
+### 绪论
+统计学是“收集和分析数据的科学与艺术”（出自《不列颠百科全书》）；
+统计学是一门用有效的方法收集和分析带有随机影响的数据的学科，且其目的是解决特定的问题。（陈希孺院士）
+收集和分析处理的对象是带有随机性的数据（random data）。
+人们有时会遇到：所考察的问题中涉及的研究对象数目众多甚至无限，很难或者无法对其全部加以研究，常会用“随机取样”的方式挑选其中一部分去考察，通过这一部分对象去认识全部对象。此时，挑选出来的对象其数据表现也是带有随机影响的。
+
+以描述为主$\Rightarrow$以推断为主
+信息时代：数据之“大”，统计之“广”
+- All knowledge is, in final analysis, history.（在终极的分析中，一切知识都是历史。）
+- All sciences are, in the abstract, mathematics.（在抽象的意义下，一切科学都是数学。）
+- All judgements are, in their rationale, statistics.（在理性的基础上，所有判断都是统计学）
+—C.R.Rao
+Data$\rightarrow$Statistics$\rightarrow$Information
+Grass$\rightarrow$Cow$\rightarrow$Milk
+
+### 总体与个体（Population and Individual）
+<Card type="Definition" title="Definition 1 (总体与个体)">
+一个统计问题总有它明确的研究对象。把研究对象的全体称为总体（population），每个研究对象称为个体（individual）。
+</Card>
+
+<Card type="Definition" title="Definition 2 (有限总体与无限总体)">
+总体中包含的个体的数量称为总体容量。
+- 有限总体（finite population）：容量有限的总体。
+- 无限总体（infinite population）：容量无限的总体。
+</Card>
+
+在统计研究中，人们往往关心每个个体的一项（或几项）数量指标。这时，每个个体具有的数量指标的全体就是总体。由于每个个体的出现带有随机性，即相应的数量指标值的出现带有随机性。从而可把此种数量指标看作随机变量，我们用一个随机变量或其分布来描述总体。通常，我们用随机变量$X, Y, Z$等表示总体。当我们说到总体时，就是指一个具有确定概率分布的随机变量（或随机向量）。
+
+示例：浙大学生的身高的全体就是总体。
+
+### 常见分布回顾
+#### 三种常见连续型分布的概率密度函数
+正态分布$N(\mu, \sigma^2)$：
+$$
+f(x)=\frac{1}{\sqrt{2 \pi} \sigma} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}, \quad -\infty < x < +\infty
+$$
+
+#### 三种常见离散型分布的概率分布律（列）
+1. Poisson 分布$P(\lambda)$：
+$$
+P(X=k)=\frac{\lambda^k e^{-\lambda}}{k!}, \quad k=0,1,...
+$$
+$$
+\Rightarrow f(x)=P(X=x)= \begin{cases}\frac{\lambda^x e^{-\lambda}}{x!}, & x=0,1, ..., \\ 0, & \text{其他}. \end{cases}
+$$
+
+2. 二项分布$B(n, p)$：
+$$
+P(X=k)=C_n^k p^k(1-p)^{n-k}, \quad k=0,1,...,n
+$$
+$$
+\Rightarrow f(x)=P(X=x)= \begin{cases}C_{n}^{x} p^{x}(1-p)^{n-x}, & x=0,1, ..., \\ 0, & \text{其他}. \end{cases}
+$$
+
+3. 0-1分布$B(1, p)$：
+$$
+P(X=k)=p^k(1-p)^{1-k}, \quad k=0,1
+$$
+$$
+\Rightarrow f(x)=P(X=x)= \begin{cases}p^{x}(1-p)^{1-x}, & x=0,1, \\ 0, & \text{其他}. \end{cases}
+$$
+
+### 考察总体的方法
+- 全面调查
+- 抽样调查（采用）
+
+### 随机样本（Random Sample）
+<Card type="Definition" title="Definition 3 (样本)">
+为推断总体的分布及其各种特征，从总体中抽取部分个体进行观测，以获得有关总体的信息。这一抽取过程称为抽样（sampling），所抽取的部分个体称为样本（sample），通常记为$X=(X_1, X_2, ..., X_n)$。
+样本中所包含的个体数目$n$称为样本容量。
+</Card>
+每一个样本$X_i$都是随机变量（其维数与总体一致）。若总体是一维的，则容量为$n$的样本可以看作$n$维随机向量。但是，一旦取定一组样本，得到的是$n$个具体的数$x=(x_1, x_2, ..., x_n)$，称此为样本的一次观察值，简称样本值或仍简称为样本。
+
+<Card type="Definition" title="Definition 4 (简单随机样本)">
+设$X=(X_1, X_2, ..., X_n)$是来自总体$X$的随机样本，若满足：
+1. 代表性：$X_1, X_2, ..., X_n$中每一个与所考察的总体$X$有相同的分布；
+2. 独立性：$X_1, X_2, ..., X_n$是相互独立的随机变量；
+则称$X=(X_1, X_2, ..., X_n)$为取自总体$X$的简单随机样本（simple random sample）。
+</Card>
+获得简单随机样本的抽样方法称为简单随机抽样（simple random sampling, SRS）。
+注：若无特殊说明，后续提到的样本均指简单随机样本。
+
+由概率论知识，若总体$X$具有分布函数$F(x)$，则简单随机样本$X=(X_1, X_2, ..., X_n)$具有联合分布函数：
+$$
+F_n(x)=F_n(x_1, x_2, ..., x_n)=\prod_{i=1}^n F(x_i)
+$$
+
+若总体$X$为连续型（或离散型）随机变量，其概率密度函数（或分布律）为$f(x)$，则简单随机样本$X=(X_1, X_2, ..., X_n)$具有联合概率密度函数（或联合分布律）。
+$$
+f_n(x)=f_n(x_1, x_2, ..., x_n)=\prod_{i=1}^n f(x_i)
+$$
+
+<Card type="Example" title="Example 1">
+设总体$X$服从期望为$1/\lambda(\lambda>0)$的指数分布，$X=(X_1, X_2, ..., X_n)$是来自该总体的样本，求样本$X$的联合概率密度函数。
+
+Solution:
+
+总体$X$的概率密度为$f(x) = \begin{cases}e^{-\lambda x}, & x > 0, \\ 0, & x \leq 0. \end{cases}$
+因为$X_1, X_2, ..., X_n$相互独立，且与$X$有相同的分布，所以样本$X=(X_1, X_2, ..., X_n)$的联合概率密度函数为：
+$$
+f_n(x)=f_n(x_1, x_2, ..., x_n)=\prod_{i=1}^n f(x_i)= \begin{cases}\lambda^n e^{-\lambda \sum_{i=1}^n x_i}, & x_i>0, i=1,2, ..., n, \\ 0, & \text{其他}. \end{cases}
+$$
+
+</Card>
+
+<Card type="Example" title="Example 2">
+设总体$X$服从两点分布$B(1, p)$，其中$0<p<1$，$X=(X_1, X_2, ..., X_n)$是来自该总体的样本，求样本$X$的联合分布律。
+
+Solution:
+
+总体$X$的分布律为$f(x)=P(X=x)=p^x(1-p)^{1-x}$，$x=0,1$。
+因为$X_1, X_2, ..., X_n$相互独立，且与$X$有相同的分布，所以样本$X=(X_1, X_2, ..., X_n)$的联合分布律为：
+$$f_n(x_1, x_2, ..., x_n)=\prod_{i=1}^n f(x_i)=\prod_{i=1}^n p^{x_i}(1-p)^{1-x_i}=p^{\sum_{i=1}^n x_i}(1-p)^{n-\sum_{i=1}^n x_i}$$
+其中$x_1, x_2, ..., x_n$在集合$\{0,1\}$中取值。
+
+
+</Card>
+
+#### 如何取得简单随机样本？
+- 对于有限总体，采用放回抽样就能得到简单随机样本。但当总体容量很大时，放回抽样有时候很不方便，因此在实际中当总体容量比较大时，通常将不放回抽样所得到的样本近似当作简单随机样本来处理。
+- 对于无限总体，一般采取不放回抽样。
+
+#### 如何收集数据？
+- 通过调查、记录收集数据。如为了调查大学生“过去6个月平均每月的花费”，可以进行问卷调查；要了解PM2.5值，需要在城市设立若干PM2.5监测站点，定时收集数据。
+- 通过实验收集数据。如为了了解药物吸收情况，要征集若干志愿者，把他们分成若干组，观察他们服药后不同时间点药物含量数据。
+
+关于调查数据和实验数据的收集可以根据数据本身的特点有多种不同的方法和设计，有专门的课程讲授，这里不作详细介绍。
+
+### 统计推断（Statistical Inference）
+样本$X = (X_1, X_2, ..., X_n)$
+总体$X \sim F(x)$，$F(x)$不完全已知
+$\Uparrow$ 推断 $\Uparrow$
+适当的统计量$g(X)$
+
+理论依据：Glivenko-Cantelli Theorem
+
+<Card type="Theorem" title="Glivenko-Cantelli Theorem (仅供参考)">
+设样本$X=(X_1, X_2, ..., X_n)$来自总体$X \sim F(x)$，$F_n(x)$为样本的经验分布函数（empirical distribution function），即：
+$$F_n(x)=\frac{1}{n} \sharp\{X_i: X_i < x, i=1,2, ..., n\}, \forall x \in \mathbb{R}$$
+其中$\sharp\{\cdot\}$表示集合$\{\cdot\}$中元素的个数，则：
+$$P\left(\lim _{n \to +\infty} \sup _{-\infty < x < +\infty} \left|F_n(x)-F(x)\right|=0\right)=1$$
+</Card>
+
+Glivenko-Cantelli Theorem 告诉我们，当样本容量足够大时，$F_n(x)$能够很好地拟合总体分布$F(x)$。而总体的信息全部包含在它的分布$F(x)$中，这样自然可以由样本去认识总体。
+
+### 统计量（Statistic）
+统计推断的出发点（或依据）是样本，但样本是$n$维的，且信息分散到样本的每个分量上。因而，直接从样本出发推断总体分布不甚方便。一般需要对样本进行加工，将样本中分散的（所需）信息浓缩集中起来。这就是“统计量”。
+
+<Card type="Definition" title="Definition 5 (统计量)">
+设$X=(X_1, X_2, ..., X_n)$是来自总体$X$的一个（简单随机）样本，$g(X)=g(X_1, X_2, ..., X_n)$是样本$X$的函数，若$g(\cdot)$中不含任何的未知参数，则称$g(X)$为统计量（statistic）。
+简而言之，统计量是样本的不含任何未知参数的函数。
+</Card>
+
+#### 说明：
+1. 统计量可以仅从其解析式上判断；
+2. 统计量仍然为随机变量；
+3. 统计量的分布（称为抽样分布）一般与总体分布有关，即可以依赖未知参数；
+4. 若$x=(x_1, x_2, ..., x_n)$为样本$X=(X_1, X_2, ..., X_n)$的观察值，则$g(x)$为$g(X)$的观察值，称之为统计量的值。（当样本的值给定后，统计量的值也随之确定。）
+
+<Card type="Example" title="Example 3">
+设在总体$N(\mu, \sigma^2)$中抽取样本$X=(X_1, X_2, X_3)$，其中$\mu$已知，$\sigma^2$未知。指出下列哪些是统计量，哪些不是统计量，为什么？
+1. $X_2 + 2\mu$：是，这里参数$\mu$是已知的；
+2. $\frac{X_1 - X_3}{\sigma}$：不是，因为依赖于未知参数$\sigma$；
+3. $X_1$：是；
+4. $\max(X_1, X_2, X_3)$：是；
+5. $\sum_{i=1}^3 \frac{X_i^2}{\sigma^2}$：不是，因为依赖于未知参数$\sigma$。
+</Card>
+
+### 常用统计量
+设$X=(X_1, X_2, ..., X_n)$为来自总体$X$的样本。
+1. 样本均值（sample mean）：$\bar{X}=\frac{1}{n} \sum_{i=1}^n X_i$——反映总体均值$\mu=E(X)$。
+2. 样本方差（sample variance）：$S^2=\frac{1}{n-1} \sum_{i=1}^n (X_i - \bar{X})^2$——反映总体方差$\sigma^2=Var(X)$。
+3. 样本$k$阶（原点）矩（$k$-th sample moment）：$A_k=\frac{1}{n} \sum_{i=1}^n X_i^k$，$k=1,2,...$——反映总体$k$阶原点矩$\mu_k=E(X^k)$。
+4. 样本$k$阶中心矩（$k$-th sample central moment）：$B_k=\frac{1}{n} \sum_{i=1}^n (X_i - \bar{X})^k$，$k=2,3,...$——反映总体$k$阶中心矩$\nu_k=E[X - E(X)]^k$。
+   注：$B_2=\frac{1}{n} \sum_{i=1}^n (X_i - \bar{X})^2$，与样本方差$S^2$区别！
+
+当获得样本$X=(X_1, X_2, ..., X_n)$的观察值$x=(x_1, x_2, ..., x_n)$后，上述统计量的观察值即为统计量的值。
+
+#### 样本与总体的各阶矩对比表
+| 矩的类型       | 样本的矩（随机变量）                          | 总体$X$的矩（数）                              |
+|----------------|-----------------------------------------------|------------------------------------------------|
+| 均值           | $\bar{X} = \frac{1}{n} \sum_{i=1}^n X_i$       | $\mu = E(X)$                                   |
+| 方差           | $S^2 = \frac{1}{n-1} \sum_{i=1}^n (X_i - \bar{X})^2$ | $\sigma^2 = Var(X) = E\{(X - E(X))^2\}$         |
+| 均方差 / 标准差 | $S = \sqrt{S^2}$                              | $\sigma = \sqrt{\sigma^2}$                     |
+| 样本$k$阶（原点）矩 | $A_k = \frac{1}{n} \sum_{i=1}^n X_i^k$        | $\mu_k = E(X^k)$                               |
+| 样本$k$阶中心矩 | $B_k = \frac{1}{n} \sum_{i=1}^n (X_i - \bar{X})^k$ | $\nu_k = E\{(X - E(X))^k\}$                    |
+
+### 统计推断的主要内容（R.A. Fisher 划分）
+1. 抽样分布——统计量$T=g(X)$的分布，记为$F_T(t)$，即若$X$的联合概率密度函数为$f_n(x_1, x_2, ..., x_n)$，则$F_T(t)=P(T \leq t)=P(g(X_1, X_2, ..., X_n) \leq t)$。
+2. 参数估计——点估计、区间估计。
+3. 假设检验——参数假设检验（包括方差分析）、非参数假设检验。
+
+## §6.2 Sampling Distributions
+
+<Card type="Example" title="Example 4">
+(性质:) 设 $(X_{1}, X_{2}, ..., X_{n})$ 是总体 $X$ 的样本, 若 $E(X)=\mu$, $Var(X)=\sigma^{2}$, 则 
+$$E(\overline{X})=\mu, \quad Var(\overline{X})=\frac{\sigma^{2}}{n}, \quad E\left(S^{2}\right)=\sigma^{2} .$$
+</Card>
+
+<Card type="Example" title="Example 5">
+设总体 $X$ 的概率密度为 $f(x)= \begin{cases}2(1-x), & 0<x<1, \\ 0, & \text{其他}\end{cases}$，$X=(X_{1}, X_{2}, ..., X_{n})$ 是来自总体 $X$ 的样本, 则 
+$$E(X)=\int_{0}^{1} 2 x(1-x) d x=\frac{1}{3},$$
+$$E(X^2) = \int_{0}^{1} 2x^2(1 - x)dx = \frac{1}{6},$$
+$$Var(X)=\frac{1}{18} .$$
+于是 
+$$E(\bar{X})=\frac{1}{3},$$
+$$E(\bar{X}^{2})=\frac{1}{18 n}+\frac{1}{9} .$$
+</Card>
+
+<Card type="Example" title="Example 6">
+设总体 $X$ 服从两点分布 $B(1, p)$ 其中 $0<p<1$，$X=(X_{1}, X_{2})$ 是来自该总体的容量为2的样本, 求样本均值 $\bar{X}$ 的分布律, 并求 $E(\bar{X})$ 和 $Var(\bar{X})$。
+
+**Solution**:
+
+由于总体 $X$ 服从两点分布 $B(1, p)$, 即 $P(X=1)=p$, $P(X=0)=1-p$。又由于 $X=(X_{1}, X_{2})$ 是来自该总体的容量为2的样本, 因此 $X_{1}$, $X_{2}$ 相互独立, 且与 $X$ 有相同的分布。从而 $\bar{X}=\frac{1}{2}(X_{1}+X_{2})$ 的可能取值为0, 1/2, 1, 且分布律为：
+
+| $\bar{X}$ | 0 | 1/2 | 1 |
+| --- | --- | --- | --- |
+| $P$ | $(1 - p)^2$ | $2p(1 - p)$ | $p^2$ |
+
+因此可得 
+$$E(\bar{X})=p=E(X),$$
+$$Var(\bar{X})=\frac{p(1-p)}{2}=\frac{Var(X)}{n}, \quad n=2 .$$
+</Card>
+
+
+### 数理统计中的三大分布--$\chi^{2}$分布、t分布、F分布
+
+#### (1) $\chi^{2}$分布
+<Card type="Definition" title="Definition 6 ($\chi^{2}$分布)">
+设随机变量 $X_{1}, X_{2}, ..., X_{n}$ 相互独立, $X_{i} \sim N(0,1)$, $i=1,2, ..., n$，则称
+$$
+\chi_{n}^{2}=\sum_{i=1}^{n} X_{i}^{2}
+$$
+服从自由度为 $n$ 的 $\chi^{2}$ 分布(chi-square distribution), 记为 $\chi_{n}^{2} \sim \chi^{2}(n)$。
+
+**说明**: 若随机变量 $K \sim \chi^{2}(n)$，那么一定存在相互独立的随机变量 $X_{1}, X_{2}, ..., X_{n}$，$X_{i} \sim N(0,1)$, $i=1,2, ..., n$，使得 $K$ 可以表示为 
+$$
+K=\sum_{i=1}^{n} X_{i}^{2}
+$$
+</Card>
+
+#### $\chi^{2}(n)$分布的概率密度
+$$
+f(x ; n)= \begin{cases}\frac{1}{2^{\frac{n}{2}} \Gamma\left(\frac{n}{2}\right)} x^{\frac{n}{2}-1} e^{-\frac{x}{2}}, & x>0, \\ 0, & x \leq 0,\end{cases}
+$$
+其中 $\Gamma(\alpha)=\int_{0}^{+\infty} x^{\alpha-1} e^{-x} dx$ 为伽马函数。
+
+#### 不同自由度的$\chi^{2}$分布概率密度函数图像比较
+
+
+#### $\chi^{2}$分布的性质
+1. 设随机变量 $X \sim \chi^{2}(n)$, 则有 $E(X)=n$, $Var(X)=2n$。
+2. 设 $Y_{1} \sim \chi^{2}(n_{1})$, $Y_{2} \sim \chi^{2}(n_{2})$, 且 $Y_{1}$, $Y_{2}$ 相互独立, 则有 $Y_{1}+Y_{2} \sim \chi^{2}(n_{1}+n_{2})$。该性质称为 $\chi^{2}$ 分布的可加性。可推广至任意有限个的情形: 设 $Y_{i} \sim \chi^{2}(n_{i})$, $i=1,2, ..., m$ 且 $Y_{1}, Y_{2}, ..., Y_{m}$ 相互独立, 则 $Y_{1}+Y_{2}+...+Y_{m} \sim \chi^{2}(n_{1}+n_{2}+...+n_{m})$。
+
+#### $\chi^{2}$分布的性质1的证明
+由于 $X \sim \chi^{2}(n)$, 故存在 $n$ 个相互独立的标准正态变量 $X_{1}, X_{2}, ..., X_{n}$ 使得 $X=\sum_{i=1}^{n} X_{i}^{2}$。因此 
+$$
+E(X)=E\left(\sum_{i=1}^{n} X_{i}^{2}\right)=n E\left(X_{1}^{2}\right)=n\left\{Var\left(X_{1}\right)+\left[E\left(X_{1}\right)\right]^{2}\right\}=n\left(1+0^{2}\right)=n,
+$$
+$$
+Var(X)=Var\left(\sum_{i=1}^{n} X_{i}^{2}\right)=n Var\left(X_{1}^{2}\right)=n\left\{E\left(X_{1}^{4}\right)-\left[E\left(X_{1}^{2}\right)\right]^{2}\right\}=n\left(3-1^{2}\right)=2n,
+$$
+其中 $E\left(X_{1}^{4}\right)=\int_{-\infty}^{\infty} x^{4} \frac{1}{\sqrt{2 \pi}} e^{-\frac{x^{2}}{2}} d x=3$。
+
+#### $\chi^{2}$分布的性质2的证明
+由于 $Y_{1} \sim \chi^{2}(n_{1})$, $Y_{2} \sim \chi^{2}(n_{2})$, 且 $Y_{1}$, $Y_{2}$ 相互独立, 故 $Y_{1}$, $Y_{2}$ 可以表示为 $Y_{1}=\sum_{i=1}^{n_{1}} X_{1 i}^{2}$, $Y_{2}=\sum_{j=1}^{n_{2}} X_{2 j}^{2}$，其中诸标准正态随机变量 $X_{1 i}$, $X_{2 j}$ 相互独立, $i=1,2, ..., n_{1}$, $j=1,2, ..., n_{2}$。所以 
+$$
+Y_{1}+Y_{2}=\sum_{i=1}^{n_{1}} X_{1 i}^{2}+\sum_{j=1}^{n_{2}} X_{2 j}^{2}
+$$
+利用 $\chi^{2}$ 分布的定义可知 $Y_{1}+Y_{2} \sim \chi^{2}(n_{1}+n_{2})$。
+
+### 分布的上(侧)分位数/点
+对给定的正数 $0<\alpha<1$, 若连续型随机变量 $X$ 的分布函数和密度函数分别为 $F(x)$ 与 $f(x)$, 称满足条件 
+$$
+P\left(X>x_{\alpha}\right)=1-F\left(x_{\alpha}\right)=\int_{x_{\alpha}}^{+\infty} f(x) d x=\alpha
+$$
+的实数 $x_{\alpha}$ 为随机变量 $X$（或此分布）的上(侧) $\alpha$ 分位数(或上(侧) $\alpha$ 分位点)。
+
+
+
+### 标准正态分布的上(侧)$\alpha$分位数
+设 $X \sim N(0,1)$, 若 $z_{\alpha}$ 满足条件 
+$$
+P\left(X>z_{\alpha}\right)=\alpha, \quad 0<\alpha<1,
+$$
+则称点 $z_{\alpha}$ 为标准正态分布的上(侧) $\alpha$ 分位数(或上(侧) $\alpha$ 分位点)。(Excel 实现: NORMSINV) 
+$$
+z_{1/2}=0,
+$$
+$$
+z_{1-\alpha}=-z_{\alpha}.
+$$
+
+
+
+<Card type="Definition" title="Definition 7 ($\chi^{2}$分布的上$\alpha$分位数)">
+对给定的正数 $\alpha(0<\alpha<1)$, 称满足条件 $\int_{\chi_{\alpha}^{2}(n)}^{+\infty} f_{n}(y) d y=\alpha$ 的点 $\chi_{\alpha}^{2}(n)$ 为 $\chi^{2}(n)$ 分布的上(侧) $\alpha$ 分位数(或上(侧) $\alpha$ 分位点), 其中 $f_{n}(y)$ 为 $\chi^{2}(n)$ 分布的概率密度函数。
+
+上 $\alpha$ 分位数 $\chi_{\alpha}^{2}(n)$ 的值可查 $\chi^{2}$ 分布表(附表4) 或者利用各类软件得到。
+</Card>
+
+
+
+#### 近似公式
+R.A. Fisher 曾给出如下近似公式：当 $n>40$ 时, $\chi^{2}(n)$ 分布的上 $\alpha$ 分位数有近似公式 
+$$
+\chi_{\alpha}^{2}(n) \approx \frac{1}{2}\left(z_{\alpha}+\sqrt{2 n-1}\right)^{2},
+$$
+其中 $z_{\alpha}$ 为标准正态分布的上 $\alpha$ 分位数。
+
+#### Excel计算示例
+计算 $\chi_{0.1}^{2}(25)$ (以2003版本为例, 不同版本具体做法有所不同)：
+1. 在Excel表单的任一单元格输入“=”；
+2. 在主菜单中点击“插入”, 选择“函数(F)”；
+3. 在选择类别的下拉式菜单中选择“统计”；
+4. 选择“CHISQ.INV.RT”，点击“确定”；
+5. 在函数参数表单中输入“Probability=0.1, Deg_freedom=25”；
+6. 点击“确定”；
+7. 在单元格中出现“34.38158702”。
+
+<Card type="Example" title="Example 7">
+设总体 $X \sim N(\mu, \sigma^{2})$, $-\infty<\mu<+\infty$, $\sigma>0$，$X=(X_{1}, X_{2}, ..., X_{n})$ 是取自总体 $X$ 的(简单随机)样本。
+1. 求随机变量 $\chi^{2}=\frac{1}{\sigma^{2}} \sum_{i=1}^{n}(X_{i}-\mu)^{2}$ 的分布；
+2. 设 $n=5$，若 $a(X_{1}-X_{2})^{2}+b(2 X_{3}-X_{4}-X_{5})^{2} \sim \chi^{2}(k)$，则 $a$、$b$、$k$ 各为多少？
+
+### Solution
+1. 作变换 $Y_{i}=\frac{X_{i}-\mu}{\sigma}$, $i=1, ..., n$，则 $Y_{1}, Y_{2}, ..., Y_{n}$ 相互独立, 且 $Y_{i} \sim N(0,1)$，于是 
+$$
+\chi^{2}=\sum_{i=1}^{n}\left(\frac{X_{i}-\mu}{\sigma}\right)^{2}=\sum_{i=1}^{n} Y_{i}^{2} \sim \chi^{2}(n) .
+$$
+
+### Solution (Cont.)
+2. 由于 $(X_{1}, X_{2}, ..., X_{n})$ 是来自总体的简单随机样本, 利用正态分布的性质，
+$$
+X_{1}-X_{2} \sim N\left(0,2 \sigma^{2}\right) \Rightarrow\left(\frac{X_{1}-X_{2}}{\sqrt{2} \sigma}\right)^{2} \sim \chi^{2}(1),
+$$
+$$
+2 X_{3}-X_{4}-X_{5} \sim N\left(0,6 \sigma^{2}\right) \Rightarrow\left(\frac{2 X_{3}-X_{4}-X_{5}}{\sqrt{6} \sigma}\right)^{2} \sim \chi^{2}(1),
+$$
+且 $X_{1}-X_{2}$ 与 $2 X_{3}-X_{4}-X_{5}$ 相互独立, 故由卡方分布的性质, 可得 
+$$
+\frac{\left(X_{1}-X_{2}\right)^{2}}{2 \sigma^{2}}+\frac{\left(2 X_{3}-X_{4}-X_{5}\right)^{2}}{6 \sigma^{2}} \sim \chi^{2}(2),
+$$
+即 $a=\frac{1}{2 \sigma^{2}}$, $b=\frac{1}{6 \sigma^{2}}$, $k=2$。
+</Card>
+
+### (2) t分布
+<Card type="Definition" title="Definition 8 (t分布)">
+设 $X \sim N(0,1)$, $Y \sim \chi^{2}(n)$, 并且 $X$、$Y$ 相互独立, 则称随机变量 
+$$
+T=\frac{X}{\sqrt{Y / n}}
+$$
+服从自由度为 $n$ 的 t 分布(t-distribution), 记为 $T \sim t(n)$，也称为(Student)分布。
+
+**说明**: 若随机变量 $T \sim t(n)$，那么一定存在随机变量 $X \sim N(0,1)$、$Y \sim \chi^{2}(n)$，并且 $X$、$Y$ 相互独立, 使得 $T$ 可以表示为 
+$$
+T=\frac{X}{\sqrt{Y / n}} .
+$$
+</Card>
+
+#### $t(n)$分布的概率密度
+$$
+f(x ; n)=\frac{\Gamma\left(\frac{n+1}{2}\right)}{\sqrt{n \pi} \Gamma\left(\frac{n}{2}\right)}\left(1+\frac{x^{2}}{n}\right)^{-\frac{n+1}{2}}, \quad-\infty<x<+\infty,
+$$
+其中 $\Gamma(\alpha)=\int_{0}^{+\infty} x^{\alpha-1} e^{-x} dx$ 为伽马函数。
+
+#### 不同自由度的t分布与标准正态分布密度函数图像比较
+
+
+#### t分布的性质
+1. 设 $T \sim t(n)$, 当 $n \geq2$ 时, 期望 $E(T)=0$；当 $n \geq3$ 时, 方差 $Var(T)=\frac{n}{n-2}$；
+2. 当 $n$ 足够大时, t 分布近似于标准正态分布 $N(0,1)$；
+3. 若 $T \sim t(n)$, $N \sim N(0,1)$, 则对任意的 $n \geq1$, 都存在 $a_{0}>0$, 使得 $P\left(|T| \geq a_{0}\right) \geq P\left(|N| \geq a_{0}\right)$。性质3告诉我们, t分布的概率密度函数图像尾部比标准正态分布厚重；
+4. 对于任意 $0<\alpha<1$, $t_{1-\alpha}(n)=-t_{\alpha}(n)$, $n \geq1$。
+
+<Card type="Definition" title="Definition 9 (t分布的上$\alpha$分位数)">
+对给定的正数 $\alpha(0<\alpha<1)$, 称满足条件 $\int_{t_{\alpha}(n)}^{+\infty} f_{n}(t) d t=\alpha$ 的点 $t_{\alpha}(n)$ 为 $t(n)$ 分布的上(侧) $\alpha$ 分位数(或上(侧) $\alpha$ 分位点), 其中 $f_{n}(t)$ 为 $t(n)$ 分布的概率密度函数。
+
+上 $\alpha$ 分位数 $t_{\alpha}(n)$ 的值可查 t 分布表(附表3) 或者利用各类软件得到。当 $n>45$ 时, $t_{\alpha}(n) \approx z_{\alpha}$，其中 $z_{\alpha}$ 是标准正态分布的上 $\alpha$ 分位数。
+</Card>
+
+
+
+#### Excel计算示例
+计算 $t_{0.05}(25)$ (以2003版本为例, 不同版本具体做法有所不同)：
+1. 在Excel表单的任一单元格输入“=”；
+2. 在主菜单中点击“插入”, 选择“函数(F)”；
+3. 在选择类别的下拉式菜单中选择“统计”；
+4. 选择“TINV”，点击“确定”；
+5. 在函数参数表单中输入“Probability=0.95(为1−0.05), Deg_freedom=25”；
+6. 点击“确定”；
+7. 在单元格中出现“1.708140761”。
+
+### (3) F分布
+<Card type="Definition" title="Definition 10 (F分布)">
+设 $U \sim \chi^{2}(n_{1})$, $V \sim \chi^{2}(n_{2})$, 并且 $U$、$V$ 相互独立, 则称随机变量 
+$$
+F=\frac{U / n_{1}}{V / n_{2}}
+$$
+服从自由度为 $(n_{1}, n_{2})$ 的 F 分布(F-distribution), 记为 $F \sim F(n_{1}, n_{2})$；其中 $n_{1}$ 称为第一自由度, $n_{2}$ 称为第二自由度。
+
+**说明**: 若随机变量 $F \sim F(n_{1}, n_{2})$, 那么一定存在随机变量 $U \sim \chi^{2}(n_{1})$、$V \sim \chi^{2}(n_{2})$，并且 $U$、$V$ 相互独立, 使得 $F$ 可以表示为 
+$$
+F=\frac{U / n_{1}}{V / n_{2}}
+$$
+</Card>
+
+#### $F(n_{1}, n_{2})$分布的概率密度
+$$
+f\left(x ; n_{1}, n_{2}\right)= \begin{cases}\frac{1}{B\left(\frac{n_{1}}{2}, \frac{n_{2}}{2}\right)} n_{1}^{\frac{n_{1}}{2}} n_{2}^{\frac{n_{2}}{2}} x^{\frac{n_{1}}{2}-1}\left(n_{2}+n_{1} x\right)^{-\frac{n_{1}+n_{2}}{2}}, & x>0, \\ 0, & x \leq 0,\end{cases}
+$$
+其中 $B(a, b)=\int_{0}^{1} x^{a-1}(1-x)^{b-1} dx=\frac{\Gamma(a) \Gamma(b)}{\Gamma(a+b)}$ 为贝塔函数。
+
+#### 不同自由度的F分布概率密度函数图像比较
+
+
+#### F分布的性质
+1. 若 $F \sim F(n_{1}, n_{2})$，则 $\frac{1}{F} \sim F(n_{2}, n_{1})$；
+2. 对任意的 $0<\alpha<1$，$F_{1-\alpha}(n_{1}, n_{2})=\frac{1}{F_{\alpha}(n_{2}, n_{1})}$；
+3. 若 $\xi \sim t(n)$，则 $\xi^{2} \sim F(1, n)$。
+
+<Card type="Definition" title="Definition 11 (F分布的上$\alpha$分位数)">
+对给定的正数 $\alpha(0<\alpha<1)$, 称满足条件 $\int_{F_{\alpha}(n_{1}, n_{2})}^{+\infty} f(x ; n_{1}, n_{2}) d x=\alpha$ 的点 $F_{\alpha}(n_{1}, n_{2})$ 为 $F(n_{1}, n_{2})$ 分布的上(侧) $\alpha$ 分位数(或上(侧) $\alpha$ 分位点), 其中 $f(x ; n_{1}, n_{2})$ 为 $F(n_{1}, n_{2})$ 分布的概率密度函数。
+
+上 $\alpha$ 分位数 $F_{\alpha}(n_{1}, n_{2})$ 的值可查 F 分布表(附表5) 或者利用各类软件得到。
+$$
+F_{1-\alpha}\left(n_{1}, n_{2}\right)=\frac{1}{F_{\alpha}\left(n_{2}, n_{1}\right)}
+$$
+</Card>
+
+
+
+<Card type="Proof" title="Proof">
+设 $F \sim F(n_{1}, n_{2})$, 由于 $P(F>0)=1$, 且结合上 $\alpha$ 分位数的定义知，且注意到 $F$ 为连续型的随机变量, 所以由 F 分布的性质可知 $\frac{1}{F} \sim F(n_{2}, n_{1})$，故 $\frac{1}{F_{1-\alpha}(n_{1}, n_{2})}$ 为 $F(n_{2}, n_{1})$ 的上 $\alpha$ 分位数, 即 $\frac{1}{F_{1-\alpha}(n_{1}, n_{2})}=F_{\alpha}(n_{2}, n_{1})$，因此 
+$$
+F_{1-\alpha}\left(n_{1}, n_{2}\right)=\frac{1}{F_{\alpha}\left(n_{2}, n_{1}\right)} .
+$$
+</Card>
+
+#### Excel计算示例
+计算 $F_{0.1}(9,10)$ (以2003版本为例, 不同版本具体做法有所不同)：
+1. 在Excel表单的任一单元格输入“=”；
+2. 在主菜单中点击“插入”, 选择“函数(F)”；
+3. 在选择类别的下拉式菜单中选择“统计”；
+4. 选择“F.INV.RT”，点击“确定”；
+5. 在函数参数表单中输入“Probability=0.1, Deg_freedom1=9, Deg_freedom2=10”；
+6. 点击“确定”；
+7. 在单元格中出现“2.34730591”。
+
+### 分布的上(侧)$\alpha$分位数总结
+常见的有: $z_{\alpha}$、$\chi_{\alpha}^{2}(n)$、$t_{\alpha}(n)$、$F_{\alpha}(n_{1}, n_{2})$ (结合附表2-5)。
+
+# Chapter 6 Statistics and Sampling Distributions
+## §6.3 Sampling Distributions of Normal General Population
+对正态总体，样本均值、样本方差及重要统计量的抽样分布具有很好的结果，也是我们建立参数估计和假设检验的重要基础。
+
+在给出正态总体下的常见统计量的抽样分布前，先回顾一下一般总体下的普适结论。
+
+### Proposition 1
+设 $X=(X_{1}, X_{2}, ..., X_{n})$ 是来自总体 $X$ 的样本，若 $E(X)=\mu$，$Var(X)=\sigma^{2}$，则
+
+### Theorem 1
+设 $X=(X_{1}, X_{2}, ..., X_{n})$ 为来自正态总体 $N(\mu, \sigma^{2})$ 的简单随机样本，$\bar{X}$ 是样本均值，$S^{2}$ 是样本方差，则有：
+$$
+\overline{X} \sim N\left(\mu, \frac{\sigma^{2}}{n}\right), \quad 即, \frac{\overline{X}-\mu}{\sigma / \sqrt{n}} \sim N(0,1);
+$$
+$$
+\frac{(n-1) S^{2}}{\sigma^{2}}=\frac{1}{\sigma^{2}} \sum_{i=1}^{n}\left(X_{i}-\overline{X}\right)^{2} \sim \chi^{2}(n-1) ;
+$$
+注意与 $\frac{1}{\sigma^{2}} \sum_{i=1}^{n}(X_{i}-\mu)^{2} \sim \chi^{2}(n)$ 作比较，$\bar{X}$ 与 $S^{2}$ 相互独立。
+
+### Theorem 2
+设 $X=(X_{1}, X_{2}, ..., X_{n})$ 为来自正态总体 $N(\mu, \sigma^{2})$ 的简单随机样本，$\bar{X}$ 是样本均值，$S^{2}$ 是样本方差，则有：
+$$
+\frac{\overline{X}-\mu}{S / \sqrt{n}}=\frac{\sqrt{n}(\overline{X}-\mu)}{S} \sim t(n-1) .
+$$
+注意与 $\frac{\bar{X}-\mu}{\sigma / \sqrt{n}}=\frac{\sqrt{n}(\bar{X}-\mu)}{\sigma} \sim N(0,1)$ 作比较。
+
+### Proof
+由 Theorem 1 知：
+$$
+\frac{\overline{X}-\mu}{\sigma / \sqrt{n}} \sim N(0,1), \frac{(n-1) S^{2}}{\sigma^{2}} \sim \chi^{2}(n-1),
+$$
+且二者独立，由 $t$ 分布定义得：
+$$
+\frac{\overline{X}-\mu}{\sigma / \sqrt{n}} / \sqrt{\frac{(n-1) S^{2}}{\sigma^{2}} /(n-1)}=\frac{\overline{X}-\mu}{S / \sqrt{n}} \sim t(n-1) .
+$$
+
+### t 分布的由来
+$t$ 分布是由 William Gosset 于 1908 年提出的。
+
+**William Sealey Gosset**
+- Born: 13 June 1876 in Canterbury, England
+- Died: 16 Oct 1937 in Beaconsfield, England
+
+### Theorem 3
+设样本 $X=(X_{1}, X_{2}, ..., X_{n_{1}})$ 和 $Y=(Y_{1}, Y_{2}, ..., Y_{n_{2}})$ 分别来自正态总体 $N(\mu_{1}, \sigma_{1}^{2})$ 和 $N(\mu_{2}, \sigma_{2}^{2})$，并且它们相互独立。记 $\bar{X}$、$\bar{Y}$ 分别是两个样本的样本均值，$S_{1}^{2}$、$S_{2}^{2}$ 分别是两个样本的样本方差，则当 $\sigma_{1}^{2}=\sigma_{2}^{2}=\sigma^{2}$ 时：
+$$
+\frac{(\overline{X}-\overline{Y})-(\mu_{1}-\mu_{2})}{S_{w} \sqrt{\frac{1}{n_{1}}+\frac{1}{n_{2}}}} \sim t(n_{1}+n_{2}-2)
+$$
+
+### Proof
+由 Theorem 1 知，且二者独立，由 $F$ 分布的定义，有
+
+### Proof (Cont.)
+由 Theorem 1 知，且 $\bar{X}$ 与 $\bar{Y}$ 相互独立，所以即
+
+当 $\sigma_{1}^{2}=\sigma_{2}^{2}=\sigma^{2}$ 时，由(2)得：
+$$
+U:=\frac{(\overline{X}-\overline{Y})-\left(\mu_{1}-\mu_{2}\right)}{\sigma \sqrt{\frac{1}{n_{1}}+\frac{1}{n_{2}}}} \sim N(0,1) .
+$$
+又由给定条件知：
+$$
+\frac{\left(n_{1}-1\right) S_{1}^{2}}{\sigma^{2}} \sim \chi^{2}\left(n_{1}-1\right), \frac{\left(n_{2}-1\right) S_{2}^{2}}{\sigma^{2}} \sim \chi^{2}\left(n_{2}-1\right),
+$$
+且它们相互独立。
+
+### Proof (Cont.)
+故由 $\chi^{2}$ 分布的可加性知：
+$$
+V:=\frac{\left(n_{1}-1\right) S_{1}^{2}+\left(n_{2}-1\right) S_{2}^{2}}{\sigma^{2}} \sim \chi^{2}\left(n_{1}+n_{2}-2\right),
+$$
+且 $U$ 与 $V$ 相互独立。于是据 $t$ 分布的定义可知：
+$$
+\frac{U}{\sqrt{V /\left(n_{1}+n_{2}-2\right)}}=\frac{(\overline{X}-\overline{Y})-\left(\mu_{1}-\mu_{2}\right)}{S_{w} \sqrt{\frac{1}{n_{1}}+\frac{1}{n_{2}}}} \sim t\left(n_{1}+n_{2}-2\right) .
+$$
+通常把 $S_{w}^{2}$ 称作合样本方差。
+
+<Card type="Example" title="Example 8">
+设总体 $X \sim N(\mu, \sigma^{2})$，$X=(X_{1}, ..., X_{4})$ 与 $Y=(Y_{1}, ..., Y_{9})$ 是取自总体 $X$ 的两个独立样本，$\bar{X}$、$\bar{Y}$ 和 $S_{1}^{2}$、$S_{2}^{2}$ 分别为样本均值和样本方差。
+求：
+1. $Var(S_{1}^{2}-S_{2}^{2})$
+2. 若 $a \frac{\bar{X}-\bar{Y}}{S_{1}} \sim t(k)$，求 $a$、$k$
+3. 若 $b \sum_{i=1}^{4}(X_{i}-\mu)^{2} / S_{2}^{2} \sim F(n_{1}, n_{2})$，求 $b$、$n_{1}$、$n_{2}$
+</Card>
+
+<Card type="Solution" title="Solution">
+1. 求 $Var(S_{1}^{2}-S_{2}^{2})$
+在正态总体下，有
+所以
+由于 $X$ 与 $Y$ 独立，故 $S_{1}^{2}$ 与 $S_{2}^{2}$ 独立，因此
+
+2. 求 $a$、$k$（已知 $a \frac{\bar{X}-\bar{Y}}{S_{1}} \sim t(k)$）
+由 $\bar{X} \sim N(\mu, \frac{\sigma^{2}}{4})$，$\bar{Y} \sim N(\mu, \frac{\sigma^{2}}{9})$，且 $\bar{X}$ 与 $\bar{Y}$ 相互独立，故：
+$$
+\overline{X}-\overline{Y} \sim N\left(0, \frac{13 \sigma^{2}}{36}\right) \Rightarrow \frac{\overline{X}-\overline{Y}}{\sqrt{\frac{13 \sigma^{2}}{36}}} \sim N(0,1),
+$$
+又 $\frac{3 S_{1}^{2}}{\sigma^{2}} \sim \chi^{2}(3)$，且 $\bar{X}-\bar{Y}$ 与 $S_{1}^{2}$ 相互独立，所以：
+$$
+\frac{\frac{6}{\sqrt{13}} \frac{\overline{X}-\overline{Y}}{\sigma}}{\sqrt{\frac{3 S_{1}^{2}}{\sigma^{2}} / 3}}=\frac{6 \sqrt{13}}{13} \frac{\overline{X}-\overline{Y}}{S_{1}} \sim t(3) \Rightarrow a=\frac{6 \sqrt{13}}{13}, k=3 .
+$$
+
+3. 求 $b$、$n_{1}$、$n_{2}$（已知 $b \sum_{i=1}^{4}(X_{i}-\mu)^{2} / S_{2}^{2} \sim F(n_{1}, n_{2})$）
+由于
+且 $\sum_{i=1}^{4}(X_{i}-\mu)^{2}$ 与 $S_{2}^{2}$ 相互独立，故：
+$$
+\frac{\frac{1}{\sigma^{2}} \sum_{i=1}^{4}\left(X_{i}-\mu\right)^{2} / 4}{\frac{8 S_{2}^{2}}{\sigma^{2}} / 8}=\frac{1}{4} \sum_{i=1}^{4}\left(X_{i}-\mu\right)^{2} / S_{2}^{2} \sim F(4,8),
+$$
+因此 $b=\frac{1}{4}$，$n_{1}=4$，$n_{2}=8$
+</Card>
+
+<Card type="Example" title="Example 9">
+设总体 $X \sim \chi^{2}(n)$，$n \geq1$。取样本 $X=(X_{1}, X_{2}, ..., X_{16})$，求 $E(\bar{X})$、$Var(\bar{X})$、$E(B_{2})$ 及
+</Card>
+
+<Card type="Solution" title="Solution">
+由题意知，$E(X)=n$，$Var(X)=2n$，利用 Proposition 1，可得
+注意：此题中样本容量为 16，$n$ 不表示样本容量。
+
+因为 $\sum_{i=1}^{8} X_{i} \sim \chi^{2}(8n)$，$\sum_{i=9}^{16} X_{i} \sim \chi^{2}(8n)$ 且相互独立，所以
+因此
+其中还利用了 $F$ 分布的连续性 $P(\sum_{i=1}^{8} X_{i} / \sum_{i=9}^{16} X_{i}=1)=0$
+</Card>
+
+<Card type="Example" title="Example 10">
+设总体 $X \sim N(\mu, \sigma^{2})$，$X=(X_{1}, X_{2}, ..., X_{n})(n \geq2)$ 是取自总体 $X$ 的样本，$\bar{X}$、$S^{2}$ 分别为样本均值和样本方差。求 $E(\bar{X} S^{2})$、$Var(\bar{X} S^{2})$。
+</Card>
+
+<Card type="Solution" title="Solution">
+注意到在正态总体下，$\bar{X}$ 和 $S^{2}$ 是独立的，故 $E(\bar{X} S^{2})=E(\bar{X}) E(S^{2})=\mu \sigma^{2}$，而
+</Card>
+
+## Review
+### 复习思考题
+1. 什么叫总体？什么叫简单随机样本？总体 $X$ 的样本 $X=(X_{1}, X_{2}, ..., X_{n})$ 有哪两个主要性质？
+2. 什么是统计量？什么是统计量的值？
+3. 样本均值和样本方差如何计算？
+4. 标准正态分布、$t$ 分布、$\chi^{2}$ 分布和 $F$ 分布的双侧、下侧、上侧分位点是如何定义的？怎样利用附表查这些分位点的值？
+5. 对一个正态总体的三个常用统计量及其分布是什么？
+6. 对两个正态总体的三个常用统计量及其分布是什么？
+
+谢谢！

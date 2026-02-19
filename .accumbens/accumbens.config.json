@@ -1462,8 +1462,16 @@
                     "show": true,
                     "name": "高级数据结构与算法分析",
                     "leaf": true,
-                    "index": "1448f7da3a3131f68f7d404152f5d85f51a3b49da39df378d7f62e920a8f471d",
+                    "index": "c1eeb470213fcbd86180c29a94c1b1262d047f7444d117b634b21001d8008e13",
                     "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1767619613604,
+                            "wordcount": 848,
+                            "unikey": "ed026bab23ce727a4d6dce57f5dcd45ba3f20c6d4ad909497d4773c00cf2046a",
+                            "pathonly": false,
+                            "path": "claims"
+                        },
                         {
                             "title": "PTA Review",
                             "updatedAt": 1759933576889,
@@ -1474,9 +1482,9 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1762365229883,
-                            "wordcount": 390,
-                            "unikey": "1448f7da3a3131f68f7d404152f5d85f51a3b49da39df378d7f62e920a8f471d",
+                            "updatedAt": 1764524132303,
+                            "wordcount": 421,
+                            "unikey": "c1eeb470213fcbd86180c29a94c1b1262d047f7444d117b634b21001d8008e13",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -1490,25 +1498,73 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1762365253598,
-                            "wordcount": 0,
-                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "updatedAt": 1763612501790,
+                            "wordcount": 400,
+                            "unikey": "4505cfa219a421e658799ba45d782c986da20c8b55ddf9f81b79b818404188b6",
                             "pathonly": false,
                             "path": "o10-devide-conquer"
                         },
                         {
                             "title": "",
-                            "updatedAt": 1762365809956,
+                            "updatedAt": 1763488020761,
                             "wordcount": 0,
                             "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                             "pathonly": false,
                             "path": "o11-dp"
                         },
                         {
+                            "title": "",
+                            "updatedAt": 1763478828494,
+                            "wordcount": 0,
+                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "pathonly": false,
+                            "path": "o12-greedy"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1766737902335,
+                            "wordcount": 2136,
+                            "unikey": "678d2ec66abcb022e8e349d8aa91bccf10a18464ac652b74509237ab2047cb1b",
+                            "pathonly": false,
+                            "path": "o13-np"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1766739765106,
+                            "wordcount": 2030,
+                            "unikey": "b3b65d1cc6ee9aafd4a89aaf0f5048118c73828bf9e7e537dc251d6d2b1723a0",
+                            "pathonly": false,
+                            "path": "o14-approximation"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1766742413447,
+                            "wordcount": 139,
+                            "unikey": "3614f1ce40ede22830dd6b01bfa2ec0bae935f071c84c5bd1e048fca78a747d5",
+                            "pathonly": false,
+                            "path": "o15-local-search"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1766821131816,
+                            "wordcount": 315,
+                            "unikey": "48fdd52bbbc19063705964eaa589be511d1ee507e34532c6670c80c1b7db79dc",
+                            "pathonly": false,
+                            "path": "o16-randomize"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1767216869002,
+                            "wordcount": 10,
+                            "unikey": "356d018357c8deb4e6592d5254f84540dd950712994d997f1074790965c8b280",
+                            "pathonly": false,
+                            "path": "o17-Parallel"
+                        },
+                        {
                             "title": "Red-Black Tree",
-                            "updatedAt": 1758909079419,
-                            "wordcount": 1164,
-                            "unikey": "d21155492ccad9c916bd90cfb72772179469b1782695fe496886185f2ec838a2",
+                            "updatedAt": 1763553985105,
+                            "wordcount": 1174,
+                            "unikey": "d1c18065a9d01214bdcc7ad2a7e0e5d8af10aeca71a69cd3b468c4412c11f43b",
                             "pathonly": false,
                             "path": "o2-RB-Tree"
                         },
@@ -1530,41 +1586,41 @@
                         },
                         {
                             "title": "B-Tree",
-                            "updatedAt": 1759729084514,
-                            "wordcount": 2179,
-                            "unikey": "b5c893d6e2005da0370893c2c79c08428af8beb1840628cebc4455626bd7a1fc",
+                            "updatedAt": 1763621799721,
+                            "wordcount": 2206,
+                            "unikey": "655504b17ee4d901ca24a95944a2cc7bfafe57f8e814c1e80ebee42621b4f993",
                             "pathonly": false,
                             "path": "o5-B-Tree"
                         },
                         {
                             "title": "Inverted File Index 倒排索引",
-                            "updatedAt": 1759932566266,
-                            "wordcount": 1012,
-                            "unikey": "386faf5ed38cb5db2bc95828761fc412a3ef416501547d382316e8c86df80025",
+                            "updatedAt": 1763610534816,
+                            "wordcount": 1016,
+                            "unikey": "503a106faa52ce519192c561af198e17221c1c94078455349ba7fa12429cc288",
                             "pathonly": false,
                             "path": "o6-Inv-File-Index"
                         },
                         {
                             "title": "Leftist Heaps and Skew Heaps",
-                            "updatedAt": 1761322770819,
+                            "updatedAt": 1763610965078,
                             "wordcount": 429,
-                            "unikey": "eeff54127824c8a5e597261815a6a5321ad83a24b81f9487334c6732c07fa4f1",
+                            "unikey": "b6437ef0d18e9656e6ed4602e3a2cdb76330eaae91e092944d79d16eedeb68bc",
                             "pathonly": false,
                             "path": "o7-Leftist-Skew-Heap"
                         },
                         {
                             "title": "Binomial Queues",
-                            "updatedAt": 1761366715673,
-                            "wordcount": 0,
-                            "unikey": "bffc14c7b77ae97d810c945e5258f5d5e0357e1e47854a198ddc29c85b1d4e69",
+                            "updatedAt": 1763607656731,
+                            "wordcount": 270,
+                            "unikey": "a9497dec91ee4358199fea4d2dfd57571013a5d980da043e0a6f93f94ee92b49",
                             "pathonly": false,
                             "path": "o8-Binomial-Queue"
                         },
                         {
                             "title": "",
-                            "updatedAt": 1761587202535,
-                            "wordcount": 0,
-                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "updatedAt": 1763708774202,
+                            "wordcount": 350,
+                            "unikey": "41c3841476a18eafcc0d3e5b978d2fea804e4c82af368e1d51ef5dfa9165cc46",
                             "pathonly": false,
                             "path": "o9-backtracing"
                         },
@@ -1596,6 +1652,38 @@
                     "name": "计算机系统Ⅱ",
                     "leaf": true,
                     "entries": [
+                        {
+                            "title": "Course Syllabus",
+                            "updatedAt": 1766339495646,
+                            "wordcount": 476,
+                            "unikey": "13276d94608bbe0ec10999b0f4cc4aee337bd81e96e13ed7e89aea0734ba78b7",
+                            "pathonly": false,
+                            "path": "OS1"
+                        },
+                        {
+                            "title": "Computer Architecture",
+                            "updatedAt": 1766382231504,
+                            "wordcount": 1502,
+                            "unikey": "cf4a95a05f85dfacd97d6e1103a0879e81d0d1731587118d02d53f462cfa9857",
+                            "pathonly": false,
+                            "path": "OS2"
+                        },
+                        {
+                            "title": "Introduction",
+                            "updatedAt": 1766383431433,
+                            "wordcount": 3134,
+                            "unikey": "367f22c4623a077d09372ad63c1dbd0a85c8b8b39f8922ef8e726ff650c57cd7",
+                            "pathonly": false,
+                            "path": "OS3"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1766412485428,
+                            "wordcount": 0,
+                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "pathonly": false,
+                            "path": "OS4"
+                        },
                         {
                             "title": "System I Review",
                             "updatedAt": 1759116323639,
@@ -1640,11 +1728,51 @@
                         },
                         {
                             "title": "Lab 3 实验报告：卷积加速器",
-                            "updatedAt": 1763106004265,
-                            "wordcount": 1203,
-                            "unikey": "9d5b7abf751fd5ee5d6e368ae2553c5f5bba95835a4b091864cb2051e99c8056",
+                            "updatedAt": 1763114925610,
+                            "wordcount": 2381,
+                            "unikey": "04e6cb547e0d3e452074697552c69c6ac1c61067b681160ce8bedec026387e6b",
                             "pathonly": false,
                             "path": "lab3"
+                        },
+                        {
+                            "title": "Lab 4 实验报告：RV64 内核引导",
+                            "updatedAt": 1765473815320,
+                            "wordcount": 6202,
+                            "unikey": "a4a97ec198ff61ceb2c243ba936c8ba06b7d8271fd5a65cad25ae42e10974c62",
+                            "pathonly": false,
+                            "path": "lab4"
+                        },
+                        {
+                            "title": "Lab 5 实验报告：RV64 时钟中断处理",
+                            "updatedAt": 1765473830686,
+                            "wordcount": 6344,
+                            "unikey": "22f49a74c022e32689c562a26520027c71ec67596f25a1d90c890611839eb958",
+                            "pathonly": false,
+                            "path": "lab5"
+                        },
+                        {
+                            "title": "Lab 6 实验报告：RV64 内核线程调度",
+                            "updatedAt": 1765553737470,
+                            "wordcount": 7195,
+                            "unikey": "358af0adf080dce98e49785961561ae29b3790475b5a9b97759516ffdbdc6812",
+                            "pathonly": false,
+                            "path": "lab6"
+                        },
+                        {
+                            "title": "Lab 6 实验报告：综合实验",
+                            "updatedAt": 1767539557765,
+                            "wordcount": 1595,
+                            "unikey": "659b527ba2e4a4d1d65c9fea2eaa1d2bc58e38549e210c66adfb0fb60b451f1c",
+                            "pathonly": false,
+                            "path": "lab7"
+                        },
+                        {
+                            "title": "Bonus Report: ARM 架构下 Linux 内核的编译与 QEMU 仿真",
+                            "updatedAt": 1766635523144,
+                            "wordcount": 243,
+                            "unikey": "6ff7339ebacdcb7652398c3820567d742f3e404f385767d020b7bc0a39993e6e",
+                            "pathonly": false,
+                            "path": "lab-bonus"
                         }
                     ]
                 },
@@ -1659,6 +1787,22 @@
                     "leaf": true,
                     "index": "060c075b095032e0a9bf4d0c95755cb659bc14dd1cfb14446cd853b8138244ce",
                     "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1767007126074,
+                            "wordcount": 1412,
+                            "unikey": "0013a439277e1cdbc1e6cab4927b279880417df0f0880bba710daeacdbee43e0",
+                            "pathonly": false,
+                            "path": "biren"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1768406677952,
+                            "wordcount": 936,
+                            "unikey": "f544cb377560f9c2efeb4908c45ba6b6e45a65cddc86f3841e38eb7b4f352a37",
+                            "pathonly": false,
+                            "path": "fin"
+                        },
                         {
                             "title": "",
                             "updatedAt": 1758166155192,
@@ -1752,13 +1896,29 @@
                             ]
                         }
                     ],
-                    "index": "842f3e706c7b0379d248c5bf812e2354de93a346a5e04860df048689d97451b4",
+                    "index": "4fad74c30831f4333cce428eccf940c843fb82c916a5672a8409018939aaeae6",
                     "entries": [
                         {
                             "title": "",
-                            "updatedAt": 1761186776562,
-                            "wordcount": 881,
-                            "unikey": "842f3e706c7b0379d248c5bf812e2354de93a346a5e04860df048689d97451b4",
+                            "updatedAt": 1768026263293,
+                            "wordcount": 1432,
+                            "unikey": "519fe34350f2ab8a7c6be2f09467620f90c8580c5898d3d64ad41aafbe4063f7",
+                            "pathonly": false,
+                            "path": "aig-l5-1"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1768156456950,
+                            "wordcount": 1446,
+                            "unikey": "3ece68c6ae7bb5e64bd533b1c8332b813eede00d59d881d1e70e689de5c52222",
+                            "pathonly": false,
+                            "path": "aig-l5-2"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1764603099232,
+                            "wordcount": 922,
+                            "unikey": "4fad74c30831f4333cce428eccf940c843fb82c916a5672a8409018939aaeae6",
                             "pathonly": true,
                             "path": "index"
                         },
@@ -1796,9 +1956,9 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1762066062426,
-                            "wordcount": 13382,
-                            "unikey": "81d6e4f97dbbfa407773308f2614bd06f6700113ee07e86253ba56738588d2fd",
+                            "updatedAt": 1763960472560,
+                            "wordcount": 13375,
+                            "unikey": "6c4e524bca7338afb99b6421ee475494e1ecf1b36cae5913141261fa1550d818",
                             "pathonly": false,
                             "path": "L3-raw"
                         },
@@ -1812,11 +1972,149 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1759591783846,
-                            "wordcount": 14,
-                            "unikey": "14a6401ebc5e521cb6876ae9a060f43170a6e532006ca417d8e1cbfab5faf532",
+                            "updatedAt": 1763960712351,
+                            "wordcount": 15883,
+                            "unikey": "d46caf5678f099aa6820e13694f89990f06340067ac8acb5fbdac29281ee1dc7",
                             "pathonly": false,
-                            "path": "PPT-aio"
+                            "path": "L4-raw"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1763272996271,
+                            "wordcount": 0,
+                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "pathonly": false,
+                            "path": "L4"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1764011205891,
+                            "wordcount": 6401,
+                            "unikey": "e0af3b91d6fb131dc39d6cbe8f3b78dfe6b91153a0740cf8dd2fcea602495268",
+                            "pathonly": false,
+                            "path": "L5-raw"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1764602951173,
+                            "wordcount": 392,
+                            "unikey": "83ae0ef0373a19c73e786b8fffbfad7edc388ffa8444a51713a54aed69a57006",
+                            "pathonly": false,
+                            "path": "L5"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1764604237514,
+                            "wordcount": 7713,
+                            "unikey": "abf3094fa8bcfb30d5528cb1b27e2c88a40d5e378a733f319447b82ee0a37354",
+                            "pathonly": false,
+                            "path": "L6-raw"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1764605000812,
+                            "wordcount": 678,
+                            "unikey": "054da266bc214fb750eb2ebc60281834773c5f8eccea26daa0a53525f47d8d43",
+                            "pathonly": false,
+                            "path": "L6"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1767150396260,
+                            "wordcount": 850,
+                            "unikey": "5fc059af2c4b02d447a324cdd46f6901db93bea9e8ce68859487c6e6ba231cc5",
+                            "pathonly": false,
+                            "path": "recite-supp"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1768236198926,
+                            "wordcount": 5567,
+                            "unikey": "09fe5cf757304b5d28740bf5282ae87fc7cb5884d79a4afe30ef912873aa7473",
+                            "pathonly": false,
+                            "path": "recite"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1767120638256,
+                            "wordcount": 1358,
+                            "unikey": "313e56d7d44ea6b987286e01b5faf97c59b976485223c6b74932b83e64e20b29",
+                            "pathonly": false,
+                            "path": "rev1"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1768070710819,
+                            "wordcount": 1515,
+                            "unikey": "c2b4052e1928a65ff477445164dccac8b6dc08df3a35966b9e96dfbdd852f2b8",
+                            "pathonly": false,
+                            "path": "review-p"
+                        }
+                    ]
+                },
+                {
+                    "path": [
+                        "Schoolwork/25A/MATH2461FZ/bookcache"
+                    ],
+                    "show": true,
+                    "name": "概率论和数理统计：课本",
+                    "leaf": true,
+                    "entries": [
+                        {
+                            "title": "",
+                            "updatedAt": 1766026158396,
+                            "wordcount": 747,
+                            "unikey": "09b5c0813f1d530793532f8ad6220c729d455007fc43843c3c434b6a68a99cd3",
+                            "pathonly": false,
+                            "path": "Att1"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1766025601907,
+                            "wordcount": 13447,
+                            "unikey": "ed2d9e77c309c3a014a5a1d6196039da16a2f28bab79196113b0202a29d36c44",
+                            "pathonly": false,
+                            "path": "L1"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1766028288498,
+                            "wordcount": 14181,
+                            "unikey": "2a33f005b7b5f2ed987740eb9f3a5e88d2dba9e25bdac6ec3396beb449cb5d36",
+                            "pathonly": false,
+                            "path": "L2"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1766030469585,
+                            "wordcount": 0,
+                            "unikey": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                            "pathonly": false,
+                            "path": "L3"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1768025087512,
+                            "wordcount": 8787,
+                            "unikey": "4a3e7785f774d3a126c23ec3ab7a232d2fd5de9f01dc553bebdeba370fc503fa",
+                            "pathonly": false,
+                            "path": "L5"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1764604491316,
+                            "wordcount": 8810,
+                            "unikey": "e709a864dda414e8619a9cb60da95a85bd014081de8cd9f0480e1566fe96c574",
+                            "pathonly": false,
+                            "path": "L6"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1765736623098,
+                            "wordcount": 16640,
+                            "unikey": "f04689d0f452024d0a31c9a6e7713dd9b6f1d84a46b4dcbf8aa7587f860ba6ad",
+                            "pathonly": false,
+                            "path": "L7"
                         }
                     ]
                 },
@@ -1946,6 +2244,14 @@
                         },
                         {
                             "title": "",
+                            "updatedAt": 1763708785857,
+                            "wordcount": 284,
+                            "unikey": "6898919c1c33de8c53d70556b3d6a3291a285c679ab8dbf9bac73bec6875fa29",
+                            "pathonly": false,
+                            "path": "ch34"
+                        },
+                        {
+                            "title": "",
                             "updatedAt": 1761474933765,
                             "wordcount": 386,
                             "unikey": "f256042f2f39d6c27d7820507258500fdbf500bf77fcf62b715ee150ace77d8f",
@@ -1954,9 +2260,9 @@
                         },
                         {
                             "title": "",
-                            "updatedAt": 1762694534589,
-                            "wordcount": 541,
-                            "unikey": "03daee6522f518302d5ccc7d13017d13d280e8655a40c752e9477b8d3e3e5907",
+                            "updatedAt": 1763874170576,
+                            "wordcount": 984,
+                            "unikey": "ff63ebb070478a74e2cd30791235d9bd309846363ce4db407e1f69159e181938",
                             "pathonly": false,
                             "path": "recite"
                         },
@@ -2251,6 +2557,14 @@
                             "unikey": "31c2109da6e206e843c423f9bd2ff31f250e6913a68dd30034ccefed597b105b",
                             "pathonly": true,
                             "path": "index"
+                        },
+                        {
+                            "title": "",
+                            "updatedAt": 1767553992443,
+                            "wordcount": 1449,
+                            "unikey": "4d16b2c1b91ec4410908f357b2917db3d8bf49848c4f9bad2f708c28f486251c",
+                            "pathonly": false,
+                            "path": "tl"
                         }
                     ]
                 },
