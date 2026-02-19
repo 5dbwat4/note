@@ -38,8 +38,6 @@ const foldersWithAccumbens = findAccumbensFolders(targetDirectory).filter(Boolea
 
 
 export default {
-    "dir":import.meta.url,
-    "path":"",
     "name":"课程笔记",
     "subcategories":foldersWithAccumbens,
     // [

@@ -5,7 +5,8 @@ export default {
     "subcategories":[
         "./CTF",
         "./d2l.ai",
-        "./GAMES101-rev"
+        "./GAMES101-rev",
+        "./Quant"
     ],
     "entries":[ ]
 }
