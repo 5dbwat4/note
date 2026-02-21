@@ -5,6 +5,7 @@ export default {
     "subcategories":[
         "./kemu1",
         "./QSC-train",
+        "./JPlang"
     ],
     "entries":[ ]
 }

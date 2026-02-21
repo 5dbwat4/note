@@ -1,0 +1,498 @@
+# 1. 数据系统架构中的权衡（Trade-offs in Data Systems Architecture）
+
+```
+weight: 101
+breadcrumbs: false
+```
+
+> *世上没有完美的解决方案，只有权衡取舍。[…] 但你应力求达成最优的权衡，这已是所能企及的全部。*
+>
+> [托马斯·索威尔（Thomas Sowell）](https://www.youtube.com/watch?v=2YUtKr8-_Fg)，接受弗雷德·巴恩斯（Fred Barnes）采访（2005年）
+
+> [!TIP] 致早期发布版读者的说明
+> 早期发布版电子书提供的是书籍的最初形态——即作者在写作过程中的原始未编辑内容——以便您能在这些技术正式出版前就加以利用。
+>
+> 这将是最终成书的第 1 章。本书的 GitHub 仓库位于 https://github.com/ept/ddia2-feedback。
+> 如果您希望积极参与审阅并对草稿提出意见，请通过 GitHub 与我们联系。
+
+数据是当今应用开发的核心。随着 Web 应用、移动应用、软件即服务（SaaS）以及云服务的普及，将众多用户的数据存储于共享的服务器端数据基础设施中已成为常态。来自用户活动、业务交易、设备与传感器的数据需要被存储并供分析使用。当用户与应用交互时，他们既读取已存储的数据，同时也生成更多数据。
+
+少量可存储并处理于单机之上的数据通常较易处理。然而，随着数据量或查询速率的增长，数据需要分布于多台机器之上，这便引入了诸多挑战。随着应用需求的复杂化，仅将所有数据存储于单一系统中已不再足够，可能需要组合多个提供不同能力的存储或处理系统。
+
+若数据管理是应用开发中的主要挑战之一，我们称该应用为*数据密集型（data-intensive）*应用 [^1]。
+
+在*计算密集型（compute-intensive）*系统中，挑战在于并行化某些超大规模计算；而在数据密集型应用中，我们通常更关注诸如存储与处理大规模数据、管理数据变更、在故障与并发情况下确保一致性，以及保障服务高可用性等问题。
+
+此类应用通常由提供常用功能的标准构建模块组成。例如，许多应用需要：
+
+* 存储数据以便自身或其他应用日后能够检索（*数据库（databases）*）
+* 缓存昂贵操作的计算结果以加速读取（*缓存（caches）*）
+* 允许用户通过关键词搜索数据或以各种方式过滤数据（*搜索索引（search indexes）*）
+* 在事件与数据变更发生时即时处理（*流处理（stream processing）*）
+* 定期对累积的大量数据进行批量 crunch（*批处理（batch processing）*）
+
+在构建应用时，我们通常选取若干软件系统或服务（如数据库或 API），并通过应用代码将它们粘合在一起。若您所做的事情恰好符合数据系统的设计初衷，那么这一过程可能相当简单。
+
+然而，随着应用目标愈发宏大，挑战也随之而来。存在众多具有不同特性、适用于不同目的的数据库系统——您该如何选择？缓存有各种实现方式，构建搜索索引也有多种途径——您该如何理性评估它们的权衡取舍？您需要确定哪些工具与方法最适合当前任务，而当单一工具无法独立完成所需工作时，如何组合这些工具也可能颇具难度。
+
+本书旨在帮助您就技术选型与组合方式做出决策。正如您所见，没有任何一种方法在本质上绝对优于其他方法；一切皆有优劣。通过本书，您将学会提出正确的问题以评估和比较数据系统，从而确定哪种方法最能满足您特定应用的需求。
+
+我们将从审视当今组织中数据的典型使用方式开启这段旅程。此处的许多理念源于*企业软件（enterprise software）*（即大型组织如大企业与政府机构的软件需求与工程实践），因为历史上只有大型组织才拥有需要复杂技术方案来处理的大规模数据。若您的数据量足够小，完全可以将其保存在电子表格中！然而近年来，小型公司与初创企业管理大规模数据并构建数据密集型系统也已成为常态。
+
+数据系统的关键挑战之一在于：不同人群需要对数据执行截然不同的操作。若您在某公司工作，您与您的团队会有一套优先事项，而另一团队可能有着完全不同的目标，即便你们处理的是同一数据集！此外，这些目标可能并未明确表述，这可能导致对正确方法的误解与分歧。
+
+为帮助您理解可做的选择，本章对比了若干相互对照的概念，并探讨其权衡取舍：
+
+* 运营系统与分析系统的区别（["分析型系统与运营型系统"](/en/ch1#sec_introduction_analytics)）；
+* 云服务与自托管系统的优劣（["云与自托管"](/en/ch1#sec_introduction_cloud)）；
+* 何时从单机系统迁移至分布式系统（["分布式系统与单机系统"](/en/ch1#sec_introduction_distributed)）；以及
+* 平衡业务需求与用户权利（["数据系统、法律与社会"](/en/ch1#sec_introduction_compliance)）。
+
+此外，本章还将为您提供贯穿本书其余部分所需的术语。
+
+> [!TIP] 术语说明：前端与后端
+> 本书讨论的大部分内容与*后端开发（backend development）*相关。为解释该术语：对于 Web 应用而言，客户端代码（运行于 Web 浏览器中）称为*前端（frontend）*，而处理用户请求的服务器端代码则称为*后端（backend）*。移动应用与前端的相似之处在于它们提供用户界面，且通常通过互联网与服务器端后端通信。前端有时会在用户设备上本地管理数据 [^2]，但最大的数据基础设施挑战往往存在于后端：前端仅需处理单一用户的数据，而后端则代表*所有*用户管理数据。
+>
+> 后端服务通常可通过 HTTP（有时为 WebSocket）访问；它通常由一些应用代码组成，这些代码在一个或多个数据库中读写数据，有时还会与缓存或消息队列等额外数据系统交互（我们可统称为*数据基础设施（data infrastructure）*）。应用代码通常是*无状态的（stateless）*（即处理完一个 HTTP 请求后，便不再保留该请求的任何信息），任何需要从一个请求持续到下一个请求的信息必须存储于客户端或服务器端数据基础设施中。
+
+## 分析型系统与运营型系统 {#sec_introduction_analytics}
+
+若您在企业中从事数据系统工作，您很可能会遇到几类不同的数据工作者。第一类是*后端工程师（backend engineers）*，他们构建处理数据读写请求的服务；这些服务通常直接或间接通过其他服务为外部用户提供服务（参见["微服务与无服务器"](/en/ch1#sec_introduction_microservices)）。有时服务也供组织内部其他部门使用。
+
+除了管理后端服务的团队外，通常还有两类人群需要访问组织的数据：*业务分析师（business analysts）*，他们生成关于组织活动的报告以辅助管理层做出更优决策（*商业智能（business intelligence）*或*BI*）；以及*数据科学家（data scientists）*，他们从数据中挖掘新颖洞见，或创建由数据分析与机器学习/AI 赋能的面向用户的产品功能（例如电商网站上的"购买 X 的人也购买了 Y"推荐、预测性分析如风险评分或垃圾邮件过滤、以及搜索结果排序等）。
+
+尽管业务分析师与数据科学家倾向于使用不同工具并以不同方式工作，但他们有一些共同点：二者都执行*分析（analytics）*，即审视用户与后端服务生成的数据，但他们通常不修改这些数据（除非是为了修正错误）。他们可能会创建经过某种处理的衍生数据集。这导致了两种系统类型的分野——这一区分将贯穿本书：
+
+* *运营系统（Operational systems）*由后端服务与数据基础设施组成，数据在此被创建，例如通过服务外部用户。此处，应用代码根据用户执行的操作，既读取也修改其数据库中的数据。
+* *分析系统（Analytical systems）*服务于业务分析师与数据科学家的需求。它们包含来自运营系统的只读数据副本，并针对分析所需的数据处理类型进行了优化。
+
+如下一节所述，运营系统与分析系统通常被分开，这是有充分理由的。随着这些系统的成熟，两个新的专业角色应运而生：*数据工程师（data engineers）*与*分析工程师（analytics engineers）*。数据工程师是懂得如何整合运营系统与分析系统、并对组织更广泛的数据基础设施承担责任的人 [^3]。
+
+分析工程师则对数据进行建模与转换，使其对组织内的业务分析师与数据科学家更具实用性 [^4]。
+
+许多工程师专精于运营侧或分析侧。然而，本书涵盖运营型与分析型数据系统，因为二者在组织内数据生命周期中均扮演重要角色。我们将深入探讨用于向内部与外部用户交付服务的数据基础设施，以便您能更好地与处于这一分野另一侧的同事协作。
+
+### 事务处理与分析的特征刻画 {#sec_introduction_oltp}
+
+在商业数据处理的早期，对数据库的写入通常对应于一次*商业事务（commercial transaction）*的发生：完成一笔销售、向供应商下单、支付员工薪资等。随着数据库扩展至不涉及金钱交易的领域，*事务（transaction）*一词 nonetheless 沿用下来，指代构成逻辑单元的一组读写操作。
+
+> [!NOTE]
+> [第 8 章](/en/ch8#ch_transactions) 将详细探讨事务的含义。本章松散地使用该术语，指代低延迟的读写操作。
+
+尽管数据库开始用于许多不同类型的数据——社交媒体帖子、游戏中的走子、地址簿中的联系人等等——但基本的访问模式仍与处理商业事务相似。运营系统通常通过某个键查找少量记录（这称为*点查询（point query）*）。记录根据用户输入被插入、更新或删除。由于这些应用是交互式的，这种访问模式被称为*在线事务处理（online transaction processing, OLTP）*。
+
+然而，数据库也越来越多地用于分析，其访问模式与 OLTP 截然不同。通常，分析查询会扫描海量记录，并计算聚合统计量（如计数、求和或平均值），而非向用户返回单条记录。例如，某连锁超市的业务分析师可能希望回答如下分析查询：
+
+* 一月份我们每家门店的总收入是多少？
+* 在最近一次促销活动中，我们售出的香蕉比平时多多少？
+* 哪种品牌的婴儿食品最常与 X 品牌纸尿裤一同购买？
+
+由这类查询生成的报告对商业智能至关重要，可帮助管理层决定下一步行动。为将数据库的这种使用模式与事务处理区分开来，它被称为*在线分析处理（online analytic processing, OLAP）* [^5]。
+
+OLTP 与分析之间的界限并非总是泾渭分明，但 [表 1-1](/en/ch1#tab_oltp_vs_olap) 列出了一些典型特征。
+
+{{< figure id="tab_oltp_vs_olap" title="表 1-1. 运营型系统与分析型系统的特征对比" class="w-full my-4" >}}
+
+| 属性 | 运营系统（OLTP） | 分析系统（OLAP） |
+|---------------------|-------------------------------------------------|-------------------------------------------|
+| 主要读取模式 | 点查询（按键获取单条记录） | 对大量记录进行聚合 |
+| 主要写入模式 | 创建、更新、删除单条记录 | 批量导入（ETL）或事件流 |
+| 人类用户示例 | Web/移动应用的终端用户 | 内部分析师，用于决策支持 |
+| 机器使用示例 | 检查某操作是否被授权 | 检测欺诈/滥用模式 |
+| 查询类型 | 应用预定义的固定查询集 | 分析师可编写任意查询 |
+| 数据代表 | 数据的最新状态（当前时间点） | 随时间发生的事件历史 |
+| 数据集规模 | GB 至 TB | TB 至 PB |
+
+> [!NOTE]
+> *OLAP* 中*在线（online）*的含义并不明确；它可能指查询不仅用于预定义报告，而且分析师可交互式地使用 OLAP 系统进行探索性查询。
+
+对于运营系统，通常不允许用户构造自定义 SQL 查询并在数据库上运行，因为这可能使其读取或修改无权访问的数据。此外，他们可能编写执行代价高昂的查询，从而影响其他用户的数据库性能。出于这些原因，OLTP 系统主要运行一组固化于应用代码中的固定查询，仅偶尔使用一次性自定义查询进行维护或故障排查。另一方面，分析数据库通常赋予用户自由编写任意 SQL 查询的能力，或通过 Tableau、Looker 或 Microsoft Power BI 等数据可视化或仪表板工具自动生成查询。
+
+还存在一类系统，其设计面向分析型工作负载（即对大量记录进行聚合的查询），但嵌入于面向用户的产品中。此类被称为*产品分析（product analytics）*或*实时分析（real-time analytics）*，为此类用途设计的系统包括 Pinot、Druid 与 ClickHouse [^6]。
+
+### 数据仓库 {#sec_introduction_dwh}
+
+起初，同一数据库被同时用于事务处理与分析查询。事实证明 SQL 在此方面相当灵活：它对两类查询均适用良好。然而，在 20 世纪 80 年代末至 90 年代初，出现了一种趋势：公司停止将其 OLTP 系统用于分析目的，转而使用独立的数据库系统运行分析。这个独立的数据库被称为*数据仓库（data warehouse）*。
+
+一家大型企业可能拥有数十甚至数百个在线事务处理系统：支撑面向客户的网站、控制实体门店的销售点（结账）系统、跟踪仓库库存、规划车辆路线、管理供应商、管理员工，以及执行许多其他任务的系统。每个系统都相当复杂，需要专门团队维护，因此这些系统最终大多彼此独立运行。
+
+业务分析师与数据科学家直接查询这些 OLTP 系统通常是不理想的，原因如下：
+
+* 感兴趣的数据可能分散于多个运营系统中，使得在单一查询中组合这些数据集变得困难（这一问题称为*数据孤岛（data silos）*）；
+* 适合 OLTP 的模式与数据布局不太适用于分析（参见["星型与雪花型：分析用模式"](/en/ch3#sec_datamodels_analytics)）；
+* 分析查询可能代价高昂，在 OLTP 数据库上运行它们会影响其他用户的性能；以及
+* OLTP 系统可能位于用户因安全或合规原因不被允许直接访问的独立网络中。
+
+相比之下，*数据仓库*是一个独立的数据库，分析师可随心所欲地查询，而不会影响 OLTP 操作 [^7]。
+
+如 [第 4 章](/en/ch4#ch_storage) 所述，数据仓库通常以与 OLTP 数据库截然不同的方式存储数据，以优化分析中常见的查询类型。数据仓库包含公司所有各类 OLTP 系统中数据的只读副本。数据从 OLTP 数据库中提取（通过周期性数据转储或持续更新流），转换为适合分析的模式，清理后加载至数据仓库。将数据导入数据仓库的这一过程称为*抽取–转换–加载（Extract–Transform–Load, ETL）*，如 [图 1-1](/en/ch1#fig_dwh_etl) 所示。有时*转换*与*加载*步骤的顺序会被调换（即转换在加载后于数据仓库内完成），形成*ELT*。
+
+{{< figure src="/fig/ddia_0101.png" id="fig_dwh_etl" caption="图 1-1. 向数据仓库进行 ETL 的简化流程。" class="w-full my-4" >}}
+
+在某些情况下，ETL 过程的数据源是外部 SaaS 产品，如客户关系管理（CRM）、电子邮件营销或信用卡处理系统。在这些情况下，您无法直接访问原始数据库，因为它只能通过软件供应商的 API 访问。将这些外部系统的数据引入您自己的数据仓库，可实现通过 SaaS API 无法完成的分析。针对 SaaS API 的 ETL 通常由 Fivetran、Singer 或 AirByte 等专业数据连接器服务实现。
+
+某些数据库系统提供*混合事务/分析处理（hybrid transactional/analytic processing, HTAP）*，旨在无需通过 ETL 从一个系统导入另一个系统的情况下，在单一系统中同时支持 OLTP 与分析 [^8] [^9]。然而，许多 HTAP 系统内部由一个 OLTP 系统与一个独立的分析系统耦合而成，仅通过统一接口隐藏——因此，理解这两者的区别对于理解这些系统的工作原理仍然重要。
+
+此外，尽管 HTAP 存在，但由于事务系统与分析系统目标与需求不同，将它们分开仍是常见做法。特别是，每个运营系统拥有自己的数据库被视为良好实践（参见["微服务与无服务器"](/en/ch1#sec_introduction_microservices)），这导致存在数百个独立的运营数据库；另一方面，企业通常只有一个数据仓库，以便业务分析师能在单一查询中组合来自多个运营系统的数据。
+
+因此，HTAP 并不能取代数据仓库。相反，它在同一应用既需要执行扫描大量行的分析查询，又需要以低延迟读写单条记录的场景中很有用。例如，欺诈检测可能涉及此类工作负载 [^10]。
+
+运营系统与分析系统的分离是更广泛趋势的一部分：随着工作负载需求日益严苛，系统变得更加专业化，针对特定工作负载进行优化。通用系统可舒适地处理小规模数据，但规模越大，系统往往越趋向专业化 [^11]。
+
+#### 从数据仓库到数据湖 {#from-data-warehouse-to-data-lake}
+
+数据仓库通常使用可通过 SQL 查询的*关系型（relational）*数据模型（参见 [第 3 章](/en/ch3#ch_datamodels)），可能借助专业的商业智能软件。该模型能很好地满足业务分析师所需的查询类型，但不太适合数据科学家的需求，他们可能需要执行如下任务：
+
+* 将数据转换为适合训练机器学习模型的形式；这通常需要将数据库表的行与列转换为称为*特征（features）*的数值向量或矩阵。以最大化训练模型性能的方式执行此转换的过程称为*特征工程（feature engineering）*，它通常需要难以用 SQL 表达的自定义代码。
+* 处理文本数据（如产品评论），并使用自然语言处理技术尝试从中提取结构化信息（如作者的情感倾向或提及的主题）。类似地，他们可能需要使用计算机视觉技术从图像中提取结构化信息。
+
+尽管已有努力尝试向 SQL 数据模型添加机器学习算子 [^12] 并在关系型基础上构建高效的机器学习系统 [^13]，但许多数据科学家更倾向于不在数据仓库这类关系型数据库中工作。相反，许多人更偏好使用 pandas 与 scikit-learn 等 Python 数据分析库、R 等统计分析语言，以及 Spark 等分布式分析框架 [^14]。
+
+我们在["数据框、矩阵与数组"](/en/ch3#sec_datamodels_dataframes) 中进一步讨论这些内容。
+
+因此，组织面临以适合数据科学家使用的形式提供数据的需求。答案是*数据湖（data lake）*：一个集中式数据仓库，通过 ETL 过程从运营系统获取任何可能用于分析的原始数据副本。与数据仓库的区别在于，数据湖仅包含文件，不强制任何特定文件格式或数据模型。数据湖中的文件可能是使用 Avro 或 Parquet 等文件格式（参见 [第 5 章](/en/ch5#ch_encoding)）编码的数据库记录集合，但同样可以包含文本、图像、视频、传感器读数、稀疏矩阵、特征向量、基因组序列或任何其他类型的数据 [^15]。
+
+除了更具灵活性外，这通常也比关系型数据存储更经济，因为数据湖可使用商品化的文件存储，如对象存储（参见["云原生系统架构"](/en/ch1#sec_introduction_cloud_native)）。
+
+ETL 过程已泛化为*数据管道（data pipelines）*，在某些情况下，数据湖已成为从运营系统到数据仓库路径上的一个中间站。数据湖以运营系统生成的"原始"形式保存数据，未经转换为关系型数据仓库模式。这种方法的优势在于，每个数据消费者可将原始数据转换为最适合其需求的形式。它被称为*寿司原则（sushi principle）*："原始数据更好" [^16]。
+
+除了将数据从数据湖加载到独立的数据仓库外，也可以在数据湖的文件上直接运行典型的数据仓库工作负载（SQL 查询与商业分析），与数据科学/机器学习工作负载并行。这种架构被称为*数据湖仓（data lakehouse）*，它需要查询执行引擎与元数据（如模式管理）层来扩展数据湖的文件存储 [^17]。
+
+Apache Hive、Spark SQL、Presto 与 Trino 是此类方法的示例。
+
+#### 超越数据湖 {#beyond-the-data-lake}
+
+随着分析实践的成熟，组织日益关注分析系统与数据管道的管理与运维，如 DataOps 宣言 [^18] 所概括。
+
+其中一部分涉及治理、隐私以及 GDPR 与 CCPA 等法规的合规性问题，我们在["数据系统、法律与社会"](/en/ch1#sec_introduction_compliance) 与 [待补充链接] 中讨论。
+
+此外，分析数据不仅以文件与关系表的形式提供，也越来越多地以事件流的形式提供（参见 [待补充链接]）。使用基于文件的分析，您可以定期（如每日）重新运行分析以响应数据变化，但流处理允许分析系统以秒级速度响应事件。根据应用及其时间敏感性，流处理方法可能很有价值，例如用于识别并阻止潜在的欺诈或滥用活动。
+
+在某些情况下，分析系统的输出会提供给运营系统使用（这一过程有时称为*反向 ETL（reverse ETL）* [^19]）。例如，在分析系统中训练的机器学习模型可部署至生产环境，以便为终端用户生成推荐，如"购买 X 的人也购买了 Y"。此类部署的分析系统输出也被称为*数据产品（data products）* [^20]。
+
+机器学习模型可使用 TFX、Kubeflow 或 MLflow 等专业工具部署到运营系统。
+
+### 源系统（Systems of Record）与衍生数据系统 {#sec_introduction_derived}
+
+与运营系统和分析系统的区分相关，本书还区分*源系统（systems of record）*与*衍生数据系统（derived data systems）*。这些术语很有用，因为它们可帮助您厘清数据在系统中的流动：
+
+源系统（Systems of record）
+:   源系统，亦称*单一事实来源（source of truth）*，持有某些数据的权威或*规范（canonical）*版本。当新数据进入时（例如作为用户输入），首先写入此处。每个事实仅被表示一次（表示通常是*规范化的（normalized）*；参见["规范化、反规范化与连接"](/en/ch3#sec_datamodels_normalization)）。若另一系统与源系统之间存在任何不一致，则源系统中的值（按定义）是正确的。
+
+衍生数据系统（Derived data systems）
+:   衍生系统中的数据是对另一系统中已有数据进行某种转换或处理的结果。若丢失衍生数据，您可从原始源重新创建它。经典示例是缓存：若缓存中存在所需数据，则可直接提供；若缓存中不包含所需内容，则可回退至底层数据库。反规范化值、索引、物化视图、转换后的数据表示以及在数据集上训练的模型也属于此类别。
+
+从技术上讲，衍生数据是*冗余的（redundant）*，因为它复制了现有信息。然而，它对于获得良好的读取查询性能往往必不可少。您可以从单一源衍生出多个不同数据集，使您能够从不同"视角"审视数据。
+
+分析系统通常是衍生数据系统，因为它们是其他地方创建的数据的消费者。运营服务可能包含源系统与衍生数据系统的混合。源系统是数据首次写入的主数据库，而衍生数据系统是加速常见读取操作的索引与缓存，尤其是源系统无法高效回答的查询。
+
+大多数数据库、存储引擎与查询语言本身并非固有的源系统或衍生系统。数据库只是一种工具：如何使用它取决于您。源系统与衍生数据系统的区分不取决于工具，而取决于您在应用中如何使用它。通过明确哪些数据衍生自哪些其他数据，您可以为原本令人困惑的系统架构带来清晰性。
+
+当一个系统中的数据衍生自另一个系统的数据时，您需要一个流程，以便在源系统中的原始数据变更时更新衍生数据。遗憾的是，许多数据库的设计基于这样的假设：您的应用只需使用该单一数据库，它们并未使集成多个系统以传播此类更新变得容易。在 [待补充链接] 中，我们将讨论*数据集成（data integration）*的方法，它允许我们组合多个数据系统，实现单一系统无法独立完成的目标。
+
+至此，我们完成了对分析与事务处理的对比。在下一节中，我们将审视另一个您可能已多次见到争论的权衡取舍。
+
+## 云与自托管 {#sec_introduction_cloud}
+
+对于组织需要完成的任何任务，首要问题之一是：应在内部完成，还是外包？应该自建还是购买？
+
+归根结底，这是一个关于业务优先级的问题。公认的管理智慧是：属于组织核心能力或竞争优势的事项应在内部完成，而非核心、常规或普遍性的事项则应交由供应商处理 [^21]。
+
+举一个极端的例子：大多数公司不自行发电（除非它们是能源公司，且不考虑应急备用电源），因为从电网购电更便宜。
+
+对于软件而言，需要做出的两个重要决策是：由谁构建软件，以及由谁部署它。存在一系列可能性，将每个决策不同程度地外包，如 [图 1-2](/en/ch1#fig_cloud_spectrum) 所示。一端是您自行编写并在内部运行的定制软件；另一端是广泛使用的云服务或软件即服务（SaaS）产品，由外部供应商实现与运维，您仅通过 Web 界面或 API 访问。
+
+{{< figure src="/fig/ddia_0102.png" id="fig_cloud_spectrum" caption="图 1-2. 软件类型及其运维方式的谱系。" class="w-full my-4" >}}
+
+中间地带是您*自托管（self-host）*的现成软件（开源或商业），即您自行部署——例如，下载 MySQL 并安装到您控制的服务器上。这可以是您自己的硬件（通常称为*本地部署（on-premises）*，即使服务器实际位于租用的数据中心机架而非字面意义上的自有场所），也可以是云中的虚拟机（*基础设施即服务（Infrastructure as a Service, IaaS）*）。此谱系上还有更多节点，例如采用开源软件并运行其修改版本。
+
+与此谱系分离的还有*如何*部署服务的问题，无论是在云中还是本地——例如，是否使用 Kubernetes 等编排框架。然而，部署工具链的选择不在本书讨论范围内，因为其他因素对数据系统架构的影响更大。
+
+### 云服务的优劣 {#sec_introduction_cloud_tradeoffs}
+
+使用云服务而非自行运行可比软件，本质上是将该软件的运维外包给云提供商。支持与反对云服务的论点都很充分。云提供商声称，使用其服务可节省时间与金钱，并让您比自建基础设施更快地推进。
+
+云服务是否真的比自托管更经济、更简便，很大程度上取决于您的技能与系统负载。若您已有设置与运维所需系统的经验，且负载相当可预测（即所需机器数量不会剧烈波动），那么购买自己的机器并自行运行软件通常更便宜 [^22] [^23]。
+
+另一方面，若您需要一个尚不知如何部署与运维的系统，那么采用云服务通常比自行学习管理该系统更简单、更快捷。若您必须专门雇佣与培训人员来维护与运维该系统，成本可能非常高昂。使用云时您仍需要运维团队（参见["云时代的运维"](/en/ch1#sec_introduction_operations)），但外包基础系统管理可使您的团队专注于更高层次的关注点。
+
+当您将该系统的运维外包给专精于运行该服务的公司时，这可能带来更好的服务，因为提供商通过为众多客户提供服务而积累运维专长。另一方面，若您自行运行该服务，您可对其进行配置与调优，使其在您的特定负载下表现良好；云服务提供商不太可能愿意为您进行此类定制。
+
+若系统负载随时间波动剧烈，云服务尤其有价值。若您配置机器以应对峰值负载，但这些计算资源大部分时间处于闲置状态，则系统的成本效益会降低。在此情况下，云服务的优势在于它们可使您更轻松地在需求变化时扩展或缩减计算资源。
+
+例如，分析系统的负载往往极度可变：快速运行大型分析查询需要大量并行计算资源，但查询完成后，这些资源便处于闲置状态，直至用户发起下一个查询。预定义查询（如每日报告）可入队并调度以平滑负载，但对于交互式查询，您希望其完成得越快，工作负载的可变性就越高。若您的数据集如此之大，以至于快速查询需要显著的计算资源，使用云可节省成本，因为您可将未使用的资源归还给提供商，而非任其闲置。对于较小的数据集，这种差异则不那么显著。
+
+云服务最大的缺点在于您对其缺乏控制权：
+
+* 若它缺少您需要的功能，您只能礼貌地询问供应商是否会添加；您通常无法自行实现。
+* 若服务宕机，您只能等待其恢复。
+* 若您以触发 bug 或导致性能问题的方式使用该服务，诊断问题将很困难。对于自行运行的软件，您可从操作系统获取性能指标与调试信息以助理解其行为，并可查看服务器日志，但对于供应商托管的服务，您通常无法访问这些内部细节。
+* 此外，若服务关闭、变得不可接受地昂贵，或供应商以您不认可的方式更改其产品，您将受制于人——继续运行旧版本软件通常不可行，因此您将被迫迁移至替代服务 [^24]。
+
+若存在提供兼容 API 的替代服务，此风险可得到缓解，但许多云服务并无标准 API，这提高了切换成本，使供应商锁定（vendor lock-in）成为问题。
+
+* 必须信任云提供商保障数据安全，这可能使遵守隐私与安全法规的过程复杂化。
+
+尽管存在所有这些风险，越来越多的组织倾向于在云服务之上构建新应用，或采用混合方式，在系统的某些方面使用云服务。然而，云服务不会完全取代内部数据系统：许多旧系统早于云时代存在，且对于现有云服务无法满足的特定需求，内部系统仍是必要的。例如，高频交易等对延迟极度敏感的应用需要对硬件的完全控制。
+
+### 云原生系统架构 {#sec_introduction_cloud_native}
+
+除了采用不同的经济模型（订阅服务而非购买硬件与许可软件）外，云的兴起也在技术层面对数据系统的实现方式产生了深远影响。*云原生（cloud-native）*一词用于描述旨在利用云服务优势的架构。
+
+原则上，几乎任何可自托管的软件也可作为云服务提供，事实上，许多流行数据系统现已提供此类托管服务。然而，从头设计为云原生的系统已被证明具有多项优势：相同硬件下性能更佳、故障恢复更快、能快速扩展计算资源以匹配负载、以及支持更大数据集 [^25] [^26] [^27]。[表 1-2](/en/ch1#tab_cloud_native_dbs) 列出两类系统的一些示例。
+
+{{< figure id="#tab_cloud_native_dbs" title="表 1-2. 自托管与云原生数据库系统示例" class="w-full my-4" >}}
+
+| 类别 | 自托管系统 | 云原生系统 |
+|------------------|-----------------------------|-----------------------------------------------------------------------|
+| 运营型/OLTP | MySQL, PostgreSQL, MongoDB | AWS Aurora [^25], Azure SQL DB Hyperscale [^26], Google Cloud Spanner |
+| 分析型/OLAP | Teradata, ClickHouse, Spark | Snowflake [^27], Google BigQuery, Azure Synapse Analytics |
+
+#### 云服务的分层 {#layering-of-cloud-services}
+
+许多自托管数据系统具有非常简单的系统要求：它们运行于 Linux 或 Windows 等常规操作系统之上，将数据存储为文件系统上的文件，并通过 TCP/IP 等标准网络协议通信。少数系统依赖 GPU（用于机器学习）或 RDMA 网络接口等特殊硬件，但总体而言，自托管软件倾向于使用非常通用的计算资源：CPU、内存、文件系统与 IP 网络。
+
+在云中，此类软件可运行于基础设施即服务（IaaS）环境，使用一个或多个具有特定 CPU、内存、磁盘与网络带宽分配的虚拟机（或*实例（instances）*）。与物理机相比，云实例可更快配置，并提供更多规格选择，但除此之外它们与传统计算机相似：您可在其上运行任何软件，但需自行负责管理。
+
+相比之下，云原生服务的关键思想不仅是利用操作系统管理的计算资源，还要构建于更低层的云服务之上以创建更高层的服务。例如：
+
+* *对象存储（Object storage）*服务如 Amazon S3、Azure Blob Storage 与 Cloudflare R2 用于存储大文件。它们提供的 API 比典型文件系统更有限（基本文件读写），但其优势在于隐藏了底层物理机器：服务自动将数据分布于多台机器，因此您无需担心任何单台机器的磁盘空间耗尽。即使某些机器或其磁盘完全故障，数据也不会丢失。
+* 许多其他服务又构建于对象存储与其他云服务之上：例如，Snowflake 是基于云的分析数据库（数据仓库），依赖 S3 进行数据存储 [^27]，而其他一些服务又构建于 Snowflake 之上。
+
+正如计算中的抽象一贯如此，对于应使用何种方案并无唯一正确答案。作为一般规则，更高层的抽象往往更面向特定用例。若您的需求与高层系统设计所针对的场景匹配，使用现有的高层系统可能比您从底层系统自行构建更省事地提供所需功能。另一方面，若没有满足您需求的高层系统，则从底层组件自行构建是唯一选择。
+
+#### 存储与计算的分离 {#sec_introduction_storage_compute}
+
+在传统计算中，磁盘存储被视为持久的（我们假设一旦写入磁盘，数据就不会丢失）。为容忍单个硬盘故障，常使用 RAID（独立磁盘冗余阵列，Redundant Array of Independent Disks）在连接至同一机器的多个磁盘上维护数据副本。RAID 可由硬件或操作系统软件执行，对访问文件系统的应用透明。
+
+在云中，计算实例（虚拟机）也可能连接本地磁盘，但云原生系统通常将这些磁盘更多地视为临时缓存，而非长期存储。这是因为若关联实例故障，或为适应负载变化而将实例替换为更大或更小的实例（位于不同物理机器上），本地磁盘将变得不可访问。
+
+作为本地磁盘的替代方案，云服务也提供可从一实例分离并附加至另一实例的虚拟磁盘存储（Amazon EBS、Azure 托管磁盘与 Google Cloud 持久磁盘）。此类虚拟磁盘并非实际物理磁盘，而是由一组独立机器提供的云服务，模拟磁盘行为（*块设备（block device）*，每块通常为 4 KiB）。该技术使得在云中运行传统基于磁盘的软件成为可能，但块设备模拟会引入开销，而这些开销在从头为云设计的系统中可被避免 [^25]。它也使应用对网络故障极为敏感，因为虚拟块设备上的每次 I/O 实际上都是一次网络调用 [^28]。
+
+为解决此问题，云原生服务通常避免使用虚拟磁盘，转而构建于针对特定工作负载优化的专用存储服务之上。如 S3 等对象存储服务设计用于长期存储相当大（从数百 KB 到数 GB）的文件。数据库中存储的单个行或值通常远小于此；因此云数据库通常在独立服务中管理较小值，并将包含多个独立值的较大数据块存储于对象存储中 [^26] [^29]。我们将在 [第 4 章](/en/ch4#ch_storage) 中看到实现此目标的方法。
+
+在传统系统架构中，同一台计算机负责存储（磁盘）与计算（CPU 与内存），但在云原生系统中，这两项职责已有所分离或*解耦（disaggregated）* [^9] [^27] [^30] [^31]：例如，S3 仅存储文件，若您想分析该数据，则需在 S3 之外某处运行分析代码。这意味着需通过网络传输数据，我们将在["分布式系统与单机系统"](/en/ch1#sec_introduction_distributed) 中进一步讨论。
+
+此外，云原生系统通常是*多租户（multitenant）*的，即并非为每位客户配备独立机器，而是由同一服务在共享硬件上处理多位客户的数据与计算 [^32]。
+
+多租户可实现更好的硬件利用率、更易扩展性以及云提供商更易管理，但也需要精心设计以确保一位客户的活动不会影响其他客户的系统性能或安全 [^33]。
+
+### 云时代的运维 {#sec_introduction_operations}
+
+传统上，管理组织服务器端数据基础设施的人员被称为*数据库管理员（database administrators, DBAs）*或*系统管理员（system administrators, sysadmins）*。近年来，许多组织尝试将软件开发与运维角色整合为对后端服务与数据基础设施共同负责的团队；*DevOps* 理念引导了这一趋势。*站点可靠性工程师（Site Reliability Engineers, SREs）*是 Google 对此理念的实现 [^34]。
+
+运维的角色是确保服务可靠地交付给用户（包括配置基础设施与部署应用），并确保生产环境稳定（包括监控与诊断可能影响可靠性的任何问题）。对于自托管系统，传统运维涉及大量针对单台机器的工作，如容量规划（例如监控可用磁盘空间并在耗尽前添加更多磁盘）、配置新机器、将服务从一台机器迁移至另一台，以及安装操作系统补丁。
+
+许多云服务提供隐藏实际实现服务的单机器的 API。例如，云存储以*按量计费（metered billing）*取代固定大小磁盘，您可存储数据而无需预先规划容量需求，随后按实际使用空间计费。此外，许多云服务即使单台机器故障也能保持高可用（参见["可靠性与容错"](/en/ch2#sec_introduction_reliability)）。
+
+这种从单台机器到服务的重心转变，伴随着运维角色的演变。提供可靠服务的高层目标保持不变，但流程与工具已演进。DevOps/SRE 理念更强调：
+
+* 自动化——偏好可重复流程而非一次性手动任务，
+* 偏好临时虚拟机与服务而非长期运行的服务器，
+* 支持频繁应用更新，
+* 从事件中学习，以及
+* 在人员流动时保留组织关于系统的知识 [^35]。
+
+随着云服务的兴起，角色出现分化：基础设施公司的运维团队专精于为大量客户提供可靠服务的细节，而服务的客户则尽可能减少在基础设施上花费的时间与精力 [^36]。
+
+云服务的客户仍需运维，但他们关注不同方面，如为给定任务选择最合适的服务、集成不同服务，以及从一个服务迁移至另一个服务。尽管按量计费消除了传统意义上的容量规划需求，但了解您为何种目的使用何种资源仍然重要，以免在不需要的云资源上浪费金钱：容量规划变为财务规划，性能优化变为成本优化 [^37]。
+
+此外，云服务确实存在资源限制或*配额（quotas）*（例如您可并发运行的最大进程数），您需要在遇到之前了解并规划它们 [^38]。
+
+采用云服务可能比运行自有基础设施更简单快捷，尽管即使在此情况下也存在学习成本以及可能需要绕过其限制。随着越来越多供应商提供针对不同用例的更广泛云服务，不同服务之间的集成成为特别挑战 [^39] [^40]。
+
+ETL（参见["数据仓库"](/en/ch1#sec_introduction_dwh)）仅是故事的一部分；运营云服务也需要彼此集成。目前，缺乏促进此类集成的标准，因此往往涉及大量手动工作。
+
+其他无法完全外包给云服务的运维方面包括：维护应用及其所用库的安全性、管理自有服务之间的交互、监控服务负载，以及追踪性能下降或中断等问题的根源。尽管云正在改变运维的角色，但对运维的需求一如既往重要。
+
+## 分布式系统与单机系统 {#sec_introduction_distributed}
+
+涉及多台机器通过网络通信的系统称为*分布式系统（distributed system）*。参与分布式系统的每个进程称为*节点（node）*。您可能希望系统分布式的理由有多种：
+
+固有分布式系统（Inherently distributed systems）
+:   若应用涉及两个或更多交互用户，每位用户使用自己的设备，则系统不可避免地是分布式的：设备间的通信必须通过网络进行。
+
+云服务间的请求（Requests between cloud services）
+:   若数据存储于一个服务但处理于另一个服务，则数据必须通过网络从一个服务传输至另一个服务。
+
+容错/高可用性（Fault tolerance/high availability）
+:   若您的应用需要在一台（或多台）机器、网络或整个数据中心故障时仍能继续工作，您可利用多台机器提供冗余。当一台故障时，另一台可接管。参见["可靠性与容错"](/en/ch2#sec_introduction_reliability) 与 [第 6 章](/en/ch6#ch_replication) 关于复制的内容。
+
+可扩展性（Scalability）
+:   若您的数据量或计算需求增长至单机无法处理，您可潜在地将负载分散至多台机器。参见["可扩展性"](/en/ch2#sec_introduction_scalability)。
+
+延迟（Latency）
+:   若您拥有全球用户，您可能希望在全球各区域部署服务器，以便每位用户可由地理上邻近的服务器服务。这可避免用户等待网络数据包穿越半个地球来响应其请求。参见["描述性能"](/en/ch2#sec_introduction_percentiles)。
+
+弹性（Elasticity）
+:   若您的应用在特定时段繁忙而在其他时段空闲，云部署可按需扩展或缩减，使您仅为实际使用的资源付费。这在单机上更难实现，因为单机需按最大负载配置，即使在几乎未使用时亦然。
+
+使用专用硬件（Using specialized hardware）
+:   系统的不同部分可利用不同类型的硬件以匹配其工作负载。例如，对象存储可能使用磁盘多但 CPU 少的机器，而数据分析系统可能使用 CPU 与内存多但无磁盘的机器，机器学习系统则可能使用配备 GPU 的机器（GPU 在训练深度神经网络与其他机器学习任务上比 CPU 高效得多）。
+
+法律合规（Legal compliance）
+:   某些国家有数据驻留法（data residency laws），要求在其司法管辖区内的人员数据必须在地理上位于该国境内存储与处理 [^41]。
+> 这些规则的适用范围各异——例如，某些情况下仅适用于医疗或金融数据，而其他情况则更广泛。因此，拥有多个此类司法管辖区用户的服务必须将其数据分布于多个位置的服务器上。
+
+可持续性（Sustainability）
+:   若您能灵活选择在何时何地运行作业，您可尝试在可再生能源充足的时间与地点运行，并避免在电网紧张时运行。这可减少碳排放，并让您在电力便宜时加以利用 [^42] [^43]。
+
+这些理由既适用于您自行编写的服务（应用代码），也适用于由现成软件（如数据库）组成的服务。
+
+### 分布式系统的问题 {#sec_introduction_dist_sys_problems}
+
+分布式系统也有缺点。每个经由网络的请求与 API 调用都必须应对故障可能性：网络可能中断，或服务可能过载或崩溃，因此任何请求都可能因超时而未收到响应。在此情况下，我们不知道服务是否收到了请求，简单重试可能并不安全。我们将在 [第 9 章](/en/ch9#ch_distributed) 详细讨论这些问题。
+
+尽管数据中心网络速度很快，但调用另一服务仍比在同一进程中调用函数慢得多 [^44]。
+
+当操作大规模数据时，与其将数据从存储传输至单独的处理机器，不如将计算带至已拥有数据的机器可能更快 [^45]。
+
+更多节点并不总是更快：在某些情况下，单台计算机上的简单单线程程序可能显著优于拥有超过 100 个 CPU 核心的集群 [^46]。
+
+排查分布式系统问题通常很困难：若系统响应缓慢，您如何定位问题所在？诊断分布式系统问题的技术在*可观测性（observability）* [^47] [^48] 标题下发展，涉及收集系统执行数据，并允许以可分析高层指标与单个事件的方式进行查询。*追踪（Tracing）*工具如 OpenTelemetry、Zipkin 与 Jaeger 可让您追踪哪个客户端为哪项操作调用了哪个服务器，以及每次调用耗时多久 [^49]。
+
+数据库提供多种确保数据一致性的机制，如我们将在 [第 6 章](/en/ch6#ch_replication) 与 [第 8 章](/en/ch8#ch_transactions) 所见。然而，当每个服务拥有自己的数据库时，维护这些不同服务间数据的一致性便成为应用的问题。分布式事务（我们将在 [第 8 章](/en/ch8#ch_transactions) 探讨）是确保一致性的一种可能技术，但在微服务上下文中很少使用，因为它们与服务彼此独立的目标相悖，且许多数据库不支持它们 [^50]。
+
+出于所有这些原因，若能在单机上完成某事，这通常比搭建分布式系统简单且便宜得多 [^23] [^46] [^51]。
+
+CPU、内存与磁盘已变得更大、更快、更可靠。结合 DuckDB、SQLite 与 KùzuDB 等单机数据库，许多工作负载如今可在单节点上运行。我们将在 [第 4 章](/en/ch4#ch_storage) 进一步探讨此主题。
+
+### 微服务与无服务器 {#sec_introduction_microservices}
+
+将系统分布于多台机器最常见的方式是将其划分为客户端与服务器，并让客户端向服务器发起请求。最常见的是使用 HTTP 进行此通信，我们将在["通过服务的数据流：REST 与 RPC"](/en/ch5#sec_encoding_dataflow_rpc) 讨论。同一进程可同时作为服务器（处理入站请求）与客户端（向其他服务发出出站请求）。
+
+这种构建应用的方式传统上被称为*面向服务的架构（service-oriented architecture, SOA）*；近年来，这一理念被精炼为*微服务（microservices）*架构 [^52] [^53]。
+
+在此架构中，服务具有单一明确定义的目的（例如，就 S3 而言，即文件存储）；每个服务通过 API 暴露，客户端可经由网络调用；每个服务由一个团队负责维护。因此，复杂应用可分解为多个交互的服务，各自由独立团队管理。
+
+将复杂软件拆分为多个服务有多项优势：每个服务可独立更新，减少团队间协调工作；每个服务可分配其所需的硬件资源；通过将实现细节隐藏于 API 之后，服务所有者可自由更改实现而不影响客户端。就数据存储而言，常见做法是每个服务拥有自己的数据库，服务间不共享数据库：共享数据库实际上会使整个数据库结构成为服务 API 的一部分，从而难以更改。共享数据库也可能导致一个服务的查询对其他服务的性能产生负面影响。
+
+另一方面，拥有众多服务本身也可能滋生复杂性：每个服务都需要用于部署新版本、根据负载调整分配的硬件资源、收集日志、监控服务健康状态以及在出现问题时通知待命工程师的基础设施。*编排（Orchestration）*框架如 Kubernetes 已成为部署服务的流行方式，因为它们为此类基础设施提供了基础。在开发过程中测试服务可能很复杂，因为您还需运行其依赖的所有其他服务。
+
+微服务 API 的演进可能具有挑战性。调用 API 的客户端期望 API 具有某些字段。随着业务需求变化，开发者可能希望向 API 添加或移除字段，但这样做可能导致客户端失败。更糟糕的是，此类故障往往直到开发周期后期——当更新后的服务 API 部署至预发布或生产环境时——才被发现。OpenAPI 与 gRPC 等 API 描述标准有助于管理客户端与服务器 API 之间的关系；我们在 [第 5 章](/en/ch5#ch_encoding) 进一步讨论这些内容。
+
+微服务主要是针对人员问题的技术解决方案：允许不同团队独立推进而无需彼此协调。这在大型公司中很有价值，但在团队不多的小型公司中，使用微服务可能是不必要的开销，以尽可能简单的方式实现应用更为可取 [^52]。
+
+*无服务器（Serverless）*，或*函数即服务（function-as-a-service, FaaS）*，是部署服务的另一种方法，其中基础设施的管理外包给云供应商 [^33]。
+
+使用虚拟机时，您必须显式选择何时启动或关闭实例；相比之下，在无服务器模型中，云提供商根据您的服务入站请求自动分配与释放硬件资源 [^54]。
+
+无服务器部署将更多运维负担转移至云提供商，并支持按使用量而非机器实例的灵活计费。为提供此类优势，许多无服务器基础设施提供商对函数执行施加时间限制、限制运行时环境，并可能在函数首次调用时经历缓慢的启动时间。"无服务器"一词也可能产生误导：每次无服务器函数执行仍运行于服务器上，但后续执行可能运行于不同的服务器。此外，BigQuery 与各种 Kafka 产品等基础设施也采用"无服务器"术语，以表明其服务可自动扩缩容，并按使用量而非机器实例计费。
+
+正如云存储以按量计费模型取代了容量规划（预先决定购买多少磁盘），无服务器方法正将按量计费引入代码执行：您仅为应用代码实际运行的时间付费，而非必须预先配置资源。
+
+### 云计算与超级计算 {#id17}
+
+云计算并非构建大规模计算系统的唯一方式；另一种选择是*高性能计算（high-performance computing, HPC）*，亦称*超级计算（supercomputing）*。尽管存在重叠，但 HPC 通常具有与云计算及企业数据中心系统不同的优先级与技术。其中一些差异包括：
+
+* 超级计算机通常用于计算密集型的科学计算任务，如天气预报、气候建模、分子动力学（模拟原子与分子运动）、复杂优化问题，以及求解偏微分方程。另一方面，云计算通常用于在线服务、业务数据系统，以及类似需要以高可用性服务用户请求的系统。
+* 超级计算机通常运行大型批处理作业，这些作业会定期将计算状态检查点保存至磁盘。若节点故障，常见解决方案是直接停止整个集群工作负载、修复故障节点，然后从上一个检查点重新启动计算 [^55] [^56]。对于云服务，通常不希望停止整个集群，因为服务需要持续以最小中断服务用户。
+* 超级计算机节点通常通过共享内存与远程直接内存访问（RDMA）通信，这支持高带宽与低延迟，但假设系统用户之间存在高度信任 [^57]。在云计算中，网络与机器通常由互不信任的组织共享，需要更强的安全机制，如资源隔离（例如虚拟机）、加密与认证。
+* 云数据中心网络通常基于 IP 与以太网，采用 Clos 拓扑以提供高分割带宽——这是衡量网络整体性能的常用指标 [^55] [^58]。超级计算机常使用专用网络拓扑，如多维网格与环面 [^59]，这在具有已知通信模式的 HPC 工作负载下可提供更佳性能。
+* 云计算允许节点分布于多个地理区域，而超级计算机通常假设所有节点彼此靠近。
+
+大规模分析系统有时与超级计算共享某些特征，因此若您在此领域工作，了解这些技术可能值得。然而，本书主要关注需要持续可用的服务，如["可靠性与容错"](/en/ch2#sec_introduction_reliability) 所述。
+
+## 数据系统、法律与社会 {#sec_introduction_compliance}
+
+至此，您已在本章看到：数据系统的架构不仅受技术目标与需求影响，也受其所支持组织的人类需求影响。越来越多的数据系统工程师意识到，仅满足自身业务需求是不够的：我们对更广泛的社会也负有责任。
+
+一个特别关切是存储关于人及其行为数据的系统。自 2018 年起，《通用数据保护条例》（General Data Protection Regulation, GDPR）赋予许多欧洲国家居民对其个人数据更大的控制权与法律权利，世界其他各国与各州也采用了类似的隐私法规，例如《加州消费者隐私法案》（California Consumer Privacy Act, CCPA）。围绕 AI 的法规，如《欧盟人工智能法案》（EU AI Act），对个人数据的使用施加了进一步限制。
+
+此外，即使在未直接受法规约束的领域，人们也日益认识到计算机系统对个人与社会的影响。社交媒体改变了个人消费新闻的方式，这影响其政治观点，进而可能影响选举结果。自动化系统越来越多地做出对个人产生深远影响的决策，例如决定谁应获得贷款或保险、谁应被邀请参加面试，或谁应被怀疑犯罪 [^60]。
+
+每位从事此类系统工作的人都负有责任，需考虑其伦理影响并确保遵守相关法律。并非人人都需成为法律与伦理专家，但对法律与伦理原则的基本认知，与分布式系统等基础知识同等重要。
+
+法律考量正在影响数据系统设计的根本基础 [^61]。例如，GDPR 赋予个人应请求删除其数据的权利（有时称为*被遗忘权（right to be forgotten）*）。然而，如本书所述，许多数据系统依赖不可变构造（如追加日志）作为其设计的一部分；我们如何确保删除本应不可变文件中间的部分数据？我们如何处理已纳入衍生数据集（参见["源系统与衍生数据系统"](/en/ch1#sec_introduction_derived)）的数据删除，例如机器学习模型的训练数据？回答这些问题带来了新的工程挑战。
+
+目前，我们尚无明确指南说明哪些特定技术或系统架构应被视为"GDPR 合规"。该法规刻意不强制规定特定技术，因为这些技术可能随技术进步而迅速变化。相反，法律文本设定了需解释的高层原则。这意味着对于如何遵守隐私法规并无简单答案，但我们将通过此视角审视本书中的一些技术。
+
+通常，我们存储数据是因为我们认为其价值大于存储成本。然而，值得记住的是，存储成本不仅指您为 Amazon S3 或其他服务支付的账单：成本效益计算还应考虑数据若被泄露或被对手攻破时的责任与声誉损害风险，以及若数据存储与处理被发现不符合法律时的法律成本与罚款风险 [^51]。
+
+政府或警方也可能强制公司交出数据。当数据可能揭示被定罪行为（例如，若干中东与非洲国家的同性恋行为，或美国若干州的堕胎寻求行为）时，存储该数据会给用户带来真实的安全风险。例如，前往堕胎诊所的行程可轻易通过位置数据揭示，甚至可能通过用户 IP 地址随时间变化的日志（指示大致位置）揭示。
+
+一旦将所有风险纳入考量，合理决定某些数据根本不值得存储，因此应予以删除，可能是明智的。这一*数据最小化（data minimization）*原则（有时以德语术语*Datensparsamkeit* 称之）与"大数据"哲学（即推测性存储大量数据以备未来可能有用）相悖 [^62]。
+
+但它符合 GDPR，后者规定个人数据仅可为特定、明确的目的收集，该数据后续不得用于任何其他目的，且数据保存时间不得超过收集目的所需 [^63]。
+
+企业也已注意到隐私与安全问题。信用卡公司要求支付处理企业遵守严格的支付卡行业（PCI）标准。处理商需接受独立审计师的频繁评估以验证持续合规。软件供应商也面临更严格的审查。许多买家现在要求其供应商遵守服务组织控制（Service Organization Control, SOC）Type 2 标准。与 PCI 合规类似，供应商需接受第三方审计以验证遵守情况。
+
+通常，平衡您的业务需求与您所收集与处理数据之人的需求至关重要。此主题还有更多内容；在 [待补充链接] 中，我们将更深入探讨伦理与法律合规主题，包括偏见与歧视问题。
+
+## 总结 {#summary}
+
+本章的主题是理解权衡取舍：即认识到对于许多问题并无唯一正确答案，而是存在多种各有优劣的不同方法。我们探讨了影响数据系统架构的一些最重要选择，并引入了贯穿本书其余部分所需的术语。
+
+我们首先区分了运营型（事务处理、OLTP）与分析型（OLAP）系统，并了解了它们的不同特征：不仅管理不同类型的数据与访问模式，还服务于不同受众。我们遇到了数据仓库与数据湖的概念，它们通过 ETL 接收来自运营系统的数据流。在 [第 4 章](/en/ch4#ch_storage) 中，我们将看到运营系统与分析系统因需服务的查询类型不同，常使用截然不同的内部数据布局。
+
+接着，我们将相对较新的云服务与先前主导数据系统架构的传统自托管软件范式进行对比。哪种方法更具成本效益很大程度上取决于您的具体情况，但不可否认的是，云原生方法正带来数据系统架构方式的重大变革，例如它们分离存储与计算的方式。
+
+云系统本质上是分布式的，我们简要审视了分布式系统相较于使用单机的部分权衡取舍。存在您无法避免分布式的场景，但若可能将系统保持于单机，则不建议仓促使其分布式。在 [第 9 章](/en/ch9#ch_distributed) 中，我们将更详细地涵盖分布式系统的挑战。
+
+最后，我们看到数据系统架构不仅由部署系统的业务需求决定，也受保护被处理数据之人权利的隐私法规影响——这是许多工程师倾向于忽视的方面。我们如何将法律要求转化为技术实现尚未被充分理解，但在我们继续本书其余部分时，牢记这一问题至关重要。
+
+### 参考文献
+
+[^1]: Richard T. Kouzes, Gordon A. Anderson, Stephen T. Elbert, Ian Gorton, and Deborah K. Gracio. [The Changing Paradigm of Data-Intensive Computing](http://www2.ic.uff.br/~boeres/slides_AP/papers/TheChanginParadigmDataIntensiveComputing_2009.pdf). *IEEE Computer*, volume 42, issue 1, January 2009. [doi:10.1109/MC.2009.26](https://doi.org/10.1109/MC.2009.26)
+[^2]: Martin Kleppmann, Adam Wiggins, Peter van Hardenberg, and Mark McGranaghan. [Local-first software: you own your data, in spite of the cloud](https://www.inkandswitch.com/local-first/). At *2019 ACM SIGPLAN International Symposium on New Ideas, New Paradigms, and Reflections on Programming and Software* (Onward!), October 2019. [doi:10.1145/3359591.3359737](https://doi.org/10.1145/3359591.3359737)
+[^3]: Joe Reis and Matt Housley. [*Fundamentals of Data Engineering*](https://www.oreilly.com/library/view/fundamentals-of-data/9781098108298/). O'Reilly Media, 2022. ISBN: 9781098108304
+[^4]: Rui Pedro Machado and Helder Russa. [*Analytics Engineering with SQL and dbt*](https://www.oreilly.com/library/view/analytics-engineering-with/9781098142377/). O'Reilly Media, 2023. ISBN: 9781098142384
+[^5]: Edgar F. Codd, S. B. Codd, and C. T. Salley. [Providing OLAP to User-Analysts: An IT Mandate](https://www.estgv.ipv.pt/PaginasPessoais/jloureiro/ESI_AID2007_2008/fichas/codd.pdf). E. F. Codd Associates, 1993. Archived at [perma.cc/RKX8-2GEE](https://perma.cc/RKX8-2GEE)
+[^6]: Chinmay Soman and Neha Pawar. [Comparing Three Real-Time OLAP Databases: Apache Pinot, Apache Druid, and ClickHouse](https://startree.ai/blog/a-tale-of-three-real-time-olap-databases). *startree.ai*, April 2023. Archived at [perma.cc/8BZP-VWPA](https://perma.cc/8BZP-VWPA)
+[^7]: Surajit Chaudhuri and Umeshwar Dayal. [An Overview of Data Warehousing and OLAP Technology](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/sigrecord.pdf). *ACM SIGMOD Record*, volume 26, issue 1, pages 65–74, March 1997. [doi:10.1145/248603.248616](https://doi.org/10.1145/248603.248616)
+[^8]: Fatma Özcan, Yuanyuan Tian, and Pinar Tözün. [Hybrid Transactional/Analytical Processing: A Survey](https://humming80.github.io/papers/sigmod-htaptut.pdf). At *ACM International Conference on Management of Data* (SIGMOD), May 2017. [doi:10.1145/3035918.3054784](https://doi.org/10.1145/3035918.3054784)
+[^9]: Adam Prout, Szu-Po Wang, Joseph Victor, Zhou Sun, Yongzhu Li, Jack Chen, Evan Bergeron, Eric Hanson, Robert Walzer, Rodrigo Gomes, and Nikita Shamgunov. [Cloud-Native Transactions and Analytics in SingleStore](https://dl.acm.org/doi/abs/10.1145/3514221.3526055). At *International Conference on Management of Data* (SIGMOD), June 2022. [doi:10.1145/3514221.3526055](https://doi.org/10.1145/3514221.3526055)
+[^10]: Chao Zhang, Guoliang Li, Jintao Zhang, Xinning Zhang, and Jianhua Feng. [HTAP Databases: A Survey](https://arxiv.org/pdf/2404.15670). *IEEE Transactions on Knowledge and Data Engineering*, April 2024. [doi:10.1109/TKDE.2024.3389693](https://doi.org/10.1109/TKDE.2024.3389693)
+[^11]: Michael Stonebraker and Uğur Çetintemel. ['One Size Fits All': An Idea Whose Time Has Come and Gone](https://pages.cs.wisc.edu/~shivaram/cs744-readings/fits_all.pdf). At *21st International Conference on Data Engineering* (ICDE), April 2005. [doi:10.1109/ICDE.2005.1](https://doi.org/10.1109/ICDE.2005.1)
+[^12]: Jeffrey Cohen, Brian Dolan, Mark Dunlap, Joseph M. Hellerstein, and Caleb Welton. [MAD Skills: New Analysis Practices for Big Data](https://www.vldb.org/pvldb/vol2/vldb09-219.pdf). *Proceedings of the VLDB Endowment*, volume 2, issue 2, pages 1481–1492, August 2009. [doi:10.14778/1687553.1687576](https://doi.org/10.14778/1687553.1687576)
+[^13]: Dan Olteanu. [The Relational Data Borg is Learning](https://www.vldb.org/pvldb/vol13/p3502-olteanu.pdf). *Proceedings of the VLDB Endowment*, volume 13, issue 12, August 2020. [doi:10.14778/3415478.3415572](https://doi.org/10.14778/3415478.3415572)
+[^14]: Matt Bornstein, Martin Casado, and Jennifer Li. [Emerging Architectures for Modern Data Infrastructure: 2020](https://future.a16z.com/emerging-architectures-for-modern-data-infrastructure-2020/). *future.a16z.com*, October 2020. Archived at [perma.cc/LF8W-KDCC](https://perma.cc/LF8W-KDCC)
+[^15]: Martin Fowler. [DataLake](https://www.martinfowler.com/bliki/DataLake.html). *martinfowler.com*, February 2015. Archived at [perma.cc/4WKN-CZUK](https://perma.cc/4WKN-CZUK)
+[^16]: Bobby Johnson and Joseph Adler. [The Sushi Principle: Raw Data Is Better](https://learning.oreilly.com/videos/strata-hadoop/9781491924143/9781491924143-video210840/). At *Strata+Hadoop World*, February 2015.
+[^17]: Michael Armbrust, Ali Ghodsi, Reynold Xin, and Matei Zaharia. [Lakehouse: A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics](https://www.cidrdb.org/cidr2021/papers/cidr2021_paper17.pdf). At *11th Annual Conference on Innovative Data Systems Research* (CIDR), January 2021.
+[^18]: DataKitchen, Inc. [The DataOps Manifesto](https://dataopsmanifesto.org/en/). *dataopsmanifesto.org*, 2017. Archived at [perma.cc/3F5N-FUQ4](https://perma.cc/3F5N-FUQ4)
+[^19]: Tejas Manohar. [What is Reverse ETL: A Definition & Why It's Taking Off](https://hightouch.io/blog/reverse-etl/). *hightouch.io*, November 2021. Archived at [perma.cc/A7TN-GLYJ](https://perma.cc/A7TN-GLYJ)
+[^20]: Simon O'Regan. [Designing Data Products](https://towardsdatascience.com/designing-data-products-b6b93edf3d23). *towardsdatascience.com*, August 2018. Archived at [perma.cc/HU67-3RV8](https://perma.cc/HU67-3RV8)
+[^21]: Camille Fournier. [Why is it so hard to decide to buy?](https://skamille.medium.com/why-is-it-so-hard-to-decide-to-buy-d86fee98e88e) *skamille.medium.com*, July 2021. Archived at [perma.cc/6VSG-HQ5X](https://perma.cc/6VSG-HQ5X)
+[^22]: David Heinemeier Hansson. [Why we're leaving the cloud](https://world.hey.com/dhh/why-we-re-leaving-the-cloud-654b47e0). *world.hey.com*, October 2022. Archived at [perma.cc/82E6-UJ65](https://perma.cc/82E6-UJ65)
+[^23]: Nima Badizadegan. [Use One Big Server](https://specbranch.com/posts/one-big-server/). *specbranch.com*, August 2022. Archived at [perma.cc/M8NB-95UK](https://perma.cc/M8NB-95UK)
+[^24]: Steve Yegge. [Dear Google Cloud: Your Deprecation Policy is Killing You](https://steve-yegge.medium.com/dear-google-cloud-your-deprecation-policy-is-killing-you-ee7525dc05dc). *steve-yegge.medium.com*, August 2020. Archived at [perma.cc/KQP9-SPGU](https://perma.cc/KQP9-SPGU)
+[^25]: Alexandre Verbitski, Anurag Gupta, Debanjan Saha, Murali Brahmadesam, Kamal Gupta, Raman Mittal, Sailesh Krishnamurthy, Sandor Maurice, Tengiz Kharatishvili, and Xiaofeng Bao. [Amazon Aurora: Design Considerations for High Throughput Cloud-Native Relational Databases](https://media.amazonwebservices.com/blog/2017/aurora-design-considerations-paper.pdf). At *ACM International Conference on Management of Data* (SIGMOD), pages 1041–1052, May 2017. [doi:10.1145/3035918.3056101](https://doi.org/10.1145/3035918.3056101)
+[^26]: Panagiotis Antonopoulos, Alex Budovski, Cristian Diaconu, Alejandro Hernandez Saenz, Jack Hu, Hanuma Kodavalla, Donald Kossmann, Sandeep Lingam, Umar Farooq Minhas, Naveen Prakash, Vijendra Purohit, Hugh Qu, Chaitanya Sreenivas Ravella, Krystyna Reisteter, Sheetal Shrotri, Dixin Tang, and Vikram Wakade. [Socrates: The New SQL Server in the Cloud](https://www.microsoft.com/en-us/research/uploads/prod/2019/05/socrates.pdf). At *ACM International Conference on Management of Data* (SIGMOD), pages 1743–1756, June 2019. [doi:10.1145/3299869.3314047](https://doi.org/10.1145/3299869.3314047)
+[^27]: Midhul Vuppalapati, Justin Miron, Rachit Agarwal, Dan Truong, Ashish Motivala, and Thierry Cruanes. [Building An Elastic Query Engine on Disaggregated Storage](https://www.usenix.org/system/files/nsdi20-paper-vuppalapati.pdf). At *17th USENIX Symposium on Networked Systems Design and Implementation* (NSDI), February 2020.
+[^28]: Nick Van Wiggeren. [The Real Failure Rate of EBS](https://planetscale.com/blog/the-real-fail-rate-of-ebs). *planetscale.com*, March 2025. Archived at [perma.cc/43CR-SAH5](https://perma.cc/43CR-SAH5)
+[^29]: Colin Breck. [Predicting the Future of Distributed Systems](https://blog.colinbreck.com/predicting-the-future-of-distributed-systems/). *blog.colinbreck.com*, August 2024. Archived at [perma.cc/K5FC-4XX2](https://perma.cc/K5FC-4XX2)
+[^30]: Gwen Shapira. [Compute-Storage Separation Explained](https://www.thenile.dev/blog/storage-compute). *thenile.dev*, January 2023. Archived at [perma.cc/QCV3-XJNZ](https://perma.cc/QCV3-XJNZ)
+[^31]: Ravi Murthy and Gurmeet Goindi. [AlloyDB for PostgreSQL under the hood: Intelligent, database-aware storage](https://cloud.google.com/blog/products/databases/alloydb-for-postgresql-intelligent-scalable-storage). *cloud.google.com*, May 2022. Archived at [archive.org](https://web.archive.org/web/20220514021120/https%3A//cloud.google.com/blog/products/databases/alloydb-for-postgresql-intelligent-scalable-storage)
+[^32]: Jack Vanlightly. [The Architecture of Serverless Data Systems](https://jack-vanlightly.com/blog/2023/11/14/the-architecture-of-serverless-data-systems). *jack-vanlightly.com*, November 2023. Archived at [perma.cc/UDV4-TNJ5](https://perma.cc/UDV4-TNJ5)
+[^33]: Eric Jonas, Johann Schleier-Smith, Vikram Sreekanti, Chia-Che Tsai, Anurag Khandelwal, Qifan Pu, Vaishaal Shankar, Joao Carreira, Karl Krauth, Neeraja Yadwadkar, Joseph E. Gonzalez, Raluca Ada Popa, Ion Stoica, David A. Patterson. [Cloud Programming Simplified: A Berkeley View on Serverless Computing](https://arxiv.org/abs/1902.03383). *arxiv.org*, February 2019.
+[^34]: Betsy Beyer, Jennifer Petoff, Chris Jones, and Niall Richard Murphy. [*Site Reliability Engineering: How Google Runs Production Systems*](https://www.oreilly.com/library/view/site-reliability-engineering/9781491929117/). O'Reilly Media, 2016. ISBN: 9781491929124
+[^35]: Thomas Limoncelli. [The Time I Stole $10,000 from Bell Labs](https://queue.acm.org/detail.cfm?id=3434773). *ACM Queue*, volume 18, issue 5, November 2020. [doi:10.1145/3434571.3434773](https://doi.org/10.1145/3434571.3434773)
+[^36]: Charity Majors. [The Future of Ops Jobs](https://acloudguru.com/blog/engineering/the-future-of-ops-jobs). *acloudguru.com*, August 2020. Archived at [perma.cc/GRU2-CZG3](https://perma.cc/GRU2-CZG3)
+[^37]: Boris Cherkasky. [(Over)Pay As You Go for Your Datastore](https://medium.com/riskified-technology/over-pay-as-you-go-for-your-datastore-11a29ae49a8b). *medium.com*, September 2021. Archived at [perma.cc/Q8TV-2AM2](https://perma.cc/Q8TV-2AM2)
+[^38]: Shlomi Kushchi. [Serverless Doesn't Mean DevOpsLess or NoOps](https://thenewstack.io/serverless-doesnt-mean-devopsless-or-noops/). *thenewstack.io*, February 2023. Archived at [perma.cc/3NJR-AYYU](https://perma.cc/3NJR-AYYU)
+[^39]: Erik Bernhardsson. [Storm in the stratosphere: how the cloud will be reshuffled](https://erikbern.com/2021/11/30/storm-in-the-stratosphere-how-the-cloud-will-be-reshuffled.html). *erikbern.com*, November 2021. Archived at [perma.cc/SYB2-99P3](https://perma.cc/SYB2-99P3)
+[^40]: Benn Stancil. [The data OS](https://benn.substack.com/p/the-data-os). *benn.substack.com*, September 2021. Archived at [perma.cc/WQ43-FHS6](https://perma.cc/WQ43-FHS6)
+[^41]: Maria Korolov. [Data residency laws pushing companies toward residency as a service](https://www.csoonline.com/article/3647761/data-residency-laws-pushing-companies-toward-residency-as-a-service.html). *csoonline.com*, January 2022. Archived at [perma.cc/CHE4-XZZ2](https://perma.cc/CHE4-XZZ2)
+[^42]: Severin Borenstein. [Can Data Centers Flex Their Power Demand?](https://energyathaas.wordpress.com/2025/04/14/can-data-centers-flex-their-power-demand/) *energyathaas.wordpress.com*, April 2025. Archived at <https://perma.cc/MUD3-A6FF>
+[^43]: Bilge Acun, Benjamin Lee, Fiodar Kazhamiaka, Aditya Sundarrajan, Kiwan Maeng, Manoj Chakkaravarthy, David Brooks, and Carole-Jean Wu. [Carbon Dependencies in Datacenter Design and Management](https://hotcarbon.org/assets/2022/pdf/hotcarbon22-acun.pdf). *ACM SIGENERGY Energy Informatics Review*, volume 3, issue 3, pages 21–26. [doi:10.1145/3630614.3630619](https://doi.org/10.1145/3630614.3630619)
+[^44]: Kousik Nath. [These are the numbers every computer engineer should know](https://www.freecodecamp.org/news/must-know-numbers-for-every-computer-engineer/). *freecodecamp.org*, September 2019. Archived at [perma.cc/RW73-36RL](https://perma.cc/RW73-36RL)
+[^45]: Joseph M. Hellerstein, Jose Faleiro, Joseph E. Gonzalez, Johann Schleier-Smith, Vikram Sreekanti, Alexey Tumanov, and Chenggang Wu. [Serverless Computing: One Step Forward, Two Steps Back](https://arxiv.org/abs/1812.03651). At *Conference on Innovative Data Systems Research* (CIDR), January 2019.
+[^46]: Frank McSherry, Michael Isard, and Derek G. Murray. [Scalability! But at What COST?](https://www.usenix.org/system/files/conference/hotos15/hotos15-paper-mcsherry.pdf) At *15th USENIX Workshop on Hot Topics in Operating Systems* (HotOS), May 2015.
+[^47]: Cindy Sridharan. *[Distributed Systems Observability: A Guide to Building Robust Systems](https://unlimited.humio.com/rs/756-LMY-106/images/Distributed-Systems-Observability-eBook.pdf)*. Report, O'Reilly Media, May 2018. Archived at [perma.cc/M6JL-XKCM](https://perma.cc/M6JL-XKCM)
+[^48]: Charity Majors. [Observability — A 3-Year Retrospective](https://thenewstack.io/observability-a-3-year-retrospective/). *thenewstack.io*, August 2019. Archived at [perma.cc/CG62-TJWL](https://perma.cc/CG62-TJWL)
+[^49]: Benjamin H. Sigelman, Luiz André Barroso, Mike Burrows, Pat Stephenson, Manoj Plakal, Donald Beaver, Saul Jaspan, and Chandan Shanbhag. [Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](https://research.google/pubs/pub36356/). Google Technical Report dapper-2010-1, April 2010. Archived at [perma.cc/K7KU-2TMH](https://perma.cc/K7KU-2TMH)
+[^50]: Rodrigo Laigner, Yongluan Zhou, Marcos Antonio Vaz Salles, Yijian Liu, and Marcos Kalinowski. [Data management in microservices: State of the practice, challenges, and research directions](https://www.vldb.org/pvldb/vol14/p3348-laigner.pdf). *Proceedings of the VLDB Endowment*, volume 14, issue 13, pages 3348–3361, September 2021. [doi:10.14778/3484224.3484232](https://doi.org/10.14778/3484224.3484232)
+[^51]: Jordan Tigani. [Big Data is Dead](https://motherduck.com/blog/big-data-is-dead/). *motherduck.com*, February 2023. Archived at [perma.cc/HT4Q-K77U](https://perma.cc/HT4Q-K77U)
+[^52]: Sam Newman. [*Building Microservices*, second edition](https://www.oreilly.com/library/view/building-microservices-2nd/9781492034018/). O'Reilly Media, 2021. ISBN: 9781492034025
+[^53]: Chris Richardson. [Microservices: Decomposing Applications for Deployability and Scalability](https://www.infoq.com/articles/microservices-intro/). *infoq.com*, May 2014. Archived at [perma.cc/CKN4-YEQ2](https://perma.cc/CKN4-YEQ2)
+[^54]: Mohammad Shahrad, Rodrigo Fonseca, Íñigo Goiri, Gohar Chaudhry, Paul Batum, Jason Cooke, Eduardo Laureano, Colby Tresness, Mark Russinovich, Ricardo Bianchini. [Serverless in the Wild: Characterizing and Optimizing the Serverless Workload at a Large Cloud Provider](https://www.usenix.org/system/files/atc20-shahrad.pdf). At *USENIX Annual Technical Conference* (ATC), July 2020.
+[^55]: Luiz André Barroso, Urs Hölzle, and Parthasarathy Ranganathan. [The Datacenter as a Computer: Designing Warehouse-Scale Machines](https://www.morganclaypool.com/doi/10.2200/S00874ED3V01Y201809CAC046), third edition. Morgan & Claypool Synthesis Lectures on Computer Architecture, October 2018. [doi:10.2200/S00874ED3V01Y201809CAC046](https://doi.org/10.2200/S00874ED3V01Y201809CAC046)
+[^56]: David Fiala, Frank Mueller, Christian Engelmann, Rolf Riesen, Kurt Ferreira, and Ron Brightwell. [Detection and Correction of Silent Data Corruption for Large-Scale High-Performance Computing](https://arcb.csc.ncsu.edu/~mueller/ftp/pub/mueller/papers/sc12.pdf), at *International Conference for High Performance Computing, Networking, Storage and Analysis* (SC), November 2012. [doi:10.1109/SC.2012.49](https://doi.org/10.1109/SC.2012.49)
+[^57]: Anna Kornfeld Simpson, Adriana Szekeres, Jacob Nelson, and Irene Zhang. [Securing RDMA for High-Performance Datacenter Storage Systems](https://www.usenix.org/conference/hotcloud20/presentation/kornfeld-simpson). At *12th USENIX Workshop on Hot Topics in Cloud Computing* (HotCloud), July 2020.
+[^58]: Arjun Singh, Joon Ong, Amit Agarwal, Glen Anderson, Ashby Armistead, Roy Bannon, Seb Boving, Gaurav Desai, Bob Felderman, Paulie Germano, Anand Kanagala, Jeff Provost, Jason Simmons, Eiichi Tanda, Jim Wanderer, Urs Hölzle, Stephen Stuart, and Amin Vahdat. [Jupiter Rising: A Decade of Clos Topologies and Centralized Control in Google's Datacenter Network](https://conferences.sigcomm.org/sigcomm/2015/pdf/papers/p183.pdf). At *Annual Conference of the ACM Special Interest Group on Data Communication* (SIGCOMM), August 2015. [doi:10.1145/2785956.2787508](https://doi.org/10.1145/2785956.2787508)
+[^59]: Glenn K. Lockwood. [Hadoop's Uncomfortable Fit in HPC](https://blog.glennklockwood.com/2014/05/hadoops-uncomfortable-fit-in-hpc.html). *glennklockwood.blogspot.co.uk*, May 2014. Archived at [perma.cc/S8XX-Y67B](https://perma.cc/S8XX-Y67B)
+[^60]: Cathy O'Neil: *Weapons of Math Destruction: How Big Data Increases Inequality and Threatens Democracy*. Crown Publishing, 2016. ISBN: 9780553418811
+[^61]: Supreeth Shastri, Vinay Banakar, Melissa Wasserman, Arun Kumar, and Vijay Chidambaram. [Understanding and Benchmarking the Impact of GDPR on Database Systems](https://www.vldb.org/pvldb/vol13/p1064-shastri.pdf). *Proceedings of the VLDB Endowment*, volume 13, issue 7, pages 1064–1077, March 2020. [doi:10.14778/3384345.3384354](https://doi.org/10.14778/3384345.3384354)
+[^62]: Martin Fowler. [Datensparsamkeit](https://www.martinfowler.com/bliki/Datensparsamkeit.html). *martinfowler.com*, December 2013. Archived at [perma.cc/R9QX-CME6](https://perma.cc/R9QX-CME6)
+[^63]: [Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 (General Data Protection Regulation)](https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679&from=EN). *Official Journal of the European Union* L 119/1, May 2016.

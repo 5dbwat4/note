@@ -1,5 +1,5 @@
 export default {
     "entries":"auto",
-    "name":"d2l.ai",
+    "name":"霓虹语入门",
     "show":true,
 }
