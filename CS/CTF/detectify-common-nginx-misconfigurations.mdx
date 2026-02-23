@@ -1,0 +1,225 @@
+---
+title: 常见的 Nginx 误配置让您的 Web 服务器面临攻击风险
+---
+
+**Detectify** 2020年11月10日
+
+
+**Nginx 是为全球三分之一网站提供支持的 Web 服务器。Detectify Crowdsource 发现了一些常见的 Nginx 误配置，如果不加以检查，会使您的网站容易受到攻击。以下是如何在攻击者利用这些配置之前，发现一些最常见误配置的方法。**
+
+**更新：** Detectify 安全顾问 Frans Rosen 在 Detectify Labs 上发表了一项深入研究新型 Web 服务器误配置的研究，文章标题为：[Middleware, middleware everywhere – and lots of misconfigurations to fix](#)
+
+由于其轻量级、模块化以及用户友好的配置格式，Nginx 是互联网上使用最广泛的 Web 服务器之一。在 Detectify，我们为数千名客户扫描 Nginx 中的误配置和安全漏洞。我们的 Crowdsource 网络定期提交影响 Nginx 的新型有趣漏洞，随后我们会将这些漏洞作为安全测试集成到我们的 Web 应用程序扫描器中。
+
+我们使用 Google BigQuery 分析了从 GitHub 下载的将近 50,000 个唯一的 Nginx 配置文件。通过这些数据，我们可以了解不同误配置的普遍程度。
+
+本文将重点介绍以下 Nginx 误配置：
+
+* 缺少根位置（Missing root location）
+* 不安全的变量使用（Unsafe variable use）
+* 原始后端响应读取（Raw backend response reading）
+* `merge_slashes` 设置为 off
+
+## 缺少根位置（Missing root location）
+
+```nginx
+server {
+    root /etc/nginx;
+
+    location /hello.txt {
+        try_files $uri $uri/ =404;
+        proxy_pass http://127.0.0.1:8080/;
+    }
+}
+```
+
+`root` 指令指定 Nginx 的根文件夹。在上面的示例中，根文件夹是 `/etc/nginx`，这意味着我们可以访问该文件夹内的文件。上述配置没有为 `/`（即 `location / {...}`）设置位置，仅为 `/hello.txt` 设置了位置。因此，`root` 指令将被全局设置，这意味着对 `/` 的请求将指向本地路径 `/etc/nginx`。
+
+一个简单的请求如 `GET /nginx.conf` 就会泄露存储在 `/etc/nginx/nginx.conf` 中的 Nginx 配置文件内容。如果根目录设置为 `/etc`，那么对 `/nginx/nginx.conf` 的 `GET` 请求将泄露配置文件。在某些情况下，甚至可能访问到其他配置文件、访问日志，甚至是 HTTP 基本身份验证的加密凭据。
+
+在我们收集的近 50,000 个 Nginx 配置文件中，最常见的根路径如下：
+
+## 差一斜杠（Off-By-Slash）
+
+```nginx
+server {
+    listen 80 default_server;
+
+    server_name _;
+
+    location /static {
+        alias /usr/share/nginx/static/;
+    }
+
+    location /api {
+        proxy_pass http://apiserver/v1/;
+    }
+}
+```
+
+由于缺少斜杠，"差一斜杠"误配置可能导致路径向上遍历一步。Orange Tsai 在其 Blackhat 演讲"Breaking Parser Logic!"中使这项技术广为人知。在该演讲中，他展示了 `location` 指令中缺少尾部斜杠与 `alias` 指令结合使用时，如何可能读取 Web 应用程序的源代码。鲜为人知的是，这项技术同样适用于其他指令，例如 `proxy_pass`。让我们分解一下发生了什么以及为什么会这样。
+
+```nginx
+location /api {
+    proxy_pass http://apiserver/v1/;
+}
+```
+
+对于运行以下配置且可通过 `server` 访问的 Nginx 服务器，可能认为只能访问 `http://apiserver/v1/` 下的路径。
+
+```
+http://server/api/user -> http://apiserver/v1//user
+```
+
+当请求 `http://server/api/user` 时，Nginx 首先会规范化 URL。然后它会检查前缀 `/api` 是否与 URL 匹配，在这种情况下确实匹配。随后前缀会从 URL 中移除，留下路径 `/user`。该路径随后会被添加到 `proxy_pass` URL 中，最终得到 URL `http://apiserver/v1//user`。请注意，URL 中存在双斜杠，因为 `location` 指令不以斜杠结尾，而 `proxy_pass` URL 路径以斜杠结尾。大多数 Web 服务器会将 `http://apiserver/v1//user` 规范化为 `http://apiserver/v1/user`，这意味着即使存在这种误配置，一切仍会按预期工作，可能不会被注意到。
+
+这种误配置可以通过请求 `http://server/api../` 来利用，这将导致 Nginx 请求 URL `http://apiserver/v1/../`，该 URL 会被规范化为 `http://apiserver/`。利用此误配置可能造成的影响取决于能够访问到什么内容。例如，这可能导致通过 URL `http://server/api../server-status` 暴露 Apache 的 server-status 页面，或者使本不应公开访问的路径变得可访问。
+
+Nginx 服务器存在此误配置的一个迹象是：当移除 URL 中的斜杠时，服务器仍返回相同的响应。例如，如果 `http://server/api/user` 和 `http://server/apiuser` 都返回相同的响应，则该服务器可能存在漏洞。这将导致发送以下请求：
+
+```
+http://server/api/user -> http://apiserver/v1//user
+http://server/apiuser -> http://apiserver/v1/user
+```
+
+## 不安全的变量使用（Unsafe variable use）
+
+某些框架、脚本和 Nginx 配置会不安全地使用 Nginx 存储的变量。这可能导致 XSS、绕过 HttpOnly 保护、信息泄露，甚至在某些情况下导致远程代码执行（RCE）等问题。
+
+### **SCRIPT_NAME**
+
+对于如下配置：
+
+```nginx
+location ~ .php$ {
+    include fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    fastcgi_pass 127.0.0.1:9000;
+}
+```
+
+主要问题在于，Nginx 会将任何以 `.php` 结尾的 URL 发送给 PHP 解释器，即使该文件在磁盘上并不存在。正如 Nginx 创建的"Pitfalls and Common Mistakes"文档中所述，这是许多 Nginx 配置中的常见错误。
+
+如果 PHP 脚本尝试基于 `SCRIPT_NAME` 定义基础 URL，则会发生 XSS：
+
+```php
+<?php
+
+if(basename($_SERVER['SCRIPT_NAME']) ==
+basename($_SERVER['SCRIPT_FILENAME']))
+  echo dirname($_SERVER['SCRIPT_NAME']);
+
+?>
+
+GET /index.php/<script>alert(1)</script>/index.php
+SCRIPT_NAME  =  /index.php/<script>alert(1)</script>/index.php
+```
+
+### **使用 $uri 可能导致 CRLF 注入**
+
+另一种与 Nginx 变量相关的误配置是使用 `$uri` 或 `$document_uri` 而非 `$request_uri`。`$uri` 和 `$document_uri` 包含规范化的 URI，而 Nginx 中的"规范化"包括对 URI 进行 URL 解码。Volema 发现，在 Nginx 配置中创建重定向时通常会使用 `$uri`，这会导致 CRLF 注入。
+
+一个易受攻击的 Nginx 配置示例如下：
+
+```nginx
+location / {
+  return 302 https://example.com$uri;
+}
+```
+
+HTTP 请求的换行字符是 `\r`（回车）和 `\n`（换行）。对这些换行字符进行 URL 编码后，得到的字符表示为 `%0d%0a`。当这些字符包含在发往存在误配置的服务器的请求中时，例如 `http://localhost/%0d%0aDetectify:%20clrf`，服务器将返回一个名为 `Detectify` 的新头部，因为 `$uri` 变量包含 URL 解码后的换行字符。
+
+```
+HTTP/1.1 302 Moved Temporarily
+Server: nginx/1.19.3
+Content-Type: text/html
+Content-Length: 145
+Connection: keep-alive
+Location: https://example.com/
+Detectify: clrf
+```
+
+了解更多关于 CRLF 注入和响应拆分风险的内容，请访问：https://blog.detectify.com/2019/06/14/http-response-splitting-exploitations-and-mitigations/
+
+### 任意变量
+
+在某些情况下，用户提供的数据可能被当作 Nginx 变量处理。目前尚不清楚为什么会发生这种情况，但这并不罕见，也不容易测试，正如这份 H1 报告所示。如果我们搜索错误消息，可以看到它出现在 SSI 过滤模块中，因此揭示这是由于 SSI 导致的。
+
+测试此问题的一种方法是设置 Referer 头部值：
+
+```bash
+$ curl -H 'Referer: bar' http://localhost/foo$http_referer | grep 'foobar'
+```
+
+我们扫描了这种误配置，并发现了多个用户可以打印 Nginx 变量值的实例。发现的易受攻击实例数量有所下降，这可能表明该问题已被修复。
+
+## 原始后端响应读取（Raw backend response reading）
+
+使用 Nginx 的 `proxy_pass` 时，有可能拦截后端生成的错误和 HTTP 头部。如果您希望隐藏内部错误消息和头部，让它们改由 Nginx 处理，这将非常有用。如果后端返回错误页面，Nginx 会自动提供自定义错误页面。但如果 Nginx 无法识别这是一个 HTTP 响应呢？
+
+如果客户端向 Nginx 发送无效的 HTTP 请求，该请求将原样转发给后端，后端将以其原始内容进行响应。随后，Nginx 无法理解这个无效的 HTTP 响应，只会将其转发给客户端。想象一个如下所示的 uWSGI 应用程序：
+
+```python
+def application(environ, start_response):
+   start_response('500 Error', [('Content-Type', 'text/html'),('Secret-Header','secret-info')])
+   return [b"Secret info, should not be visible!"]
+```
+
+以及 Nginx 中的以下指令：
+
+```nginx
+http {
+   error_page 500 /html/error.html;
+   proxy_intercept_errors on;
+   proxy_hide_header Secret-Header;
+}
+```
+
+`proxy_intercept_errors` 会在后端响应状态码大于 300 时提供自定义响应。在我们上面的 uWSGI 应用程序中，我们将发送 `500 Error`，这会被 Nginx 拦截。
+
+`proxy_hide_header` 的含义相当直白；它会向客户端隐藏任何指定的 HTTP 头部。
+
+如果我们发送一个正常的 `GET` 请求，Nginx 将返回：
+
+```
+HTTP/1.1 500 Internal Server Error
+Server: nginx/1.10.3
+Content-Type: text/html
+Content-Length: 34
+Connection: close
+```
+
+但如果我们发送一个无效的 HTTP 请求，例如：
+
+```
+GET /? XTTP/1.1
+Host: 127.0.0.1
+Connection: close
+```
+
+我们将得到以下响应：
+
+```
+XTTP/1.1 500 Error
+Content-Type: text/html
+Secret-Header: secret-info
+
+Secret info, should not be visible!
+```
+
+## merge_slashes 设置为 off
+
+`merge_slashes` 指令默认设置为 "on"，这是一种将两个或多个正斜杠压缩为一个的机制，因此 `///` 会变成 `/`。如果 Nginx 用作反向代理，且被代理的应用程序易受本地文件包含漏洞影响，那么在请求中使用额外的斜杠可能会为利用该漏洞留下空间。Danny Robinson 和 Rotem Bar 对此进行了详细描述。
+
+我们发现了 33 个将 `merge_slashes` 设置为 "off" 的 Nginx 配置文件。
+
+## 亲自尝试
+
+我们创建了一个 GitHub 仓库，您可以使用 Docker 设置自己的易受攻击的 Nginx 测试服务器，其中包含本文讨论的一些误配置，并亲自尝试发现它们！
+
+https://github.com/detectify/vulnerable-nginx
+
+## 结论
+
+Nginx 是一个非常强大的 Web 服务器平台，很容易理解它为何被广泛使用。但灵活的配置也带来了犯错的可能性，这些错误可能产生安全影响。不要让攻击者太容易通过忽略这些常见误配置来入侵您的网站。
+
