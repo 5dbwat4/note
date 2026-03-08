@@ -2,7 +2,8 @@ export default {
     "entries":"auto",
     "subcategories":[
         "./cryptohack",
-        "./xsleak.wiki"
+        "./xsleak.wiki",
+        "./runs"
     ],
     "name":"CTF",
     "show":true,

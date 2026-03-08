@@ -1,5 +1,5 @@
 export default {
     "entries":"auto",
-    "name":"霓虹语入门",
+    "name":"CTF Runs",
     "show":true,
 }
