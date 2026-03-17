@@ -1,0 +1,8 @@
+{"version": 2, "width": 120, "height": 25, "timestamp": 1773576954, "env": {"SHELL": "/usr/bin/zsh", "TERM": "xterm-256color"}}
+[16.77291, "o", "mysql> "]
+[21.159015, "o", "SHOW PROCESSLIST;"]
+[21.867538, "o", "\r\n"]
+[21.86819, "o", "+----+-----------------+------------------+---------+---------+------+------------------------+------------------+\r\n| Id | User            | Host             | db      | Command | Time | State                  | Info             |\r\n+----+-----------------+------------------+---------+---------+------+------------------------+------------------+\r\n|  5 | event_scheduler | localhost        | NULL    | Daemon  | 2945 | Waiting on empty queue | NULL             |\r\n| 15 | root            | 172.17.0.1:60924 | NULL    | Sleep   |  789 |                        | NULL             |\r\n| 16 | root            | 172.17.0.1:60928 | NULL    | Sleep   |  283 |                        | NULL             |\r\n| 18 | root            | 172.17.0.1:60958 | db_exp1 | Sleep   |  283 |                        | NULL             |\r\n| 19 | root            | localhost        | NULL    | Query   |    0 | init                   | SHOW PROCESSLIST |\r\n+----+-----------------+------------------+---------+---------+------+------------------------+------------------+\r\n5 rows in set, 1 warning (0.000 sec)\r\n\r\nmysql> "]
+[26.858959, "o", "SHOW VARIABLES LIKE '%datadir%';"]
+[27.691899, "o", "\r\n"]
+[27.700311, "o", "+---------------+-----------------+\r\n| Variable_name | Value           |\r\n+---------------+-----------------+\r\n| datadir       | /var/lib/mysql/ |\r\n+---------------+-----------------+\r\n1 row in set (0.008 sec)\r\n\r\nmysql> "]
