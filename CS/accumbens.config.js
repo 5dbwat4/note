@@ -5,7 +5,8 @@ export default {
         "./d2l.ai",
         "./GAMES101-rev",
         "./Quant",
-        "./ddia"
+        "./ddia",
+        "./CS106L"
     ],
     "entries":[ ]
 }

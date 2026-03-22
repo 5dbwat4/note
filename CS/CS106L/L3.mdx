@@ -1,0 +1,89 @@
+---
+title: "Lecture 3 - Initialization & References"
+---
+
+
+# Lecture 3 - Initialization & References
+
+**Instructors:** Thomas Poimenidis, Rachel Fernandez
+
+## 1. Initialization
+Initialization provides initial values to an object at the time of its construction. C++ provides several ways to initialize variables:
+
+### Direct Initialization
+*   **What it is:** Uses parentheses or equals signs without braces (e.g., `int numOne = 12.0;` or `int numTwo(12.0);`).
+*   **The Problem:** C++ does not type-check strictly with direct initialization. Narrowing conversions (like turning a `double` into an `int`) occur silently without the compiler throwing an error. For example, initializing an `int` with `100.8` simply stores `100`, which can lead to unexpected behavior or critical system failures.
+
+### Uniform Initialization (C++11)
+*   **What it is:** Uses curly braces `{}`.
+*   **Why it's awesome:** 
+    1.  **It’s safe:** It forces the compiler to care about types and prevents narrowing conversions. Using `int numOne{12.0};` throws a compiler error. 
+    2.  **It’s ubiquitous:** It works consistently for all types, including `std::vector`, `std::map`, and custom classes.
+*   **Examples:**
+    *   Map: `std::map<std::string, int> ages{ {"Alice", 25}, {"Bob", 30} };`.
+    *   Vector: `std::vector<int> numbers{1, 2, 3, 4, 5};`.
+
+### Structured Binding (C++17)
+*   **What it is:** A useful way to initialize multiple variables directly from data structures with sizes that are fixed at compile-time (like tuples or structs).
+*   **Why it's useful:** It allows you to access multiple values returned by a function easily. It is a much cleaner alternative to extracting tuple elements one by one using `std::get<0>`, `std::get<1>`, etc..
+*   **Example:** `auto [className, buildingName, language] = getClassInfo();`.
+
+---
+
+## 2. References
+*   **What it is:** Denoted by an ampersand (`&`), a reference declares a name variable as an alias to an already-existing piece of memory. 
+*   **Usage:** If `int num = 5;` and `int& ref = num;`, modifying `ref` (e.g., `ref = 10;`) directly modifies `num` as well, because they share the same memory.
+
+### Pass by Value vs. Pass by Reference
+*   **Pass by Value:** Passing a variable into a function by value means, "make a copy, don't take in the actual variable". The original variable remains unchanged.
+*   **Pass by Reference:** Passing a variable by reference means, "take in the actual piece of memory, don't make a copy". Any modifications inside the function will affect the original variable.
+    *   *Example:* `void squareN(int& n)` ensures that operations on `n` modify the original argument passed into the function.
+
+### A Classic Reference-Copy Bug
+*   **The Bug:** When iterating over a collection (like a vector of pairs) using a range-based loop without an ampersand, you are only modifying **copies** of the elements. For example: `for (auto [num1, num2] : nums) { num1++; }` does not change the original collection.
+*   **The Fix:** Use a reference `auto&` (e.g., `for (auto& [num1, num2] : nums)`) to modify the actual elements, or use traditional indexing like `nums[i].first++;`.
+
+---
+
+## 3. L-values vs R-values
+*   **L-value (Locator Value):** Can appear on the left or right side of an equal sign, and has a specific, persistent memory address.
+*   **R-value (Read Value):** Exists only on the right side of an equal sign, and is a **temporary value with no memory address**.
+*   **The Pass-by-Reference Rule:** **You cannot pass an r-value into a function by reference** because r-values are temporary. Attempting to pass a literal integer (like `5`) into a function expecting an `int&` will trigger a compile-time error stating it expects an l-value.
+
+---
+
+## 4. Const
+*   **What it is:** The `const` qualifier declares that an object is read-only and **cannot be modified**. Calling modifying methods (like `.push_back()` on a const vector) causes a compiler error.
+*   **Const References:**
+    *   You can create a `const` reference to a non-const variable (e.g., `const std::vector<int>& const_ref{ vec };`).
+    *   **Rule:** You **cannot** declare a non-const reference to a `const` variable (e.g., `std::vector<int>& bad_ref{ const_vec };` is a compile error).
+    *   You **can** declare a const reference to a const variable.
+```cpp
+#include <iostream>
+#include <vector>
+int main()
+{
+    std::vector<int> vec{ 1, 2, 3 }; /// a normal vector
+    const std::vector<int> const_vec{ 1, 2, 3 }; /// a const vector
+    std::vector<int>& ref_vec{ vec }; /// a reference to 'vec'
+    const std::vector<int>& const_ref{ vec }; /// a const reference
+    vec.push_back(3); /// this is ok!
+    const_vec.push_back(3); /// no, this is const!
+    ref_vec.push_back(3); /// this is ok, just a reference!
+    const_ref.push_back(3); /// this is const, compiler error!
+    return 0;
+}
+```
+---
+
+## 5. Compiling C++ Programs
+*   **The Basics:** C++ is a compiled language; source code must be translated into binary machine code by a compiler program. Popular compilers include `clang` and `g++`.
+*   **Terminal Compilation:** 
+    *   Command structure: `g++ -std=c++23 main.cpp -o main`.
+    *   `g++`: The compiler.
+    *   `-std=c++23`: Specifies the C++ version.
+    *   `main.cpp`: The source file.
+    *   `-o main`: Specifies the custom output executable name. 
+    *   Omitting the `-o` flag (e.g., `g++ -std=c++23 main.cpp`) defaults the executable name to `a.out`. You run the output via `./main` or `./a.out`.
+
+

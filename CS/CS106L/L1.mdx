@@ -1,4 +1,8 @@
-```
+---
+title: "Lecture 1 - Welcome to CS106L!"
+---
+
+{/* ```
 Lecture 1: Welcome to CS106L!
 CS106L, Fall 2025
 Rachel Fernandez, Thomas Poimenidis
@@ -338,13 +342,164 @@ What questions do you have?
 ```
 
 
-===================================================
+=================================================== */}
 
-# CS106L: C++ Programming for Software Development
+# Lecture 1: Welcome to CS106L!
 
-## Lecture 1: Welcome to CS106L!
-
-### Why C++?
+## Why C++?
 
 - “The invisible foundation of everything”
-- 
+- Used in many industries, including gaming, high-frequency trading, self-driving cars, GPU programming, databases, web browsers, virtual reality, machine learning, compilers, virtual machines, and operating systems.
+
+C++ is great for  
+- Handling lots of data
+- Handling it very efficiently
+- Doing it in an elegant, readable way
+
+C++ was first released in 1985, still #2!
+
+## The C++ Community
+
+- C++ has a massive user base
+- The C++ Standard continues to be revised every three years
+  - A standards committee decides new changes to the language
+  - We are currently at C++23, with C++26 on the horizon!
+
+## What is C++?
+
+A valid C++ program can look like this:
+
+```cpp
+#include<iostream>
+#include<string>
+
+int main(){
+    auto str= std::make_unique<std::string>("Hello World!"); 
+    std::cout<<*str<< std::endl;
+    return 0;
+}
+
+// Prints "Hello World!"
+```
+
+C++ is backwards compatible with C, so this is also a valid C++ program:
+
+```cpp
+#include"stdio.h"
+#include"stdlib.h"
+
+int main(int argc, char*argv){
+    printf("%s","Hello, world!\n"); 
+    //^a C function!
+    return EXIT_SUCCESS;
+}
+```
+
+Also, this is a valid C++ program:
+
+```cpp
+#include"stdio.h"
+#include"stdlib.h"
+
+int main(int argc, char*argv){
+    asm(".LC0:\n\t" 
+            ".string \"Hello, world!\"\n\t" 
+        "main:\n\t"
+            "push rbp\n\t" 
+            "mov rbp, rsp\n\t" 
+            "sub rsp, 16\n\t" 
+            "mov DWORD PTR[rbp-4], edi\n\t" 
+            "mov QWORD PTR[rbp-16], rsi\n\t" 
+            "mov edi, OFFSET FLAT:.LC0\n\t"
+            "call puts\n\t"); 
+    return EXIT_SUCCESS;
+}
+```
+
+## C++ History
+
+### Assembly
+```assembly
+section .text
+global _start ;must be declared for linker(ld)
+_start: ;tell linker entry point
+    mov edx, len ;message length
+    mov ecx, msg ;message to write
+    mov ebx, 1 ;file descriptor(stdout)
+    mov eax, 4 ;system call number(sys_write)
+    int 0x80 ;call kernel
+    mov eax, 1 ;system call number(sys_exit)
+    int 0x80 ;call kernel
+section .data
+msg db 'Hello, world!', 0xa ;our dear string
+len equ $-msg ;length of our dear string
+```
+
+**Why don't we always use assembly?**
+
+Assembly language:  
+- ✅ Unbelievably **simple** instructions
+- ✅ Extremely **fast** (when well-written)
+- ✅ Complete **control** over your program
+- ❌ A **lot of code** (even for simple tasks)
+- ❌ Very **hard to understand**
+- ❌ Extremely **unportable**
+
+### Invention of C
+- Dennis Ritchie created C in 1972 to much praise.
+- C made it easy to write code that was:
+  - Fast
+  - Simple
+  - Cross platform
+    - Compilers! Source Code → Assembly
+- Learn to love it in CS107!
+- C was popular because it was simple
+  - "When I read C I know what the output Assembly is going to look like"  
+    —Linus Torvalds, creator of Linux
+- However, C has some weaknesses:
+  - No objects or classes
+  - Difficult to write generic or templated code
+  - Tedious(麻烦) to write large programs
+
+### Welcome to C++!
+- In 1983, the beginnings of C++ were created by Danish computer scientist Bjarne Stroustrup
+- He wanted a language that was
+  - Fast
+  - Simple to use
+  - Cross-platform
+  - Had high level features
+
+## C++ Design Philosophy
+
+- Express ideas and intent directly in code.
+- Enforce safety at compile time whenever possible.
+- Do not waste time or space.
+- Compartmentalize messy constructs.
+- Allow the programmer full control, responsibility, and choice.
+
+> "Code should be elegant and efficient; I hate to have to choose between those"  
+> —Bjarne Stroustrup
+
+In summary, C++ emphasizes:
+- Readable
+- Safety
+- Efficiency
+- Abstraction
+- Programmer Choice
+
+Back to the C++ program examples:
+
+```cpp
+#include<iostream>
+#include<string>
+
+int main(){
+    auto str= std::make_unique<std::string>("Hello World!"); 
+    //          ^ smart pointers       ^ Templates!
+    std::cout<<*str<< std::endl;
+    //   ^ Streams ^ Operator Overloading   
+    return 0;
+}
+
+// Prints "Hello World!"
+```

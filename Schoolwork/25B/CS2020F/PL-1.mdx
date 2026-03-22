@@ -1,0 +1,163 @@
+# Object-Oriented Programming Using C++
+Weiwei Xu
+http://www.cad.zju.edu.cn/home/weiweixu/
+
+## Course Contents
+- Introduction to object-oriented programming…
+- …with a strong software engineering foundation…
+- …aimed at producing and maintaining large, high-quality software systems.
+
+## The Development of OOP
+第一次软件危机：主要体现在“复杂性”, 促进了结构化编程的大发展。
+
+第二次软件危机：主要体现在“可扩展性”、“可维护性”上面。传统的面向过程(包括 结构化程序设计)方法已经越来越不能适应快速多变的业务需求了。面向对象的思想开始快速发展。
+
+### 相关人物与贡献
+- Bjarne Stroustrup
+- 杨芙清院士
+  合著了《面向对象的系统分析》《面向对象的系统设计》, 研制出基于构件—构架的应用系统集成组装环境,在北京2008年奥运会信息系统建模以及众多国家重大建设工程中得到广泛应用
+
+- C++ was first designed and implemented by Bjarne Stroustrup, AT&T, early 1980’s
+- http://www.stroustrup.com/
+
+## Object-oriented programming
+the programming tools are beginning to look less like machines and more like parts of our minds, and also like other expressive mediums such as writing, painting, sculpture, animation, and filmmaking. Object-oriented programming is part of this movement toward using the computer as an expressive medium.
+
+## Buzzwords
+responsibility-driven design
+Encapsulation (封装)
+Inheritance(继承)
+iterators
+Polymorphism(多态)
+coupling
+interface
+overriding
+cohesion
+template
+collection classes
+mutator methods
+polymorphic method calls
+
+## Textbooks
+- Thinking In C++, Ver. 2,Vol. 1 & 2
+- C++ Primer, Ver 5
+- References:
+  - The C++ Programming Language
+  - C++:The Core Language
+  - Essential C++
+  - Effective C++
+  - Inside the C++ Object Model
+  - C++ Templates
+
+### 相关书籍与作者
+C++编程思想 机械工业出版社
+
+Bruce Eckel
+- BRUCE ECKEL is the author of “Thinking in C++”, which won the Software Development Jolt Award for best book of 1995. He's been professionally programming for 20 years and has been teaching people throughout the world how to program with objects since 1986. He was a voting member of the C++ Standards Committee.
+- http://mindview.net
+
+## Course Materials
+- 面向对象编程2025-2026
+  课件PPT：
+  https://course.zju.edu.cn
+  作业：https://pintia.cn
+  习题集：
+  面向对象程序设计2025-2026春夏习题集
+  用户组：
+  面向对象程序设计2025-2026春夏习题集用户组
+
+## Assessment
+1. Lab, 50%
+  ! In week 2, 4, 6, 8, 10, 12, 14, 16.
+  - To submit on-line, to be judged manually
+  - Deadline is DEAD on Midnight of Sat.
+2. Final exam: 50%, TBD
+
+## E-mail rule
+- xww@cad.zju.edu.cn
+- Title starts with “[OOP]”
+- State your name and sid in the text
+- Prefer plain text e-mail
+- NO background, music, color, font styles..
+
+## Tools for C++(1)
+- Microsoft Visual Studio 2022
+
+## Tools for C++(1I)
+- Visual studio code –configure by yourself
+
+## AI Coding Rules
+The students should learn to code by themslevs first then start to use AI.
+- Do not use AI when you coding C++ homework.
+You need to control AI, do not let AI control you.
+- But we will provide an AI coding example in the course, to show how to work with AI.
+
+## The First C++ Program
+```cpp
+#include <iostream>  
+using namespace std;
+
+int main()
+{
+    cout << "Hello, World! I am " << 18 << " Today!" << endl;
+    
+    return 0;
+}
+```
+
+## Read input
+```cpp
+#include <iostream>  
+using namespace std;
+
+int main() {
+    int number;
+
+    cout << "Enter a decimal number: ";  cin >> number;
+    cout << "The number you entered is " << number <<"." << endl;
+
+    return 0;
+}
+```
+
+## Introduction to C++
+The trip begins…
+
+## The C Language
+### Strengths
+- Efficient programs
+- Direct access to machine, suitable for OS and ES
+- Flexible
+
+### Weakness
+- Insufficient type checking
+- Poor support for programming-in-the-large
+- Procedure-oriented programming
+
+## C++ improvements
+- Data abstraction
+- Access control
+- Initialization & cleanup
+- Function overloading
+- Streams for I/O
+- Constants (C99)
+- Name control
+- Inline functions(C99)
+- References
+- Operator overloading
+- More safe and powerful memory management
+- Support for OOP
+- Templates
+- Exception handling
+- More extensive libraries, STL
+
+## C++
+- C++ can be viewed as a “better”C
+  - C++ => C=C+1
+- but...
+- C++ is not C
+- Focus on C++ as a language in its own right
+- C++ is a hybrid language, supports
+  - Procedure-oriented programming
+  - Object-oriented programming
+  - Generic programming

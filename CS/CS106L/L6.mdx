@@ -1,0 +1,39 @@
+---
+title: "Lecture 6 - Iterators and Pointers"
+---
+
+
+# Lecture 6 - Iterators and Pointers
+
+**Instructors:** Rachel Fernandez, Thomas Poimenidis
+
+## 1. What is an Iterator?
+Iterators provide a way to track your current position within a data container. 
+*   **The Claw Machine Analogy:** Think of an iterator as the "claw" in an arcade machine. The claw can grab an item (dereference), move forward to the next item (increment), and check if it has reached the end. 
+
+### The Iterator Interface
+*   **`begin()`:** Returns an iterator pointing to the very first element of the container.
+*   **`end()`:** Returns a "past-the-end" iterator. **It never points to a valid element;** instead, it points to the conceptual space just one step after the final element.
+*   **Empty Containers:** If a container is empty, `c.begin() == c.end()` is true.
+*   **For-each loops demystified:** When you write `for (auto elem : s)`, the C++ compiler strictly translates it into an underlying iterator loop: `for (auto it = s.begin(); it != s.end(); ++it) { auto elem = *it; }`.
+*   **Using `auto`:** Because iterator types are incredibly long and tedious to type out (e.g., `std::map<int, int>::iterator`), it is highly recommended to use the `auto` keyword.
+
+### Prefix (`++it`) vs. Postfix (`it++`) Increment
+*   **Prefix (`++it`):** Increments the iterator and returns a reference to the updated object.
+*   **Postfix (`it++`):** Increments the iterator but has to return a **copy** of the old value. 
+*   **Why it matters:** Iterators are fully-fledged objects. Creating copies of them is computationally more expensive than copying a simple integer. As Bjarne Stroustrup notes, `++it` is sometimes faster and is never slower than `it++`, so prefix should be your default.
+
+## 2. Categories of Iterators
+Not all iterators are created equal. The implementation of a container dictates what kind of iterator it supports, providing different layers of functionality.
+
+*   **Input Iterators:** The most basic type. They allow you to read an element (`auto elem = *it;`) in a single pass. If the element is a struct/class, you can access its members using the arrow operator (`it->member`).
+*   **Output Iterators:** Allow you to write elements (`*out_it = 10;`) in a single pass.
+*   **Forward Iterators:** Combine input and output capabilities and provide a multi-pass guarantee. (Note: Data streams cannot use forward iterators because streams only allow a single pass).
+*   **Bidirectional Iterators:** Allow you to step forwards and backwards (`++it` and `--it`). These are used in associative containers like `std::map` and `std::set`.
+*   **Random Access Iterators:** The most powerful. They allow you to rapidly skip forward or backward by jumping multiple steps at once (e.g., `it + 5` or `it`). These are supported by sequence containers like `std::vector` and `std::deque`. 
+*   **The Impact:** Standard algorithms require specific iterator traits. For instance, `std::sort` requires a Random Access Iterator, meaning you can easily sort a `std::vector`, but attempting to run `std::sort` on a `std::unordered_set` (which only supports forward/bidirectional iterators) will fail.
+
+## 3. Pointers and Memory
+*   **Memory Structure:** Every variable in a program lives somewhere in the address space (memory). Memory is byte-addressable, and an object's memory address is dictated by the location of its lowest byte (e.g., an `int` uses 4 bytes/32 bits).
+*   **Pointers:** While iterators point to container elements, **pointers point to any object in memory**. You can grab the memory address of a variable using the address-of operator (`&`), like `int* ptr = &val;`.
+*   **Pointer to Iterator Relationship:** Pointers function practically identically to Random Access Iterators. They share the same interface, supporting copy construction, forward movement (`++arr`), random access skipping (`arr += 2`), and comparisons (`arr == &v`). Conceptually, the backing type of a `std::vector<T>::iterator` is fundamentally similar to a raw `T*` pointer.

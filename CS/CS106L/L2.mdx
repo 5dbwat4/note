@@ -1,0 +1,397 @@
+---
+title: "Lecture 2 - Types and Structs"
+---
+
+# Lecture 2: Types and Structs
+
+## Today's Agenda
+- Compile Time vs Run Time
+- Statically Typed Languages
+- Structs
+- The STD
+- Code demo
+- Improving our code with auto and using
+
+## Compiled vs Interpreted Languages
+
+Let's recap! Compiler VS Interpreter
+
+
+THE BIG IDEA
+
+- Interpreted Language:  The interpreted languages read each line of code **line-by-line**, **translate** each line, and then **execute** it
+- Compiled Language: The compiler translates the **ENTIRE** program, packages it into an** executable file**, and then **executes** it
+- Interpreted languages all run in *run time*! Compiled Languages run in first *compile time* then *run time*
+
+C++ is a compiled language
+
+Q1: So we know the process of how C++ runs our code…
+But when **do we deal with errors**?
+
+Python
+```python
+print("Running...")
+hello = "Hello ";
+world = "World!";
+print(hello * world)
+```
+
+```shell
+$ python3 program.py 
+Running... 
+TypeError: can't multiply sequence by non-int of type 'str'
+```
+
+C++
+```cpp
+int main() {
+std::cout << "Running..." << std::endl;
+std::string hello = "Hello ";
+std::string world = "World!";
+std::cout << hello * world << std::endl;
+return 0;
+}
+```
+```shell
+$ g++ main.cpp
+error: no match for 'operator*' (operand types are 'std::string’ and ‘std::string’)
+```
+
+Any guesses for when this error occurs? Run time or compile time?
+
+THE BIG IDEA  
+- This error occurs during *compile time*!
+- When we are translating, we see that we try to multiply two strings and the compiler goes "hey that's not allowed!!"
+
+## Types
+
+*C++ compilers can be noisy… why?*
+
+```plain
+rtmap.cpp: In function `int main()':
+rtmap.cpp:19: invalid conversion from `int' to `std::_Rb_tree_node<std::pair<const int, double> >*' rtmap.cpp:19: initializing argument 1 of `std::_Rb_tree_iterator<_Val, _Ref, _Ptr>::_Rb_tree_iterator(std::_Rb_tree_node<_Val>*) [with _Val = std::pair<const int, double>, _Ref = std::pair<const int, double>&, _Ptr = std::pair<const int, double>*]' rtmap.cpp:20: invalid conversion from `int' to `std::_Rb_tree_node<std::pair<const int, double> >*'
+rtmap.cpp:20: initializing argument 1 of `std::_Rb_tree_iterator<_Val, _Ref, _Ptr>::_Rb_tree_iterator(std::_Rb_tree_node<_Val>*) [with _Val = std::pair<const int, double>, _Ref = std::pair<const int, double>&, _Ptr = std::pair<const int, double>*]'
+```
+
+Well the compiler is processing all of our types!
+
+Types are super important!!
+
+- A **type** refers to the “category” of a variable
+- C++ comes with built-in types
+    - `int` 106
+    - `double` 71.4
+    - `string` "Welcome to CS106L!"
+    - `bool` true false
+    - `size_t` 12 // Non-negative
+
+*Hopefully this sounds familiar :D*
+
+We know that the compiler checks for types before generating machine code.
+
+This means…
+
+**C++ is a *statically typed* language**
+
+
+
+### Dynamic Typing vs Static Typing
+
+
+Python (Dynamic Typing)
+```python
+a = 3
+b = "test"
+def foo(c):
+    d = 106
+    d = "hello world!"
+```
+
+The interpreter assigns variables a *type at runtime based on the variable's value at that time*
+
+
+C++ (Static Typing)
+```cpp
+int a = 3;
+string b = "test";
+void foo(string c)
+{
+    int d = 106;
+    d = "hello world!"; // ❌ Error! Can't assign a string to an int variable
+}
+```
+
+- Every variable must declare a type
+- Once declared, the type cannot change
+
+### Why static typing?
+- More efficient
+- Easier to understand and reason about
+- Better error checking
+
+```python
+def add_3(x):
+    return x + 3
+
+add_3("CS106L") # Oops, that's a string. Runtime error!
+```
+
+```cpp
+int add_3(int x) {
+    return x + 3;
+}
+
+add_3("CS106L"); // Can't pass a string when int expected. Compile time error!
+```
+### Aside: Function Overloading
+
+Defining two functions with the same name but different parameters
+
+```cpp
+double axolotl(int x) { // (1) 
+   return (double) x + 3; // typecast: int ￫ double
+}
+double axolotl(double x) { // (2)
+return x * 3;
+}
+
+axolotl(2.0); // uses version (2), returns 6.0
+axolotl(2); // uses version (1), returns 5.0
+```
+
+C++ is a compiled, statically typed language
+
+
+## Structs
+
+
+Keeping track of students
+
+- Every student ID has a few properties
+    - A name (string)
+    - A SUNet (string)
+    - An ID # (int)
+
+A fundamental problem
+
+```cpp
+return type issueNewID() {
+// How can we return all three things?
+// What should our return type be? 
+// In Python this would look like…
+// return "Stanford Tree", "theTREE", 0000002
+}
+```
+
+How do we return more than one value? :OO
+
+### Introducing structs!
+
+- Structs bundle data together
+    ```cpp
+    struct StanfordID {
+    string name; // These are called fields
+    string sunet; // Each has a name and type
+    int idNumber;
+    };
+
+    StanfordID id; // Initialize struct
+    id.name = "THE Stanford Tree" // Access field with ‘.’
+    id.sunet = "theTREE"; 
+    id.idNumber = 0000002;
+    ```
+- Returning multiple values
+
+    ```cpp
+    StanfordID issueNewID() { 
+        StanfordID id; 
+        id.name = "THE Stanford Tree"; 
+        id.sunet = "theTREE"; 
+        id.idNumber = 0000002; 
+        return id; 
+    }
+    ```
+
+- Uniform Initialization
+    ```cpp
+    StanfordID id; 
+    id.name = "THE Stanford Tree";
+    id.sunet = "theTREE";
+    id.idNumber = 0000002;
+    ```
+
+    same as:
+
+    ```cpp
+
+    // Order depends on field order in struct. ‘=‘ is optional 
+    StanfordID tree = { "THE Stanford Tree", "theTREE", 0000002 }; 
+    StanfordID lelandjr { "Leland Stanford Jr", "thejunior", 5430282 };
+    ```
+
+- Using list initialization
+
+    ```cpp
+    StanfordID issueNewID() {
+        StanfordID id;
+        id.name = "THE Stanford Tree"; 
+        id.sunet = "theTREE"; 
+        id.idNumber = 0000002;
+        return id;
+    }
+    ```
+
+    same as:
+
+    ```cpp
+
+    StanfordID issueNewID() {
+    StanfordID id = { "THE Stanford Tree", "theTREE", 0000002 };
+    return id;
+    }
+    ```
+
+THE BIG IDEA
+
+A **struct** bundles **named variables** into a new type
+
+### `std::pair` is a struct!
+
+```cpp
+struct Name { 
+    string first; 
+    string last; 
+}; 
+Name rf = { "Rachel", "Fernandez" };
+
+
+struct Order { 
+    string item; 
+    int quantity; 
+}; 
+Order dozen = { "Eggs", 12 };
+
+struct Point {
+    double x;
+    double y;
+};
+Point origin { 0.0, 0.0 };
+
+struct Circle {
+    Point center;
+    double radius;
+};
+Circle circle { {0, 0} , 50000000 };
+```
+
+> Notice anything?
+> 
+> Erm these all look a bit similar!!
+
+We can use `std::pair`!
+
+```cpp
+std::pair<std::string, int> dozen { "Eggs", 12 };
+std::string item = dozen.first; // "Eggs"
+int quantity = dozen.second; // 12
+```
+
+`std::pair` is a template (We'll learn more about this later)
+```cpp
+template <typename T1, typename T2>
+struct pair {
+T1 first;
+T2 second;
+};
+std::pair<std::string, int>
+```
+
+
+There’s something we need to discuss…
+What is an std !!?
+
+## std ― The C++ Standard Library
+- Built-in types, functions, and more provided by C++
+- You need to `#include` the relevant file
+- `#include <string>` ￫ `std::string` 
+- `#include <utility>` ￫ `std::pair` 
+- `#include <iostream>` ￫ `std::cout`, `std::endl`
+- We prefix standard library names with `std::`
+    - If we write `using namespace std;` we don’t have to, but this is considered bad style as it can introduce ambiguity
+        - (What would happen if we defined our own string?)
+
+- See the official standard at cppreference.com!
+- Avoid cplusplus.com…
+    - It is outdated and filled with ads
+
+### To use `std::pair`, you must `#include` it
+`std::pair` is defined in a header file called utility
+```cpp
+#include <utility>
+// Now we can use `std::pair` in our code.
+std::pair<double, double> point { 1.0, 2.0 };
+```
+
+### What does `#include` do?
+
+- `#include` is a preprocessor directive that tells the compiler to copy and paste the contents of the specified file into our code before compilation
+- So when we `#include <utility>`, the compiler literally copies and pastes the definition of `std::pair` into our code!
+
+```cpp
+namespace std {
+template <typename T1, typename T2>
+struct pair {
+T1 first;
+T2 second;
+};
+// Other utility code...
+}
+```
+
+## The `using` keyword
+
+- Typing out long type names gets tiring
+- We can create **type aliases** with the `using` keyword
+
+```cpp
+std::pair<bool, std::pair<double, double>> solveQuadratic(double a, double b, double c);
+
+// same as
+
+using Zeros = std::pair<double, double>; 
+using Solution = std::pair<bool, Zeros>; 
+Solution solveQuadratic(double a, double b, double c);
+```
+
+*using is kind of like a variable for types!*
+
+## The `auto` keyword
+- The `auto` keyword tells the compiler to infer the type
+
+```cpp
+std::pair<bool, std::pair<double, double>> result = solveQuadratic(a, b, c);
+
+auto result = solveQuadratic(a, b, c); 
+// This is exactly the same as the above! 
+// result still has type std::pair<bool, std::pair<double, double>> 
+// We just told the compiler to figure this out for us!
+```
+
+The compiler checks for the declared return type of solveQuadratic and fills it in for auto :O
+
+`auto` is still statically typed!
+```cpp
+auto i = 1; // int inferred
+i = "hello!"; // ❌ Doesn't compile
+```
+
+
+# Recap
+- C++ is a compiled, statically typed language
+- Structs bundle data together into a single object
+- `std::pair` is a general purpose struct with two fields
+- `#include` from the C++ Standard Library to use built-in types
+    - And use the `std::` prefix too!
+- Quality of life features to improve your code
+    - `using` creates type aliases
+    - `auto` infers the type of a variable

@@ -1,0 +1,55 @@
+---
+title: "Lecture 5 - Containers"
+---
+
+# Lecture 5 - Containers
+
+**Instructors:** Rachel Fernandez, Thomas Poimenidis
+
+## 1. The Standard Template Library (STL)
+*   **What it is:** Created by Alexander Stepanov, the STL is a powerful C++ library that added templates to the language. It provides four main components: Containers (to store data), Iterators (to traverse data), Algorithms (to modify data), and Functors (functions as objects).
+*   **Templates:** Templates allow you to write generic code that can store lists of different types (e.g., `int`, `double`, `string`) without rewriting the underlying logic. All STL containers are templates. 
+
+## 2. Sequence Containers
+Sequence containers store a linear sequence of elements.
+
+### `std::vector`
+*   **Overview:** Stores a list of elements in a single contiguous chunk of memory.
+*   **Key Traits:** Very fast for accessing random elements and inserting at the back (`push_back`), but slow to insert or erase elements at the front or middle.
+*   **Accessing Elements:** You can use `vec[i]` or `vec.at(i)`. Notably, the `operator[]` does not perform bounds checking, which can cause undefined behavior if you go out of bounds. Using `.at()` is safer because it throws a runtime error.
+*   **Missing Functions:** It lacks a `push_front()` function because adding an element to the front of a contiguous array requires shifting every other element, which is extremely slow.
+
+### `std::deque`
+*   **Overview:** A double-ended queue ("deck"). 
+*   **Key Traits:** It has almost the same interface as a vector but allows incredibly fast insertion and removal at **both** ends (`push_front` and `push_back`). 
+*   **Implementation:** Unlike a vector, a deque is not one single chunk of memory. It is implemented as an array of arrays (separate, independently allocated subarrays).
+
+## 3. Associative Containers
+Associative containers organize elements by unique keys instead of sequential positions. 
+
+### `std::map` and `std::set`
+*   **`std::map`:** Maps keys to values, functioning like a Python dictionary. It stores data as a collection of `std::pair<const K, V>`. The key (`K`) is marked `const` because modifying a key after insertion would corrupt the underlying data structure.
+*   **`std::set`:** Essentially a map without values (an "amoral map") that stores a collection of unique items. 
+*   **Implementation:** Both are implemented under the hood as Binary Search Trees (specifically, red-black trees).
+*   **Requirements:** Because they rely on a tree structure for ordering, the key type **must** support the less-than comparison operator (`operator<`). For example, an `int` works, but a `std::ifstream` does not. 
+*   **Auto-Insertion:** In a map, calling `map[key]` for a key that does not exist will automatically default-insert that key into the map (e.g., `map["Alex"]` will insert the key "Alex" with a value of `0`).
+
+### `std::unordered_map` and `std::unordered_set`
+*   **Overview:** These are optimized, unordered alternatives to standard maps and sets. 
+*   **Implementation:** They are implemented using Hash Tables (an array of "buckets"). 
+    *   A key is passed through a hash function that scrambles it into a 64-bit integer (`size_t`). 
+    *   This hash modulo the number of buckets determines where the item is stored. 
+    *   **Hash Collisions:** If two different keys hash to the same bucket, the container checks for key equality. Thus, keys must be hashable and support an equality operator.
+*   **Load Factor:** This is the average number of items per bucket. To keep lookups extremely fast, the container automatically rehashes when the load factor exceeds a certain threshold (usually 1.0).
+*   **Tradeoffs:** Unordered variants provide very fast search, insertion, and erasure compared to ordered maps, but they consume more memory. They are the recommended choice unless you specifically need your data ordered.
+
+## 4. Other STL Containers
+*   **`std::array`:** A fixed-size array of items.
+*   **`std::list`:** A doubly linked list.
+*   **`std::multiset` / `std::multimap`:** Variations that allow for duplicate keys.
+
+## 5. Best Practices for Iteration
+When iterating over containers, prefer using a range-based for loop with a constant reference (`for (const auto& elem : vec)`) to prevent unnecessary, expensive copies of each element. For maps, you can use structured binding to cleanly unpack pairs: `for (const auto& [key, value] : map)`.
+
+
+
