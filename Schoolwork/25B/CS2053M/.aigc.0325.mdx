@@ -1,0 +1,153 @@
+# CPU 系统结构与 PC/指令流向分析
+
+本文档详细描述了重构后 CPU 的系统架构，着重强调程序计数器 (PC) 和指令 (Instruction) 在五级流水线 (IF, ID, EXE, MEM, WB) 中的流动路径、控制逻辑以及分支预测的反馈机制。
+
+## 一、 整体流水线架构简述
+
+CPU 采用了经典的五级流水线设计，为了提高代码的可维护性和模块化程度，我们将核心逻辑拆分为了以下几个关键模块：
+- **`Core.sv`**: 顶层流水线控制，包含各个段间寄存器 (`IFID`, `IDEXE`, `EXEMEM`, `MEMWB`) 以及取指、执行、写回等核心数据通路。
+- **`BranchPrediction.sv`**: 动态分支预测器（包含 BHT 和 BTB），在 IF 阶段提供预测目标，在 EXE 阶段接收实际跳转结果进行表项更新。
+- **`MemInterfaceCtrl.sv`**: AXI 内存接口控制器，负责指令存储器和数据存储器的状态机 (FSM) 维护，处理缓存/总线的握手以及流水线停顿时的指令和数据缓冲。
+- **`HazardUnit.sv`**: 冒险处理与冲刷 (Flush) 控制单元。负责比对分支预测结果与实际执行结果，产生 `pred_wrong` 冲刷信号及正确的 `correct_next_pc`，并综合处理全局停顿 (`global_stall`)。
+- **`ForwardingUnit.sv`**: 数据旁路前递单元，解决数据冒险 (Data Hazard)。
+
+## 二、 PC 与指令 (Inst) 的流动全景图
+
+下图使用 Mermaid 绘制了 PC 和 Inst 在流水线中的流动轨迹，以及异常处理和分支预测错时的反馈回路。
+
+```mermaid
+graph TD
+    %% 定义样式
+    classDef reg fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef logic fill:#bbf,stroke:#333,stroke-width:1px;
+    classDef mem fill:#dfd,stroke:#333,stroke-width:2px;
+
+    %% 外部与模块
+    IMEM[Instruction Memory / AXI]:::mem
+    BP[BranchPrediction Unit]:::logic
+    Hazard[HazardUnit]:::logic
+
+    %% IF Stage
+    subgraph IF Stage
+        MUX_PC{Next PC MUX}:::logic
+        PC_REG[PC Register]:::reg
+        MUX_PC --> PC_REG
+        PC_REG --> |pc| IMEM
+        PC_REG --> |pc_if| BP
+        BP --> |jump_pred_if, pc_target_if| MUX_PC
+        PC_ADD4[PC + 4]:::logic
+        PC_REG --> PC_ADD4
+        PC_ADD4 --> MUX_PC
+    end
+
+    IMEM --> |Fetched Inst| IFID
+
+    %% IF/ID Register
+    IFID[IF/ID Register\n(pc, pc_4, inst, jump_pred, pc_target)]:::reg
+    PC_REG --> |pc| IFID
+    BP --> |jump_pred_if, pc_target_if| IFID
+
+    %% ID Stage
+    subgraph ID Stage
+        CTRL[Controller]:::logic
+        REGFILE[Register File]:::mem
+        IFID --> |inst| CTRL
+        IFID --> |inst| REGFILE
+    end
+
+    %% ID/EXE Register
+    IDEXE[ID/EXE Register\n(pc, pc_4, inst, jump_pred, pc_target, decodes)]:::reg
+    IFID --> |pc, pc_4, inst, jump_pred, pc_target| IDEXE
+
+    %% EXE Stage
+    subgraph EXE Stage
+        ALU[ALU]:::logic
+        CMP[Branch CMP]:::logic
+        IDEXE --> |inst, decodes| ALU
+        IDEXE --> |inst, decodes| CMP
+        ALU --> |alu_res / True Target| Hazard
+        CMP --> |br_taken / jump_occur| Hazard
+        IDEXE --> |idexe_pc, idexe_jump_pred, idexe_pc_target| Hazard
+        IDEXE --> |pc_exe, is_jump_exe| BP
+        ALU --> |pc_target_exe| BP
+    end
+
+    %% EXE Feedback
+    Hazard --> |pred_wrong -> flush| IFID
+    Hazard --> |pred_wrong -> flush| IDEXE
+    Hazard --> |correct_next_pc| MUX_PC
+
+    %% EXE/MEM Register
+    EXEMEM[EXE/MEM Register\n(pc, pc_4, inst, alu_res, mem_wdata)]:::reg
+    IDEXE --> |pc, pc_4, inst| EXEMEM
+    ALU --> |alu_res| EXEMEM
+
+    %% MEM Stage
+    subgraph MEM Stage
+        DMEM[Data Memory / AXI]:::mem
+        EXEMEM --> |alu_res, mem_wdata| DMEM
+    end
+
+    %% MEM/WB Register
+    MEMWB[MEM/WB Register\n(pc, pc_4, inst, mem_rdata, alu_res)]:::reg
+    EXEMEM --> |pc, pc_4, inst, alu_res| MEMWB
+    DMEM --> |Read Data| MEMWB
+
+    %% WB Stage
+    subgraph WB Stage
+        WB_MUX[WriteBack MUX]:::logic
+        MEMWB --> |mem_rdata, alu_res, pc_4| WB_MUX
+        WB_MUX --> |wb_val| REGFILE
+    end
+
+    %% CSR Feedback
+    CSR[CSR Module]:::logic
+    MEMWB --> |pc| CSR
+    CSR --> |switch_mode| MUX_PC
+    CSR --> |pc_csr| MUX_PC
+    CSR --> |csr_flush| IFID
+    CSR --> |csr_flush| IDEXE
+    CSR --> |csr_flush| EXEMEM
+    CSR --> |csr_flush| MEMWB
+```
+
+## 三、 PC 与 Inst 流动细节解析
+
+### 1. Instruction Fetch (IF) 阶段
+*   **PC 产生**: 下一个周期的 `next_pc` 由一个多路选择器决定，优先级从高到低依次为：
+    1.  **CSR 跳转 (`switch_mode`)**: 发生异常、陷入或 `xret` 时，使用 `pc_csr`。
+    2.  **分支预测修正 (`flush` = `pred_wrong`)**: 当 `HazardUnit` 发现 EXE 阶段的分支/跳转预测错误时，使用实际计算出的正确目标地址 `correct_next_pc`。
+    3.  **分支预测跳转 (`jump_pred_if`)**: `BranchPrediction` 根据当前 PC 预测发生跳转，使用 `pc_target_if`。
+    4.  **顺序执行**: `pc + 4`。
+*   **取指**: 当前 `pc` 送入 `MemInterfaceCtrl`，通过 AXI 接口向指令总线发起读请求。
+*   **分支预测获取**: 同时，当前 `pc` 送入 `BranchPrediction` 模块索引 BHT 和 BTB。
+*   **流转**: 成功取到的指令 `inst`、当前 `pc` 及其 `pc + 4`、以及本周期的预测结果 (`jump_pred`, `pc_target`) 会在时钟上升沿被打入 `IF/ID` 段间寄存器。
+
+### 2. Instruction Decode (ID) 阶段
+*   `IF/ID` 寄存器将 `inst` 提供给 `Controller` 进行译码，生成各种控制信号 (如 ALU_OP, 寄存器读写使能等)。
+*   同时根据 `inst` 中的 `rs1`, `rs2` 字段访问 `RegFile`。
+*   `ForwardingUnit` 根据 `inst` 的寄存器需求以及后续流水段的写回情况，决定是否需要进行数据前递。
+*   **流转**: `pc`, `inst` 以及预测信息和所有控制信号，原封不动地被打入 `ID/EXE` 寄存器。
+
+### 3. Execution (EXE) 阶段 （PC 流动的核心校验点）
+*   `ID/EXE` 中的 `inst` 的操作数进入 `ALU` 进行运算。对于分支或跳转指令，`ALU` 计算出实际的跳转目标地址 `alu_res`。
+*   `Cmp` 模块判断分支条件是否成立 (`br_taken`)。
+*   **预测校验与冲刷 (`HazardUnit`)**:
+    *   比较预测行为 (`idexe_jump_pred`, `idexe_pc_target`) 与实际行为 (跳转是否发生 `jump_occur`, 实际目标 `alu_res`)。
+    *   如果不匹配 (`pred_wrong` = 1)，产生 `flush` 信号。该信号会清空 `IF/ID` 和 `ID/EXE` 寄存器，并将 `correct_next_pc` (可能是 `alu_res`，也可能是原本的 `idexe_pc_4`) 发送给 IF 阶段修正 PC。
+*   **BTB/BHT 更新 (`BranchPrediction`)**:
+    *   在非停顿状态下，使用当前 EXE 阶段的 `pc_exe` (`idexe_reg.pc`)、实际目标 `pc_target_exe` (`alu_res`) 和实际是否跳转 `is_jump_exe` (`jump_occur`) 更新预测器状态机和跳转表。
+*   **流转**: `pc` 和 `inst` 继续被打入 `EXE/MEM` 寄存器，伴随的数据是 `alu_res` (可能是访存地址或计算结果)。
+
+### 4. Memory Access (MEM) 阶段
+*   利用 `EXE/MEM` 中的 `alu_res` (此时作为访存地址) 和 `mem_wdata`，通过 `MemInterfaceCtrl` 与 AXI 数据总线交互。
+*   **流转**: `pc` 和 `inst` 继续被打入 `MEM/WB` 寄存器，从总线读回的数据 `mem_rdata` 也被记录。
+
+### 5. Write Back (WB) 阶段
+*   根据 `MEM/WB` 中携带的 `inst` 控制信号，选择 `alu_res` 或 `mem_rdata` 写回 `RegFile`。
+*   此时指令生命周期结束，`pc` 和 `inst` 会与相关的写回数据一起，作为 `cosim_core_info` 提供给 Spike 模拟器进行 Commit 的同步与比对。
+*   如果 `inst` 是会触发异常的指令，或者有外部中断，`CSRModule` 会在这个阶段正式提交异常，从而拉高 `switch_mode` 进行更高优先级的 PC 冲刷。
+
+## 四、 总结
+
+通过上述流程，PC 的主导权从最初的**被动加 4 / 激进预测**，逐步过渡到 EXE 阶段的**实际计算与纠错**，最后如果发生异常则在 WB 阶段由 CSR 模块接管。而 Instruction 则作为乘客，携带着它的初始 PC 和预测标记，一路流经各个段，指导数据通路的动作，并在 EXE 阶段触发对其自身行为预测的“秋后算账”。重构后的模块将 AXI 握手和冒险冲刷逻辑剥离，使得流水线主干代码更加清晰直观。

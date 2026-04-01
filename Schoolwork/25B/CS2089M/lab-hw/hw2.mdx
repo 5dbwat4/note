@@ -1,0 +1,81 @@
+
+
+### 题目 2.12 解答
+
+**a. 适当的主码是什么？**
+
+根据题目描述“支行名称和客户姓名能够唯一标识出支行和客户”，以及“贷款和账户可以与多位客户相关联”（意味着 `borrower` 和 `depositor` 是多对多关系），各关系模式适当的主码（Primary Key）如下：
+
+* **branch** (支行): `branch_name`
+* **customer** (客户): `ID` （虽然题目提到客户姓名能唯一标识，但在数据库设计中，既然已经提供了 `ID` 属性，且关联表使用的是 `ID`，通常以 `ID` 作为主码最为规范）
+* **loan** (贷款): `loan_number`
+* **borrower** (借款人): `(ID, loan_number)` （复合主码）
+* **account** (账户): `account_number`
+* **depositor** (存款人): `(ID, account_number)` （复合主码）
+
+**b. 请给出你选择的主码，并确定适当的外码。**
+
+*主码已经在 a 中列出，以下是各关系中的外码（Foreign Key）：*
+
+* **branch**: 无外码。
+* **customer**: 无外码。
+* **loan**: `branch_name` 是参照 `branch` 关系的外码。
+* **borrower**: `ID` 是参照 `customer` 关系的外码；`loan_number` 是参照 `loan` 关系的外码。
+* **account**: `branch_name` 是参照 `branch` 关系的外码。
+* **depositor**: `ID` 是参照 `customer` 关系的外码；`account_number` 是参照 `account` 关系的外码。
+这是一份针对图 2-17 职员数据库（题 2.14）的关系代数解答。
+
+**⚠️ 重要提示：** 题目要求找出职员的“ID 和姓名”，但根据图 2-17 给出的数据库模式，`employee` 关系中**并没有定义 ID 属性**，仅有 `person_name`（姓名）作为标识。因此，在以下的解答中，将按照已知给定的模式，仅投影 `person_name` 属性。
+
+---
+
+### 题目 2.14 解答
+
+**a. 请找出为 “BigBank” 工作的每位职员的 ID 和姓名。**
+
+只需要用到 `works` 关系，筛选出公司名为 "BigBank" 的元组，然后投影出姓名。
+$$\Pi_{person\_name} (\sigma_{company\_name = 'BigBank'} (works))$$
+
+
+**b. 请找出为 “BigBank” 工作的每位职员的 ID、姓名和所居住的城市。**
+
+需要姓名和城市，因此需要将 `employee` 和 `works` 进行自然连接（基于共同属性 `person_name`），筛选出 "BigBank" 的员工，再投影出姓名和城市。
+$$\Pi_{person\_name, city} (\sigma_{company\_name = 'BigBank'} (employee \bowtie works))$$
+
+**c. 请找出为 “BigBank” 工作且薪水超过 $10 000 的每位职员的 ID、姓名、街道地址和所居住的城市。**
+
+与上一题类似，仍然需要连接 `employee` 和 `works`，但选择条件增加了一个薪水大于 10000 的要求，最后投影出所需的四个属性（排除不存在的 ID）。
+$$\Pi_{person\_name, street, city} (\sigma_{company\_name = 'BigBank' \land salary > 10000} (employee \bowtie works))$$
+
+**d. 请找出在这个数据库中居住地与工作的公司所在地为同一城市的每位职员的 ID 和姓名。**
+
+这道题非常适合利用**自然连接（$\bowtie$）**的特性。`employee` 关系有 `city` 属性（职员居住城市），`company` 关系也有 `city` 属性（公司所在城市）。
+当我们将这三个关系自然连接在一起时，系统会自动寻找匹配的 `person_name`，并且强制要求两边的 `city` 属性值相等，以及匹配的 `company_name`。最后投影出姓名即可。
+$$\Pi_{person\_name} (employee \bowtie works \bowtie company)$$
+
+### 题目 2.15 解答
+
+这里使用关系代数（Relational Algebra）表达式来表示每个查询：
+
+**a. 请找出贷款额度超过 $10 000 的每个贷款号。**
+需要从 `loan` 关系中筛选出金额（`amount`）大于 10000 的元组，并投影出贷款号（`loan_number`）。
+
+$$
+\Pi_{loan\_number} (\sigma_{amount > 10000} (loan))
+$$
+
+
+**b. 请找出每个这样的存款人的 ID，他拥有一个存款余额大于 $6 000 的账户。**
+需要将 `depositor` 和 `account` 关系进行自然连接（$\bowtie$），筛选出余额（`balance`）大于 6000 的元组，最后投影出存款人 `ID`。
+
+$$
+\Pi_{ID} (\sigma_{balance > 6000} (depositor \bowtie account))
+$$
+
+
+**c. 请找出每个这样的存款人的 ID，他在 “Uptown” 支行拥有一个存款余额大于 $6 000 的账户。**
+同样需要将 `depositor` 和 `account` 关系进行自然连接，筛选条件增加一个“支行名称为 Uptown”，最后投影出存款人 `ID`。
+
+$$
+\Pi_{ID} (\sigma_{branch\_name = 'Uptown' \land balance > 6000} (depositor \bowtie account))
+$$

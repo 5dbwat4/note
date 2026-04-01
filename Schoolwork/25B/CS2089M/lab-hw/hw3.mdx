@@ -1,0 +1,198 @@
+---
+title: 作业3 SQL
+---
+
+
+## 3.8
+
+> 考虑图 3-18 中的银行数据库，其中的主码被加了下划线。请为这个关系数据库构造出如下 SQL 查询：  
+> a. 找出银行中有账户但无贷款的每位客户的 ID。  
+> b. 找出与客户 '12345' 居住在同一个城市、同一个街道的每位客户的 ID。  
+> c. 找出每个这样的支行的名称：在这些支行中至少有一位居住在 "Harrison" 的客户开设了账户。
+
+**解答：**
+
+a. 
+```sql
+SELECT ID 
+FROM depositor 
+EXCEPT 
+SELECT ID 
+FROM borrower;
+```
+
+b. 
+```sql
+SELECT c1.ID 
+FROM customer c1, customer c2 
+WHERE c1.customer_city = c2.customer_city 
+  AND c1.customer_street = c2.customer_street 
+  AND c2.ID = '12345';
+```
+
+c. 
+```sql
+SELECT DISTINCT a.branch_name 
+FROM account a 
+JOIN depositor d ON a.account_number = d.account_number 
+JOIN customer c ON d.ID = c.ID 
+WHERE c.customer_city = 'Harrison';
+```
+
+---
+
+## 3.9
+
+>考虑图 3-19 的雇员数据库，其中的主码被加了下划线。请为下面的每个查询写出 SQL 表达式：  
+>a. 找出为 "First Bank Corporation" 工作的每位雇员的 ID、姓名及所居住城市。  
+>b. 找出为 "First Bank Corporation" 工作且工资超过 10 000 美元的每位雇员的 ID、姓名及所居住城市。  
+>c. 找出没为 "First Bank Corporation" 工作的每位雇员的 ID。  
+>d. 找出工资高于 "Small Bank Corporation" 的所有雇员的每位雇员的 ID。  
+>e. 假设一家公司可以位于好几个城市。找出位于 "Small Bank Corporation" 所有所在城市的每家公司的名称。  
+>f. 找出雇员最多的公司名称（如果雇员最多的不止一家，则全部列出这些公司）。  
+>g. 找出平均工资高于 "First Bank Corporation" 平均工资的每家公司的名称。
+
+**解答：**
+
+a. 
+```sql
+SELECT e.ID, e.person_name, e.city 
+FROM employee e 
+JOIN works w ON e.ID = w.ID 
+WHERE w.company_name = 'First Bank Corporation';
+```
+
+b. 
+```sql
+SELECT e.ID, e.person_name, e.city 
+FROM employee e 
+JOIN works w ON e.ID = w.ID 
+WHERE w.company_name = 'First Bank Corporation' AND w.salary > 10000;
+```
+
+c. 
+```sql
+SELECT ID 
+FROM employee 
+WHERE ID NOT IN (
+    SELECT ID 
+    FROM works 
+    WHERE company_name = 'First Bank Corporation'
+);
+```
+
+d. 
+```sql
+SELECT ID 
+FROM works 
+WHERE salary > ALL (
+    SELECT salary 
+    FROM works 
+    WHERE company_name = 'Small Bank Corporation'
+);
+```
+
+e. 
+```sql
+SELECT DISTINCT c1.company_name 
+FROM company c1
+WHERE NOT EXISTS (
+    (SELECT city FROM company WHERE company_name = 'Small Bank Corporation')
+    EXCEPT
+    (SELECT city FROM company c2 WHERE c1.company_name = c2.company_name)
+);
+```
+
+f. 
+```sql
+SELECT company_name 
+FROM works 
+GROUP BY company_name 
+HAVING COUNT(ID) >= ALL (
+    SELECT COUNT(ID) 
+    FROM works 
+    GROUP BY company_name
+);
+```
+
+g. 
+```sql
+SELECT company_name 
+FROM works 
+GROUP BY company_name 
+HAVING AVG(salary) > (
+    SELECT AVG(salary) 
+    FROM works 
+    WHERE company_name = 'First Bank Corporation'
+);
+```
+
+---
+
+## 3.10
+
+
+>考虑图 3-19 的雇员数据库。请给出下列每个查询的 SQL 表达式：  
+>a. 修改数据库使 ID 为 '12345' 的雇员现在居住在 "Newtown"。  
+>b. 为 "First Bank Corporation" 工资不超过 100 000 美元的每个经理增长 10% 的工资，对工资超过 100 000 美元的只增长 3%。
+
+**解答：**
+
+a. 
+```sql
+UPDATE employee 
+SET city = 'Newtown' 
+WHERE ID = '12345';
+```
+
+b. 
+```sql
+UPDATE works 
+SET salary = CASE 
+    WHEN salary <= 100000 THEN salary * 1.10 
+    ELSE salary * 1.03 
+END 
+WHERE company_name = 'First Bank Corporation' 
+  AND ID IN (SELECT manager_id FROM manages);
+```
+
+---
+
+## 3.15
+
+> 考虑图 3-18 中的银行数据库，其中主码被加了下划线。请对这个关系数据库构造如下 SQL 查询。  
+> a. 找出在位于 "Brooklyn" 的所有支行都有账户的每位客户。  
+> b. 找出银行的所有贷款额的总和。  
+> c. 找出资产比位于 "Brooklyn" 的至少一家支行要多的所有支行名称。
+
+**解答：**
+
+a. 
+```sql
+SELECT DISTINCT d.ID 
+FROM depositor d
+WHERE NOT EXISTS (
+    (SELECT branch_name FROM branch WHERE branch_city = 'Brooklyn')
+    EXCEPT
+    (SELECT a.branch_name 
+     FROM account a JOIN depositor d2 ON a.account_number = d2.account_number 
+     WHERE d2.ID = d.ID)
+);
+```
+
+b. 
+```sql
+SELECT SUM(amount) AS total_loan_amount 
+FROM loan;
+```
+
+c. 
+```sql
+SELECT branch_name 
+FROM branch 
+WHERE assets > SOME (
+    SELECT assets 
+    FROM branch 
+    WHERE branch_city = 'Brooklyn'
+);
+```
