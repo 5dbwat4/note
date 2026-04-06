@@ -4,5 +4,6 @@ export default {
         "default":true
     },
     "entries":'auto',
-    "name":"概率论和数理统计：课本"
+    "name":"概率论和数理统计：课本",
+    "show":false
 }   

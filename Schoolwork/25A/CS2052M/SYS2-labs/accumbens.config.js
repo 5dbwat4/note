@@ -13,5 +13,5 @@ export default {
     ],
     path:"SYS2-labs",
     "name":"SYS2-labs",
-    "show":true,
+    "show":false,
 }

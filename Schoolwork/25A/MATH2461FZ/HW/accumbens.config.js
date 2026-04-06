@@ -5,5 +5,6 @@ export default {
         "aliases":["Schoolwork/MATH2461FZ/HW"], 
     },
     "entries":'auto',
-    "name":"作业"
+    "name":"作业",
+    "show":false,
 }   

@@ -11,4 +11,5 @@ export default {
         // {"file":"./project/report.mdx","path":"project"},
     ],
     "name":"SYS3-labs",
+    show: false
 }

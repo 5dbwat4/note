@@ -9,5 +9,5 @@ export default {
         {"file":"./project/report.mdx","path":"project"},
     ],
     "name":"SYS1-labs",
-    "show":true,
+    "show":false
 }
