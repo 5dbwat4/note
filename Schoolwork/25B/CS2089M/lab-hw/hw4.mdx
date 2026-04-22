@@ -1,0 +1,140 @@
+### 习题 4.7
+**问题：**
+请考虑图 4-12 中的员工数据库。请给出这个数据库的 SQL DDL 定义。请指出应该保持的引用完整性约束，并把它们包括在 DDL 定义中。
+
+**答案：**
+根据图 4-12 中带下划线的主码标识，该数据库包含四个关系。在 DDL 定义中，需要声明主键（Primary Key）和外键（Foreign Key）以维护引用完整性约束。
+
+```sql
+-- 1. 创建 company 表（被参照关系需优先创建）
+CREATE TABLE company (
+    company_name VARCHAR(50),
+    city VARCHAR(50),
+    PRIMARY KEY (company_name)
+);
+
+-- 2. 创建 employee 表
+CREATE TABLE employee (
+    ID VARCHAR(10),
+    person_name VARCHAR(50),
+    street VARCHAR(50),
+    city VARCHAR(50),
+    PRIMARY KEY (ID)
+);
+
+-- 3. 创建 works 表
+-- 引用完整性约束：ID 参照 employee(ID)，company_name 参照 company(company_name)
+CREATE TABLE works (
+    ID VARCHAR(10),
+    company_name VARCHAR(50),
+    salary NUMERIC(10,2),
+    PRIMARY KEY (ID),
+    FOREIGN KEY (ID) REFERENCES employee(ID),
+    FOREIGN KEY (company_name) REFERENCES company(company_name)
+);
+
+-- 4. 创建 manages 表
+-- 引用完整性约束：ID 参照 employee(ID)，manager_id 参照 employee(ID)
+CREATE TABLE manages (
+    ID VARCHAR(10),
+    manager_id VARCHAR(10),
+    PRIMARY KEY (ID),
+    FOREIGN KEY (ID) REFERENCES employee(ID),
+    FOREIGN KEY (manager_id) REFERENCES employee(ID)
+);
+```
+
+---
+
+### 习题 4.18
+**问题：**
+对于图 4-12 中的数据库，请编写一个查询来找出没有经理的每位员工的 ID。请注意，一位员工可能只是没有列出经理，或者可能经理值为空。请使用外连接来编写你的查询，然后根本不使用外连接再重写查询。
+
+**答案：**
+
+**使用外连接（Outer Join）的查询：**
+```sql
+SELECT e.ID
+FROM employee e 
+LEFT OUTER JOIN manages m ON e.ID = m.ID
+WHERE m.manager_id IS NULL;
+```
+
+**不使用外连接重写的查询：**
+```sql
+SELECT ID
+FROM employee
+WHERE ID NOT IN (
+    SELECT ID
+    FROM manages
+    WHERE manager_id IS NOT NULL
+);
+```
+
+---
+
+### 习题 5.4
+**问题：**
+请描述你会选择使用嵌入式 SQL 而不是单独使用 SQL 或仅仅使用通用程序设计语言的情况。
+
+**答案：**
+选择使用嵌入式 SQL 通常基于以下情况：
+1. [cite_start]**弥补 SQL 的功能不完备性：** 单独的 SQL 是一种声明式查询语言，它缺乏如图灵完备的控制流结构（如循环、复杂的条件判断）以及直接操作底层计算系统资源的能力 [cite: 803]。当业务逻辑需要复杂的数学计算或算法流程时，单独的 SQL 无法胜任。
+2. **弥补通用编程语言的数据处理短板：** 单纯使用通用编程语言（如 C、Java 等）去处理和遍历海量数据效率极低，因为它们没有针对关系型数据进行专门的底层查询优化和存储管理。
+3. [cite_start]**结合两者的优势：** 当应用程序既需要通用编程语言的强大计算能力、交互界面控制能力，又需要高效地存取、更新和管理数据库中的大量持久化数据时，就会将 SQL 嵌入到宿主语言（Host language）中 [cite: 808]。
+
+---
+
+### 习题 5.15
+**问题：**
+请考虑具有两个关系的雇员数据库：
+`employee (employee_name, street, city)`
+`works (employee_name, company_name, salary)`
+其中主码用下划线标出。请编写一个 `avg_salary` 函数，它以公司名称作为参数，并查找该公司员工的平均工资。然后，请使用该函数编写一条 SQL 语句，来查找员工平均工资高于 "First Bank" 平均工资的公司。
+
+**答案：**
+
+**创建 `avg_salary` 函数：**
+```sql
+CREATE FUNCTION avg_salary(c_name VARCHAR(50))
+RETURNS NUMERIC(10, 2)
+BEGIN
+    DECLARE avg_sal NUMERIC(10, 2);
+    
+    SELECT AVG(salary) INTO avg_sal
+    FROM works
+    WHERE company_name = c_name;
+    
+    RETURN avg_sal;
+END;
+```
+
+**使用该函数查询平均工资高于 "First Bank" 的公司：**
+```sql
+SELECT DISTINCT company_name
+FROM works
+WHERE avg_salary(company_name) > avg_salary('First Bank');
+```
+
+---
+
+### 习题 5.19
+**问题：**
+假设有两个关系 $r$ 和 $s$，使得 $r$ 的外码 $B$ 引用 $s$ 的主码 $A$。请描述如何使用触发器机制来实现从 $s$ 中删除一个元组时的级联删除（on delete cascade）选项。
+
+**答案：**
+[cite_start]要使用触发器模拟 `ON DELETE CASCADE` 的级联删除机制，我们需要在被参照关系 $s$ 上创建一个 `AFTER DELETE` 类型的行级触发器 [cite: 340, 366]。
+
+该触发器的逻辑是：每当 $s$ 中的一行记录被删除时，捕获被删除的旧记录（`old row`），提取其主码 $A$ 的值，然后自动去参照关系 $r$ 中执行 `DELETE` 语句，删除所有外码 $B$ 等于该 $A$ 值的相关元组。
+
+**SQL 触发器实现示例（遵循 SQL:1999 语法）：**
+```sql
+CREATE TRIGGER cascade_delete_r 
+AFTER DELETE ON s
+REFERENCING OLD ROW AS orow 
+FOR EACH ROW
+BEGIN ATOMIC
+    DELETE FROM r
+    WHERE r.B = orow.A;
+END;
+```

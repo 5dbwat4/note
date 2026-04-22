@@ -1,0 +1,71 @@
+\documentclass[tikz,border=15pt]{standalone}
+\usetikzlibrary{positioning, arrows.meta, calc}
+
+\begin{document}
+\begin{tikzpicture}[
+    >=Stealth, thick, node distance=1.5cm and 1.5cm,
+    % 基础样式定义
+    box/.style={draw=black!80, fill=white, minimum height=0.8cm, minimum width=1.5cm, align=center, font=\sffamily},
+    op/.style={circle, draw=black!80, fill=gray!20, minimum size=0.8cm, inner sep=0pt, align=center, font=\sffamily\bfseries},
+    io/.style={draw=black!80, fill=yellow!20, minimum height=0.8cm, minimum width=1.5cm, align=center, font=\sffamily},
+    out/.style={draw=black!80, fill=green!20, minimum height=0.8cm, minimum width=1.5cm, align=center, font=\sffamily}
+]
+
+% 1. CPU 输入
+\node[io] (tagCpu) {tag\_cpu};
+\node[io, below=4cm of tagCpu] (offsetCpu) {offset\_cpu};
+
+% 2. Way 0 的 Tag 与 Valid
+\node[box, right=2cm of tagCpu, yshift=1.5cm] (tag0) {Tag 0};
+\node[box, right=0pt of tag0] (v0) {V0};
+\node[box, fill=orange!10, right=0.5cm of v0, yshift=0.8cm] (data0) {Data 0};
+
+% 3. Way 1 的 Tag 与 Valid
+\node[box, right=2cm of tagCpu, yshift=-1.5cm] (tag1) {Tag 1};
+\node[box, right=0pt of tag1] (v1) {V1};
+\node[box, fill=orange!10, right=0.5cm of v1, yshift=-0.8cm] (data1) {Data 1};
+
+% 4. 比较器与 AND 门
+\node[op, right=1.2cm of tag0] (comp0) {=};
+\node[op, right=1.2cm of comp0] (and0) {\&};
+
+\node[op, right=1.2cm of tag1] (comp1) {=};
+\node[op, right=1.2cm of comp1] (and1) {\&};
+
+% 连线：Tag 比较
+\draw[->] (tagCpu.east) -- ++(1,0) |- (comp0.west);
+\draw[->] (tagCpu.east) -- ++(1,0) |- (comp1.west);
+\draw[->] (tag0.east) -- (comp0.west);
+\draw[->] (tag1.east) -- (comp1.west);
+
+% 连线：Valid 验证
+\draw[->] (comp0.east) -- (and0.west);
+\draw[->] (v0.south) |- (and0.225);
+\draw[->] (comp1.east) -- (and1.west);
+\draw[->] (v1.north) |- (and1.135);
+
+% 5. OR 门生成最终 hit_cpu
+\node[op, right=1.5cm of tagCpu, xshift=7cm] (or) {OR};
+\draw[->] (and0.east) -| node[above, pos=0.3, font=\sffamily\small] {hit[0]} (or.north);
+\draw[->] (and1.east) -| node[below, pos=0.3, font=\sffamily\small] {hit[1]} (or.south);
+
+\node[out, right=1cm of or] (hitOut) {hit\_cpu};
+\draw[->, red, thick] (or.east) -- (hitOut.west);
+
+% 6. 数据 MUX 选择器
+\node[box, fill=blue!10, minimum height=1.5cm, minimum width=2.5cm, right=1.5cm of offsetCpu, xshift=5cm] (mux) {Data MUX};
+
+% 连线：数据进入 MUX
+\draw[->] (data0.east) -| (mux.130);
+\draw[->] (data1.east) -| (mux.230);
+
+% 连线：选择信号控制 MUX
+\draw[->, dashed, red, thick] (and0.south) -- ++(0,-0.6) -| (mux.north) node[pos=0.1, right, font=\sffamily\small, text=black] {Way Select}; 
+\draw[->, dashed, blue, thick] (offsetCpu.east) -- (mux.west) node[pos=0.5, above, font=\sffamily\small, text=black] {Word Select};
+
+% 7. 最终数据输出
+\node[out, right=1cm of mux] (rdata) {rdata\_cpu};
+\draw[->, blue, thick] (mux.east) -- (rdata.west);
+
+\end{tikzpicture}
+\end{document}

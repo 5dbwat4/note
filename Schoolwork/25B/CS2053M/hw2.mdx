@@ -1,0 +1,50 @@
+---
+title: "Homework 2"
+---
+## **Part 1: Cache Structure**
+
+**1. What is the cache block size (in words)?**
+* **Offset bits:** The offset uses bits 4–0, which is 5 bits.
+* **Bytes per block:** $2^5 = 32$ bytes per block.
+* **Words per block:** 8 words. 
+
+**2. How many blocks does the cache have?**
+* **Index bits:** The index uses bits 9–5, which is 5 bits.
+* **Total blocks:** $2^5 =$ **32 blocks**.
+
+**3. What is the ratio between total bits required for such a cache implementation over the data storage bits?**
+* **Data bits per block:** $32 \text{ bytes} \times 8 \text{ bits/byte} = 256 \text{ bits}$.
+* **Overhead bits per block:**
+    * Tag bits: 54 bits (bits 63–10)
+    * Valid bit: 1 bit (standard for direct-mapped caches)
+* **Total bits per block:** $256 \text{ (data)} + 54 \text{ (tag)} + 1 \text{ (valid)} = 311 \text{ bits}$.
+* **Ratio:** 
+$$
+\frac{\text{Total Bits}}{\text{Data Bits}} = \frac{311}{256} \approx 1.21
+$$
+
+---
+
+## **Part 2: Cache References**
+
+**1. Reference Trace Table**
+
+| Address (Dec) | Tag | Index | Offset | Hit / Miss | Replaced Bytes (if any) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **0** | 0 | 0 | 0 | Miss (Compulsory) | None (Cache was empty) |
+| **4** | 0 | 0 | 4 | **Hit** | None |
+| **16** | 0 | 0 | 16 | **Hit** | None |
+| **132** | 0 | 4 | 4 | Miss (Compulsory) | None |
+| **232** | 0 | 7 | 8 | Miss (Compulsory) | None |
+| **160** | 0 | 5 | 0 | Miss (Compulsory) | None |
+| **1024** | 1 | 0 | 0 | Miss (Conflict) | Bytes 0–31 *(Tag 0, Index 0)* |
+| **30** | 0 | 0 | 30 | Miss (Conflict) | Bytes 1024–1055 *(Tag 1, Index 0)* |
+| **140** | 0 | 4 | 12 | **Hit** | None |
+| **3100** | 3 | 0 | 28 | Miss (Conflict) | Bytes 0–31 *(Tag 0, Index 0)* |
+| **180** | 0 | 5 | 20 | **Hit** | None |
+| **2180** | 2 | 4 | 4 | Miss (Conflict) | Bytes 128–159 *(Tag 0, Index 4)* |
+
+**2. What is the hit ratio?**
+* Total References: 12
+* Total Hits: 4 (Addresses 4, 16, 140, 180)
+* **Hit Ratio:** $4 / 12 = 1/3$ 
