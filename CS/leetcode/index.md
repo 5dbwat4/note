@@ -8,3 +8,5 @@
 2026/4/19: [group-anagrams](./group-anagrams)(AI) · [number-of-islands](./number-of-islands)
 
 2026/4/21: [single-number](./single-number)
+
+2026/4/25: [search-in-rotated-sorted-array](./search-in-rotated-sorted-array)(AI first; written by hand later) · [coin-change](./coin-change)(handwritten)
