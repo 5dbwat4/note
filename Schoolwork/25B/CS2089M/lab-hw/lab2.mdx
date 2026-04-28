@@ -1,0 +1,307 @@
+---
+title: 实验2 SQL数据定义和操作
+---
+
+import Asciinema from "@md-comp/AsciinemaWrapper.vue";
+
+# 实验目的
+1. 熟练掌握关系数据库SQL语言的使用
+2. 以具体应用为场景，完成数据模式定义与数据操作
+
+# 实验平台
+
+1. OS系统： Windows 11 + WSL Kali GNU/Linux Rolling
+2. DBMS： MySQL 9.6
+
+
+# 实验内容
+
+## 创建数据库
+
+> 1. 以Banking等应用为例，创建数据库
+
+```sql
+CREATE DATABASE Banking;
+```
+
+创建数据库后，使用`USE`命令选中数据库：
+
+```sql
+USE Banking;
+```
+
+import cast1 from "./assets/l2ca1.cast?raw";
+
+<Asciinema cast={cast1} />
+
+
+## 数据定义
+
+> 2. 数据定义：完成表的创建、删除、修改，索引与视图的创建、删除
+
+1. 表的创建：使用`CREATE TABLE`命令创建表，定义表的结构和属性。
+    ```sql
+    CREATE TABLE Customers (
+         CustomerID INT PRIMARY KEY,
+         Name VARCHAR(100),
+         Email VARCHAR(100)
+    );
+    ```
+2. 表的修改：使用`ALTER TABLE`命令修改表的结构，例如添加、删除或修改列。
+    ```sql
+    ALTER TABLE Customers ADD COLUMN Phone VARCHAR(20);
+    ```
+3. 表的删除：使用`DROP TABLE`命令删除表。
+    ```sql
+    DROP TABLE Customers;
+    ```
+4. 索引的创建：使用`CREATE INDEX`命令创建索引，提高查询效率。
+    ```sql
+    CREATE INDEX idx_name ON Customers(Name); -- 在Name列上创建索引
+    ```
+5. 索引的删除：使用`DROP INDEX`命令删除索引。
+    ```sql
+    DROP INDEX idx_name ON Customers; -- 删除Name列上的索引
+    ```
+6. 视图的创建：使用`CREATE VIEW`命令创建视图，定义一个虚拟表。
+    ```sql
+    CREATE VIEW CustomerEmails AS
+    SELECT Name, Email FROM Customers; -- 创建一个视图，显示客户的姓名和邮箱
+    ```
+7. 视图的删除：使用`DROP VIEW`命令删除视图。
+    ```sql
+    DROP VIEW CustomerEmails; -- 删除CustomerEmails视图
+    ```
+
+
+执行下列SQL命令：
+
+```sql
+-- 创建表
+CREATE TABLE Customers (
+     CustomerID INT PRIMARY KEY,
+     Name VARCHAR(100),
+     Email VARCHAR(100)
+);
+-- 修改表结构
+ALTER TABLE Customers ADD COLUMN Phone VARCHAR(20);
+-- 创建索引
+CREATE INDEX idx_name ON Customers(Name);
+-- 插入数据
+INSERT INTO Customers (CustomerID, Name, Email, Phone) 
+    VALUES (1, 'Alice', 'alice@example.com', '123-456-7890');
+INSERT INTO Customers (CustomerID, Name, Email, Phone) 
+    VALUES (2, 'Bob', 'bob@example.com', '098-765-4321');
+INSERT INTO Customers (CustomerID, Name, Email, Phone) 
+    VALUES (3, 'Charlie', 'charlie@example.com', '555-555-5555');
+-- 创建视图
+CREATE VIEW CustomerEmails AS 
+   SELECT Name, Email FROM Customers;
+-- 使用视图查询数据
+SELECT * FROM CustomerEmails;
+-- 删除视图
+DROP VIEW CustomerEmails;
+-- 删除索引
+DROP INDEX idx_name ON Customers;
+-- 删除表
+DROP TABLE Customers;
+```
+
+import cast2 from "./assets/l2ca2.cast?raw";
+
+<Asciinema cast={cast2} />
+
+
+
+## 数据更新
+
+> 3. 数据更新：使用INSERT、DELETE、UPDATE命令实现表数据增删改
+
+1. 插入数据：使用`INSERT INTO`命令向表中插入新记录。
+    ```sql
+    INSERT INTO Customers (CustomerID, Name, Email, Phone) 
+        VALUES (4, 'David', 'david@example.com', '111-111-1111');
+    ``` 
+2. 删除数据：使用`DELETE FROM`命令删除表中的记录。
+    ```sql
+    DELETE FROM Customers WHERE CustomerID = 4; -- 删除CustomerID为4的记录
+    ```
+3. 修改数据：使用`UPDATE`命令修改表中的记录。
+    ```sql
+    UPDATE Customers SET Email = 'david.updated@example.com' WHERE CustomerID = 4;
+    -- 将CustomerID为4的记录的Email字段更新为新的值
+    ```
+
+import cast3 from "./assets/l2ca3.cast?raw";
+
+<Asciinema cast={cast3} />
+
+## 数据查询
+
+> 4. 数据查询：完成单表查询、多表查询、嵌套子查询等操作
+
+接下来的查询操作将基于数据库[`sakila`](https://dev.mysql.com/doc/sakila/en/sakila-introduction.html)进行。
+
+> The Sakila sample database was initially developed by Mike Hillyer, a former member of the MySQL AB documentation team. It is intended to provide a standard schema that can be used for examples in books, tutorials, articles, samples, and so forth. The Sakila sample database also serves to highlight features of MySQL such as Views, Stored Procedures, and Triggers.
+
+
+1. 单表查询：
+    ```sql
+    SELECT * FROM actor WHERE first_name = 'JOHN'; 
+    -- 查询actor表中first_name为'JOHN'的记录
+
+    SELECT actor_id, last_name 
+    FROM actor 
+    WHERE last_name LIKE 'C%' AND actor_id < 100;
+    -- 查询姓氏以C开头且演员编号小于100的演员ID及姓氏
+
+    SELECT DISTINCT rating FROM film;
+    -- 查看所有不重复的电影分级
+
+    SELECT title, length 
+    FROM film 
+    WHERE rating = 'PG-13' 
+    ORDER BY length DESC 
+    LIMIT 5;
+    -- 查询PG-13级电影中片长最长的前5部影片
+    ```
+    
+2. 多表查询：
+    ```sql
+    -- 内连接：查询R级每部电影及其对应语言
+    SELECT f.title, l.name AS language
+    FROM film f
+    INNER JOIN language l ON f.language_id = l.language_id
+    WHERE f.rating = 'R'
+    LIMIT 10;
+
+    -- 多表连接：查询last_name为"SMITH"的每位顾客的租赁记录（顾客姓名、电影标题、租赁日期）
+    SELECT c.first_name, c.last_name, f.title, r.rental_date
+    FROM customer c
+    JOIN rental r ON c.customer_id = r.customer_id
+    JOIN inventory i ON r.inventory_id = i.inventory_id
+    JOIN film f ON i.film_id = f.film_id
+    WHERE c.last_name = 'SMITH'
+    ORDER BY r.rental_date;
+
+    -- 外连接：查询所有顾客及其对应的付款总额
+    SELECT c.customer_id, c.first_name, c.last_name, SUM(p.amount) AS total_payment
+    FROM customer c
+    LEFT JOIN payment p ON c.customer_id = p.customer_id
+    GROUP BY c.customer_id, c.first_name, c.last_name
+    ORDER BY total_payment DESC
+    LIMIT 10;
+    ```
+
+3. 嵌套子查询：
+    ```sql
+    -- 标量子查询：查询租金超过平均租金的电影
+    SELECT title, rental_rate 
+    FROM film 
+    WHERE rental_rate > (SELECT AVG(rental_rate) FROM film)
+    ORDER BY rental_rate DESC;
+
+    -- IN 子查询：查询出演过“ACADEMY DINOSAUR”的演员姓名
+    SELECT first_name, last_name 
+    FROM actor 
+    WHERE actor_id IN (
+        SELECT actor_id 
+        FROM film_actor 
+        WHERE film_id = (
+            SELECT film_id FROM film WHERE title = 'ACADEMY DINOSAUR'
+        )
+    );
+
+    -- EXISTS 子查询：查询至少租赁过一次电影的顾客
+    SELECT first_name, last_name 
+    FROM customer c 
+    WHERE EXISTS (
+        SELECT 1 FROM rental r 
+        WHERE r.customer_id = c.customer_id
+    )
+    ORDER BY last_name, first_name;
+    ```
+
+4. 其它查询操作：
+    ```sql
+    -- 使用聚合函数与分组：统计各评级电影的数量和平均片长
+    SELECT rating, COUNT(*) AS film_count, AVG(length) AS avg_length
+    FROM film
+    GROUP BY rating
+    ORDER BY avg_length DESC;
+
+    -- 使用 CASE 表达式：根据租赁费率给电影划分价格区间
+    SELECT title, rental_rate,
+           CASE 
+               WHEN rental_rate < 1 THEN 'Budget'
+               WHEN rental_rate BETWEEN 1 AND 3 THEN 'Standard'
+               ELSE 'Premium'
+           END AS price_category
+    FROM film
+    LIMIT 10;
+
+    -- 使用 UNION：合并两列姓名集合
+    SELECT first_name FROM actor
+    UNION
+    SELECT first_name FROM customer;
+    ```
+
+import cast4 from "./assets/l2ca4.cast?url";
+
+<Asciinema url={cast4} />
+
+## 视图操作
+
+> 5. 视图操作：通过视图进行数据查询与修改
+
+1. 创建视图：基于sakila数据库，创建一个展示活跃顾客及其总消费金额的视图
+    ```sql
+    USE sakila;
+
+    CREATE VIEW active_customer_spending AS
+    SELECT c.customer_id, c.first_name, c.last_name, SUM(p.amount) AS total_spent
+    FROM customer c
+    JOIN payment p ON c.customer_id = p.customer_id
+    WHERE c.active = 1
+    GROUP BY c.customer_id, c.first_name, c.last_name;
+    ```
+
+2. 通过视图查询数据
+    ```sql
+    -- 查询总消费金额超过200的活跃顾客
+    SELECT * FROM active_customer_spending
+    WHERE total_spent > 200
+    ORDER BY total_spent DESC;
+    ```
+
+3. 尝试修改数据
+    ```sql
+    -- 创建简单视图，映射演员姓名
+    CREATE VIEW actor_names AS
+    SELECT actor_id, first_name, last_name FROM actor;
+
+    -- 通过视图插入新演员
+    INSERT INTO actor_names (first_name, last_name)
+    VALUES ('VIEW', 'TEST');
+
+    -- 验证插入结果
+    SELECT * FROM actor WHERE first_name = 'VIEW' AND last_name = 'TEST';
+
+    -- 删除测试数据
+    DELETE FROM actor WHERE first_name = 'VIEW' AND last_name = 'TEST';
+    ```
+
+4. 删除视图
+    ```sql
+    DROP VIEW IF EXISTS active_customer_spending;
+    DROP VIEW IF EXISTS actor_names;
+    ```
+
+import cast5 from "./assets/l2ca5.cast?raw";
+
+<Asciinema cast={cast5} />
+
+
+# 实验总结与体会
+
+通过本次实验，我深入学习了SQL语言的使用方法，掌握了数据定义、数据更新、数据查询以及视图操作等核心技能。在实际操作中，我体会到了SQL的强大和灵活性，能够通过简单的命令实现复杂的数据管理任务。
