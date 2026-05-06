@@ -307,6 +307,42 @@ import castf from "./l3caf.cast?url";
 
 （3）通过 GDB 观察页表内容，确认各页表项中 R、W、X 位的实际值。以 `.text` 段地址 `0xffffffe000200000` 为例，手动计算其 VPN 并逐级查看页表，验证叶子 PTE 中 R=1、W=0、X=1。 */}
 
+#### gdb大法
+
+通过 GDB 观察页表内容，确认各页表项中 R、W、X 位的实际值。以 `.text` 段地址 `0xffffffe000200000` 为例，~~手动~~计算其 VPN 并逐级查看页表，验证叶子 PTE 中 R=1、W=0、X=1。
+
+<Timeline>
+
+<TimelineItem>
+
+![](pte1.png)
+
+首先给`setup_vm_final`打断点执行
+
+</TimelineItem><TimelineItem>
+
+然后`n`到satp计算完毕
+
+</TimelineItem><TimelineItem>
+
+![](pte2.png)
+
+接下来逐一计算执行
+
+</TimelineItem></Timeline>
+
+#### 支线任务：RISC‑V Sv39 三级页表查找模拟
+
+import PTE from "./pte.vue";
+
+<PTE />
+
+#### 支线任务：RISC‑V Sv39 SATP 寄存器解析
+
+import SATP from "./satp.vue";
+
+<SATP />
+
 
 ### 等值映射？
 
@@ -805,20 +841,20 @@ import castChecksec from "./checksec.cast?raw";
 在我们的场景中，内核是一个静态链接的裸机程序（`-nostartfiles -nostdlib`），不存在动态加载器来处理 GOT 重定位。因此在 **MMU 启用之前（Bare 模式）**，GOT 表中的虚拟地址无法正确翻译为物理地址，导致访问全局变量（如 `early_pgtbl`、`_sbss`）时使用错误的地址，引发 page fault 或内存访问异常，内核无法正常启动。
 
 
-```asm
+```plaintext
 ffffffe000200000 <_skernel>:
-ffffffe000200000:	00004117          	auipc	sp,0x4
-ffffffe000200004:	02813103          	ld	sp,40(sp) 
+ffffffe000200000:    00004117            auipc sp,0x4
+ffffffe000200004:    02813103            ld sp,40(sp) 
                  # ffffffe000204028 <_GLOBAL_OFFSET_TABLE_+0x20>
 ```
 
-```asm
+```plaintext
 ffffffe000204008 <_GLOBAL_OFFSET_TABLE_>:
-	...
-ffffffe000204028:	6000                	.insn	2, 0x6000
-ffffffe00020402a:	0020                	.insn	2, 0x0020
-ffffffe00020402c:	ffe0                	.insn	2, 0xffe0
-ffffffe00020402e:	ffff                	.insn	2, 0xffff
+ ...
+ffffffe000204028:    6000                .insn 2, 0x6000
+ffffffe00020402a:    0020                .insn 2, 0x0020
+ffffffe00020402c:    ffe0                .insn 2, 0xffe0
+ffffffe00020402e:    ffff                .insn 2, 0xffff
 ```
 
 *开幕雷击.jpg*
@@ -883,7 +919,7 @@ import {Timeline,TimelineItem} from "ant-design-vue";
 1. 在调用 C 函数之前，手动遍历 GOT 表，将其中每个条目的值减去 `PA2VA_OFFSET`，使 GOT 中的虚拟地址转换为当前 Bare 模式下的物理地址。
 2. 在 `relocate` 启用 MMU 之后，再次遍历 GOT 表，将每个条目加上 `PA2VA_OFFSET`，恢复为虚拟地址。
 
-```asm
+```riscvasm
 // Bare 模式下将 GOT 从 VA 转换为 PA
 la t0, __GOT_START__
 la t1, __GOT_END__
