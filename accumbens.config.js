@@ -11,5 +11,6 @@ export default {
         "./Misc",
         "./Papers",
         "./example",
+        "./blog-rcs"
     ],
 }
