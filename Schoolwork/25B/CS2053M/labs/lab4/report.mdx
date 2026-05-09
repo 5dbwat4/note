@@ -1,0 +1,534 @@
+---
+title: "实验 4：RV64 用户模式"
+---
+import Asciinema from "@md-components/AsciinemaWrapper.vue";
+
+# 实验 4：RV64 用户模式 实验报告
+
+## 一、实验目的
+
+- 创建用户态进程，并设置 `sstatus` 来完成内核态转换至用户态。
+- 正确设置用户进程的**用户态栈**和**内核态栈**，并在异常处理时正确切换。
+- 补充异常处理逻辑，完成指定的 syscall（`sys_write`、`sys_getpid`）功能。
+
+## 二、实验过程
+
+### 2.1 新建文件
+
+| 文件 | 用途 |
+|------|------|
+| `include/syscalls.h` | 共享 syscall 号定义：`__NR_write=64`, `__NR_getpid=172` |
+| `arch/riscv/include/ksyscalls.h` | 内核态 syscall 处理函数声明 |
+| `arch/riscv/kernel/ksyscalls.c` | 内核态 syscall 实现（`sys_write`, `sys_getpid`） |
+| `user/include/unistd.h` | 用户态 fd 常量和 syscall 声明 |
+| `user/src/syscalls.c` | 用户态 `ecall` 封装（`getpid`, `write`） |
+| `user/src/main.c` | 用户程序主逻辑（循环打印 PID/sp/counter） |
+| `user/src/printf.c` | 用户态 `printf`（通过 `write` syscall 输出） |
+| `user/src/head.S` | 用户程序入口 `_start`，跳转到 `main` |
+| `user/uapp.lds` | 用户程序链接脚本（基地址 = 0） |
+| `user/uapp.S` | 通过 `.incbin` 将 `uapp.bin` 嵌入 `.uapp` 段 |
+
+### 2.2 进程结构扩展
+
+在 `arch/riscv/include/proc.h` 中扩展了 `thread_struct` 和 `task_struct`：
+
+```c
+typedef uint64_t *pagetable_t;
+
+struct pt_regs {
+  uint64_t x[32];
+  uint64_t sepc;
+  uint64_t sstatus;
+};
+
+struct thread_struct {
+  uint64_t ra;
+  uint64_t sp;
+  uint64_t s[12];
+  uint64_t sepc;
+  uint64_t sstatus;
+  uint64_t sscratch;
+  uint64_t stval;
+  uint64_t scause;
+};
+
+struct task_struct {
+  uint64_t pid;
+  uint64_t state;
+  uint64_t priority;
+  uint64_t counter;
+  struct thread_struct thread;
+  pagetable_t pgd;
+};
+```
+
+`pt_regs` 用于在 `_traps` 中将保存的寄存器堆映射为结构体，使 C 代码可直接访问寄存器值。CSR 字段（`sepc`, `sstatus`, `sscratch`, `stval`, `scause`）用于在上下文切换和异常处理中保存/恢复特权态状态。`pagetable_t pgd` 使每个进程拥有独立页表。
+
+### 2.3 用户态进程初始化 (`task_init`)
+
+在 `arch/riscv/kernel/proc.c` 中重写了 `task_init`：
+
+**Idle 任务**（`task[0]`）：
+- `sscratch = 0` 标记为内核线程
+- `sstatus = (SPP=1 | SPIE=1)` 使得 `sret` 返回 S-mode
+- `pgd = swapper_pg_dir`（共享内核页表）
+
+**用户任务**（`task[1..4]`）每个拥有：
+- **独立页表**：`alloc_page() + memcpy` 从 `swapper_pg_dir` 复制内核地址空间映射
+- **U-mode 栈**：`alloc_page()`，映射到 `USER_END - PGSIZE`，PTE 权限 `U | W | R`
+- **uapp 私有副本**：`alloc_pages()` + `memcpy`，映射到 `USER_START`，PTE 权限 `U | X | W | R`
+- **CSR 初始化**：
+  - `sepc = USER_START`（用户程序入口）
+  - `sstatus = (SPIE | SUM, SPP=0)` → `sret` 返回 U-mode，S-mode 可访问用户页
+  - `sscratch = USER_END`（U-mode 栈顶）
+
+```c
+// 关键初始化代码
+task[i]->thread.sepc = USER_START;
+task[i]->thread.sstatus = (1UL << 5) | (1UL << 18); // SPIE=1 | SUM=1, SPP=0
+task[i]->thread.sscratch = USER_END;
+
+// 独立页表
+uint64_t *new_pgtbl = alloc_page();
+memcpy(new_pgtbl, swapper_pg_dir, PGSIZE);
+task[i]->pgd = (pagetable_t)new_pgtbl;
+
+// 映射 U-mode 栈
+void *ustack_page = alloc_page();
+create_mapping(new_pgtbl, (void *)(USER_END - PGSIZE),
+               (void *)VA2PA((uint64_t)ustack_page), PGSIZE,
+               (1UL << 4) | (1UL << 2) | (1UL << 1)); // U | W | R
+
+// 复制 uapp 并映射
+void *uapp_copy = alloc_pages(uapp_pages);
+memcpy(uapp_copy, _suapp, uapp_size);
+create_mapping(new_pgtbl, (void *)USER_START,
+               (void *)VA2PA((uint64_t)uapp_copy),
+               uapp_pages * PGSIZE,
+               (1UL << 4) | (1UL << 3) | (1UL << 2) | (1UL << 1)); // U | X | W | R
+```
+
+每个用户进程独享一份 uapp 副本，防止多进程共享 `.data`/`.bss` 段造成数据竞争。
+
+### 2.4 陷阱入口改造 (`_traps`)
+
+`_traps` 的核心改造是**栈切换**，利用 `sscratch` 在 U-mode 栈和 S-mode 栈之间无缝切换：
+
+```riscvasm
+_traps:
+    # 交换 sp 和 sscratch，实现栈切换
+    csrrw sp, sscratch, sp
+    bnez sp, _save_context
+    # 来自 S-mode（sscratch 原为 0）：撤销交换
+    csrrw sp, sscratch, sp
+_save_context:
+    # 保存 x0-x31, sepc, sstatus 到栈（共 272 字节 pt_regs 帧）
+    addi sp, sp, -272
+    sd x0, 0(sp)
+    ...
+    sd x31, 248(sp)
+    csrr t0, sepc
+    sd t0, 256(sp)
+    csrr t0, sstatus
+    sd t0, 264(sp)
+
+    # 调用 trap_handler(regs, scause, stval)
+    mv a0, sp
+    csrr a1, scause
+    csrr a2, stval
+    call trap_handler
+
+    # 恢复上下文
+    ld t0, 264(sp)           # 取 sstatus 检查 SPP
+    ld t1, 256(sp)
+    csrw sepc, t1
+    ld x1, 8(sp)
+    ...
+    ld x31, 248(sp)
+    addi sp, sp, 272
+
+    andi t0, t0, 0x100       # 检查 SPP 位
+    bnez t0, 1f              # S-mode → 不交换栈
+    csrrw sp, sscratch, sp   # U-mode → 交换回用户栈
+1:
+    sret
+```
+
+**设计要点**：
+- 从 U-mode 进入时，`sscratch` 保存着 S-mode sp，`sp` 为 U-mode sp。`csrrw` 一次交换完成栈切换
+- 退出时根据保存的 `sstatus.SPP` 判断：若为 U-mode（SPP=0），再次 `csrrw` 恢复用户栈
+- 来自 S-mode 的陷阱（`sscratch == 0`）不执行栈切换，适用于 Idle 线程被中断的场景
+
+`__dummy` 的栈切换采用相同策略：
+
+```riscvasm
+__dummy:
+    csrr t0, sscratch
+    beqz t0, 1f               # Idle 线程 → 跳过
+    csrrw sp, sscratch, sp    # 用户进程 → 交换到 U-mode 栈
+1:
+    sret
+```
+
+### 2.5 上下文切换增强 (`__switch_to`)
+
+在 `__switch_to` 中新增了 CSR 和页表的保存/恢复：
+
+```riscvasm
+__switch_to:
+    # 保存 callee-saved 寄存器
+    sd ra, 32(a0)
+    sd sp, 40(a0)
+    sd s0, 48(a0)
+    ...
+    sd s11, 136(a0)
+
+    # 保存 CSR
+    csrr t0, sepc
+    sd t0, 144(a0)
+    csrr t0, sstatus
+    sd t0, 152(a0)
+    csrr t0, sscratch
+    sd t0, 160(a0)
+    csrr t0, stval
+    sd t0, 168(a0)
+    csrr t0, scause
+    sd t0, 176(a0)
+
+    # 恢复 next 的 callee-saved 和 CSR
+    ld s0, 48(a1) ... ld s11, 136(a1)
+    ld t0, 144(a1); csrw sepc, t0
+    ld t0, 152(a1); csrw sstatus, t0
+    ld t0, 160(a1); csrw sscratch, t0
+    ld t0, 168(a1); csrw stval, t0
+    ld t0, 176(a1); csrw scause, t0
+
+    # 切换页表
+    ld t0, 184(a1)            # next->pgd (VA)
+    li t1, PA2VA_OFFSET
+    sub t0, t0, t1             # VA → PA
+    srli t0, t0, 12
+    li t1, 0x8000000000000000  # Sv39 mode
+    or t0, t0, t1
+    csrw satp, t0
+    sfence.vma
+
+    ld ra, 32(a1)
+    ld sp, 40(a1)
+    ret
+```
+
+页表中保存的是**虚拟地址**（`pagetable_t`），切换时通过 `PA2VA_OFFSET` 转换为物理地址写入 `satp`，然后 `sfence.vma` 刷新 TLB。
+
+### 2.6 异常处理 (`trap_handler`)
+
+```c
+void trap_handler(struct pt_regs *regs, uint64_t scause, uint64_t stval) {
+  if (scause & INTERRUPT_MASK) {
+    uint64_t interrupt_code = scause & ~INTERRUPT_MASK;
+    if (interrupt_code == SUPERVISOR_TIMER_INTERRUPT) {
+      printk("[S] Supervisor timer interrupt\n");
+      clock_set_next_event();
+      do_timer();
+    }
+  } else {
+    uint64_t exception_code = scause;
+    if (exception_code == ENVIRONMENT_CALL_FROM_U_MODE) {
+      regs->sepc += 4;  // 跳过 ecall 指令
+      uint64_t syscall_nr = regs->x[17];  // a7
+      switch (syscall_nr) {
+      case __NR_write:
+        regs->x[10] = sys_write(regs->x[10], (const char *)regs->x[11], regs->x[12]);
+        break;
+      case __NR_getpid:
+        regs->x[10] = sys_getpid();
+        break;
+      default:
+        regs->x[10] = -1;
+        break;
+      }
+    }
+  }
+}
+```
+
+`pt_regs` 将栈上保存的寄存器堆映射为 C 结构体，`trap_handler` 通过 `regs->x[17]`（a7）读取 syscall 号，通过 `regs->x[10..12]`（a0..a2）读取参数，并通过写入 `regs->x[10]`（a0）返回结果——因为 `_traps` 在恢复阶段会从 `pt_regs` 读取 a0 值覆盖 CPU 寄存器。
+
+### 2.7 Syscall 实现
+
+**内核态** (`ksyscalls.c`)：
+```c
+long sys_write(unsigned int fd, const char *buf, size_t count) {
+  if (fd != 1)  return -1;
+  if (buf == NULL || count == 0) return 0;
+  for (size_t i = 0; i < count; i++)
+    sbi_ecall(0x01, 0, buf[i], 0, 0, 0, 0, 0); // legacy putchar
+  return count;
+}
+
+long sys_getpid(void) {
+  return current->pid;
+}
+```
+
+**关键设计决策**：`sys_write` 使用 SBI legacy `putchar` (EID=0x01) 逐字符输出。这是因为用户态传递的 `buf` 是 U-mode 虚拟地址，若通过内核的 `printk` 输出，`printk_sbi_write` 会执行 `VA2PA(buf)` 试图转换为物理地址——但 `VA2PA` 仅适用于内核地址空间的直接映射（`VA = PA + PA2VA_OFFSET`），对用户态地址会得到无意义的物理地址。逐字符 putchar 避免了缓冲区地址传递，且 S-mode `ecall` 被 `medeleg` 转发至 M-mode OpenSBI 处理，不经过内核 `_traps`，无嵌套陷阱问题。
+
+**用户态** (`user/src/syscalls.c`)：
+```c
+pid_t getpid(void) {
+  pid_t ret;
+  asm volatile("li a7, %1\n\t"
+               "ecall\n\t"
+               "mv %0, a0"
+               : "=r"(ret) : "i"(__NR_getpid)
+               : "a0", "a7", "memory");
+  return ret;
+}
+
+ssize_t write(int fd, const void *buf, size_t count) {
+  ssize_t ret;
+  register long a0 asm("a0") = (long)fd;
+  register long a1 asm("a1") = (long)buf;
+  register long a2 asm("a2") = (long)count;
+  register long a7 asm("a7") = __NR_write;
+  asm volatile("ecall" : "+r"(a0) : "r"(a1), "r"(a2), "r"(a7) : "memory");
+  ret = a0;
+  return ret;
+}
+```
+
+`write` 使用 `register ... asm(...)` 将 fd/buf/count 精确绑定到 a0/a1/a2 寄存器，确保 `ecall` 时参数位置正确。
+
+### 2.8 启动流程修改
+
+- `head.S`：移除 `sstatus.SIE` 设置（`sstatus` 初始化已交由 `task_init` 完成）；新增 `scounteren` 设置以允许 U-mode 访问 `time` 寄存器
+- `start_kernel`：将 `while(1)` 等待改为直接调用 `schedule()` 立即开始调度
+
+### 2.9 编译与运行结果
+
+import cast1 from "./run.cast?url";
+
+<Asciinema url={cast1} />
+
+输出符合预期：
+- 按优先级顺序轮转：PID=2(pri=9) → PID=1(5) → PID=4(5) → PID=3(3)
+- 每个用户进程的 `i` 计数和全局变量独立维护
+- 第二轮调度时 `i` 从上次中断处继续
+
+## 三、思考题
+
+### 3.1 证明 uapp 运行在 U-mode
+
+> 给出 GDB 的截图，证明你的 `uapp` 的确是运行在用户态下的。
+
+**操作步骤**：
+
+1. 终端 1 启动 debug 模式：
+   ```bash
+   cd /root/sys3-sp26/src/project/kernel && make debug
+   ```
+
+2. 终端 2 连接 GDB：
+   ```bash
+   riscv64-linux-gnu-gdb vmlinux -ex "target remote :1234"
+   ```
+
+3. 在 GDB 中设置用户程序入口断点并运行：
+   ```
+   (gdb) b *0x0
+   (gdb) c
+   ```
+
+4. 当断点命中后查看关键寄存器：
+   ```
+   (gdb) info reg sstatus   # SPP 位（bit 8）应为 0，表示当前在 U-mode
+   (gdb) info reg sepc      # 应指向用户空间地址
+   (gdb) info reg sp        # 应在 USER_END 附近
+   ```
+
+![](gdb_u.png)
+
+**判断依据**：
+- `sstatus.SPP = 0`：说明当前特权级为 U-mode（User mode）
+- `sepc` 值在 `0x0 ~ 0x4000000000` 范围内：说明当前执行地址在用户空间
+- `sp` 值在 `USER_END` 附近（约 `0x3ffffffff0`）：说明使用的是用户态栈
+
+
+### 3.2 为何必须通过 `regs->a0` 返回值
+
+> 为什么内核在处理 syscall 时，需要用 `regs->a0` 来返回值给 `uapp`，而不能直接修改寄存器？
+
+因为 `_traps` 在 `sret` 之前会从 `pt_regs` 结构（保存在 S-mode 栈上）**恢复所有通用寄存器**。流程如下：
+
+1. `_traps` 入口将 `x0..x31` 保存到栈上的 `pt_regs`
+2. `trap_handler` 被调用，此时 CPU 的 `a0` 寄存器可以被修改
+3. `trap_handler` 返回后，`_traps` 执行 `ld x10, 80(sp)` 将 `pt_regs->x[10]`（即 a0）的值加载到 CPU 寄存器
+
+所以无论 `trap_handler` 中把 CPU 的 `a0` 改成什么值，都会在 `_traps` 恢复阶段被 `pt_regs` 中保存的值**覆盖**。因此必须将返回值写入 `regs->x[10]`（即 `pt_regs` 的 a0 位置），`_traps` 恢复时才能将正确值载入 `a0` 并带回用户态。
+
+这对应了 Linux 中 `entry.S:ret_from_syscall` 的 `REG_S a0, PT_A0(sp)`。
+
+### 3.3 页表复制使用物理地址还是虚拟地址
+
+> 在你的实现中将内核页表 `swapper_pg_dir` 复制到每个进程的页表中时用的是物理地址还是虚拟地址，为什么？
+
+使用**虚拟地址**。具体代码：
+
+```c
+uint64_t *new_pgtbl = alloc_page();
+memcpy(new_pgtbl, swapper_pg_dir, PGSIZE);
+task[i]->pgd = (pagetable_t)new_pgtbl;
+```
+
+`alloc_page()` 返回的是内核虚拟地址（伙伴系统分配器工作在虚拟地址空间），`swapper_pg_dir` 同样是虚拟地址。`memcpy` 的两个操作数都是 VA，整个复制过程在虚拟地址空间完成。
+
+**原因**：此时 CPU 已经在虚拟地址模式下运行（`setup_vm_final` 已完成 `satp` 切换），`swapper_pg_dir` 和 `alloc_page` 返回的新页面都可以通过直接映射（`VA = PA + PA2VA_OFFSET`）正确访问。页表中存储的 PPN 虽然是物理地址（由 `create_mapping` 内部通过 `VA2PA` 转换后填入 PTE），但页表本身作为内存页面，其访问和复制操作完全使用虚拟地址。
+
+`pgd` 字段存储的是虚拟地址，在 `__switch_to` 中切换时通过 `PA2VA_OFFSET` 动态转换为物理地址写入 `satp`。
+
+### 3.4 `printf` → `ecall` → 内核 → `printf` 完整调用链
+
+> 对于 `user/src/main.c` 中的 `printf` 调用：
+> ```c
+> printf("\x1b[44m[U]\x1b[0m [PID = %d, sp = %p] i = %d @ %" PRIu64 "\n", getpid(), sp, ++i, prev_clock);
+> ```
+> 请分析这一行的调用链。
+
+调用链分为两个阶段：**参数求值阶段**和**格式化输出阶段**。
+
+**阶段一：参数求值**
+
+`printf` 调用前，参数需从右向左入栈/传参：
+
+1. `prev_clock`：全局变量，直接取值 → 存入 a7（第 8 个参数，512-byte 对齐区域或 a7）
+2. `++i`：自增全局变量 `i` → 存入 a6
+3. `sp`：`register const void *const sp asm("sp")` 声明使得 `sp` 直接读取栈指针寄存器 → 存入 a5
+4. `getpid()`：
+   ```
+   getpid() → 内联汇编 "li a7, 172; ecall; mv a0, ret"
+            → CPU 陷入 S-mode
+            → _traps → trap_handler
+            → regs->x[17] == 172 → sys_getpid()
+            → return current->pid → regs->x[10] = pid
+            → _traps 恢复 → sret → U-mode
+            → a0 = pid
+   ```
+   返回值 pid 存入 a4
+5. `fmt`：格式串地址（位于 uapp .rodata）→ 存入 a0
+
+**阶段二：格式化输出**
+
+```
+printf(fmt, ...)               [user/src/printf.c]
+  → va_start(ap, fmt)
+  → vfprintf(stdout, fmt, ap)  [lib/vfprintf.c]
+      → 解析格式串，每遇到格式化字符或普通字符，调用 stdout->write
+      → stdout->write = printf_syscall_write  [user/src/printf.c]
+          → write(STDOUT_FILENO, buf, len)  [user/src/syscalls.c]
+              → ecall (a7=64, a0=fd, a1=buf, a2=len)
+              → S-mode _traps → trap_handler
+              → regs->x[17] == 64 → sys_write(fd, buf, count)  [ksyscalls.c]
+                  → for i in 0..count: sbi_ecall(0x01, 0, buf[i], 0, 0, 0, 0, 0)
+                      → S-mode ecall → M-mode OpenSBI → 串口输出
+              → regs->x[10] = count
+              → _traps 恢复 → sret → U-mode
+              → 返回 write()，返回 count
+```
+
+`printf` 的一次调用会触发多次 `write` syscall——`vfprintf` 按字符格式化后分批调用 `printf_syscall_write` 输出。
+
+**注意**：`sp` 的值在参数求值时获取，此时为 U-mode 栈指针（约 `USER_END` 附近），与内核栈无关。
+
+### 3.5 `_traps` 的栈切换与来源分析
+
+> 5.1 现在我们在进入和离开 `_traps` 都需要切换栈；这隐含一个条件，即 `_traps` 一定是从 U-mode 进入的。这是否正确？
+
+**不完全正确**。虽然用户进程始终运行在 U-mode、异常从 U-mode 进入，但我们的实现中 Idle 线程运行在 S-mode。Idle 线程的 `sscratch = 0` 且 `sstatus.SIE = 1`（通过 `SPIE` 在 `sret` 后自动设置），因此时钟中断可能在 Idle 线程执行时触发——此时 `_traps` 从 S-mode 进入。
+
+我们的 `_traps` 通过 `sscratch` 的值区分来源：
+
+| 来源 | `sscratch` 原值 | `csrrw` 后 `sp` | 处理 |
+|------|----------------|-----------------|------|
+| U-mode | S-mode sp | S-mode sp（非零） | 成功切换栈，进入 `_save_context` |
+| S-mode (Idle) | 0 | 0 | `bnez` 不跳转，`csrrw` 撤销交换，栈不变 |
+
+这种设计正确区分了两种来源，实现了正确的栈管理。
+
+> 5.2 在本次实验中，什么最关键的原因/更改导致 `_traps` 是从 U-mode 进入的？
+
+最关键的原因是 **`sstatus.SPP` 被设置为 0**。
+
+在 `task_init` 中：
+```c
+task[i]->thread.sstatus = (1UL << 5) | (1UL << 18); // SPIE=1 | SUM=1, SPP=0
+```
+
+`SPP`（Previous Privilege）位为 0 表示 `sret` 的目标特权级为 U-mode。当 `__dummy` 执行 `sret` 后，CPU 进入 U-mode 执行用户程序。此后任何异常（syscall、timer 中断）都从 U-mode 进入 `_traps`。
+
+对比 Lab3：所有任务运行在 S-mode（`SPP=1`），`_traps` 总是从 S-mode 进入，无需栈切换。
+
+> 5.3 阅读 Linux `entry.S` 相关代码，分析其对来自 U-mode 和 S-mode 异常的区分与栈切换。
+
+Linux 使用 `sscratch` 存储 `task_struct` 指针（本质上即 `thread_info`），并通过以下约定区分来源：
+
+| 场景 | `sscratch` | 含义 |
+|------|-----------|------|
+| 用户态运行时 | `&task_struct` | 下次陷入时可通过它找到内核栈 |
+| 内核态运行时 | **0** | 表示当前已在 S-mode |
+
+**异常入口**（`handle_exception`）：
+```riscvasm
+csrrw tp, CSR_SCRATCH, tp    // 交换 tp 和 sscratch
+bnez tp, _save_context        // tp != 0 → 来自 U-mode，继续保存
+
+_restore_kernel_tpsp:         // tp == 0 → 来自 S-mode
+    csrr tp, CSR_SCRATCH      // 恢复原来的内核 tp
+    REG_S sp, TASK_TI_KERNEL_SP(tp) // 保存当前 sp 到 thread_info
+_save_context:
+    REG_S sp, TASK_TI_USER_SP(tp)   // 保存用户 sp
+    REG_L sp, TASK_TI_KERNEL_SP(tp) // 加载内核 sp
+```
+
+- **来自 U-mode**：`sscratch` 原为 `task_struct` 指针 → 交换后 `tp = task_struct`≠0 → 保存 `user_sp`，加载 `kernel_sp`，切换栈
+- **来自 S-mode**：`sscratch` 原为 0 → 交换后 `tp=0` → 走 `_restore_kernel_tpsp` 恢复 `tp`，保存当前 `sp` 但不切换栈
+
+**返回路径**（`resume_userspace`）：
+```riscvasm
+resume_userspace:
+    REG_S s0, TASK_TI_KERNEL_SP(tp) // 保存内核 sp
+    csrw CSR_SCRATCH, tp            // 将 task_struct 指针写入 sscratch
+    // 之后恢复寄存器，sret 返回 U-mode
+```
+
+返回 S-mode 的路径（如内核线程）不动 `sscratch`，保持其值为 0，确保下次异常从 S-mode 进入时能正确识别。
+
+**设计意图**：`sscratch = 0` 的约定使得「来自 S-mode 的嵌套异常」不会错误地切换栈，而「来自 U-mode 的异常」始终能通过 `sscratch` 找到内核栈。
+
+## 四、关键踩坑记录
+
+### 4.1 `scounteren` 未设置
+
+用户程序的 `user_clock()` 使用 `rdtime` 指令读取 `time` CSR。在 U-mode 下，该指令需要 `scounteren.TM`（bit 1）置位才允许执行，否则触发 illegal instruction 异常。内核未初始化该 CSR，导致所有用户任务在启动瞬间陷入异常的无限循环。
+
+**修复**：在 `head.S` 中加入：
+```riscvasm
+li t0, 0x2       # TM bit
+csrw 0x106, t0   # scounteren
+```
+
+### 4.2 `printk` 的 `VA2PA` 陷阱
+
+内核的 `printk_sbi_write` 通过 `VA2PA(buf)` 将缓冲区地址转为物理地址传给 SBI DBCN。`VA2PA` 仅对内核身份映射地址有效（`PA = VA - PA2VA_OFFSET`），对用户态虚拟地址会产生无意义的物理地址，导致 SBI 访问错误内存、无输出。
+
+**修复**：`sys_write` 改用 SBI legacy `putchar` (EID=0x01) 逐字符输出，不依赖缓冲区物理地址转换。且 S-mode `ecall` 被 OpenSBI 的 `medeleg` 直接转发至 M-mode，不触发内核 `_traps` 的嵌套陷阱。
+
+## 五、总结
+
+本实验完成了 RISC-V 64 用户模式支持，核心工作包括：
+
+1. **进程结构扩展**：引入 `pt_regs` 和页表字段，为每个用户进程分配独立页表和内核/用户双栈
+2. **特权态切换**：通过 `sstatus.SPP` 控制 `sret` 目标特权级，借助 `sscratch` 实现 U/S-mode 栈的无缝切换
+3. **异常处理增强**：`_traps` 兼顾 U-mode 和 S-mode 来源的栈切换，`trap_handler` 通过 `pt_regs` 处理 syscall
+4. **Syscall 实现**：正确传递用户态参数与返回值，通过 SBI legacy putchar 解决用户地址与内核地址映射的差异
+
+通过本次实验，对 RISC-V 特权级切换机制、多级栈管理和系统调用全链路有了深入理解。
