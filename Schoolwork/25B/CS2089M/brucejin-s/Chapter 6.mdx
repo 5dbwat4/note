@@ -12,9 +12,9 @@ import Card from "@md-comp/card.vue"
 
 <Card type="abstract" title="Abstract">
 
-这一章概念绕来绕去的，翻译过来非常离谱，感觉还是得看例子比较清楚一些=)
+	这一章概念绕来绕去的，翻译过来非常离谱，感觉还是得看例子比较清楚一些=)
 
-整一章都是围绕着一个例子来讲的
+	整一章都是围绕着一个例子来讲的
 </Card>
 ## Database Design Process
 
@@ -58,20 +58,20 @@ import Card from "@md-comp/card.vue"
 
 <Card type="example" title="E-R Diagram for a University Enterprise">
 
-![](./assets/Pasted image 20250324101514.png)
+	![](./assets/Pasted image 20250324101514.png)
 
-- 一个方形框就是一个实体的集合，下面列出其属性
-- 实体与实体之间有关系，一个菱形框表示关系
+	- 一个方形框就是一个实体的集合，下面列出其属性
+	- 实体与实体之间有关系，一个菱形框表示关系
 	- 一对一($\leftrightarrow$)/一对多/多对一($\leftarrow$,$\rightarrow$)  
-    - 这里 `instructor` 实体里不需要 `dept` 属性，因为在 `department` 实体里有了，否则会冗余
-- 每个实体直接转换为关系模式。关系转换为元组，元素为两个表的 primary key. 对于一对多的情况（如 `instructor` 和 `department`）转换后 primary key 仍为 ID
-- 为了减少表的数量，可以把 primary key 相同的表合并
-- 双横线与单横线不同  
+	- 这里 `instructor` 实体里不需要 `dept` 属性，因为在 `department` 实体里有了，否则会冗余
+	- 每个实体直接转换为关系模式。关系转换为元组，元素为两个表的 primary key. 对于一对多的情况（如 `instructor` 和 `department`）转换后 primary key 仍为 ID
+	- 为了减少表的数量，可以把 primary key 相同的表合并
+	- 双横线与单横线不同
 	- 双横线表示每个对象都必须参与关系，而单横线则表示对象可以不参与关系，如 `course_dept` 和 `course` 为双横线，表示每一个课程都必须有一个开课部门，而 `department` 和 `course_dept` 为单横线，表示一个部门可以没有课程
-- 有些联系是隐含的，如授课老师和听课的学生
-- `section` 不足以唯一确定元组，称为弱实体，依赖于另一个实体（如 OOP、DB 都可以有同样年份学期的 1 班）。因为课程号 `course_id` 放在 `section` 会有冗余，因此没有这个属性，导致形成了一个弱实体。 `sec_course` 表示联系的是弱实体（双框），`section` 不能离开 `course` 存在
-- relationship 上也可以带属性，如 `takes` 上的 `grade`.
-- 关系双方可以是相同的实体集合，`course` 这里的 `prereq` 是多对多，表示一门课可以有多门预修课，一门课也可以是多门课的预修课。`{}` 里面是多个值，表示复合属性。这里表示 `time_slot_id` 实际上可以由这三个属性复合而成。
+	- 有些联系是隐含的，如授课老师和听课的学生
+	- `section` 不足以唯一确定元组，称为弱实体，依赖于另一个实体（如 OOP、DB 都可以有同样年份学期的 1 班）。因为课程号 `course_id` 放在 `section` 会有冗余，因此没有这个属性，导致形成了一个弱实体。 `sec_course` 表示联系的是弱实体（双框），`section` 不能离开 `course` 存在
+	- relationship 上也可以带属性，如 `takes` 上的 `grade`.
+	- 关系双方可以是相同的实体集合，`course` 这里的 `prereq` 是多对多，表示一门课可以有多门预修课，一门课也可以是多门课的预修课。`{}` 里面是多个值，表示复合属性。这里表示 `time_slot_id` 实际上可以由这三个属性复合而成。
 </Card>
 ***
 ## Database Modeling
@@ -252,11 +252,11 @@ import Card from "@md-comp/card.vue"
 
 <Card type="example" title="Example">
 
-![](./assets/Pasted image 20250324213001.png)
+	![](./assets/Pasted image 20250324213001.png)
 
-注意：强实体集的主键不会与弱实体集一起显式存储，因为它隐含在标识关系中
+	注意：强实体集的主键不会与弱实体集一起显式存储，因为它隐含在标识关系中
 
-如果显式存储 course_id，则 section 可以成为强实体，但 section 和 course 之间的关系将由 course 和 section 通用属性定义的隐式关系 course_id 复制
+	如果显式存储 course_id，则 section 可以成为强实体，但 section 和 course 之间的关系将由 course 和 section 通用属性定义的隐式关系 course_id 复制
 </Card>
 ***
 ### Redundant Attributes

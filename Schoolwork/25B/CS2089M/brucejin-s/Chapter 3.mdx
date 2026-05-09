@@ -127,18 +127,18 @@ CREATE TABLE r(A1 D1, A2 D2, ..., An Dn,
 
 <Card type="example" title="Example">
 
-```SQL
-create table course (
+	```SQL
+	create table course (
 	course_id varchar(8) primary key,
 	title varchar(50),
 	dept_name varchar(20),
 	credits numeric(2,0),
 	foreign key (dept_name) references department (dept_name));
 
-foreign key (dept_name) references department
+	foreign key (dept_name) references department
 	on delete cascade |set null |restrict |set default
 	on update cascade |set null |restrict |set default,
-```
+	```
 </Card>
 ***
 ### Drop and Alter Table Constructs
@@ -254,18 +254,18 @@ WHERE instructor.ID = teaches.ID;
 
 <Card type="example" title="Example">
 
-`course(course_id,title, dept_name,credits)`，`teaches(ID, course_id,sec_id,semester, year)`，`instructor(ID, name, dept_name,salary)` 三者的 department 含义各有不同，不能直接自然连接
+	`course(course_id,title, dept_name,credits)`，`teaches(ID, course_id,sec_id,semester, year)`，`instructor(ID, name, dept_name,salary)` 三者的 department 含义各有不同，不能直接自然连接
 
-可以写成 `select name, title from (instructor natural join teaches）join course using(course_id);` 即规定连接的属性，对应于 $\sigma_{\theta}$
+	可以写成 `select name, title from (instructor natural join teaches）join course using(course_id);` 即规定连接的属性，对应于 $\sigma_{\theta}$
 
-e.g. 找到跨部门上课的学生
+	e.g. 找到跨部门上课的学生
 
-```SQL
-select distinct student.id
-from (student natural join takes)
-join course using (course_id)
-where student.dept_name <> course.dept_name
-```
+	```SQL
+	select distinct student.id
+	from (student natural join takes)
+	join course using (course_id)
+	where student.dept_name <> course.dept_name
+	```
 </Card>
 ***
 ### The Rename Operation
@@ -280,13 +280,13 @@ where student.dept_name <> course.dept_name
 
 <Card type="example" title="Example">
 
-- 找到所有的老师的名字，他们的薪资比 Comp. Sci. dept 中的某个老师的薪资高
+	- 找到所有的老师的名字，他们的薪资比 Comp. Sci. dept 中的某个老师的薪资高
 
-```SQL
-select distinct T.name
-from instructor as T, instructor as S
-where T.salary > S.salary and S.dept_name = 'Comp. Sci.';
-```
+	```SQL
+	select distinct T.name
+	from instructor as T, instructor as S
+	where T.salary > S.salary and S.dept_name = 'Comp. Sci.';
+	```
 </Card>
 ***
 ### String Operations
@@ -302,15 +302,15 @@ where T.salary > S.salary and S.dept_name = 'Comp. Sci.';
 
 <Card type="note" title="Example">
 
-匹配字符串 `'100 %'` 但是 `%` 符号被我们作为了通配符，我们需要用到转义符 `\`，即将 `%` 作为正常字符匹配。 
+	匹配字符串 `'100 %'` 但是 `%` 符号被我们作为了通配符，我们需要用到转义符 `\`，即将 `%` 作为正常字符匹配。
 
-`\` 也可以是一个基本符号，我们需要在后面写出 `escape` 表示其在这里作为转义符。类似地我们还可以将转义符定义为 `#`
+	`\` 也可以是一个基本符号，我们需要在后面写出 `escape` 表示其在这里作为转义符。类似地我们还可以将转义符定义为 `#`
 
-```SQL
-like ‘100 \%' escape '\' 
-like ‘100 \%' 
-like ‘100 #%' escape ‘#'
-```
+	```SQL
+	like ‘100 \%' escape '\'
+	like ‘100 \%'
+	like ‘100 #%' escape ‘#'
+	```
 </Card>
 SQL 还支持以下字符串操作：
 
@@ -334,13 +334,13 @@ SQL 还支持以下字符串操作：
 
 <Card type="example" title="Example">
 
-- 列出薪资排名前 3 的老师姓名
+	- 列出薪资排名前 3 的老师姓名
 
-```SQL
-select name from instructor
-order by salary desc
-limit 3; // limit 0, 3
-```
+	```SQL
+	select name from instructor
+	order by salary desc
+	limit 3; // limit 0, 3
+	```
 </Card>
 ***
 ### Duplicates
@@ -428,14 +428,14 @@ limit 3; // limit 0, 3
 
 <Card type="example" title="Example">
 
-- 找到平均薪资大于 42000 的部门
+	- 找到平均薪资大于 42000 的部门
 
-```SQL
-select dept_name, avg(salary)
-from instructor
-group by dept_name
-having avg(salary) > 42000;
-```
+	```SQL
+	select dept_name, avg(salary)
+	from instructor
+	group by dept_name
+	having avg(salary) > 42000;
+	```
 </Card>
 ***
 ### Null Values and Aggregates

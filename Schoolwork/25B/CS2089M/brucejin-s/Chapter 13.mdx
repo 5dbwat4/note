@@ -37,10 +37,10 @@ import Card from "@md-comp/card.vue"
 
 <Card type="example" title="Example">
 
-我们假设有事务 `Ti` 为从账户 A 中转账 $50 至账户 B，那么该事务的定义为：
+	我们假设有事务 `Ti` 为从账户 A 中转账 $50 至账户 B，那么该事务的定义为：
 
-```pascal
-Ti: read(A);
+	```pascal
+	Ti: read(A);
 </Card>
     A := A - 50;
     write(A);
@@ -114,10 +114,10 @@ Ti: read(A);
 
 <Card type="example" title="Example">
 
-假设我们有两个事务 `T1` 和 `T2`，它们的定义如下：
+	假设我们有两个事务 `T1` 和 `T2`，它们的定义如下：
 
-```pascal
-T1: read(A);
+	```pascal
+	T1: read(A);
 </Card>
     A := A - 50;
     write(A);
@@ -182,13 +182,13 @@ T1: read(A);
 
 <Card type="example" title="Example">
 
-我们还是选取上面的例子，对于第一个调度和第二个调度，它们的优先图如下所示：
+	我们还是选取上面的例子，对于第一个调度和第二个调度，它们的优先图如下所示：
 
-![](./assets/Pasted image 20250512114640.png)
+	![](./assets/Pasted image 20250512114640.png)
 
-而第四个调度的优先图如下所示：
+	而第四个调度的优先图如下所示：
 
-![](./assets/Pasted image 20250512114709.png)
+	![](./assets/Pasted image 20250512114709.png)
 </Card>
 如果像上面的例子当中那样出现**环**（Cycle）的话，说明该调度不是冲突可串行的
 
@@ -219,13 +219,13 @@ T1: read(A);
 
 <Card type="example" title="Example">
 
-考虑以下调度：
+	考虑以下调度：
 
-![](./assets/Pasted image 20250512122221.png)
+	![](./assets/Pasted image 20250512122221.png)
 
-由于事务 $T_6$ 没有包含 `commit` 或 `abort` 操作，因此我们称这样的调度为**部分调度**（Partial Schedule）
+	由于事务 $T_6$ 没有包含 `commit` 或 `abort` 操作，因此我们称这样的调度为**部分调度**（Partial Schedule）
 
-假如 $T_6$​ 在提交发生前故障，由于 $T_7$​ **依赖于**（Dependent）$T_6$（$T_7$​ 读取 $T_6$​ 的写入值），所以此时 $T_7$​ 必须中止。然而 $T_7$​ 已经被提交了，无法中止，所以我们遇到了无法正确从 $T_6$​ 故障中恢复的情况。像这样的调度称为**不可恢复的调度**（Unrecoverable Schedule）
+	假如 $T_6$​ 在提交发生前故障，由于 $T_7$​ **依赖于**（Dependent）$T_6$（$T_7$​ 读取 $T_6$​ 的写入值），所以此时 $T_7$​ 必须中止。然而 $T_7$​ 已经被提交了，无法中止，所以我们遇到了无法正确从 $T_6$​ 故障中恢复的情况。像这样的调度称为**不可恢复的调度**（Unrecoverable Schedule）
 </Card>
 ***
 ## Cascading Rollbacks

@@ -168,13 +168,13 @@ INSERT INTO instructor VALUES("88878", "Perry", "Finance", 125000);
 
 <Card type="warning" title="Warning">
 
-- 在获取用户输入并将其添加到查询时，请始终使用预备语句
+	- 在获取用户输入并将其添加到查询时，请始终使用预备语句
 
-切勿通过连接作为输入获取的字符串来创建查询，例如：`insert into instructor values(’ " + ID + " ’, ’ " + name + " ’, " + " ’ " + dept name + " ’, " + salary + ");`
+	切勿通过连接作为输入获取的字符串来创建查询，例如：`insert into instructor values(’ " + ID + " ’, ’ " + name + " ’, " + " ’ " + dept name + " ’, " + salary + ");`
 
-这时候，如果 name 字段为 `D’Souza`，那么查询就会变成：`insert into instructor values(’ 88879 ’, ’ D’Souza ’, ’ Finance ’, 125000);`，这会导致 SQL 语法错误
+	这时候，如果 name 字段为 `D’Souza`，那么查询就会变成：`insert into instructor values(’ 88879 ’, ’ D’Souza ’, ’ Finance ’, 125000);`，这会导致 SQL 语法错误
 
-- 事实上，这就是著名的 SQL 注入攻击，攻击者可以通过输入恶意字符串来执行任意 SQL 语句，比如删除表、插入数据等
+	- 事实上，这就是著名的 SQL 注入攻击，攻击者可以通过输入恶意字符串来执行任意 SQL 语句，比如删除表、插入数据等
 </Card>
 ***
 #### SQL Injection
@@ -189,21 +189,21 @@ INSERT INTO instructor VALUES("88878", "Perry", "Finance", 125000);
 
 <Card type="example" title="Example">
 
-如果 `name = "X' OR 'Y' = 'Y"`，那么最终的语句就会变成：
+	如果 `name = "X' OR 'Y' = 'Y"`，那么最终的语句就会变成：
 
-```java
-"SELECT * FROM instructor WHERE name = '" + "X' OR 'Y' = 'Y" + "'"
-```
+	```java
+	"SELECT * FROM instructor WHERE name = '" + "X' OR 'Y' = 'Y" + "'"
+	```
 
-整理得：
+	整理得：
 
-```java
-"SELECT * FROM instructor WHERE name = 'X' OR 'Y' = 'Y'
-```
+	```java
+	"SELECT * FROM instructor WHERE name = 'X' OR 'Y' = 'Y'
+	```
 
-由于 `WHERE` 子句恒为 `true`，因此查询语句就能被执行，表里的全部内容都能被查到
+	由于 `WHERE` 子句恒为 `true`，因此查询语句就能被执行，表里的全部内容都能被查到
 
-如果使用预备语句及其 `set` 方法时，上述问题就不会发生了，因为所有输入的引号都会被转化为转义字符，不会破坏原字符串的结构。
+	如果使用预备语句及其 `set` 方法时，上述问题就不会发生了，因为所有输入的引号都会被转化为转义字符，不会破坏原字符串的结构。
 </Card>
 ***
 #### Metadata Features
@@ -214,37 +214,37 @@ INSERT INTO instructor VALUES("88878", "Perry", "Finance", 125000);
 
 <Card type="example" title="Example">
 
-执行 Query 获取 ResultSet（重命名为 rs）之后：
+	执行 Query 获取 ResultSet（重命名为 rs）之后：
 
-```java title="ResultSet Metadata"
-ResultSetMetaData rsmd = rs.getMetaData();
-for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-    System.out.println(rsmd.getColumnName(i));
-    System.out.println(rsmd.getColumnTypeName(i));
-}
-```
+	```java title="ResultSet Metadata"
+	ResultSetMetaData rsmd = rs.getMetaData();
+	for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+	System.out.println(rsmd.getColumnName(i));
+	System.out.println(rsmd.getColumnTypeName(i));
+	}
+	```
 
-- `getColumnCount()` 方法返回元数（Arity）（即列数）
-- `getColumnName()` 和 `getColumnTypeName()` 分别获取列名和数据类型名，它们都接收单个表示列位置的整型参数（从 1 开始）
+	- `getColumnCount()` 方法返回元数（Arity）（即列数）
+	- `getColumnName()` 和 `getColumnTypeName()` 分别获取列名和数据类型名，它们都接收单个表示列位置的整型参数（从 1 开始）
 </Card>
 `Connection` 接口有一个方法 `getMetaData()`，它返回一个 `DatabaseMetaData` 对象。而 `DatabaseMetaData` 接口则提供了寻找数据库元数据的途径，提供了更为丰富的方法，比如返回产品名、版本号等等
 
 <Card type="example" title="Example">
 
-```java title="Database Metadata"
-DatabaseMetaData dbmd = conn.getMetaData();
-ResultSet rs = dbmd.getColumns(null, "univdb", "department", "%");
+	```java title="Database Metadata"
+	DatabaseMetaData dbmd = conn.getMetaData();
+	ResultSet rs = dbmd.getColumns(null, "univdb", "department", "%");
 
-while (rs.next()) {
-    System.out.println(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME"));
-}
-```
+	while (rs.next()) {
+	System.out.println(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME"));
+	}
+	```
 
-- `getColumns()` 方法接收四个参数
-    - 目录名：`null` 表示忽略该值
-    - 模式名
-    - 表名
-    - 列名：这里的 `%` 表示获取所有列
+	- `getColumns()` 方法接收四个参数
+	- 目录名：`null` 表示忽略该值
+	- 模式名
+	- 表名
+	- 列名：这里的 `%` 表示获取所有列
 </Card>
 `DatabaseMetaData` 还有其他方法：
 
@@ -270,18 +270,18 @@ while (rs.next()) {
 
 <Card type="example" title="Example">
 
-```java title="SQLJ Example"
+	```java title="SQLJ Example"
 #sql iterator deptInfoIter ( String dept name, int avgSal);
-deptInfoIter iter = null;
+	deptInfoIter iter = null;
 #sql iter = { select dept_name, avg(salary) as avgSal from instructor group by dept name };
-while (iter.next()) {
+	while (iter.next()) {
 	String deptName = iter.dept_name();
 	int avgSal = iter.avgSal();
 	System.out.println(deptName + " " + avgSal);
 	
-}  
-iter.close();
-```
+	}
+	iter.close();
+	```
 </Card>
 ***
 ### ODBC
@@ -416,16 +416,16 @@ EXEC SQL END DECLARE SECTION;
 
 <Card type="example" title="Example">
 
-- 在主机语言中，查找完成超过主机语言中变量 credit_amount 中存储的学分的学生的 ID 和姓名
-- 在 SQL 中指定查询，如下所示：
+	- 在主机语言中，查找完成超过主机语言中变量 credit_amount 中存储的学分的学生的 ID 和姓名
+	- 在 SQL 中指定查询，如下所示：
 
-```sql
-EXEC SQL
-declare c cursor for
-select ID, name
-from student
-where tot_cred > :credit_amount;
-```
+	```sql
+	EXEC SQL
+	declare c cursor for
+	select ID, name
+	from student
+	where tot_cred > :credit_amount;
+	```
 </Card>
 ***
 #### Open and Fetch
@@ -499,11 +499,11 @@ where current of c
 
 <Card type="example" title="Example">
 
-- 定义一个函数，该函数在给定部门名称的情况下，返回该部门中的老师人数总数
+	- 定义一个函数，该函数在给定部门名称的情况下，返回该部门中的老师人数总数
 
-```sql
-// Declaration
-create function dept_count(dept_name varchar(20))
+	```sql
+	// Declaration
+	create function dept_count(dept_name varchar(20))
 	return integer
 	begin
 	declare d_count interger;
@@ -513,39 +513,39 @@ create function dept_count(dept_name varchar(20))
 	return d_count;
 	end
 
-// Invocation
-select dept_name, budget
-from department
-where dept_count(dept_name) > 12;
-```
+	// Invocation
+	select dept_name, budget
+	from department
+	where dept_count(dept_name) > 12;
+	```
 </Card>
 此外，SQL 标准还支持将表作为返回结果的函数，这样的函数称为**表函数**（Table Functions），也可以看作是带参数的实体化视图。具体的函数定义和调用如下所示：
 
 <Card type="example" title="Example">
 
-SQL 还可以将表格作为返回值，这样的比如返回给定客户拥有的所有账户：
+	SQL 还可以将表格作为返回值，这样的比如返回给定客户拥有的所有账户：
 
-```sql
-// Declaration
-create function instructor_of(dept_name varchar(20))
-    returns table(
-        ID varchar(5),
-        name varchar(20),
-        dept_name varchar(20),
-        salary numeric(8, 2)
-    )
-    return table(
-        select ID, name, dept_name, salary
-        from instructor
-        where instructor.dept_name = instructor_of.dept_name
-    );
+	```sql
+	// Declaration
+	create function instructor_of(dept_name varchar(20))
+	returns table(
+	ID varchar(5),
+	name varchar(20),
+	dept_name varchar(20),
+	salary numeric(8, 2)
+	)
+	return table(
+	select ID, name, dept_name, salary
+	from instructor
+	where instructor.dept_name = instructor_of.dept_name
+	);
 
-// Invocation
-select *
-from table(instructor_of('Finance'));
-```
+	// Invocation
+	select *
+	from table(instructor_of('Finance'));
+	```
 
-- 在函数定义内使用参数时，如果参数名有重名的情况，那么需要加上`函数名.`前缀（这里就是在第 11 行改为 `instructor_of.`）
+	- 在函数定义内使用参数时，如果参数名有重名的情况，那么需要加上`函数名.`前缀（这里就是在第 11 行改为 `instructor_of.`）
 </Card>
 ***
 #### SQL Procedures
@@ -554,27 +554,27 @@ from table(instructor_of('Finance'));
 
 <Card type="example" title="Example">
 
-```sql
-// Declaration
-create procedure dept_count_proc(
-    in dept_name varchar(20),
-    out d_count integer
-)
-begin
+	```sql
+	// Declaration
+	create procedure dept_count_proc(
+	in dept_name varchar(20),
+	out d_count integer
+	)
+	begin
 	select count(*) into d_count
 	from instructor
 	where instructor.dept_name = dept_count_proc.dept_name
-end
-```
+	end
+	```
 
-- 关键字 `in` 和 `out` 分别表示接收进来的参数和存放返回结果的参数（其实就是返回值）
-- 我们可以使用 call 语句从 SQL 过程或嵌入式 SQL 调用过程
+	- 关键字 `in` 和 `out` 分别表示接收进来的参数和存放返回结果的参数（其实就是返回值）
+	- 我们可以使用 call 语句从 SQL 过程或嵌入式 SQL 调用过程
 
-```sql
-// Invocation
-declare d_count integer;
-call dept_count_proc('Physics', d_count);
-```
+	```sql
+	// Invocation
+	declare d_count integer;
+	call dept_count_proc('Physics', d_count);
+	```
 </Card>
 SQL 允许多个参数不同的函数或过程**同名**，因为 SQL 会同时根据函数 / 过程名以及参数来识别函数 / 过程
 ***

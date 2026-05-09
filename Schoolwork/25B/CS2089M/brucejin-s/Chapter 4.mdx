@@ -69,23 +69,23 @@ from student join takes on student.ID = takes.ID;
 
 <Card type="example" title="Example">
 
-我们有如下两个关系：
+	我们有如下两个关系：
 
-![](./assets/Pasted image 20250310102938.png)
+	![](./assets/Pasted image 20250310102938.png)
 
-可以发现课程 CS-315 对应的 prereq 不存在，以及 CS-347 的课程信息不存在
+	可以发现课程 CS-315 对应的 prereq 不存在，以及 CS-347 的课程信息不存在
 
-- 如果我们使用 `course natural left outer join prereq`，这将 prereq 的结果保存下来，没有信息的课程 CS-315 结果设为 NULL：
+	- 如果我们使用 `course natural left outer join prereq`，这将 prereq 的结果保存下来，没有信息的课程 CS-315 结果设为 NULL：
 
-![](./assets/Pasted image 20250310103157.png)
+	![](./assets/Pasted image 20250310103157.png)
 
-- 如果我们使用 `course natural right outer join prereq`，这将 course 的结果保存下来，没有信息的课程 CS-437 结果设为 NULL：
+	- 如果我们使用 `course natural right outer join prereq`，这将 course 的结果保存下来，没有信息的课程 CS-437 结果设为 NULL：
 
-![](./assets/Pasted image 20250310103248.png)
+	![](./assets/Pasted image 20250310103248.png)
 
-- 如果我们使用 `course natural full outer join prereq`，这将 course 和 prereq 的结果保存下来，没有信息的课程 CS-315 和 CS-437 结果设为 NULL：
+	- 如果我们使用 `course natural full outer join prereq`，这将 course 和 prereq 的结果保存下来，没有信息的课程 CS-315 和 CS-437 结果设为 NULL：
 
-![](./assets/Pasted image 20250310103357.png)
+	![](./assets/Pasted image 20250310103357.png)
 </Card>
 ***
 ## SQL Data Types and Schemas
@@ -175,7 +175,7 @@ from student join takes on student.ID = takes.ID;
 	    check (semester in (’Fall’, ’Winter’, ’Spring’, ’Summer’))  
 	);
 	```
-	</Card>
+</Card>
 	- foreign key
 ***
 ### Referential Integrity
@@ -200,10 +200,10 @@ from student join takes on student.ID = takes.ID;
 
 <Card type="question" title="如何避免违反约束？">
 
-例如，我们有如下关系：
+	例如，我们有如下关系：
 
-```sql
-create table person (
+	```sql
+	create table person (
 	ID char(10),
 	name char(40),
 	mother char(10),
@@ -211,13 +211,13 @@ create table person (
 	primary key (ID),
 	foreign key (father) references person,
 	foreign key (mother) references person);
-```
+	```
 
-我们想要避免违反约束地插入一个元组，可以：
+	我们想要避免违反约束地插入一个元组，可以：
 
-- 在插入 person 之前插入一个人的父亲和母亲
-- 或者一开始将 father 和 mother 设置为 null，在插入所有人员后更新（如果 father 和 mother 属性声明为不为空，则无法进行）
-- 或者将约束检查推迟到事务结束
+	- 在插入 person 之前插入一个人的父亲和母亲
+	- 或者一开始将 father 和 mother 设置为 null，在插入所有人员后更新（如果 father 和 mother 属性声明为不为空，则无法进行）
+	- 或者将约束检查推迟到事务结束
 </Card>
 ***
 ### Assertions
@@ -230,22 +230,22 @@ create assertion <assertion-name> check <predicate>;
 
 <Card type="example" title="Example">
 
-- 验证一个学生获得的总学分，要等于获得的每门课的学分的总和
+	- 验证一个学生获得的总学分，要等于获得的每门课的学分的总和
 
-```sql
-create assertion credits_earned_constraint check (
-    not exists (
-        select ID from student
-        where tot_cred <> (
-            select sum(credits)
-            from takes natural join course
-            where student.ID = takes.ID and grade is not null and grade <> 'F'
-        )
-    )
-);
-```
+	```sql
+	create assertion credits_earned_constraint check (
+	not exists (
+	select ID from student
+	where tot_cred <> (
+	select sum(credits)
+	from takes natural join course
+	where student.ID = takes.ID and grade is not null and grade <> 'F'
+	)
+	)
+	);
+	```
 
-因为 SQL 不提供一种 `for all X, P(X)` 的构造，因此只能用 `not exists X such that not P(X)` 这一等价形式表示
+	因为 SQL 不提供一种 `for all X, P(X)` 的构造，因此只能用 `not exists X such that not P(X)` 这一等价形式表示
 </Card>
 ***
 ## Views
@@ -307,14 +307,14 @@ create view <view-name> as <query-expression>;
 
 <Card type="example" title="Example">
 
-- 我们有如下视图：
+	- 我们有如下视图：
 
-```sql
-create view faculty as
-select ID, name, dept_name from instructor
-```
+	```sql
+	create view faculty as
+	select ID, name, dept_name from instructor
+	```
 
-我们用 `insert into faculty values (’30765’, ’Green’, ’Music’);` 进行插入，插入后，原表也会有这条数据，对于其缺少的 `salary` 属性，我们设定为 `NULL`. 如果这个属性的约束是 `not NULL` 的，那么我们无法执行这次插入
+	我们用 `insert into faculty values (’30765’, ’Green’, ’Music’);` 进行插入，插入后，原表也会有这条数据，对于其缺少的 `salary` 属性，我们设定为 `NULL`. 如果这个属性的约束是 `not NULL` 的，那么我们无法执行这次插入
 </Card>
 事实上，更新一个视图非常麻烦，如果创建的视图涉及到多个关系，并且还用 `where` 子句指定一些条件，那么插入语句很有可能无法满足 `where` 给出的条件而无法达到预期效果。
 
@@ -336,37 +336,37 @@ select ID, name, dept_name from instructor
 
 <Card type="example" title="Example">
 
-```sql
-create materialized view departments_total_salary(dept_name, total_salary) as 
+	```sql
+	create materialized view departments_total_salary(dept_name, total_salary) as
 	select dept_name, sum (salary) 
 	from instructor
 	group by dept_name;
 
-select dept_name  
-from departments_total_salary  
-where total_salary > (select avg(total_salary) from departments_total_salary);
-```
+	select dept_name
+	from departments_total_salary
+	where total_salary > (select avg(total_salary) from departments_total_salary);
+	```
 </Card>
 ***
 ### *View and Logical Data Independence
 
 <Card type="question" title="视图如何实现逻辑数据独立性？">
 
-如果我们有关系 `S(a,b,c)` 被拆成了两个子关系 `S1(a,b)` 和 `S2(b,c)`，那么我们可以这么做：
+	如果我们有关系 `S(a,b,c)` 被拆成了两个子关系 `S1(a,b)` 和 `S2(b,c)`，那么我们可以这么做：
 
-```sql
-create table S1 ...;
-create table S2 ...;
+	```sql
+	create table S1 ...;
+	create table S2 ...;
 
-insert into S1 select a,b from S;
-insert into S2 select b,c from S;
+	insert into S1 select a,b from S;
+	insert into S2 select b,c from S;
 
-drop table S;
+	drop table S;
 
-create view S as select a, b, c from S1 natural join S2;
-```
+	create view S as select a, b, c from S1 natural join S2;
+	```
 
-这样之后，语句 `select * from S where...` 实际上是在做 `select * from S1 natural join S2 where ...` （系统会帮我们这样做，程序不用改，只是执行改变了）；语句 `insert into S values (1,2,3)` 实际上是在做 `insert into S1 values (1,2)` 和 `insert into S2 values (1,3)`
+	这样之后，语句 `select * from S where...` 实际上是在做 `select * from S1 natural join S2 where ...` （系统会帮我们这样做，程序不用改，只是执行改变了）；语句 `insert into S values (1,2,3)` 实际上是在做 `insert into S1 values (1,2)` 和 `insert into S2 values (1,3)`
 </Card>
 ***
 ## Indexes
@@ -376,20 +376,20 @@ create view S as select a, b, c from S1 natural join S2;
 
 <Card type="example" title="Example">
 
-- 我们有如下关系：
+	- 我们有如下关系：
 
-```sql
-create table student (
-ID varchar (5),
-name varchar (20) not null,
-dept_name varchar (20),
-tot_cred numeric (3,0) default 0,
-primary key (ID));
-```
+	```sql
+	create table student (
+	ID varchar (5),
+	name varchar (20) not null,
+	dept_name varchar (20),
+	tot_cred numeric (3,0) default 0,
+	primary key (ID));
+	```
 
-`select * from student where ID = ‘12345’` 在数据库内不同的物理实现有不同的查找方法
+	`select * from student where ID = ‘12345’` 在数据库内不同的物理实现有不同的查找方法
 
-如果没有定义索引，只能顺序查找。如果有索引，系统内会利用索引查找
+	如果没有定义索引，只能顺序查找。如果有索引，系统内会利用索引查找
 </Card>
 ***
 ## Transactions
@@ -408,19 +408,19 @@ primary key (ID));
 
 <Card type="example" title="Example">
 
-```sql
-SET AUTOCOMMIT=0;
-UPDATE account SET balance=balance -100 WHERE ano=‘1001’;
-UPDATE account SET balance=balance+100 WHERE ano=‘1002’;
-COMMIT;
+	```sql
+	SET AUTOCOMMIT=0;
+	UPDATE account SET balance=balance -100 WHERE ano=‘1001’;
+	UPDATE account SET balance=balance+100 WHERE ano=‘1002’;
+	COMMIT;
 
-UPDATE account SET balance=balance -200 WHERE ano=‘1003’;
-UPDATE account SET balance=balance+200 WHERE ano=‘1004’;
-COMMIT;
+	UPDATE account SET balance=balance -200 WHERE ano=‘1003’;
+	UPDATE account SET balance=balance+200 WHERE ano=‘1004’;
+	COMMIT;
 
-UPDATE account SET balance=balance+balance*2.5%;
-COMMIT;
-```
+	UPDATE account SET balance=balance+balance*2.5%;
+	COMMIT;
+	```
 </Card>
 ***
 ### ACID Properties
@@ -474,12 +474,12 @@ to <user/role list>;
 
 <Card type="example" title="Example">
 
-```sql
-grant select on instructor to U1, U2, U3
-grant select on department to public
-grant update (budget) on department to U1,U2
-grant all privileges on department to U1
-```
+	```sql
+	grant select on instructor to U1, U2, U3
+	grant select on department to public
+	grant update (budget) on department to U1,U2
+	grant all privileges on department to U1
+	```
 </Card>
 ***
 ### Revoking Authorization in SQL
@@ -501,14 +501,14 @@ from <user/role list>;
 
 <Card type="example" title="Example">
 
-```sql
-create role instructor; 
-grant select on takes to instructor; // 授予权限给角色
-grant instructor to Amit; //将角色的权限授予给用户
+	```sql
+	create role instructor;
+	grant select on takes to instructor; // 授予权限给角色
+	grant instructor to Amit; //将角色的权限授予给用户
 
-create role teaching_assistant; 
-grant teaching_assistant to instructor; // 可以将角色的权限授予给其他角色，从而 instructor 继承了 teaching_assistant 的所有权限
-```
+	create role teaching_assistant;
+	grant teaching_assistant to instructor; // 可以将角色的权限授予给其他角色，从而 instructor 继承了 teaching_assistant 的所有权限
+	```
 </Card>
 角色和用户、角色与角色之间是一个链式的关系：
 
@@ -526,12 +526,12 @@ grant dean to Satoshi;
 
 <Card type="example" title="Example">
 
-```sql
-create view geo_instructor as 
-(select * from instructor where dept_name = ’Geology’);
+	```sql
+	create view geo_instructor as
+	(select * from instructor where dept_name = ’Geology’);
 
-grant select on geo_instructor to geo_staff
-```
+	grant select on geo_instructor to geo_staff
+	```
 </Card>
 ***
 ### Other Authorization Features

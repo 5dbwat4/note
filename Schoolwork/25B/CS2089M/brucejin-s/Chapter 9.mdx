@@ -1,4 +1,4 @@
----
+=-08--
 hide:
   #- navigation # 显示右
   #- toc #显示左
@@ -32,7 +32,7 @@ import Card from "@md-comp/card.vue"
 
 <Card type="example" title="删除记录">
 
-假设我们需要删除 3 号记录，有几种解决方法：
+	假设我们需要删除 3 号记录，有几种解决方法：
 
 === "整体前移"
 
@@ -108,13 +108,13 @@ import Card from "@md-comp/card.vue"
 
 <Card type="example" title="Example">
 
-假如空余空间图的每个元素的大小为 3 位，当某个元素为 7 时，表明对应块内至少有 $\frac{7}{8}$ 的空间是空余的
+	假如空余空间图的每个元素的大小为 3 位，当某个元素为 7 时，表明对应块内至少有 $\frac{7}{8}$ 的空间是空余的
 
-![](./assets/Pasted image 20250414114611.png)
+	![](./assets/Pasted image 20250414114611.png)
 
-假如第二级空余空间图中的一个元素对应第一级的 4 个元素，那么其里面的内容为：
+	假如第二级空余空间图中的一个元素对应第一级的 4 个元素，那么其里面的内容为：
 
-![](./assets/Pasted image 20250414114715.png)
+	![](./assets/Pasted image 20250414114715.png)
 </Card>
 如果每次更新就要向硬盘写入空余空间图的话，那么成本太昂贵。所以一般会周期性地写入空余空间图，但这样做硬盘里的空余空间图可能会过时，访问这样的空余空间图就会引发错误
 ***
@@ -143,24 +143,24 @@ import Card from "@md-comp/card.vue"
 
 <Card type="example" title="Example">
 
-假如我们有 department 和 instructor 两个关系如下：
+	假如我们有 department 和 instructor 两个关系如下：
 
-![](./assets/Pasted image 20250414120030.png)
+	![](./assets/Pasted image 20250414120030.png)
 
-执行以下查询语句：
+	执行以下查询语句：
 
-```sql
-select dept_name, building, budget, ID, name, salary
-from department natural join instructor;
-```
+	```sql
+	select dept_name, building, budget, ID, name, salary
+	from department natural join instructor;
+	```
 
-这条语句将两个关系连接在一起，因此对于 `department` 中的每个元组，系统必须找到 `dept_name` 值相同的 `instructor` 的元组。如果这些关系放在单独的文件上，那么在最坏的情况下，每条记录都位于不同的块，那么这个访问速度就特别地慢了
+	这条语句将两个关系连接在一起，因此对于 `department` 中的每个元组，系统必须找到 `dept_name` 值相同的 `instructor` 的元组。如果这些关系放在单独的文件上，那么在最坏的情况下，每条记录都位于不同的块，那么这个访问速度就特别地慢了
 
-我们将这两个关系自然连接的结果放在一个文件内：
+	我们将这两个关系自然连接的结果放在一个文件内：
 
-![](./assets/Pasted image 20250414120054.png)
+	![](./assets/Pasted image 20250414120054.png)
 
-这两个关系通过键 `dept_name` 聚集在一个文件内。这样的文件结构提升了处理连接操作的效率
+	这两个关系通过键 `dept_name` 聚集在一个文件内。这样的文件结构提升了处理连接操作的效率
 </Card>
 **多表聚集文件组织**（Multitable Clustering File Organization）是一种将多个关系中有关联的记录存储在一个块内的文件组织。而**聚集键**（Clustering Key）是用于定义哪些记录存储在一起的属性。
 

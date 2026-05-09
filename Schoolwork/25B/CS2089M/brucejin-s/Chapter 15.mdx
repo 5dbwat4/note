@@ -118,17 +118,17 @@ import Card from "@md-comp/card.vue"
 
 <Card type="example" title="Example">
 
-下图展示了日志在三个时间点的显示情况：
+	下图展示了日志在三个时间点的显示情况：
 
-![](./assets/Pasted image 20250526221715.png)
+	![](./assets/Pasted image 20250526221715.png)
 
-上述每种情况下的恢复操作是：
+	上述每种情况下的恢复操作是：
 
-(a) 撤销 ($T_0$)：B 恢复到 2000，A 恢复到 1000，并写出日志记录 $<T_0, B, 2000>$，$<T_0, A, 1000>$，$<T_0, \text{abort}>$
+	(a) 撤销 ($T_0$)：B 恢复到 2000，A 恢复到 1000，并写出日志记录 $<T_0, B, 2000>$，$<T_0, A, 1000>$，$<T_0, \text{abort}>$
 
-(b) 重做 ($T_0$) 和 撤销 ($T_1$)：A 和 B 设置为 950 和 2050，C 恢复到 700。写出日志记录 $<T_1, C, 700>$，$<T_1, \text{abort}>$
+	(b) 重做 ($T_0$) 和 撤销 ($T_1$)：A 和 B 设置为 950 和 2050，C 恢复到 700。写出日志记录 $<T_1, C, 700>$，$<T_1, \text{abort}>$
 
-(c) 重做 ($T_0$) 和 重做 ($T_1$)：A 和 B 分别设置为 950 和 2050。然后 C 设置为 600
+	(c) 重做 ($T_0$) 和 重做 ($T_1$)：A 和 B 分别设置为 950 和 2050。然后 C 设置为 600
 </Card>
 ***
 ### Checkpoints
@@ -148,7 +148,7 @@ import Card from "@md-comp/card.vue"
 
 <Card type="example" title="Example">
 
-![](./assets/Pasted image 20250526223545.png)
+	![](./assets/Pasted image 20250526223545.png)
 </Card>
 ***
 ## Recovery Algorithm
@@ -196,7 +196,7 @@ import Card from "@md-comp/card.vue"
 
 <Card type="example" title="Example">
 
-![](./assets/Pasted image 20250527211222.png)
+	![](./assets/Pasted image 20250527211222.png)
 </Card>
 ***
 ## Log Buffer & Database Buffer

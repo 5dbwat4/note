@@ -16,19 +16,19 @@ import Card from "@md-comp/card.vue"
 
 <Card type="example" title="Example">
 
-例如我们有如下查询：
+	例如我们有如下查询：
 
-```sql
-select name, title
-from instructor natural join (teaches natural join course)
-where dept_name=‘Music’ ;
-```
+	```sql
+	select name, title
+	from instructor natural join (teaches natural join course)
+	where dept_name=‘Music’ ;
+	```
 
-化成关系代数即 $\prod_{\text{name,title}}(\sigma_{\text{dept\_name}=\text{music}}(\text{instructor}\Join(\text{teaches}\Join(\text{course}))))$，我们有两种方法来执行这个查询：
+	化成关系代数即 $\prod_{\text{name,title}}(\sigma_{\text{dept\_name}=\text{music}}(\text{instructor}\Join(\text{teaches}\Join(\text{course}))))$，我们有两种方法来执行这个查询：
 
-![](./assets/Pasted image 20250428101521.png)
+	![](./assets/Pasted image 20250428101521.png)
 
-显然右边的查询开销更小
+	显然右边的查询开销更小
 </Card>
 - 查询的评估计划之间的成本差异可能非常巨大
 
@@ -236,9 +236,9 @@ where dept_name=‘Music’ ;
 
 <Card type="note" title="Pseudo Code">
 
-![](./assets/Pasted image 20250428204437.png)
+	![](./assets/Pasted image 20250428204437.png)
 
-![](./assets/Pasted image 20250428204449.png)
+	![](./assets/Pasted image 20250428204449.png)
 </Card>
 ***
 ## Left Deep Join Trees
@@ -286,27 +286,27 @@ where dept_name=‘Music’ ;
 
 <Card type="example" title="Example">
 
-对于一个嵌套查询：
+	对于一个嵌套查询：
 
-```sql
-select name from instructor
-where exists (select * from teaches where instructor.ID=teaches.ID and teaches.year=2022)
-```
+	```sql
+	select name from instructor
+	where exists (select * from teaches where instructor.ID=teaches.ID and teaches.year=2022)
+	```
 
-也可以重写为：
+	也可以重写为：
 
-```sql
-select name from instructor, teaches
-where instructor.ID = teaches.ID and teaches.year=2022
-```
+	```sql
+	select name from instructor, teaches
+	where instructor.ID = teaches.ID and teaches.year=2022
+	```
 
-关系代数为 $\prod_{\text{name}}(\text{instructor}\Join_{\text{instructor.ID}=\text{teaches.ID}\land\text{teaches.year}=2022}\text{teaches})$
+	关系代数为 $\prod_{\text{name}}(\text{instructor}\Join_{\text{instructor.ID}=\text{teaches.ID}\land\text{teaches.year}=2022}\text{teaches})$
 
-可以看到，两个查询会产生不同数量的重复项，这是因为 teaches 可能会有重复的 ID，我们可以使用半连接运算符进行修改，以正确处理重复项
+	可以看到，两个查询会产生不同数量的重复项，这是因为 teaches 可能会有重复的 ID，我们可以使用半连接运算符进行修改，以正确处理重复项
 
-修改关系代数为 $\prod_{\text{name}}(\text{instructor}⋉_{\text{instructor.ID}=\text{teaches.ID}\land\text{teaches.year}=2022}\text{teaches})$，甚至为 $\prod_{\text{name}}(\text{instructor}⋉_{\text{instructor.ID}=\text{teaches.ID}}(\sigma_{\text{teaches.year}=2022}\text{teaches}))$，这样重复项数量就是正确的了
+	修改关系代数为 $\prod_{\text{name}}(\text{instructor}⋉_{\text{instructor.ID}=\text{teaches.ID}\land\text{teaches.year}=2022}\text{teaches})$，甚至为 $\prod_{\text{name}}(\text{instructor}⋉_{\text{instructor.ID}=\text{teaches.ID}}(\sigma_{\text{teaches.year}=2022}\text{teaches}))$，这样重复项数量就是正确的了
 
-- 事实上，上面的关系代数还等价于 `select name from instructor where ID in (select teaches.ID from teaches where teaches.year=2022)`
+	- 事实上，上面的关系代数还等价于 `select name from instructor where ID in (select teaches.ID from teaches where teaches.year=2022)`
 </Card>
 总的来说，形如 `select A from r1, r2, ..., rn where P1 and exists(select * from s1, s2, ..., sm where P21 and P22)` 的 sql 语句可以被复写为 $\prod_{A}(\sigma_{P_1}(r_1\times r_2\times\cdots\times r_n)⋉_{P_2^2}\sigma_{P_2^1}(s_1\times s_2\times\cdots\times s_m)$
 
@@ -368,7 +368,7 @@ where instructor.ID = teaches.ID and teaches.year=2022
 
 <Card type="question" title="为什么我们在 sum 中还需要维护一个 count，而不是直接检测 sum=0 的情况？">
 
-这是因为即使一个组还存在元组，这些元组的 $B$ 值加起来也有可能恰好为 0
+	这是因为即使一个组还存在元组，这些元组的 $B$ 值加起来也有可能恰好为 0
 </Card>
 ***
 #### Other Operations
