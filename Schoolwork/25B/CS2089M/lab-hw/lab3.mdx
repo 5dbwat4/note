@@ -1,0 +1,332 @@
+---
+title: 实验3 SQL 数据完整性
+---
+
+import Asciinema from "@md-comp/AsciinemaWrapper.vue";
+
+# 实验目的
+
+1. 熟悉通过SQL实现数据完整性控制的方法
+
+# 实验平台
+
+1. OS系统： Windows 11 + WSL Kali GNU/Linux Rolling
+2. DBMS： MySQL 9.6
+
+# 实验内容
+
+## 定义包含主键、外键、CHECK约束的数据表
+
+> 1. 定义若干表，其中包括 primary key, foreign key 和 check 的定义。
+
+以银行（Banking）应用为场景，创建数据库 `Banking`，并在其中定义四张表：`branch`（支行）、`customer`（客户）、`account`（账户）和 `depositor`（储户关系）。
+
+```sql
+CREATE DATABASE Banking;
+USE Banking;
+
+CREATE TABLE customer (
+    customer_name CHAR(20),
+    customer_street CHAR(30),
+    customer_city CHAR(30),
+    PRIMARY KEY (customer_name)
+);
+
+CREATE TABLE branch (
+    branch_name CHAR(15),
+    branch_city CHAR(30),
+    assets INTEGER,
+    PRIMARY KEY (branch_name),
+    CHECK (assets >= 0)
+);
+
+CREATE TABLE account (
+    account_number CHAR(10),
+    branch_name CHAR(15),
+    balance INTEGER,
+    PRIMARY KEY (account_number),
+    FOREIGN KEY (branch_name) REFERENCES branch(branch_name)
+        ON DELETE RESTRICT
+        ON UPDATE RESTRICT,
+    CHECK (balance >= 0)
+);
+
+CREATE TABLE depositor (
+    customer_name CHAR(20),
+    account_number CHAR(10),
+    PRIMARY KEY (customer_name, account_number),
+    FOREIGN KEY (account_number) REFERENCES account(account_number)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (customer_name) REFERENCES customer(customer_name)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+```
+
+执行后，使用 `SHOW CREATE TABLE` 可以查看各表的完整定义，验证主键、外键和 CHECK 约束均已成功创建：
+
+```sql
+SHOW CREATE TABLE branch;
+SHOW CREATE TABLE account;
+SHOW CREATE TABLE depositor;
+```
+
+<user_interact>
+请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l3ca1.cast。
+
+执行流程：
+1. 创建数据库 Banking 并 USE
+2. 依次创建 customer、branch、account、depositor 四张表
+3. 执行 SHOW CREATE TABLE 查看 branch、account、depositor 的建表语句，确认主键、外键和 CHECK 约束均存在
+</user_interact>
+
+import cast1 from "./assets/l3ca1.cast?raw";
+
+<Asciinema cast={cast1} />
+
+## 验证主键对实体完整性的控制
+
+> 2. 让表中插入数据，考察 primary key 如何控制实体完整性。
+
+首先向各表中插入初始数据：
+
+```sql
+INSERT INTO branch VALUES ('Jianshe', 'Hangzhou', 1000000);
+INSERT INTO branch VALUES ('Jiaotong', 'Shanghai', 2000000);
+INSERT INTO customer VALUES ('Henry', 'Tianmushan', 'Hangzhou');
+INSERT INTO customer VALUES ('Rock', 'Nanjing', 'Hangzhou');
+INSERT INTO account VALUES ('A001', 'Jianshe', 5000);
+INSERT INTO account VALUES ('A002', 'Jiaotong', 8000);
+INSERT INTO depositor VALUES ('Henry', 'A001');
+INSERT INTO depositor VALUES ('Rock', 'A002');
+```
+
+**主键重复测试**：尝试插入一条 `customer_name` 已存在的记录：
+
+```sql
+INSERT INTO customer VALUES ('Henry', 'Nanjing', 'Shanghai');
+```
+
+结果报错：`ERROR 1062 (23000): Duplicate entry 'Henry' for key 'customer.PRIMARY'`，说明主键约束阻止了重复值的插入。
+
+**主键为空测试**：尝试插入一条不提供主键值的记录：
+
+```sql
+INSERT INTO customer (customer_street, customer_city)
+VALUES ('SomeStreet', 'SomeCity');
+```
+
+结果报错：`ERROR 1364 (HY000): Field 'customer_name' doesn't have a default value`，说明主键列不允许为空（NOT NULL），MySQL 无法为其生成默认值。
+
+<user_interact>
+请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l3ca2.cast。
+
+执行流程：
+1. 插入 8 条初始数据（branch ×2, customer ×2, account ×2, depositor ×2）
+2. 查询各表确认数据已插入
+3. 尝试插入重复主键 'Henry'，观察报错
+4. 尝试插入不提供主键值的记录，观察报错
+</user_interact>
+
+import cast2 from "./assets/l3ca2.cast?raw";
+
+<Asciinema cast={cast2} />
+
+## 验证外键 ON DELETE 对参照完整性的控制
+
+> 3. 删除被引用表中的行，考察 foreign key 中 on delete 子句如何控制参照完整性。
+
+`account` 表的外键 `branch_name` 设置了 `ON DELETE RESTRICT`，表示当被引用的 `branch` 表中的行被删除时，若存在引用该行的 `account` 记录，则删除操作被拒绝。
+
+尝试删除被 `account` 表引用的支行：
+
+```sql
+DELETE FROM branch WHERE branch_name = 'Jianshe';
+```
+
+结果报错：
+
+```
+ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key
+constraint fails (`Banking`.`account`, CONSTRAINT `account_ibfk_1`
+FOREIGN KEY (`branch_name`) REFERENCES `branch` (`branch_name`)
+ON DELETE RESTRICT ON UPDATE RESTRICT)
+```
+
+`ON DELETE RESTRICT` 成功阻止了对被引用行的删除，保护了参照完整性。
+
+<user_interact>
+请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l3ca3.cast。
+
+执行流程：
+1. 先确认 account 表中存在引用 Jianshe 的记录
+2. 执行 DELETE FROM branch WHERE branch_name='Jianshe'
+3. 观察 ON DELETE RESTRICT 报错信息
+4. 再次查询 branch 表，确认 Jianshe 未被删除
+</user_interact>
+
+import cast3 from "./assets/l3ca3.cast?raw";
+
+<Asciinema cast={cast3} />
+
+## 验证外键 ON UPDATE 对参照完整性的控制
+
+> 4. 修改被引用表中的行的 primary key，考察 foreign key 中 on update 子句如何控制参照完整性。
+
+`account` 表的外键 `branch_name` 同时设置了 `ON UPDATE RESTRICT`，即当 `branch` 表的主键 `branch_name` 被修改时，若存在引用该值的 `account` 记录，则更新操作被拒绝。
+
+尝试修改被引用的支行主键：
+
+```sql
+UPDATE branch SET branch_name = 'Guangda'
+WHERE branch_name = 'Jiaotong';
+```
+
+结果报错：
+
+```
+ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key
+constraint fails (`Banking`.`account`, CONSTRAINT `account_ibfk_1`
+FOREIGN KEY (`branch_name`) REFERENCES `branch` (`branch_name`)
+ON DELETE RESTRICT ON UPDATE RESTRICT)
+```
+
+`ON UPDATE RESTRICT` 成功阻止了对被引用主键的修改，保护了参照完整性。
+
+<user_interact>
+请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l3ca4.cast。
+
+执行流程：
+1. 先确认 account 表中存在引用 Jiaotong 的记录
+2. 执行 UPDATE branch SET branch_name='Guangda' WHERE branch_name='Jiaotong'
+3. 观察 ON UPDATE RESTRICT 报错信息
+4. 再次查询 branch 表，确认 branch_name 未被修改
+</user_interact>
+
+import cast4 from "./assets/l3ca4.cast?raw";
+
+<Asciinema cast={cast4} />
+
+## 验证 CHECK 子句对校验完整性的控制
+
+> 5. 修改或插入表中数据，考察 check 子句如何控制校验完整性。
+
+`account` 表定义了 `CHECK (balance >= 0)`，要求账户余额不能为负数。
+
+**CHECK 约束——插入测试**：尝试插入一条余额为负数的账户：
+
+```sql
+INSERT INTO account VALUES ('A003', 'Jianshe', -10);
+```
+
+结果报错：`ERROR 3819 (HY000): Check constraint 'account_chk_1' is violated.`，CHECK 约束阻止了非法数据的插入。
+
+**CHECK 约束——更新测试**：尝试将已有账户的余额修改为负数：
+
+```sql
+UPDATE account SET balance = -100 WHERE account_number = 'A001';
+```
+
+结果同样报错：`ERROR 3819 (HY000): Check constraint 'account_chk_1' is violated.`，CHECK 约束在更新操作中同样生效。
+
+**外键约束补充验证**：尝试插入引用不存在支行的账户：
+
+```sql
+INSERT INTO account VALUES ('A003', 'NonExistent', 500);
+```
+
+结果报错：`ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails ...`，外键约束阻止了"孤儿"数据的插入。
+
+<user_interact>
+请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l3ca5.cast。
+
+执行流程：
+1. 插入余额为负的账户，观察 CHECK 约束报错
+2. 更新余额为负数，观察 CHECK 约束报错
+3. 插入引用不存在的支行的账户，观察外键约束报错
+</user_interact>
+
+import cast5 from "./assets/l3ca5.cast?raw";
+
+<Asciinema cast={cast5} />
+
+## 定义触发器并验证功能
+
+> 6. 定义一个 trigger, 并通过修改表中数据考察触发器如何起作用。
+
+创建一个审计日志表 `account_audit_log`，用于记录账户余额的变更历史。然后定义一个 AFTER UPDATE 触发器 `trg_account_balance_update`，当 `account` 表的余额发生变化时，自动向审计日志表插入一条记录。
+
+```sql
+-- 创建审计日志表
+CREATE TABLE account_audit_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    account_number CHAR(10),
+    action VARCHAR(20),
+    old_balance INTEGER,
+    new_balance INTEGER,
+    change_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 定义触发器
+DELIMITER //
+
+CREATE TRIGGER trg_account_balance_update
+AFTER UPDATE ON account
+FOR EACH ROW
+BEGIN
+    IF OLD.balance != NEW.balance THEN
+        INSERT INTO account_audit_log (account_number, action, old_balance, new_balance)
+        VALUES (NEW.account_number, 'UPDATE', OLD.balance, NEW.balance);
+    END IF;
+END //
+
+DELIMITER ;
+```
+
+查看触发器定义：
+
+```sql
+SHOW TRIGGERS;
+```
+
+**验证触发器**：更新账户余额，触发审计日志写入：
+
+```sql
+-- 更新 A001 的余额
+UPDATE account SET balance = 6000 WHERE account_number = 'A001';
+
+-- 查询审计日志，验证触发器已自动记录
+SELECT * FROM account_audit_log;
+```
+
+查询结果显示审计日志表中新增了一条记录，包含更新时间、旧余额 5000 和新余额 6000，证明触发器 `trg_account_balance_update` 在 UPDATE 操作后自动执行并正确记录了数据变更。
+
+<user_interact>
+请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l3ca6.cast。
+
+执行流程：
+1. 创建 account_audit_log 表
+2. 创建触发器 trg_account_balance_update
+3. 执行 SHOW TRIGGERS 查看触发器
+4. 执行 UPDATE account SET balance=6000 WHERE account_number='A001'
+5. 查询 account_audit_log，验证触发器自动写入了审计记录
+</user_interact>
+
+import cast6 from "./assets/l3ca6.cast?raw";
+
+<Asciinema cast={cast6} />
+
+# 实验总结与体会
+
+通过本次"SQL 数据完整性"实验，我深入理解了数据库管理系统中数据完整性的三类约束机制及其 SQL 实现方式。具体收获如下：
+
+在**实体完整性**方面，通过为主键插入重复值和空值的测试，直观验证了 PRIMARY KEY 约束同时具备唯一性和非空性，确保每一行数据都能被唯一标识。
+
+在**参照完整性**方面，通过 ON DELETE RESTRICT 和 ON UPDATE RESTRICT 子句的测试，理解了外键约束如何在删除和更新被引用表数据时保护数据一致性，防止出现"孤儿"记录和悬空引用。此外，也了解了 CASCADE 等其他参照动作的使用场景。
+
+在**用户定义完整性**方面，通过 CHECK 约束阻止非法数据（如负余额）的插入和更新，验证了 CHECK 子句在校验完整性方面的控制能力。CHECK 约束使得业务规则可以直接在数据库层面强制执行，避免了依赖应用层校验的风险。
+
+在**触发器**方面，通过创建一个 AFTER UPDATE 触发器实现账户余额变更的审计日志自动记录，掌握了触发器的定义语法、触发时机（BEFORE/AFTER/INSTEAD OF）以及 NEW 和 OLD 关键字的使用方法。触发器作为一种主动的数据库机制，能够在数据变更时自动执行预定义的业务逻辑，是保证数据完整性的高级手段。
+
+本次实验使我对 SQL 数据完整性控制有了系统的认识，为后续数据库设计和应用开发中编写健壮的数据库模式打下了坚实基础。

@@ -1,0 +1,211 @@
+---
+title: 实验4 SQL 安全性
+---
+
+import Asciinema from "@md-comp/AsciinemaWrapper.vue";
+
+# 实验目的
+
+1. 熟悉通过SQL实现数据库安全性控制的方法
+
+# 实验平台
+
+1. OS系统： Windows 11 + WSL Kali GNU/Linux Rolling
+2. DBMS： MySQL 9.6
+
+# 实验内容
+
+## 创建数据表，明确表创建者拥有的权限
+
+> 1. 建立表，考察表的生成者拥有该表的哪些权限。
+
+首先创建数据库 `Banking`，以员工管理为场景，创建 `employee` 表并插入数据：
+
+```sql
+CREATE DATABASE Banking;
+USE Banking;
+
+CREATE TABLE employee (
+    person_name CHAR(20),
+    street CHAR(30),
+    city CHAR(30),
+    salary INTEGER,
+    PRIMARY KEY (person_name)
+);
+
+INSERT INTO employee VALUES ('Alice', 'Tianmushan', 'Hangzhou', 8000);
+INSERT INTO employee VALUES ('Bob', 'Nanjing', 'Shanghai', 9000);
+INSERT INTO employee VALUES ('Charlie', 'Moganshan', 'Hangzhou', 7500);
+```
+
+使用 `SHOW GRANTS` 查看当前用户（表创建者 root）所拥有的权限：
+
+```sql
+SHOW GRANTS FOR CURRENT_USER();
+```
+
+结果显示 root 用户拥有 `SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ...` 等大量系统级和表级权限，说明表的创建者对该表拥有完全的访问和控制权限。`WITH GRANT OPTION` 表示还可以将这些权限授予其他用户。
+
+<user_interact>
+请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l4ca1.cast。
+
+执行流程：
+1. 创建数据库 Banking 并 USE
+2. 创建 employee 表并插入 3 条初始数据
+3. 查询 employee 表确认数据
+4. 执行 SHOW GRANTS FOR CURRENT_USER() 查看表创建者拥有的权限
+</user_interact>
+
+import cast1 from "./assets/l4ca1.cast?raw";
+
+<Asciinema cast={cast1} />
+
+## 使用 GRANT 和 REVOKE 完成用户授权与权限回收
+
+> 2. 使用 SQL 的 grant 和 revoke 命令对其他用户进行授权和权力回收，考察相应的作用。
+
+**创建新用户**：
+
+```sql
+CREATE USER 'user001'@'%' IDENTIFIED BY '123456';
+```
+
+查看系统中的用户：
+
+```sql
+SELECT user, host FROM mysql.user WHERE user = 'user001';
+```
+
+**授予权限**：将 `employee` 表的 `SELECT` 和 `INSERT` 权限授予 `user001`：
+
+```sql
+GRANT SELECT, INSERT ON Banking.employee TO 'user001'@'%';
+FLUSH PRIVILEGES;
+```
+
+查看 `user001` 当前拥有的权限：
+
+```sql
+SHOW GRANTS FOR 'user001'@'%';
+```
+
+结果显示 `user001` 拥有 `GRANT SELECT, INSERT ON Banking.employee`，表明授权成功。
+
+**回收权限**：从 `user001` 回收 `INSERT` 权限：
+
+```sql
+REVOKE INSERT ON Banking.employee FROM 'user001'@'%';
+```
+
+再次查看 `user001` 的权限：
+
+```sql
+SHOW GRANTS FOR 'user001'@'%';
+```
+
+可以看到 `INSERT` 权限已被收回，`user001` 仅保留 `SELECT` 权限。这验证了 `GRANT` 命令可以精确授予权限，而 `REVOKE` 命令可以按需回收，实现了灵活的自主访问控制。
+
+<user_interact>
+请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l4ca2.cast。
+
+执行流程：
+1. 创建用户 user001
+2. 执行 SELECT user, host FROM mysql.user 确认用户已创建
+3. GRANT SELECT, INSERT ON Banking.employee TO user001
+4. SHOW GRANTS FOR user001 查看授权结果
+5. REVOKE INSERT ON Banking.employee FROM user001
+6. 再次 SHOW GRANTS FOR user001 确认 INSERT 已被收回
+</user_interact>
+
+import cast2 from "./assets/l4ca2.cast?raw";
+
+<Asciinema cast={cast2} />
+
+## 创建视图，通过视图进行权限控制
+
+> 3. 建立视图，并把该视图的查询权限授予其他用户，考察通过视图进行权限控制的作用。
+
+视图可以限制用户只能访问表中的部分行或部分列，是实现数据库安全性的重要机制。
+
+**创建视图**：创建一个仅展示杭州员工姓名和街道（隐藏薪资）的视图：
+
+```sql
+CREATE VIEW hangzhou_employee AS
+    SELECT person_name, street
+    FROM employee
+    WHERE city = 'Hangzhou';
+```
+
+查询视图内容：
+
+```sql
+SELECT * FROM hangzhou_employee;
+```
+
+视图中仅显示 `city = 'Hangzhou'` 的员工，且不包含 `salary` 和 `city` 列，实现了行列级的数据过滤。
+
+**创建用户 user002 并授予视图权限**：
+
+```sql
+CREATE USER 'user002'@'%' IDENTIFIED BY '123456';
+
+GRANT SELECT ON Banking.hangzhou_employee TO 'user002'@'%';
+FLUSH PRIVILEGES;
+
+SHOW GRANTS FOR 'user002'@'%';
+```
+
+注意：只授予了视图的查询权限，没有授予基表 `employee` 的任何权限。
+
+**验证视图的权限控制作用**：以 `user002` 身份登录，分别尝试查询视图和基表。
+
+<user_interact>
+请新开一个终端窗口，以 user002 身份登录 MySQL 进行测试，并用 asciinema 录屏保存为 assets/l4ca3.cast。
+
+终端 1（root 用户，与前面在同一录屏中完成）继续执行：
+1. 创建视图 hangzhou_employee
+2. 查询视图内容确认过滤效果
+3. 创建用户 user002
+4. GRANT SELECT ON Banking.hangzhou_employee TO user002
+5. SHOW GRANTS FOR user002 查看仅有视图的 SELECT 权限
+
+终端 2（user002 用户，录制到同一个 cast 或者单录一个 cast——建议单录 assets/l4ca3.cast）执行：
+1. 以 user002 身份连接：mysql -u user002 -p123456
+2. USE Banking
+3. SELECT * FROM hangzhou_employee（成功，仅看到杭州员工的行和受限列）
+4. SELECT * FROM employee（失败，报错 SELECT command denied）
+</user_interact>
+
+以 `user002` 登录查询视图：
+
+```sql
+-- 以 user002 身份执行（新终端）
+USE Banking;
+SELECT * FROM hangzhou_employee;
+```
+
+查询成功，返回杭州员工的数据，且只有 `person_name` 和 `street` 两列。
+
+尝试直接查询基表：
+
+```sql
+SELECT * FROM employee;
+```
+
+结果报错：`ERROR 1142 (42000): SELECT command denied to user 'user002'@'localhost' for table 'employee'`。
+
+这说明通过视图进行权限控制是有效的：`user002` 只能通过视图访问被授权的数据子集，无法直接访问基表，从而既保护了敏感数据（薪资信息的隐藏和地域数据的过滤），又满足了业务上的数据查询需求。
+
+import cast3 from "./assets/l4ca3.cast?raw";
+
+<Asciinema cast={cast3} />
+
+# 实验总结与体会
+
+通过本次"SQL 安全性"实验，我系统学习了数据库管理系统中的自主访问控制（DAC）机制及其 SQL 实现方式。
+
+在**权限管理**方面，通过 `SHOW GRANTS` 命令了解了表创建者（root 用户）所拥有的完整权限集，包括数据操作、结构修改和用户管理等系统级权限。`GRANT` 和 `REVOKE` 命令的实践让我理解了权限授予与回收的精确控制——可以针对不同数据库对象（表、视图）和不同操作类型（SELECT、INSERT、UPDATE 等）进行细粒度的授权管理。
+
+在**视图的安全性应用**方面，通过创建只包含特定行和特定列的视图，并将视图权限而非基表权限授予用户，我深刻体会到了视图作为一种安全性机制的价值。视图相当于一个"安全窗口"，用户只能看到被允许的数据子集，实现了行级和列级的访问控制，同时隐藏了基表的完整结构和敏感字段。
+
+本次实验使我认识到，数据库安全性不仅依赖于操作系统和网络层面的防护，更需要在数据库内部通过权限管理和视图机制建立起多层防护体系，为实际应用系统中的数据安全设计提供了重要的技术支撑。
