@@ -46,15 +46,6 @@ SHOW GRANTS FOR CURRENT_USER();
 
 结果显示 root 用户拥有 `SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ...` 等大量系统级和表级权限，说明表的创建者对该表拥有完全的访问和控制权限。`WITH GRANT OPTION` 表示还可以将这些权限授予其他用户。
 
-<user_interact>
-请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l4ca1.cast。
-
-执行流程：
-1. 创建数据库 Banking 并 USE
-2. 创建 employee 表并插入 3 条初始数据
-3. 查询 employee 表确认数据
-4. 执行 SHOW GRANTS FOR CURRENT_USER() 查看表创建者拥有的权限
-</user_interact>
 
 import cast1 from "./assets/l4ca1.cast?raw";
 
@@ -105,18 +96,6 @@ SHOW GRANTS FOR 'user001'@'%';
 
 可以看到 `INSERT` 权限已被收回，`user001` 仅保留 `SELECT` 权限。这验证了 `GRANT` 命令可以精确授予权限，而 `REVOKE` 命令可以按需回收，实现了灵活的自主访问控制。
 
-<user_interact>
-请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l4ca2.cast。
-
-执行流程：
-1. 创建用户 user001
-2. 执行 SELECT user, host FROM mysql.user 确认用户已创建
-3. GRANT SELECT, INSERT ON Banking.employee TO user001
-4. SHOW GRANTS FOR user001 查看授权结果
-5. REVOKE INSERT ON Banking.employee FROM user001
-6. 再次 SHOW GRANTS FOR user001 确认 INSERT 已被收回
-</user_interact>
-
 import cast2 from "./assets/l4ca2.cast?raw";
 
 <Asciinema cast={cast2} />
@@ -158,23 +137,6 @@ SHOW GRANTS FOR 'user002'@'%';
 注意：只授予了视图的查询权限，没有授予基表 `employee` 的任何权限。
 
 **验证视图的权限控制作用**：以 `user002` 身份登录，分别尝试查询视图和基表。
-
-<user_interact>
-请新开一个终端窗口，以 user002 身份登录 MySQL 进行测试，并用 asciinema 录屏保存为 assets/l4ca3.cast。
-
-终端 1（root 用户，与前面在同一录屏中完成）继续执行：
-1. 创建视图 hangzhou_employee
-2. 查询视图内容确认过滤效果
-3. 创建用户 user002
-4. GRANT SELECT ON Banking.hangzhou_employee TO user002
-5. SHOW GRANTS FOR user002 查看仅有视图的 SELECT 权限
-
-终端 2（user002 用户，录制到同一个 cast 或者单录一个 cast——建议单录 assets/l4ca3.cast）执行：
-1. 以 user002 身份连接：mysql -u user002 -p123456
-2. USE Banking
-3. SELECT * FROM hangzhou_employee（成功，仅看到杭州员工的行和受限列）
-4. SELECT * FROM employee（失败，报错 SELECT command denied）
-</user_interact>
 
 以 `user002` 登录查询视图：
 

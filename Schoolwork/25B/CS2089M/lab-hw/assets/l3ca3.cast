@@ -1,0 +1,13 @@
+{"version":2,"width":120,"height":27,"timestamp":1778401785,"env":{"SHELL":"/usr/bin/zsh","TERM":"xterm-256color"}}
+[2.749307, "o", "mysql> "]
+[2.750487, "o", "USE Banking;\r\r\n"]
+[2.75514, "o", "Reading table information for completion of table and column names\r\r\nYou can turn off this feature to get a quicker startup with -A\r\r\n\r\r\n"]
+[2.756563, "o", "Database changed\r\r\nmysql> "]
+[3.058261, "o", "SELECT * FROM account WHERE branch"]
+[3.058577, "o", "_name = 'Jianshe';\r\r\n"]
+[3.0599, "o", "+----------------+-------------+---------+\r\r\n| account_number | branch_name | balance |\r\r\n+----------------+-------------+---------+\r\r\n| A001           | Jianshe     |    5000 |\r\r\n+----------------+-------------+---------+\r\r\n1 row in set (0.001 sec)\r\r\n\r\r\nmysql> "]
+[3.361624, "o", "DELETE FROM branch WHERE branch_name = 'Jian"]
+[3.362114, "o", "she';\r\r\n"]
+[3.362761, "o", "ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`Banking`.`account`, CONSTRAINT `account_ibfk_1` FOREIGN KEY (`branch_name`) REFERENCES `branch` (`branch_name`) ON DELETE RESTRICT ON UPDATE RESTRICT)\r\r\n\u0007mysql> "]
+[3.6647, "o", "SELECT * FROM branch;\r\r\n"]
+[3.665169, "o", "+-------------+-------------+---------+\r\r\n| branch_name | branch_city | assets  |\r\r\n+-------------+-------------+---------+\r\r\n| Jianshe     | Hangzhou    | 1000000 |\r\r\n| Jiaotong    | Shanghai    | 2000000 |\r\r\n+-------------+-------------+---------+\r\r\n2 rows in set (0.000 sec)\r\r\n\r\r\nmysql> "]

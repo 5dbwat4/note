@@ -72,15 +72,6 @@ SHOW CREATE TABLE account;
 SHOW CREATE TABLE depositor;
 ```
 
-<user_interact>
-请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l3ca1.cast。
-
-执行流程：
-1. 创建数据库 Banking 并 USE
-2. 依次创建 customer、branch、account、depositor 四张表
-3. 执行 SHOW CREATE TABLE 查看 branch、account、depositor 的建表语句，确认主键、外键和 CHECK 约束均存在
-</user_interact>
-
 import cast1 from "./assets/l3ca1.cast?raw";
 
 <Asciinema cast={cast1} />
@@ -119,15 +110,6 @@ VALUES ('SomeStreet', 'SomeCity');
 
 结果报错：`ERROR 1364 (HY000): Field 'customer_name' doesn't have a default value`，说明主键列不允许为空（NOT NULL），MySQL 无法为其生成默认值。
 
-<user_interact>
-请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l3ca2.cast。
-
-执行流程：
-1. 插入 8 条初始数据（branch ×2, customer ×2, account ×2, depositor ×2）
-2. 查询各表确认数据已插入
-3. 尝试插入重复主键 'Henry'，观察报错
-4. 尝试插入不提供主键值的记录，观察报错
-</user_interact>
 
 import cast2 from "./assets/l3ca2.cast?raw";
 
@@ -156,15 +138,6 @@ ON DELETE RESTRICT ON UPDATE RESTRICT)
 
 `ON DELETE RESTRICT` 成功阻止了对被引用行的删除，保护了参照完整性。
 
-<user_interact>
-请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l3ca3.cast。
-
-执行流程：
-1. 先确认 account 表中存在引用 Jianshe 的记录
-2. 执行 DELETE FROM branch WHERE branch_name='Jianshe'
-3. 观察 ON DELETE RESTRICT 报错信息
-4. 再次查询 branch 表，确认 Jianshe 未被删除
-</user_interact>
 
 import cast3 from "./assets/l3ca3.cast?raw";
 
@@ -193,16 +166,6 @@ ON DELETE RESTRICT ON UPDATE RESTRICT)
 ```
 
 `ON UPDATE RESTRICT` 成功阻止了对被引用主键的修改，保护了参照完整性。
-
-<user_interact>
-请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l3ca4.cast。
-
-执行流程：
-1. 先确认 account 表中存在引用 Jiaotong 的记录
-2. 执行 UPDATE branch SET branch_name='Guangda' WHERE branch_name='Jiaotong'
-3. 观察 ON UPDATE RESTRICT 报错信息
-4. 再次查询 branch 表，确认 branch_name 未被修改
-</user_interact>
 
 import cast4 from "./assets/l3ca4.cast?raw";
 
@@ -238,14 +201,6 @@ INSERT INTO account VALUES ('A003', 'NonExistent', 500);
 
 结果报错：`ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails ...`，外键约束阻止了"孤儿"数据的插入。
 
-<user_interact>
-请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l3ca5.cast。
-
-执行流程：
-1. 插入余额为负的账户，观察 CHECK 约束报错
-2. 更新余额为负数，观察 CHECK 约束报错
-3. 插入引用不存在的支行的账户，观察外键约束报错
-</user_interact>
 
 import cast5 from "./assets/l3ca5.cast?raw";
 
@@ -302,16 +257,7 @@ SELECT * FROM account_audit_log;
 
 查询结果显示审计日志表中新增了一条记录，包含更新时间、旧余额 5000 和新余额 6000，证明触发器 `trg_account_balance_update` 在 UPDATE 操作后自动执行并正确记录了数据变更。
 
-<user_interact>
-请将上述 SQL 命令在 MySQL CLI 中执行，并用 asciinema 录屏保存为 assets/l3ca6.cast。
 
-执行流程：
-1. 创建 account_audit_log 表
-2. 创建触发器 trg_account_balance_update
-3. 执行 SHOW TRIGGERS 查看触发器
-4. 执行 UPDATE account SET balance=6000 WHERE account_number='A001'
-5. 查询 account_audit_log，验证触发器自动写入了审计记录
-</user_interact>
 
 import cast6 from "./assets/l3ca6.cast?raw";
 
