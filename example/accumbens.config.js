@@ -4,10 +4,7 @@ export default {
     "path":{
         "default":true,
     },
-    "entries":[
-        "test.md",
-        "test-encryption.mdx"
-    ],
+    "entries":"auto",
     "name":"example",
     "show":false,
 }

@@ -6,7 +6,8 @@ export default {
         "./kemu1",
         "./QSC-train",
         "./prompts",
-        "./work"
+        "./work",
+        "./party-stage2"
     ],
     "entries":[ ]
 }
