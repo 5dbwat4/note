@@ -1,17 +1,49 @@
 ---
 title: 测试“练习题”相关组件
 ---
-{/* 
-import examCmp from "@md-components/examCmp.mdx"
 
-<examCmp type="choice">{{
-  q: () => <>
-  Hello
-  
-  </>,
-  a: () => <>
+import examCmp from "@md-comp/quizd/examCmp.vue"
+import Q from "@md-comp/quizd/ExamQ.vue"
+import Choice from "@md-comp/quizd/ExamChoice.vue"
+import Analysis from "@md-comp/quizd/ExamAnalysis.vue"
+import Blank from "@md-comp/quizd/ExamBlank.vue"
 
-  Hello A **q**;
+<examCmp type="choice" choice={0}>
 
-  </>
-}}</examCmp> */}
+<Q>
+Question xxxx
+
+**support md**
+
+</Q>
+
+<Choice>
+choice 1
+</Choice>
+
+<Choice>
+2
+</Choice>
+
+<Analysis>
+
+解析：。。。。
+
+</Analysis>
+ 。。。
+</examCmp>
+
+
+123
+
+<examCmp type="blank" >
+<Q>
+填空题，填空<Blank value="这是答案" />填空题，填空
+</Q>
+<Analysis>
+
+解析：。。。。
+
+</Analysis>
+
+</examCmp>
