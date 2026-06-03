@@ -7,7 +7,7 @@ export default {
         {"file":"./lab5/report.mdx","path":"lab5"},
         // {"file":"./lab6/report.mdx","path":"lab6"},
         // {"file":"./lab7/report.mdx","path":"lab7"},
-        // {"file":"./lab-bonus/report.md","path":"lab-bonus"},
+        {"file":"./lab-bonus/report.mdx","path":"lab-bonus"},
         // {"file":"./project/report.mdx","path":"project"},
     ],
     "name":"SYS3-labs",
