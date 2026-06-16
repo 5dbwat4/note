@@ -1,0 +1,4079 @@
+---
+title: "Xpart：RV64 MMU 及软硬件贯通综合实验"
+---
+import Asciinema from "@md-components/AsciinemaWrapper.vue";
+
+# Xpart：RV64 MMU 及软硬件贯通综合实验 实验报告
+
+## TL; DR
+
+必做部分：
+
+- [实现 MMU 及 page fault 抛出，运行起 lab5 中的 kernel](#必做部分：运行起-lab-5-中的-kernel) 
+
+选做部分：
+
+- [实现 TLB 模块](#拓展部分：实现-tlb-模块)
+- [实现 RSB 模块](#拓展部分：-return-stack-buffer-rsb)
+- [在 MMU 基础上添加 Cache 模块](#拓展部分：在-mmu-基础上添加-cache-模块)
+- [实现 M 拓展](#选做部分：-risc-v-m-扩展（乘除法指令）实现)
+
+## 支线任务：创建 `project.f` 以便verilator，slang-server以及相关的MCP工具使用
+
+> `-f <file>`
+> 
+> Read the specified file, and act as if all text inside it was specified as command line arguments. Any relative paths are relative to the current directory. See also `-F` option. Note `-f` is relatively standard across Verilog tools.
+> 
+> The file may contain `//` comments which are ignored until the end of the line. It may also contain `/* .. */` comments which are ignored, be cautious that wildcards are not handled in -f files, and that `directory/*` is the beginning of a comment, not a wildcard. Any `$VAR`, `$(VAR)`, or `${VAR}` will be replaced with the specified environment variable.
+>
+> *Ref: [verilator Arguments — Verilator Devel 5.049 documentation](https://verilator.org/guide/latest/exe_verilator.html#cmdoption-f)*
+
+事实上，虽然还没有标准化，`-f`已经成为了很多库的事实标准。包括verilator；
+
+此外还有`slang`和`slang-server`，我们使用这一套工具做Language server；
+
+`sv-nav-mcp`也一样。
+
+所以我们应当写一个这样的文件。
+
+`project.f`：
+
+```plaintext
++incdir+repo/sys-project/include
+
+// General infrastructure
+repo/sys-project/general/Axi_ift.sv
+repo/sys-project/general/Mem_ift.sv
+repo/sys-project/general/Decoupled_ift.sv
+repo/sys-project/general/misc.sv
+repo/sys-project/general/fifo.sv
+repo/sys-project/general/conv.sv
+repo/sys-project/general/Axi_InterConnect.sv
+repo/sys-project/general/AxiCore.sv
+repo/sys-project/general/DRAM.sv
+repo/sys-project/general/uart.sv
+repo/sys-project/general/SCPU.sv
+repo/sys-project/general/async.v
+
+// Our core
+src/project/submit/ALU.sv
+src/project/submit/BranchPrediction.sv
+src/project/submit/Cmp.sv
+src/project/submit/Controller.sv
+src/project/submit/Core.sv
+src/project/submit/CSR_ALU.sv
+src/project/submit/CSRModule.sv
+src/project/submit/DataPkg.sv
+src/project/submit/DataTrunc.sv
+src/project/submit/Dcache.sv
+src/project/submit/ExceptReg.sv
+src/project/submit/ForwardingUnit.sv
+src/project/submit/HazardUnit.sv
+src/project/submit/Icache.sv
+src/project/submit/IDExceptExamine.sv
+src/project/submit/MaskGen.sv
+src/project/submit/MemCache.sv
+src/project/submit/Mem2Axi.sv
+src/project/submit/MemInterfaceCtrl.sv
+src/project/submit/SimpleTLB.sv
+src/project/submit/MMU.sv
+src/project/submit/RegFile.sv
+
+// Simulation
+repo/sys-project/sim/sim_uart.sv
+repo/sys-project/sim/testbench.sv
+```
+
+## 前置任务：改造lab3 kernel适配硬件
+
+- 删除`mm.c`中的`memset`
+    ```diff
+    --- a/src/project/kernel/arch/riscv/kernel/mm.c
+    +++ b/src/project/kernel/arch/riscv/kernel/mm.c
+    @@ -131,11 +136,8 @@ static void buddy_init(void) {
+       buddy.size = buddy_size;
+       buddy.bitmap = free_page_start;
+       free_page_start = (uint8_t *)free_page_start + 2 * buddy.size * sizeof(*buddy.bitmap);
+    -  memset(buddy.bitmap, 0, 2 * buddy.size * sizeof(*buddy.bitmap));
+    -  // alloc space for ref_cnt
+       buddy.ref_cnt = free_page_start;
+       free_page_start = (uint8_t *)free_page_start + buddy.size * sizeof(*buddy.ref_cnt);
+    -  memset(buddy.ref_cnt, 0, buddy.size * sizeof(*buddy.ref_cnt));
+    
+       uint64_t node_size = 2 * buddy.size;
+       for (uint64_t i = 0; i < 2 * buddy.size - 1; ++i) {
+    ```
+- 修改`private_kdefs.h`中的常量
+    ```diff
+    --- a/src/project/kernel/arch/riscv/include/private_kdefs.h
+    +++ b/src/project/kernel/arch/riscv/include/private_kdefs.h
+    @@ -2,10 +2,11 @@
+     #define __PRIVATE_KDEFS_H__
+    
+     // QEMU virt 机器的时钟频率为 10 MHz
+    -#define TIMECLOCK 10000000
+    +#define TIMECLOCK 200000
+    
+     #define PHY_START 0x80000000
+    -#define PHY_SIZE 0x8000000 // 128 MiB
+    +// #define PHY_SIZE 0x8000000 // 128 MiB
+    +#define PHY_SIZE 0x400000
+     #define PHY_END (PHY_START + PHY_SIZE)
+    
+     #define OPENSBI_SIZE 0x200000
+    ```
+
+### “比较合适”？
+
+> * 在 kernel/arch/riscv/include/private_kdefs.h 中定义了 `PHY_SIZE` 的大小，由于硬件资源有限并且初始化时间过长，需要把这个改小，在以下这个数量级是一个比较合适的数字：
+> 
+>     ```c
+>     #define PHY_SIZE 0x400000
+>     ```
+
+实际上，这个数字是**最大**的可行的数字，因为`Define.vh`里面明确说了
+
+```verilog
+`define DDR_BASE 64'h80000000
+`define DDR_LEN 64'h400000
+```
+
+其它任何数字都会因为与此不匹配爆出
+
+```plaintext
+ERROR kernel out of memory Try increasing PHY_SIZE (currently %#x) in private_kdefs.h
+```
+
+而事实上无论你把这个数字抬升多少都不会影响，因为`mm.c`正在为超出它能力范围的地址进行初始化操作
+
+
+## 必做部分：MMU
+
+
+核心数据通路从原来的：
+
+```text
+Core -> MemInterfaceCtrl -> Mem2Axi -> AXI memory
+```
+
+调整为：
+
+```text
+Core -> MemInterfaceCtrl -> MMU -> Mem2Axi -> AXI memory
+```
+
+其中 `MMU.sv` 负责判断是否启用 Sv39，必要时执行三级页表遍历，并把 Core 发出的虚拟地址改写为最终物理地址。
+
+### 移除已有的Cache
+
+由于 Cache 准备在下一步再接入，`project.f` 中先移除了 Cache 相关源文件：
+
+```diff
+ src/project/submit/ALU.sv
+ src/project/submit/BranchPrediction.sv
+-src/project/submit/Cache.sv
+-src/project/submit/CacheBank.sv
+-src/project/submit/CacheWriteBuffer.sv
+ src/project/submit/Cmp.sv
+ src/project/submit/Controller.sv
+```
+
+这样编译和调试时不会再受到尚未接入的 Cache 状态机影响。
+
+### Core 和 CSR 对 MMU 的接口
+
+为了让 MMU 得到地址翻译所需的上下文，Core 新增了 `except_mmu` 输入，以及 `satp`、特权级、`SUM`、TLB flush、流水线 PC 等输出：
+
+```verilog
+module Core (
+    input clk,
+    input rst,
+    input time_int,
+    input CsrPack::ExceptPack except_mmu,
+
+    Mem_ift.Master imem_ift,
+    Mem_ift.Master dmem_ift,
+    output CorePack::data_t satp,
+    output logic [1:0] output_priv,
+    output logic sum_out,
+    output logic flush_tlb,
+    output CorePack::data_t pc_if,
+    output CorePack::data_t pc_mem,
+    output cosim_valid,
+    ...
+);
+```
+
+这些信号在 Core 内部由 CSR 信息和流水线状态生成：
+
+```verilog
+assign output_priv = priv;
+assign sum_out = csr_info.sstatus[18];
+assign flush_tlb = 1'b0;
+assign pc_if = pc;
+assign pc_mem = exemem_reg.pc;
+```
+
+`CSRModule` 中增加了 `except_mmu` 输入和 `satp` 输出。`satp` 在写回阶段写 CSR `SATP` 时更新，随后提供给 MMU 作为页表根地址和模式字段来源：
+
+```verilog
+logic [63:0] satp_reg;
+always_ff @(posedge clk) begin
+    if (rst) begin
+        satp_reg <= 64'b0;
+    end else if (csr_addr_wb == SATP && csr_we_wb) begin
+        satp_reg <= csr_val_wb;
+    end
+end
+assign satp = satp_reg;
+```
+
+异常选择逻辑也把 `except_mmu` 纳入 CSR trap 判定：
+
+```verilog
+wire except = except_commit.except | except_mmu.except;
+
+assign except_final = interrupt ? except_interrupt
+                    : (except_mmu.except ? except_mmu : except_commit);
+```
+
+当前实现中 `MMU.sv` 先完成页表遍历和地址重写，`except_mmu` 暂时保持为零。也就是说，硬件接口已经预留了缺页异常上报路径，但页表项合法性、权限检查和具体 page fault 生成还可以在后续迭代中补全。
+
+### MMU 基本结构
+
+`MMU.sv` 包含独立的取指翻译状态机和数据访存翻译状态机。两个状态机共用以下状态定义：
+
+```verilog
+typedef enum logic [2:0] {
+    S_IDLE,
+    S_DIRECT_REQ,
+    S_DIRECT_RESP,
+    S_PTW_REQ,
+    S_PTW_RESP,
+    S_FINAL_REQ,
+    S_FINAL_RESP
+} state_t;
+```
+
+状态含义如下：
+
+| 状态 | 含义 |
+| --- | --- |
+| `S_IDLE` | 等待 Core 发起取指或访存请求 |
+| `S_DIRECT_REQ` | 未启用虚拟内存时，直接向内存发送原始地址 |
+| `S_DIRECT_RESP` | 等待直接访问的内存返回 |
+| `S_PTW_REQ` | 启用 Sv39 时，发起页表项读取请求 |
+| `S_PTW_RESP` | 等待页表项返回，并决定继续下一级或进入最终访问 |
+| `S_FINAL_REQ` | 叶子 PTE 找到后，使用翻译后的物理地址访问内存 |
+| `S_FINAL_RESP` | 等待最终访存返回，并转发给 Core |
+
+启用虚拟地址翻译的条件由 `satp.MODE` 和当前特权级决定：
+
+```verilog
+function automatic logic use_vm(input data_t satp_i, input logic [1:0] priv_i);
+    use_vm = (satp_i[63:60] == 4'd8) && (priv_i != 2'b11);
+endfunction
+```
+
+这里 `satp[63:60] == 8` 对应 Sv39 模式。机器态 `M-mode` 不经过分页转换，其余特权级在 Sv39 开启时走页表遍历。
+
+### Sv39 地址计算
+
+Sv39 使用三级页表。实现中抽出了几个辅助函数，分别完成根页表地址、下一级页表地址、PTE 读取地址和最终物理地址的计算。
+
+```verilog
+function automatic data_t root_base(input data_t satp_i);
+    root_base = {8'b0, satp_i[43:0], 12'b0};
+endfunction
+
+function automatic data_t next_table_base(input data_t pte);
+    next_table_base = {8'b0, pte[53:10], 12'b0};
+endfunction
+
+function automatic data_t walk_addr(input data_t base, input data_t va, input logic [1:0] level);
+    logic [8:0] vpn;
+    begin
+        case (level)
+            2'd2: vpn = va[38:30];
+            2'd1: vpn = va[29:21];
+            default: vpn = va[20:12];
+        endcase
+        walk_addr = base + {52'b0, vpn, 3'b0};
+    end
+endfunction
+```
+
+`root_base` 使用 `satp.PPN` 生成根页表物理基地址；`walk_addr` 根据当前 level 选择 `VPN[2]`、`VPN[1]` 或 `VPN[0]`，再乘以 8 得到 PTE 地址。
+
+当读到叶子 PTE 后，根据叶子所在层级生成物理地址：
+
+```verilog
+function automatic data_t translated_addr(input data_t pte, input data_t va, input logic [1:0] level);
+    begin
+        case (level)
+            2'd2: translated_addr = {8'b0, pte[53:28], va[29:21], va[20:12], va[11:0]};
+            2'd1: translated_addr = {8'b0, pte[53:28], pte[27:19], va[20:12], va[11:0]};
+            default: translated_addr = {8'b0, pte[53:28], pte[27:19], pte[18:10], va[11:0]};
+        endcase
+    end
+endfunction
+```
+
+叶子 PTE 的判断使用 R/X 位：
+
+```verilog
+function automatic logic pte_leaf(input data_t pte);
+    pte_leaf = pte[1] | pte[3];
+endfunction
+```
+
+即 PTE 可读或可执行时认为它是叶子项；否则认为它指向下一级页表。
+
+### 取指地址翻译
+
+取指侧保存当前虚拟地址、页表基地址、当前遍历层级和最终叶子 PTE：
+
+```verilog
+state_t i_state, i_nstate;
+data_t i_va;
+data_t i_pt_base;
+data_t i_leaf_pte;
+logic [1:0] i_level;
+logic [1:0] i_leaf_level;
+```
+
+当 Core 在 `S_IDLE` 发起取指请求且虚拟内存已开启时，MMU 锁存请求地址并从 level 2 开始遍历：
+
+```verilog
+if (i_state == S_IDLE && core_imem_ift.r_request_valid && vm_enabled) begin
+    i_va <= core_imem_ift.r_request_bits.raddr;
+    i_pt_base <= root_base(satp);
+    i_level <= 2'd2;
+end else if (i_state == S_PTW_RESP && i_ptw_reply_fire) begin
+    if (pte_leaf(mem_imem_ift.r_reply_bits.rdata) || i_level == 2'd0) begin
+        i_leaf_pte <= mem_imem_ift.r_reply_bits.rdata;
+        i_leaf_level <= i_level;
+    end else begin
+        i_pt_base <= next_table_base(mem_imem_ift.r_reply_bits.rdata);
+        i_level <= i_level - 2'd1;
+    end
+end
+```
+
+状态转移逻辑负责在直接访问、页表遍历和最终访问之间切换：
+
+```verilog
+always_comb begin
+    i_nstate = i_state;
+    case (i_state)
+        S_IDLE: begin
+            if (core_imem_ift.r_request_valid) begin
+                i_nstate = vm_enabled ? S_PTW_REQ : S_DIRECT_REQ;
+            end
+        end
+        S_PTW_REQ: begin
+            if (mem_imem_ift.r_request_ready) begin
+                i_nstate = S_PTW_RESP;
+            end
+        end
+        S_PTW_RESP: begin
+            if (mem_imem_ift.r_reply_valid) begin
+                i_nstate = (pte_leaf(mem_imem_ift.r_reply_bits.rdata) || i_level == 2'd0)
+                         ? S_FINAL_REQ : S_PTW_REQ;
+            end
+        end
+        S_FINAL_RESP: begin
+            if (core_imem_ift.r_reply_ready && mem_imem_ift.r_reply_valid) begin
+                i_nstate = S_IDLE;
+            end
+        end
+        default: i_nstate = S_IDLE;
+    endcase
+end
+```
+
+组合输出部分将页表遍历请求和最终取指请求复用到同一条外部 instruction memory 通道：
+
+```verilog
+case (i_state)
+    S_PTW_REQ: begin
+        mem_imem_ift.r_request_valid = 1'b1;
+        mem_imem_ift.r_request_bits.raddr = walk_addr(i_pt_base, i_va, i_level);
+    end
+    S_PTW_RESP: begin
+        mem_imem_ift.r_reply_ready = 1'b1;
+    end
+    S_FINAL_REQ: begin
+        mem_imem_ift.r_request_valid = core_imem_ift.r_request_valid;
+        mem_imem_ift.r_request_bits.raddr = translated_addr(i_leaf_pte, i_va, i_leaf_level);
+        core_imem_ift.r_request_ready = mem_imem_ift.r_request_ready;
+    end
+    S_FINAL_RESP: begin
+        core_imem_ift.r_reply_valid = mem_imem_ift.r_reply_valid;
+        core_imem_ift.r_reply_bits = mem_imem_ift.r_reply_bits;
+        mem_imem_ift.r_reply_ready = core_imem_ift.r_reply_ready;
+    end
+endcase
+```
+
+未启用虚拟内存时，`S_DIRECT_REQ` 和 `S_DIRECT_RESP` 直接转发 Core 请求和内存响应，保证机器态启动阶段仍按原物理地址执行。
+
+### 数据访存地址翻译
+
+数据侧需要同时支持 load 和 store，因此除了虚拟地址和页表遍历状态，还保存写数据、写掩码和当前请求类型：
+
+```verilog
+state_t d_state, d_nstate;
+data_t d_va;
+data_t d_pt_base;
+data_t d_leaf_pte;
+data_t d_wdata;
+mask_t d_wmask;
+logic [1:0] d_level;
+logic [1:0] d_leaf_level;
+logic d_is_write;
+```
+
+当数据侧从空闲状态接收到请求时，优先判断读写类型并锁存请求内容：
+
+```verilog
+if (d_state == S_IDLE && (core_dmem_ift.r_request_valid || core_dmem_ift.w_request_valid)) begin
+    d_is_write <= !core_dmem_ift.r_request_valid && core_dmem_ift.w_request_valid;
+    d_va <= core_dmem_ift.r_request_valid ? core_dmem_ift.r_request_bits.raddr
+                                           : core_dmem_ift.w_request_bits.waddr;
+    d_wdata <= core_dmem_ift.w_request_bits.wdata;
+    d_wmask <= core_dmem_ift.w_request_bits.wmask;
+    if (vm_enabled) begin
+        d_pt_base <= root_base(satp);
+        d_level <= 2'd2;
+    end
+end
+```
+
+页表遍历过程和取指侧基本一致；区别在于最终访问阶段需要根据 `d_is_write` 选择读通道或写通道：
+
+```verilog
+S_FINAL_REQ: begin
+    if (d_is_write) begin
+        mem_dmem_ift.w_request_valid = core_dmem_ift.w_request_valid;
+        mem_dmem_ift.w_request_bits.waddr = translated_addr(d_leaf_pte, d_va, d_leaf_level);
+        mem_dmem_ift.w_request_bits.wdata = d_wdata;
+        mem_dmem_ift.w_request_bits.wmask = d_wmask;
+        core_dmem_ift.w_request_ready = mem_dmem_ift.w_request_ready;
+    end else begin
+        mem_dmem_ift.r_request_valid = core_dmem_ift.r_request_valid;
+        mem_dmem_ift.r_request_bits.raddr = translated_addr(d_leaf_pte, d_va, d_leaf_level);
+        core_dmem_ift.r_request_ready = mem_dmem_ift.r_request_ready;
+    end
+end
+```
+
+返回阶段同样按读写类型分别转发：
+
+```verilog
+S_FINAL_RESP: begin
+    if (d_is_write) begin
+        core_dmem_ift.w_reply_valid = mem_dmem_ift.w_reply_valid;
+        core_dmem_ift.w_reply_bits = mem_dmem_ift.w_reply_bits;
+        mem_dmem_ift.w_reply_ready = core_dmem_ift.w_reply_ready;
+    end else begin
+        core_dmem_ift.r_reply_valid = mem_dmem_ift.r_reply_valid;
+        core_dmem_ift.r_reply_bits = mem_dmem_ift.r_reply_bits;
+        mem_dmem_ift.r_reply_ready = core_dmem_ift.r_reply_ready;
+    end
+end
+```
+
+这一设计把取指和数据访存分成两个独立状态机，避免 load/store 页表遍历阻塞取指侧的状态保存。
+
+### 成功仿真
+
+
+import castLab3 from "./lab3success.cast?url"
+
+<Asciinema url={castLab3} />
+
+
+## 支线任务：将 rdtime 替换为系统调用
+
+用户态程序 `user/src/main.c` 中的 `user_clock()` 函数使用了 RISC-V 的 `rdtime` 指令来读取时间：
+
+```c
+static uint64_t user_clock(void) {
+  uint64_t ret;
+  asm volatile("rdtime %0" : "=r"(ret));
+  return ret / 10;
+}
+```
+
+`rdtime` 是一条读取 `time` CSR 的伪指令。在标准 RISC-V 平台（如 QEMU virt）上，OpenSBI 会配置 `mcounteren` 和 `scounteren` 的 TM 位，允许 S-mode 和 U-mode 直接读取 `time` CSR。但在我们的自定义硬件上，CPU 并未实现 `rdtime` 指令，执行时会触发非法指令异常。
+
+在 `repo/sys-project/general/misc.sv`提供了一个 **MISC 外设**（`Axi_MiscUnit`），其中实现了一个硬件计时器 `mtime`：
+
+```verilog
+// misc.sv: mtime 每个时钟周期自增 1
+always_ff@(posedge clk) begin
+    if(~rstn)
+        misc_mtime <= {DATA_WIDTH{1'b0}};
+    else
+        misc_mtime <= misc_mtime + {{(DATA_WIDTH-1){1'b0}}, 1'b1};
+end
+```
+
+该外设的寄存器映射定义在 `repo/sys-project/include/misc_struct.vh` 中：
+
+| 寄存器 | 偏移 | 说明 |
+| --- | --- | --- |
+| `mtime` | `0x00` | 64 位硬件计时器，每周期 +1 |
+| `mtimecmp` | `0x08` | 定时器比较寄存器 |
+| `display` | `0x10` | 显示寄存器 |
+
+MISC 外设的基地址由 `repo/sys-project/include/mem_struct.vh` 定义为 `0x10002000`。因此 `mtime` 的物理地址为 `0x10002000`。
+
+该地址属于内核地址空间的 MMIO 区域，用户态程序无法直接访问。因此需要通过系统调用来间接读取。
+
+整体调用链为：
+
+```
+user_clock()
+  → get_time()          [user/src/syscalls.c, ecall]
+    → trap_handler      [case __NR_get_time]
+      → sys_get_time()  [ksyscalls.c, MMIO 读 0x10002000]
+```
+
+### 定义系统调用号
+
+```diff
+--- a/src/project/kernel/include/syscalls.h
++++ b/src/project/kernel/include/syscalls.h
+@@ -5,5 +5,6 @@
+ 
+ #define __NR_write 64
+ #define __NR_getpid 172
++#define __NR_get_time 201
+ 
+ #endif
+```
+
+选用 `201` 作为系统调用号。
+
+### 内核侧处理函数
+
+```diff
+--- a/src/project/kernel/arch/riscv/include/ksyscalls.h
++++ b/src/project/kernel/arch/riscv/include/ksyscalls.h
+@@ -5,5 +5,6 @@
+ 
+ long sys_write(unsigned fd, const char *buf, size_t count);
+ long sys_getpid(void);
++long sys_get_time(void);
+ 
+ #endif
+```
+
+```diff
+--- a/src/project/kernel/arch/riscv/kernel/ksyscalls.c
++++ b/src/project/kernel/arch/riscv/kernel/ksyscalls.c
+@@ -19,3 +19,9 @@ long sys_write(unsigned int fd, const char *buf, size_t count) {
+ long sys_getpid(void) {
+   return current->pid;
+ }
++
++#define MISC_BASE 0x10002000UL
++
++long sys_get_time(void) {
++  return *(volatile uint64_t *)MISC_BASE;
++}
+```
+
+`sys_get_time()` 通过 `volatile uint64_t *` 直接读取 MISC 外设基地址 `0x10002000` 处的 `mtime` 寄存器。使用 `volatile` 确保每次调用都会产生实际的内存访问，防止编译器优化掉对 MMIO 的读取。
+
+### 在 trap handler 中分发系统调用
+
+```diff
+--- a/src/project/kernel/arch/riscv/kernel/trap.c
++++ b/src/project/kernel/arch/riscv/kernel/trap.c
+@@ -32,6 +32,9 @@ void trap_handler(struct pt_regs *regs, uint64_t scause, uint64_t stval) {
+       case __NR_getpid:
+         regs->x[10] = sys_getpid();
+         break;
++      case __NR_get_time:
++        regs->x[10] = sys_get_time();
++        break;
+       default:
+         regs->x[10] = -1;
+         break;
+```
+
+在 `ecall` 异常处理的 syscall dispatch switch 中，新增 `__NR_get_time` 分支。
+
+### 用户态 syscall wrapper
+
+```diff
+--- a/src/project/kernel/user/src/syscalls.c
++++ b/src/project/kernel/user/src/syscalls.c
+@@ -23,3 +23,14 @@ ssize_t write(int fd, const void *buf, size_t count) {
+                : "a0", "a1", "a2", "a7", "memory");
+   return ret;
+ }
++
++uint64_t get_time(void) {
++  uint64_t ret;
++  asm volatile("li a7, %1\n\t"
++               "ecall\n\t"
++               "mv %0, a0\n\t"
++               : "=r"(ret)
++               : "i"(__NR_get_time)
++               : "a0", "a7", "memory");
++  return ret;
++}
+```
+
+### 用户态 `user_clock()`
+
+```diff
+--- a/src/project/kernel/user/src/main.c
++++ b/src/project/kernel/user/src/main.c
+@@ -4,13 +4,10 @@
+ #include <inttypes.h>
+ #include <unistd.h>
+ 
+-// TODO for you:
+-// try to implement the C library function clock() so that it can be
+-// used across the kernel and user space, be DRY :)
++extern uint64_t get_time(void);
++
+ static uint64_t user_clock(void) {
+-  uint64_t ret;
+-  asm volatile("rdtime %0" : "=r"(ret));
+-  return ret / 10;
++  return get_time() / 10;
+ }
+ 
+ // IMPORTANT: DO NOT move global variables into main function
+```
+
+## 必做部分：用户态和 Page Fault
+
+### 新增 PTE 校验函数
+
+在 MMU 模块中新增了一组 PTE 校验函数，用于在页表遍历过程中判断 PTE 是否合法：
+
+```verilog
+function automatic logic pte_invalid(input data_t pte);
+    pte_invalid = !pte[0] || (!pte[1] && pte[2]);
+endfunction
+
+function automatic logic pte_priv_fault(
+    input data_t pte,
+    input logic is_fetch
+);
+    begin
+        pte_priv_fault = 1'b0;
+        if (priv == 2'b00) begin
+            pte_priv_fault = !pte[4];
+        end else if (priv == 2'b01) begin
+            pte_priv_fault = is_fetch ? pte[4] : (pte[4] && !sum);
+        end
+    end
+endfunction
+
+function automatic logic inst_pte_fault(input data_t pte);
+    inst_pte_fault = !pte[3] || pte_priv_fault(pte, 1'b1);
+endfunction
+
+function automatic logic data_pte_fault(input data_t pte, input logic is_write);
+    data_pte_fault = (is_write ? !pte[2] : !pte[1]) || pte_priv_fault(pte, 1'b0);
+endfunction
+
+function automatic logic pte_superpage_misaligned(input data_t pte, input logic [1:0] level);
+    begin
+        case (level)
+            2'd2: pte_superpage_misaligned = |pte[27:10];
+            2'd1: pte_superpage_misaligned = |pte[18:10];
+            default: pte_superpage_misaligned = 1'b0;
+        endcase
+    end
+endfunction
+```
+
+各函数的作用：
+
+- `pte_invalid`：检查 PTE 的 V 位是否为 0，或者 R=0 但 W=1 的非法编码。
+- `pte_priv_fault`：根据当前特权级和 SUM 位，检查 U 位权限是否满足要求。U 模式下必须 U=1；S 模式下取指时 U 页不允许访问，数据访问仅在 SUM=1 时允许 U 页。
+- `inst_pte_fault`：取指路径的权限检查——叶节点 PTE 必须有 X 位，且不能有特权级冲突。
+- `data_pte_fault`：数据路径的权限检查——写操作要求 W 位，读操作要求 R 位。
+- `pte_superpage_misaligned`：超级页对齐检查——Sv39 下 1GiB 页（level=2）要求 PPN[1:0]=0，2MiB 页（level=1）要求 PPN[0]=0。
+
+
+```sv
+function automatic logic pte_invalid(input data_t pte);
+    pte_invalid = !pte[0] || (!pte[1] && pte[2]);
+endfunction
+
+function automatic logic pte_priv_fault(
+    input data_t pte,
+    input logic is_fetch,
+    input logic [1:0] priv_i,
+    input logic sum_i
+);
+    begin
+        pte_priv_fault = 1'b0;
+        if (priv_i == 2'b00) begin
+            pte_priv_fault = !pte[4];
+        end else if (priv_i == 2'b01) begin
+            pte_priv_fault = is_fetch ? pte[4] : (pte[4] && !sum_i);
+        end
+    end
+endfunction
+
+function automatic logic inst_pte_fault(input data_t pte, input logic [1:0] priv_i, input logic sum_i);
+    inst_pte_fault = !pte[3] || pte_priv_fault(pte, 1'b1, priv_i, sum_i);
+endfunction
+
+function automatic logic data_pte_fault(input data_t pte, input logic is_write, input logic [1:0] priv_i, input logic sum_i);
+    data_pte_fault = (is_write ? !pte[2] : !pte[1]) || pte_priv_fault(pte, 1'b0, priv_i, sum_i);
+endfunction
+```
+
+其中：
+
+- `pte_invalid` 检查 `V=0` 或者 `R=0 && W=1` 的非法 PTE。
+- `inst_pte_fault` 要求叶 PTE 具有 `X` 权限，并检查 U/S 特权级访问约束。
+- `data_pte_fault` 按 load/store 区分 `R/W` 权限。
+
+为了避免翻译过程中 CSR 特权级已经变化，提交 `8c180ab` 又把权限判断改成使用请求被 MMU 接收时锁存的 `i_priv/i_sum/d_priv/d_sum`，而不是实时读取 `priv/sum`：
+
+```sv
+if (i_state == S_IDLE && core_imem_ift.r_request_valid && vm_enabled) begin
+    i_va <= core_imem_ift.r_request_bits.raddr;
+    i_pt_base <= root_base(satp);
+    i_level <= 2'd2;
+    i_priv <= priv;
+    i_sum <= sum;
+    i_kill <= 1'b0;
+end
+```
+
+取指请求可能在 S/U 切换前发出，但页表遍历结束时当前特权级已经改变；如果使用实时 `priv`，page fault 类型和权限判断都会不精确。
+
+
+### 新增异常状态 `S_PTWALK_EXC`
+
+在 MMU 状态机中新增 `S_PTWALK_EXC` 状态，当 PTW 过程中检测到异常时进入该状态并产生异常信号：
+
+```diff
+ typedef enum logic [2:0] {
+     S_IDLE,
+     S_DIRECT_REQ,
+     S_DIRECT_RESP,
+     S_PTW_REQ,
+     S_PTW_RESP,
+     S_FINAL_REQ,
+-    S_FINAL_RESP
++    S_FINAL_RESP,
++    S_PTWALK_EXC
+ } state_t;
+```
+
+### 修改 PTW 响应逻辑
+
+原来的 PTW 响应只判断是否为叶节点或已到达最后一级，现在增加了完整的异常检测链：
+
+```verilog
+S_PTW_RESP: begin
+    if (mem_imem_ift.r_reply_valid) begin
+        if (pte_invalid(mem_imem_ift.r_reply_bits.rdata)) begin
+            i_nstate = S_PTWALK_EXC;
+        end else if (pte_leaf(mem_imem_ift.r_reply_bits.rdata)) begin
+            i_nstate = (inst_pte_fault(mem_imem_ift.r_reply_bits.rdata) ||
+                        pte_superpage_misaligned(mem_imem_ift.r_reply_bits.rdata, i_level))
+                     ? S_PTWALK_EXC : S_FINAL_REQ;
+        end else if (i_level == 2'd0) begin
+            i_nstate = S_PTWALK_EXC;
+        end else begin
+            i_nstate = S_PTW_REQ;
+        end
+    end
+end
+```
+
+检测逻辑依次为：
+1. PTE 无效（V=0 或 R=0,W=1）→ 异常
+2. PTE 是叶节点，但权限不满足或超级页未对齐 → 异常
+3. PTE 不是叶节点但已到达 level 0（无法继续遍历）→ 异常
+4. 以上都不是 → 继续下一级遍历
+
+数据路径（`d_state`）的处理逻辑类似，使用 `data_pte_fault` 代替 `inst_pte_fault`。
+
+### 异常信号输出
+
+在 `S_PTWALK_EXC` 状态下生成对应的异常包：
+
+```verilog
+if (i_state == S_PTWALK_EXC) begin
+    except_mmu.except = 1'b1;
+    except_mmu.epc = pc_if;
+    except_mmu.ecause = CsrPack::INST_PAGE_FAULT;
+    except_mmu.etval = i_va;
+end
+
+if (d_state == S_PTWALK_EXC) begin
+    except_mmu.except = 1'b1;
+    except_mmu.epc = pc_mem;
+    except_mmu.ecause = d_is_write ? CsrPack::STORE_PAGE_FAULT
+                                    : CsrPack::LOAD_PAGE_FAULT;
+    except_mmu.etval = d_va;
+end
+```
+
+`etval` 保存触发异常的虚拟地址，供 S 模式异常处理程序使用。
+
+### Core 模块：`sfence.vma` 检测与 `translation_flush`
+
+在 ID 阶段检测 `sfence.vma` 指令，并通过流水线寄存器传递到 WB 阶段：
+
+```verilog
+logic is_sfence_id;
+assign is_sfence_id = ifid_reg.valid &&
+                      (ifid_reg.inst[6:0] == CSR_OPCODE) &&
+                      (ifid_reg.inst[14:12] == 3'b000) &&
+                      (ifid_reg.inst[31:25] == 7'b0001001) &&
+                      (ifid_reg.inst[11:7] == 5'b00000);
+```
+
+当 `sfence.vma` 或 `satp` 写入在 WB 阶段 retire 时，产生 `translation_flush` 信号：
+
+```verilog
+assign translation_flush_commit =
+    retire_wb && ((memwb_reg.we_csr && (memwb_reg.csr_addr == SATP)) || memwb_reg.is_sfence);
+
+always_ff @(posedge clk or posedge rst) begin
+    if (rst) begin
+        translation_flush <= 1'b0;
+        translation_flush_pc <= 64'b0;
+    end else begin
+        translation_flush <= translation_flush_commit;
+        if (translation_flush_commit) begin
+            translation_flush_pc <= memwb_reg.pc + 64'd4;
+        end
+    end
+end
+```
+
+`translation_flush` 延迟一拍生效，重定向 PC 到 `satp` 写入 / `sfence.vma` 的下一条指令。与 `csr_flush`（`mret`/`sret` 等控制流变更）不同，翻译上下文变更不改变控制流，只需清空流水线并重新取指。
+
+### Core 模块：流水线冲刷信号
+
+新增 `flush_imem` 和 `flush_dmem` 信号，统一控制 I/D 路径的冲刷：
+
+```verilog
+assign flush_imem = refetch || csr_flush || translation_flush;
+assign flush_dmem = csr_flush || translation_flush;
+```
+
+所有流水线级的 flush 条件从 `refetch || csr_flush` 改为使用 `flush_imem`：
+
+```diff
+-        .flush(refetch || csr_flush),
++        .flush(flush_imem),
+```
+
+PC 更新和流水线寄存器清除也增加了 `translation_flush` 条件：
+
+```diff
+-end else if (~if_stall && (~global_stall || csr_flush) && (~load_use_stall || csr_flush)) begin
++end else if (~if_stall && (~global_stall || csr_flush || translation_flush) &&
++             (~load_use_stall || csr_flush || translation_flush)) begin
+     pc <= next_pc;
+ end
+```
+
+### MMU 模块：请求上下文锁存与 kill 机制
+
+只实现 `S_PTWALK_EXC` 后，CPU 仍然会在用户态启动、`satp` 切换、`sret/mret` 返回等场景出现 diff-test mismatch。典型现象是：
+
+- PC 已经跳到正确的新地址，但取回的指令来自旧地址或旧地址空间。
+- `csrw satp` 后，高半地址 PC 正确，但 IF 返回的是旧上下文中的指令。
+- `sret` 返回用户态后，旧的取指响应或旧异常在新的控制流下提交。
+
+```plaintext
+...
+  [CSR-MRET] t=12445000 pc_csr=0x0000000080200000 mepc=0x0000000080200000 priv 3->1 mstatus=0x0000000200040800 mpp=1
+  mpie=0 mie=0 satp=0x0000000000000000
+  [MMU-SWITCH-BUSY] t=12445000 switch_mode=1 i_state=1 i_va=0x0000000000000000 i_kill=0 d_state=0
+  d_va=0x0000000080001680 d_kill=0 live_priv=3 satp=0x0000000000000000
+  [CORE-CSR-ID] t=140085000 pc=0x0000000080200068 inst=0x10529073 csr_addr=0x105 csr_val_id=0x0000000000000000
+  csr_val_fwd=0x0000000000000000 priv=1
+  [CORE-CSR-ID] t=140185000 pc=0x000000008020006c inst=0x12000073 csr_addr=0x120 csr_val_id=0x0000000200040000
+  csr_val_fwd=0x0000000200040000 priv=1
+  [CORE-CSR-ID] t=140885000 pc=0x0000000080200088 inst=0x18029073 csr_addr=0x180 csr_val_id=0x0000000000000000
+  csr_val_fwd=0x0000000000000000 priv=1
+  [CSR-WR] t=140945000 pc_wb=0x0000000080200088 csr=0x180 wdata=0x8000000000080207 old_sepc=0x0000000000000000
+  old_sstatus=0x0000000200040000 old_sscratch=0x0000000000000000 old_stval=0x0000000000000000
+  old_scause=0x0000000000000000 old_satp=0x0000000000000000
+  [CORE-CSR-ID] t=141165000 pc=0xffffffe000200010 inst=0x14011173 csr_addr=0x140 csr_val_id=0x0000000000000000
+  csr_val_fwd=0x0000000000000000 priv=1
+  [CSR-WR] t=141225000 pc_wb=0xffffffe000200010 csr=0x140 wdata=0xffffffe000205000 old_sepc=0x0000000000000000
+  old_sstatus=0x0000000200040000 old_sscratch=0x0000000000000000 old_stval=0x0000000000000000
+  old_scause=0x0000000000000000 old_satp=0x8000000000080207
+  [error] PC SIM ffffffe000200010, DUT ffffffe000200010
+  [error] INSN SIM 7f0010ef, DUT 14011173
+  ft0 = 0x0000000000000000 ft1 = 0x0000000000000000 ft2 = 0x0000000000000000 ft3 = 0x0000000000000000
+  ft4 = 0x0000000000000000 ft5 = 0x0000000000000000 ft6 = 0x0000000000000000 ft7 = 0x0000000000000000
+  fs0 = 0x0000000000000000 fs1 = 0x0000000000000000 fa0 = 0x0000000000000000 fa1 = 0x0000000000000000
+  fa2 = 0x0000000000000000 fa3 = 0x0000000000000000 fa4 = 0x0000000000000000 fa5 = 0x0000000000000000
+  fa6 = 0x0000000000000000 fa7 = 0x0000000000000000 fs2 = 0x0000000000000000 fs3 = 0x0000000000000000
+  fs4 = 0x0000000000000000 fs5 = 0x0000000000000000 fs6 = 0x0000000000000000 fs7 = 0x0000000000000000
+  fs8 = 0x0000000000000000 fs9 = 0x0000000000000000 fs10 = 0x0000000000000000 fs11 = 0x0000000000000000
+  ft8 = 0x0000000000000000 ft9 = 0x0000000000000000 ft10 = 0x0000000000000000 ft11 = 0x0000000000000000
+  x0 = 0x0000000000000000 ra = 0xffffffe000200014 sp = 0xffffffe000205000 gp = 0x0000000000000000
+  tp = 0x0000000000000000 t0 = 0x8000000000080207 t1 = 0x8000000000000000 t2 = 0x0000000000000002
+  s0 = 0x0000000000000000 s1 = 0x0000000000000000 a0 = 0x0000000080207000 a1 = 0x0000000000000000
+  ft0 = 0x0000000000000000 ft1 = 0x0000000000000000 ft2 = 0x0000000000000000 ft3 = 0x0000000000000000
+  ft4 = 0x0000000000000000 ft5 = 0x0000000000000000 ft6 = 0x0000000000000000 ft7 = 0x0000000000000000
+  fs0 = 0x0000000000000000 fs1 = 0x0000000000000000 fa0 = 0x0000000000000000 fa1 = 0x0000000000000000
+  fa2 = 0x0000000000000000 fa3 = 0x0000000000000000 fa4 = 0x0000000000000000 fa5 = 0x0000000000000000
+  fa6 = 0x0000000000000000 fa7 = 0x0000000000000000 fs2 = 0x0000000000000000 fs3 = 0x0000000000000000
+  fs4 = 0x0000000000000000 fs5 = 0x0000000000000000 fs6 = 0x0000000000000000 fs7 = 0x0000000000000000
+  fs8 = 0x0000000000000000 fs9 = 0x0000000000000000 fs10 = 0x0000000000000000 fs11 = 0x0000000000000000
+  ft8 = 0x0000000000000000 ft9 = 0x0000000000000000 ft10 = 0x0000000000000000 ft11 = 0x0000000000000000
+  x0 = 0x0000000000000000 ra = 0xffffffe000200014 sp = 0xffffffe000205000 gp = 0x0000000000000000
+  tp = 0x0000000000000000 t0 = 0x8000000000080207 t1 = 0x8000000000000000 t2 = 0x0000000000000002
+  s0 = 0x0000000000000000 s1 = 0x0000000000000000 a0 = 0x0000000080207000 a1 = 0x0000000000000000
+  a2 = 0x0000000000000000 a3 = 0x0000000000000000 a4 = 0x0000000080207f3c a5 = 0x00000000200000cf
+  a6 = 0x0000000000000000 a7 = 0x0000000000000000 s2 = 0x0000000000000000 s3 = 0x0000000000000000
+  s4 = 0x0000000000000000 s5 = 0x0000000000000000 s6 = 0x0000000000000000 s7 = 0x0000000000000000
+  s8 = 0x0000000000000000 s9 = 0x0000000000000000 s10 = 0x0000000000000000 s11 = 0x0000000000000000
+  t3 = 0x0000000000000017 t4 = 0x0000000000000002 t5 = 0x00000000000001ad t6 = 0x00000000000001ad
+```
+
+原因是：内存接口是 ready/valid 事务模型，流水线 flush 只清了 Core 内部寄存器，但已经发到 MMU/下游总线的请求仍可能返回。如果 MMU 不知道这些响应已经失效，就会把旧响应继续送回 Icache/Dcache。
+
+
+在 PTW 开始时锁存当前的 `priv` 和 `sum`，避免 PTW 过程中特权级或 SUM 位被修改导致检查结果不正确：
+
+```verilog
+if (i_state == S_IDLE && i_nstate != S_IDLE) begin
+    i_va <= core_imem_ift.r_request_bits.raddr;
+    i_pt_base <= root_base(satp);
+    i_level <= 2'd2;
+    i_priv <= priv;
+    i_sum <= sum;
+    i_kill <= 1'b0;
+end
+```
+
+权限检查函数改为接受显式参数，使用锁存值而非实时值：
+
+```diff
+-function automatic logic inst_pte_fault(input data_t pte);
+-    inst_pte_fault = !pte[3] || pte_priv_fault(pte, 1'b1);
++function automatic logic inst_pte_fault(input data_t pte, input logic [1:0] priv_i, input logic sum_i);
++    inst_pte_fault = !pte[3] || pte_priv_fault(pte, 1'b1, priv_i, sum_i);
+ endfunction
+```
+
+当 flush 信号到来时，MMU 不能立即回到 `S_IDLE`——已经发出的内存请求必须等待响应。`i_kill` / `d_kill` 机制处理这种情况：
+
+```verilog
+end else if (i_flush) begin
+    case (i_state)
+        S_DIRECT_REQ: begin
+            if (core_imem_ift.r_request_valid && mem_imem_ift.r_request_ready) begin
+                i_state <= S_DIRECT_RESP;
+                i_kill <= 1'b1;
+            end else begin
+                i_state <= S_IDLE;
+                i_kill <= 1'b0;
+            end
+        end
+        S_DIRECT_RESP, S_PTW_RESP, S_FINAL_RESP: begin
+            if (mem_imem_ift.r_reply_valid) begin
+                i_state <= S_IDLE;
+                i_kill <= 1'b0;
+            end else begin
+                i_state <= i_state;
+                i_kill <= 1'b1;
+            end
+        end
+        // ...
+    endcase
+end
+```
+
+当 `i_kill=1` 时：
+- 不向 Core 转发请求或响应（吃掉内存侧的 reply）
+- PTW 响应不更新页表遍历状态
+- 异常状态不产生异常信号
+- 等待 pending 的内存事务完成后才回到 IDLE
+
+### CSR 模块修复
+
+```diff
+-            uxl <= csr_val_wb[33:32];
++            uxl <= 2'b10;
+```
+
+`uxl`（User XLEN）在 RV64 下始终为 `2'b10`（64 位），不应被软件写入的值覆盖。
+
+```diff
+-        end else if(csr_addr_wb == SATP && csr_we_wb)begin
++        end else if(is_satp_w)begin
+             satp_reg <= csr_val_wb;
+```
+
+`satp` 写入条件改为使用已有的 `is_satp_w` 信号（包含 `valid_wb` 检查），避免无效指令的 CSR 地址偶然匹配导致错误写入。
+
+```diff
+-    :(s_ret & IEtogether) ? sepc - 4
+     :(s_ret) ? sepc
+```
+
+移除了 `sepc - 4` 的特殊路径。`IEtogether` 标记"中断和 MMU 异常同时到来"的情况，原实现试图在 `sret` 时回退 4 字节来重试被中断打断的异常指令，但这个做法不正确——异常的 `sepc` 本身就保存了正确的返回地址，不需要减 4。
+
+### CSR 异常与中断仲裁
+
+
+原实现中，当中断（`interrupt`）和同步异常（`except_mmu` 或 `except_commit`）同时有效时，中断会抢占同步异常。
+
+原逻辑中，`except_final` 直接让 `interrupt` 优先：
+
+```sv
+assign except_interrupt.epc = pc_wb;
+assign except_final = interrupt ? except_interrupt
+                                : (except_mmu.except ? except_mmu : except_commit);
+```
+
+同时 `s_trap_int` 又允许 `except_mmu.except` 在 `valid_wb=0` 时打开中断 trap，这会把无效 WB 级 PC 当成中断的 EPC。
+
+```sv
+wire interrupt_pending=|enable_interrupt;
+wire sync_exception = except_commit.except | except_mmu.except;
+wire interrupt_fire = interrupt_pending & valid_wb & ~sync_exception;
+```
+
+同步异常是精确异常，不能被异步中断抢占。因此 `except_final` 改为同步异常优先：
+
+```sv
+ExceptPack except_sync;
+assign except_sync = except_commit.except ? except_commit : except_mmu;
+assign except_final = sync_exception ? except_sync : except_interrupt;
+```
+
+`s_trap_int` 也只由真正接收的 `interrupt_fire` 触发，而不是被 `except_mmu.except` 打开：
+
+```sv
+wire s_interrupt_delegated=(|((64'b1<<{1'b0,cause[62:0]})&enable_interrupt_s));
+wire s_exception_delegated=(|((64'b1<<except_sync.ecause)&medeleg)) & sync_exception;
+wire s_trap_int=s_interrupt_delegated & interrupt_fire;
+wire s_trap_exp=s_exception_delegated;
+
+assign s_trap=(s_trap_int|s_trap_exp) & (priv == 2'b01 | priv == 2'b00);
+assign m_trap=(interrupt_fire|sync_exception)&~s_trap;
+```
+
+最后，`cosim_interrupt` 也从 raw pending 改成 `interrupt_fire`，避免 timer pending 但未真正接收中断时抑制正常retire：
+
+```diff
+-assign cosim_interrupt=interrupt;
++assign cosim_interrupt=interrupt_fire;
+```
+
+## 必做部分：运行起 lab5 中的 kernel
+
+import castFork1 from "./success-fork1.cast?url";
+import castFork2 from "./success-fork2.cast?url";
+import castFork3 from "./success-fork3.cast?url";
+import castFork4 from "./success-fork4.cast?url";
+
+### lab5 FORK1
+
+<Asciinema url={castFork1} />
+
+### lab5 FORK2
+
+<Asciinema url={castFork2} />
+
+### lab5 FORK3
+
+<Asciinema url={castFork3} />
+
+### lab5 FORK4
+
+<Asciinema url={castFork4} />
+
+## 拓展部分：实现 TLB 模块
+
+### TLB
+
+TLB 只缓存成功页表遍历得到的叶 PTE，不缓存 Page Fault。每个条目包含：
+
+- `valid`：条目是否有效。
+- `asid`：来自 `satp[59:44]`。
+- `satp_ppn`：来自 `satp[43:0]`，用于区分不同根页表。
+- `vpn`：Sv39 的 27-bit VPN。
+- `level`：叶 PTE 出现的层级，支持 4 KiB / 2 MiB / 1 GiB 页面匹配。
+- `pte`：完整 PTE，命中后仍交给 MMU 现有权限检查逻辑判断。
+
+完整代码如下：
+
+```sv
+`include "core_struct.vh"
+
+module SimpleTLB #(
+    parameter integer ENTRY_NUM = 16
+) (
+    input  logic clk,
+    input  logic rst,
+    input  logic flush,
+
+    input  logic lookup_valid,
+    input  CorePack::addr_t lookup_va,
+    input  logic [15:0] lookup_asid,
+    input  logic [43:0] lookup_satp_ppn,
+    output logic hit,
+    output CorePack::data_t hit_pte,
+    output logic [1:0] hit_level,
+
+    input  logic update_valid,
+    input  CorePack::addr_t update_va,
+    input  logic [15:0] update_asid,
+    input  logic [43:0] update_satp_ppn,
+    input  CorePack::data_t update_pte,
+    input  logic [1:0] update_level
+);
+
+    import CorePack::*;
+
+    localparam integer VPN_WIDTH = 27;
+    localparam integer REPL_WIDTH = (ENTRY_NUM <= 1) ? 1 : $clog2(ENTRY_NUM);
+
+    typedef logic [VPN_WIDTH-1:0] vpn_t;
+
+    typedef struct packed {
+        logic valid;
+        logic [15:0] asid;
+        logic [43:0] satp_ppn;
+        vpn_t vpn;
+        logic [1:0] level;
+        data_t pte;
+    } tlb_entry_t;
+
+    tlb_entry_t entries [ENTRY_NUM-1:0];
+    logic [REPL_WIDTH-1:0] replace_ptr;
+
+    function automatic vpn_t vpn_of(input addr_t va);
+        vpn_of = va[38:12];
+    endfunction
+
+    function automatic logic vpn_match(input vpn_t lhs, input vpn_t rhs, input logic [1:0] level);
+        begin
+            case (level)
+                2'd2: vpn_match = lhs[26:18] == rhs[26:18];
+                2'd1: vpn_match = lhs[26:9]  == rhs[26:9];
+                default: vpn_match = lhs == rhs;
+            endcase
+        end
+    endfunction
+
+    vpn_t lookup_vpn;
+    assign lookup_vpn = vpn_of(lookup_va);
+
+    always_comb begin
+        hit = 1'b0;
+        hit_pte = '0;
+        hit_level = 2'd0;
+
+        for (int i = 0; i < ENTRY_NUM; i++) begin
+            if (!hit &&
+                lookup_valid &&
+                entries[i].valid &&
+                entries[i].asid == lookup_asid &&
+                entries[i].satp_ppn == lookup_satp_ppn &&
+                vpn_match(entries[i].vpn, lookup_vpn, entries[i].level)) begin
+                hit = 1'b1;
+                hit_pte = entries[i].pte;
+                hit_level = entries[i].level;
+            end
+        end
+    end
+
+    logic [REPL_WIDTH-1:0] update_index;
+    logic found_invalid;
+
+    always_comb begin
+        update_index = replace_ptr;
+        found_invalid = 1'b0;
+        for (int i = 0; i < ENTRY_NUM; i++) begin
+            if (!found_invalid && !entries[i].valid) begin
+                update_index = REPL_WIDTH'(i);
+                found_invalid = 1'b1;
+            end
+        end
+    end
+
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) begin
+            replace_ptr <= '0;
+            for (int i = 0; i < ENTRY_NUM; i++) begin
+                entries[i] <= '0;
+            end
+        end else if (flush) begin
+            replace_ptr <= '0;
+            for (int i = 0; i < ENTRY_NUM; i++) begin
+                entries[i].valid <= 1'b0;
+            end
+        end else if (update_valid) begin
+            entries[update_index].valid <= 1'b1;
+            entries[update_index].asid <= update_asid;
+            entries[update_index].satp_ppn <= update_satp_ppn;
+            entries[update_index].vpn <= vpn_of(update_va);
+            entries[update_index].level <= update_level;
+            entries[update_index].pte <= update_pte;
+
+            if (!found_invalid) begin
+                if (replace_ptr == REPL_WIDTH'(ENTRY_NUM - 1)) begin
+                    replace_ptr <= '0;
+                end else begin
+                    replace_ptr <= replace_ptr + REPL_WIDTH'(1);
+                end
+            end
+        end
+    end
+
+endmodule
+```
+
+
+
+
+1. 类型定义
+
+    ```sv
+        typedef logic [VPN_WIDTH-1:0] vpn_t;
+
+        typedef struct packed {
+            logic valid;
+            logic [15:0] asid;
+            logic [43:0] satp_ppn;
+            vpn_t vpn;
+            logic [1:0] level;
+            data_t pte;
+        } tlb_entry_t;
+    ```
+
+    定义了两个类型：
+
+    - `vpn_t`：27 位的虚拟页号类型。
+    - `tlb_entry_t`：单个 TLB 条目的结构体，包含：
+    - `valid`：该条目是否有效。
+    - `asid`：地址空间标识符（来自 `satp[59:44]`），用于区分不同进程的地址空间，避免进程切换时需要全部刷新 TLB。
+    - `satp_ppn`：根页表物理页号（来自 `satp[43:0]`），配合 ASID 一起唯一标识一个地址空间。
+    - `vpn`：27 位虚拟页号。
+    - `level`：该叶 PTE 出现在页表的哪一级（0 = 4 KiB，1 = 2 MiB，2 = 1 GiB），用于支持大页匹配。
+    - `pte`：完整的页表项内容，命中后交给 MMU 做权限检查。
+
+2. 条目数组与替换指针
+
+    ```sv
+        tlb_entry_t entries [ENTRY_NUM-1:0];
+        logic [REPL_WIDTH-1:0] replace_ptr;
+    ```
+
+    - `entries`：TLB 条目数组，共 `ENTRY_NUM` 项，全相联结构（查找时遍历所有条目）。
+    - `replace_ptr`：轮转替换指针，指向下一个被替换的条目位置，实现简单的 Round-Robin 替换策略。
+
+3. 辅助函数
+
+    ```sv
+        function automatic vpn_t vpn_of(input addr_t va);
+            vpn_of = va[38:12];
+        endfunction
+
+        function automatic logic vpn_match(input vpn_t lhs, input vpn_t rhs, input logic [1:0] level);
+            begin
+                case (level)
+                    2'd2: vpn_match = lhs[26:18] == rhs[26:18];
+                    2'd1: vpn_match = lhs[26:9]  == rhs[26:9];
+                    default: vpn_match = lhs == rhs;
+                endcase
+            end
+        endfunction
+    ```
+
+    - `vpn_of`：从 Sv39 虚拟地址中提取 27 位 VPN（`va[38:12]`）。
+    - `vpn_match`：根据页表层级判断两个 VPN 是否匹配。大页只需要比较高位部分：
+    - `level == 2`（1 GiB 大页）：只比较 VPN[2]，即 `[26:18]`（9 位）。
+    - `level == 1`（2 MiB 大页）：比较 VPN[2] 和 VPN[1]，即 `[26:9]`（18 位）。
+    - `level == 0`（4 KiB 标准页）：比较完整的 27 位 VPN。
+
+4. 查找逻辑
+
+    ```sv
+        vpn_t lookup_vpn;
+        assign lookup_vpn = vpn_of(lookup_va);
+
+        always_comb begin
+            hit = 1'b0;
+            hit_pte = '0;
+            hit_level = 2'd0;
+
+            for (int i = 0; i < ENTRY_NUM; i++) begin
+                if (!hit &&
+                    lookup_valid &&
+                    entries[i].valid &&
+                    entries[i].asid == lookup_asid &&
+                    entries[i].satp_ppn == lookup_satp_ppn &&
+                    vpn_match(entries[i].vpn, lookup_vpn, entries[i].level)) begin
+                    hit = 1'b1;
+                    hit_pte = entries[i].pte;
+                    hit_level = entries[i].level;
+                end
+            end
+        end
+    ```
+
+    这是 TLB 的核心查找逻辑：
+
+    1. 先用 `vpn_of` 提取查找地址的 VPN。
+    2. 遍历所有条目，依次检查：
+    - `!hit`：尚未命中（优先级编码，只取第一个匹配）。
+    - `lookup_valid`：查找请求有效。
+    - `entries[i].valid`：条目有效。
+    - ASID 和 `satp_ppn` 均匹配：确保属于同一地址空间。
+    - `vpn_match`：VPN 按层级匹配。
+    3. 命中时输出对应的 PTE 和层级。
+
+    由于使用了 `!hit` 条件，循环中只会匹配第一个符合条件的条目，保证输出唯一。
+
+5. 更新位置选择
+
+    ```sv
+        logic [REPL_WIDTH-1:0] update_index;
+        logic found_invalid;
+
+        always_comb begin
+            update_index = replace_ptr;
+            found_invalid = 1'b0;
+            for (int i = 0; i < ENTRY_NUM; i++) begin
+                if (!found_invalid && !entries[i].valid) begin
+                    update_index = REPL_WIDTH'(i);
+                    found_invalid = 1'b1;
+                end
+            end
+        end
+    ```
+
+    决定新条目写入哪个位置：
+
+    - 优先使用无效条目：遍历所有条目，找到第一个 `valid == 0` 的空闲位置。
+    - 如果所有条目都有效（`found_invalid == 0`），则使用 `replace_ptr` 指向的位置（Round-Robin 轮转替换）。
+
+    这种策略确保 TLB 未满时不会覆盖已有的有效条目。
+
+6. 时序逻辑（复位、刷新、写入）
+
+    ```sv
+        always_ff @(posedge clk or posedge rst) begin
+            if (rst) begin
+                replace_ptr <= '0;
+                for (int i = 0; i < ENTRY_NUM; i++) begin
+                    entries[i] <= '0;
+                end
+            end else if (flush) begin
+                replace_ptr <= '0;
+                for (int i = 0; i < ENTRY_NUM; i++) begin
+                    entries[i].valid <= 1'b0;
+                end
+            end else if (update_valid) begin
+                entries[update_index].valid <= 1'b1;
+                entries[update_index].asid <= update_asid;
+                entries[update_index].satp_ppn <= update_satp_ppn;
+                entries[update_index].vpn <= vpn_of(update_va);
+                entries[update_index].level <= update_level;
+                entries[update_index].pte <= update_pte;
+
+                if (!found_invalid) begin
+                    if (replace_ptr == REPL_WIDTH'(ENTRY_NUM - 1)) begin
+                        replace_ptr <= '0;
+                    end else begin
+                        replace_ptr <= replace_ptr + REPL_WIDTH'(1);
+                    end
+                end
+            end
+        end
+
+    endmodule
+    ```
+
+    在时钟上升沿处理三种情况，按优先级排列：
+
+    1. **复位 (`rst`)**：将替换指针归零，所有条目清零（包括 `valid` 和全部字段）。这是硬件级的完全重置。
+
+    2. **刷新 (`flush`)**：将替换指针归零，仅将所有条目的 `valid` 位清零。与复位不同，flush 不清除条目的其他字段（因为 `valid == 0` 后这些字段不会被匹配到，无需额外清理）。`flush` 通常在执行 `sfence.vma` 指令时触发。
+
+    3. **写入 (`update_valid`)**：将新的 TLB 条目写入 `update_index` 指定的位置：
+    - 设置 `valid`、`asid`、`satp_ppn`、`vpn`、`level`、`pte`。
+    - 如果本次写入替换的是有效条目（`!found_invalid`，即没有找到空闲位置），则推进 `replace_ptr`：到达末尾时回绕到 0，实现 Round-Robin。如果写入的是空闲位置，则不移动 `replace_ptr`，因为没有发生替换。
+
+
+### TLB 接入 MMU
+
+MMU 中新增 ITLB / DTLB 两个实例。查找发生在 `S_IDLE`，如果命中，则直接把 PTE 和页级别写入原本 PTW 成功后才会写入的 `*_leaf_pte` / `*_leaf_level`，进入 `S_FINAL_REQ`。如果 miss，则保持原来的页表遍历路径。
+
+
+```diff
+--- src/project/submit/MMU.sv
++++ src/project/submit/MMU.sv
+@@
+     wire i_ptw_reply_fire = (i_state == S_PTW_RESP) && mem_imem_ift.r_reply_valid;
+     wire d_ptw_reply_fire = (d_state == S_PTW_RESP) && mem_dmem_ift.r_reply_valid;
+ 
+     wire vm_enabled = use_vm(satp, priv);
+     wire i_flush = switch_mode || flush_imem || flush_tlb;
+     wire d_flush = switch_mode || flush_dmem || flush_tlb;
++
++    wire [15:0] satp_asid = satp[59:44];
++    wire [43:0] satp_ppn = satp[43:0];
++
++    wire i_tlb_lookup = (i_state == S_IDLE) && core_imem_ift.r_request_valid && vm_enabled;
++    wire d_req_valid = core_dmem_ift.r_request_valid || core_dmem_ift.w_request_valid;
++    wire d_req_is_write = !core_dmem_ift.r_request_valid && core_dmem_ift.w_request_valid;
++    wire d_tlb_lookup = (d_state == S_IDLE) && d_req_valid && vm_enabled;
++
++    data_t i_tlb_pte;
++    data_t d_tlb_pte;
++    logic [1:0] i_tlb_level;
++    logic [1:0] d_tlb_level;
++    logic i_tlb_hit;
++    logic d_tlb_hit;
++
++    wire i_tlb_update =
++        (i_state == S_PTW_RESP) && mem_imem_ift.r_reply_valid && !i_kill && !i_flush &&
++        !pte_invalid(mem_imem_ift.r_reply_bits.rdata) &&
++        pte_leaf(mem_imem_ift.r_reply_bits.rdata) &&
++        !inst_pte_fault(mem_imem_ift.r_reply_bits.rdata, i_priv, i_sum) &&
++        !pte_superpage_misaligned(mem_imem_ift.r_reply_bits.rdata, i_level);
++
++    wire d_tlb_update =
++        (d_state == S_PTW_RESP) && mem_dmem_ift.r_reply_valid && !d_kill && !d_flush &&
++        !pte_invalid(mem_dmem_ift.r_reply_bits.rdata) &&
++        pte_leaf(mem_dmem_ift.r_reply_bits.rdata) &&
++        !data_pte_fault(mem_dmem_ift.r_reply_bits.rdata, d_is_write, d_priv, d_sum) &&
++        !pte_superpage_misaligned(mem_dmem_ift.r_reply_bits.rdata, d_level);
++
++    SimpleTLB #(
++        .ENTRY_NUM(16)
++    ) u_itlb (
++        .clk(clk),
++        .rst(rst),
++        .flush(flush_tlb),
++        .lookup_valid(i_tlb_lookup),
++        .lookup_va(core_imem_ift.r_request_bits.raddr),
++        .lookup_asid(satp_asid),
++        .lookup_satp_ppn(satp_ppn),
++        .hit(i_tlb_hit),
++        .hit_pte(i_tlb_pte),
++        .hit_level(i_tlb_level),
++        .update_valid(i_tlb_update),
++        .update_va(i_va),
++        .update_asid(satp_asid),
++        .update_satp_ppn(satp_ppn),
++        .update_pte(mem_imem_ift.r_reply_bits.rdata),
++        .update_level(i_level)
++    );
++
++    SimpleTLB #(
++        .ENTRY_NUM(16)
++    ) u_dtlb (
++        .clk(clk),
++        .rst(rst),
++        .flush(flush_tlb),
++        .lookup_valid(d_tlb_lookup),
++        .lookup_va(core_dmem_ift.r_request_valid ? core_dmem_ift.r_request_bits.raddr
++                                                  : core_dmem_ift.w_request_bits.waddr),
++        .lookup_asid(satp_asid),
++        .lookup_satp_ppn(satp_ppn),
++        .hit(d_tlb_hit),
++        .hit_pte(d_tlb_pte),
++        .hit_level(d_tlb_level),
++        .update_valid(d_tlb_update),
++        .update_va(d_va),
++        .update_asid(satp_asid),
++        .update_satp_ppn(satp_ppn),
++        .update_pte(mem_dmem_ift.r_reply_bits.rdata),
++        .update_level(d_level)
++    );
+```
+
+IF 侧入口状态调整如下：
+
+```diff
+--- src/project/submit/MMU.sv
++++ src/project/submit/MMU.sv
+@@
+             if (i_state == S_IDLE && core_imem_ift.r_request_valid && vm_enabled) begin
+                 i_va <= core_imem_ift.r_request_bits.raddr;
+-                i_pt_base <= root_base(satp);
+-                i_level <= 2'd2;
+                 i_priv <= priv;
+                 i_sum <= sum;
+                 i_kill <= 1'b0;
++                if (i_tlb_hit) begin
++                    i_leaf_pte <= i_tlb_pte;
++                    i_leaf_level <= i_tlb_level;
++                end else begin
++                    i_pt_base <= root_base(satp);
++                    i_level <= 2'd2;
++                end
+             end
+@@
+             S_IDLE: begin
+                 if (core_imem_ift.r_request_valid) begin
+-                    i_nstate = vm_enabled ? S_PTW_REQ : S_DIRECT_REQ;
++                    if (!vm_enabled) begin
++                        i_nstate = S_DIRECT_REQ;
++                    end else if (i_tlb_hit) begin
++                        i_nstate = (inst_pte_fault(i_tlb_pte, priv, sum) ||
++                                    pte_superpage_misaligned(i_tlb_pte, i_tlb_level))
++                                 ? S_PTWALK_EXC : S_FINAL_REQ;
++                    end else begin
++                        i_nstate = S_PTW_REQ;
++                    end
+                 end
+             end
+```
+
+D 侧入口状态调整如下：
+
+```diff
+--- src/project/submit/MMU.sv
++++ src/project/submit/MMU.sv
+@@
+             if (d_state == S_IDLE && (core_dmem_ift.r_request_valid || core_dmem_ift.w_request_valid)) begin
+-                d_is_write <= !core_dmem_ift.r_request_valid && core_dmem_ift.w_request_valid;
++                d_is_write <= d_req_is_write;
+                 d_va <= core_dmem_ift.r_request_valid ? core_dmem_ift.r_request_bits.raddr
+                                                        : core_dmem_ift.w_request_bits.waddr;
+                 d_pc <= pc_mem;
+                 d_wdata <= core_dmem_ift.w_request_bits.wdata;
+                 d_wmask <= core_dmem_ift.w_request_bits.wmask;
+                 if (vm_enabled) begin
+-                    d_pt_base <= root_base(satp);
+-                    d_level <= 2'd2;
+                     d_priv <= priv;
+                     d_sum <= sum;
+                     d_kill <= 1'b0;
++                    if (d_tlb_hit) begin
++                        d_leaf_pte <= d_tlb_pte;
++                        d_leaf_level <= d_tlb_level;
++                    end else begin
++                        d_pt_base <= root_base(satp);
++                        d_level <= 2'd2;
++                    end
+                 end
+             end
+@@
+             S_IDLE: begin
+                 if (core_dmem_ift.r_request_valid || core_dmem_ift.w_request_valid) begin
+-                    d_nstate = vm_enabled ? S_PTW_REQ : S_DIRECT_REQ;
++                    if (!vm_enabled) begin
++                        d_nstate = S_DIRECT_REQ;
++                    end else if (d_tlb_hit) begin
++                        d_nstate = (data_pte_fault(d_tlb_pte, d_req_is_write, priv, sum) ||
++                                    pte_superpage_misaligned(d_tlb_pte, d_tlb_level))
++                                 ? S_PTWALK_EXC : S_FINAL_REQ;
++                    end else begin
++                        d_nstate = S_PTW_REQ;
++                    end
+                 end
+             end
+```
+
+## 拓展部分：在 MMU 基础上添加 Cache 模块
+
+Cache 插在 `MMU` 与 `Mem2Axi` 之间：
+
+```txt
+Core I/D Mem_ift -> MMU/TLB -> MemCache -> Mem2Axi -> AXI
+```
+
+这样设计有两个好处：
+
+- Cache 只看到物理地址，不缓存虚拟地址。
+- MMU 的 Page Fault、权限检查、`except_mmu` 抛出逻辑不受 Cache 影响。
+
+*好吧其实最主要的好处是比较简单*
+
+当前 `Mem_ift` 一次只能表达一个 64-bit 读写请求，因此 Cache 也按 64-bit word 作为缓存粒度。读命中直接返回，读 miss 到下级取回一个 64-bit word 后填入缓存；写请求始终 write-through 发送到下级，如果该 word 已在缓存中则同步更新缓存数据。
+
+MMIO 地址不缓存，当前只缓存 `ROM`、`BUFFER`、`DDR` 三类普通内存区域。
+
+
+### Cache
+
+完整代码如下：
+
+```sv
+`include "core_struct.vh"
+`include "Define.vh"
+
+module MemCache #(
+    parameter integer CACHE_BYTES = 1024,
+    parameter integer ENABLE_CACHE = 1
+) (
+    input logic clk,
+    input logic rst,
+    input logic flush,
+
+    Mem_ift.Slave cpu_ift,
+    Mem_ift.Master mem_ift
+);
+
+    import CorePack::*;
+    import BusPack::*;
+
+    localparam integer DATA_WIDTH = 64;
+    localparam integer BYTE_NUM = DATA_WIDTH / 8;
+    localparam integer OFFSET_WIDTH = $clog2(BYTE_NUM);
+    localparam integer ENTRY_NUM = CACHE_BYTES / BYTE_NUM;
+    localparam integer INDEX_WIDTH = $clog2(ENTRY_NUM);
+    localparam integer TAG_WIDTH = 64 - OFFSET_WIDTH - INDEX_WIDTH;
+
+    typedef logic [INDEX_WIDTH-1:0] index_t;
+    typedef logic [TAG_WIDTH-1:0] tag_t;
+
+    typedef enum logic [2:0] {
+        S_IDLE,
+        S_READ_MEM,
+        S_READ_RESP,
+        S_WRITE_MEM,
+        S_WRITE_RESP
+    } state_t;
+
+    state_t state;
+
+    logic valid [ENTRY_NUM-1:0];
+    tag_t tag [ENTRY_NUM-1:0];
+    data_t data [ENTRY_NUM-1:0];
+
+    data_t read_data_q;
+    resp_t read_resp_q;
+    resp_t write_resp_q;
+
+    logic req_cacheable_q;
+    index_t req_index_q;
+    tag_t req_tag_q;
+
+    function automatic logic in_range(input addr_t addr, input addr_t base, input addr_t len);
+        in_range = (addr >= base) && (addr < (base + len));
+    endfunction
+
+    function automatic logic cacheable(input addr_t addr);
+        cacheable = (ENABLE_CACHE != 0) &&
+                    (in_range(addr, `ROM_BASE, `ROM_LEN) ||
+                     in_range(addr, `BUFFER_BASE, `BUFFER_LEN) ||
+                     in_range(addr, `DDR_BASE, `DDR_LEN));
+    endfunction
+
+    function automatic addr_t align_word(input addr_t addr);
+        align_word = {addr[63:OFFSET_WIDTH], {OFFSET_WIDTH{1'b0}}};
+    endfunction
+
+    function automatic index_t index_of(input addr_t addr);
+        index_of = addr[OFFSET_WIDTH + INDEX_WIDTH - 1:OFFSET_WIDTH];
+    endfunction
+
+    function automatic tag_t tag_of(input addr_t addr);
+        tag_of = addr[63:OFFSET_WIDTH + INDEX_WIDTH];
+    endfunction
+
+    function automatic data_t merge_mask(input data_t old_data, input data_t new_data, input mask_t mask);
+        data_t merged;
+        begin
+            merged = old_data;
+            for (int i = 0; i < BYTE_NUM; i++) begin
+                if (mask[i]) begin
+                    merged[i*8 +: 8] = new_data[i*8 +: 8];
+                end
+            end
+            merge_mask = merged;
+        end
+    endfunction
+
+    index_t read_index;
+    tag_t read_tag;
+    logic read_cacheable;
+    logic read_hit;
+
+    index_t write_index;
+    tag_t write_tag;
+    logic write_cacheable;
+    logic write_hit;
+
+    assign read_index = index_of(cpu_ift.r_request_bits.raddr);
+    assign read_tag = tag_of(cpu_ift.r_request_bits.raddr);
+    assign read_cacheable = cacheable(cpu_ift.r_request_bits.raddr);
+    assign read_hit = !flush && read_cacheable && valid[read_index] && (tag[read_index] == read_tag);
+
+    assign write_index = index_of(cpu_ift.w_request_bits.waddr);
+    assign write_tag = tag_of(cpu_ift.w_request_bits.waddr);
+    assign write_cacheable = cacheable(cpu_ift.w_request_bits.waddr);
+    assign write_hit = !flush && write_cacheable && valid[write_index] && (tag[write_index] == write_tag);
+
+    always_comb begin
+        cpu_ift.r_request_ready = 1'b0;
+        cpu_ift.r_reply_valid = 1'b0;
+        cpu_ift.r_reply_bits.rdata = read_data_q;
+        cpu_ift.r_reply_bits.rresp = read_resp_q;
+
+        cpu_ift.w_request_ready = 1'b0;
+        cpu_ift.w_reply_valid = 1'b0;
+        cpu_ift.w_reply_bits.bresp = write_resp_q;
+
+        mem_ift.r_request_valid = 1'b0;
+        mem_ift.r_request_bits.raddr = 64'b0;
+        mem_ift.r_reply_ready = 1'b0;
+
+        mem_ift.w_request_valid = 1'b0;
+        mem_ift.w_request_bits.waddr = 64'b0;
+        mem_ift.w_request_bits.wdata = 64'b0;
+        mem_ift.w_request_bits.wmask = 8'b0;
+        mem_ift.w_reply_ready = 1'b0;
+
+        case (state)
+            S_IDLE: begin
+                if (cpu_ift.r_request_valid) begin
+                    if (read_hit) begin
+                        cpu_ift.r_request_ready = 1'b1;
+                    end else begin
+                        mem_ift.r_request_valid = 1'b1;
+                        mem_ift.r_request_bits.raddr =
+                            read_cacheable ? align_word(cpu_ift.r_request_bits.raddr)
+                                           : cpu_ift.r_request_bits.raddr;
+                        cpu_ift.r_request_ready = mem_ift.r_request_ready;
+                    end
+                end else if (cpu_ift.w_request_valid) begin
+                    mem_ift.w_request_valid = 1'b1;
+                    mem_ift.w_request_bits.waddr = cpu_ift.w_request_bits.waddr;
+                    mem_ift.w_request_bits.wdata = cpu_ift.w_request_bits.wdata;
+                    mem_ift.w_request_bits.wmask = cpu_ift.w_request_bits.wmask;
+                    cpu_ift.w_request_ready = mem_ift.w_request_ready;
+                end
+            end
+            S_READ_MEM: begin
+                mem_ift.r_reply_ready = 1'b1;
+            end
+            S_READ_RESP: begin
+                cpu_ift.r_reply_valid = 1'b1;
+            end
+            S_WRITE_MEM: begin
+                mem_ift.w_reply_ready = 1'b1;
+            end
+            S_WRITE_RESP: begin
+                cpu_ift.w_reply_valid = 1'b1;
+            end
+            default: begin
+            end
+        endcase
+    end
+
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) begin
+            state <= S_IDLE;
+            read_data_q <= '0;
+            read_resp_q <= OKAY;
+            write_resp_q <= OKAY;
+            req_cacheable_q <= 1'b0;
+            req_index_q <= '0;
+            req_tag_q <= '0;
+            for (int i = 0; i < ENTRY_NUM; i++) begin
+                valid[i] <= 1'b0;
+                tag[i] <= '0;
+                data[i] <= '0;
+            end
+        end else begin
+            if (flush) begin
+                for (int i = 0; i < ENTRY_NUM; i++) begin
+                    valid[i] <= 1'b0;
+                end
+            end
+
+            case (state)
+                S_IDLE: begin
+                    if (cpu_ift.r_request_valid) begin
+                        if (read_hit) begin
+                            read_data_q <= data[read_index];
+                            read_resp_q <= OKAY;
+                            state <= S_READ_RESP;
+                        end else if (mem_ift.r_request_ready) begin
+                            req_cacheable_q <= read_cacheable;
+                            req_index_q <= read_index;
+                            req_tag_q <= read_tag;
+                            state <= S_READ_MEM;
+                        end
+                    end else if (cpu_ift.w_request_valid && mem_ift.w_request_ready) begin
+                        if (write_hit) begin
+                            data[write_index] <= merge_mask(
+                                data[write_index],
+                                cpu_ift.w_request_bits.wdata,
+                                cpu_ift.w_request_bits.wmask
+                            );
+                        end
+                        state <= S_WRITE_MEM;
+                    end
+                end
+                S_READ_MEM: begin
+                    if (mem_ift.r_reply_valid) begin
+                        read_data_q <= mem_ift.r_reply_bits.rdata;
+                        read_resp_q <= mem_ift.r_reply_bits.rresp;
+                        if (req_cacheable_q && mem_ift.r_reply_bits.rresp == OKAY) begin
+                            valid[req_index_q] <= 1'b1;
+                            tag[req_index_q] <= req_tag_q;
+                            data[req_index_q] <= mem_ift.r_reply_bits.rdata;
+                        end
+                        state <= S_READ_RESP;
+                    end
+                end
+                S_READ_RESP: begin
+                    if (cpu_ift.r_reply_ready) begin
+                        state <= S_IDLE;
+                    end
+                end
+                S_WRITE_MEM: begin
+                    if (mem_ift.w_reply_valid) begin
+                        write_resp_q <= mem_ift.w_reply_bits.bresp;
+                        state <= S_WRITE_RESP;
+                    end
+                end
+                S_WRITE_RESP: begin
+                    if (cpu_ift.w_reply_ready) begin
+                        state <= S_IDLE;
+                    end
+                end
+                default: begin
+                    state <= S_IDLE;
+                end
+            endcase
+        end
+    end
+
+endmodule
+```
+
+
+*那个，，，我们这个实现的是一个仅有读Cache的Cache，暂没有处理CacheBank和写缓存*
+
+
+1. 状态机和类型
+
+    ```sv
+        typedef logic [INDEX_WIDTH-1:0] index_t;
+        typedef logic [TAG_WIDTH-1:0] tag_t;
+
+        typedef enum logic [2:0] {
+            S_IDLE,
+            S_READ_MEM,
+            S_READ_RESP,
+            S_WRITE_MEM,
+            S_WRITE_RESP
+        } state_t;
+
+        state_t state;
+    ```
+
+    - `index_t`、`tag_t`：索引和标签的类型别名。
+    - `state_t`：状态机的五个状态：
+    - `S_IDLE`：空闲，等待 CPU 请求。
+    - `S_READ_MEM`：读未命中，已向主存发起读请求，等待主存返回数据。
+    - `S_READ_RESP`：读数据已就绪，等待 CPU 接收应答。
+    - `S_WRITE_MEM`：写请求已发往主存，等待主存返回写应答。
+    - `S_WRITE_RESP`：写应答已就绪，等待 CPU 接收应答。
+
+2. 接线
+
+    ```sv
+        logic valid [ENTRY_NUM-1:0];
+        tag_t tag [ENTRY_NUM-1:0];
+        data_t data [ENTRY_NUM-1:0];
+
+        data_t read_data_q;
+        resp_t read_resp_q;
+        resp_t write_resp_q;
+
+        logic req_cacheable_q;
+        index_t req_index_q;
+        tag_t req_tag_q;
+    ```
+
+    - `valid`、`tag`、`data`：每个缓存行的有效位、标签和数据，构成直映射 Cache 的存储体。
+    - `read_data_q`、`read_resp_q`：缓存的读数据和读响应，在 `S_READ_RESP` 状态输出给 CPU。
+    - `write_resp_q`：缓存的写响应，在 `S_WRITE_RESP` 状态输出给 CPU。
+    - `req_cacheable_q`、`req_index_q`、`req_tag_q`：在 `S_IDLE` 接受请求时锁存的地址信息，供后续状态使用（因为 CPU 侧的请求信号在握手完成后可能变化）。
+
+5. 辅助函数
+
+```sv
+    function automatic logic in_range(input addr_t addr, input addr_t base, input addr_t len);
+        in_range = (addr >= base) && (addr < (base + len));
+    endfunction
+
+    function automatic logic cacheable(input addr_t addr);
+        cacheable = (ENABLE_CACHE != 0) &&
+                    (in_range(addr, `ROM_BASE, `ROM_LEN) ||
+                     in_range(addr, `BUFFER_BASE, `BUFFER_LEN) ||
+                     in_range(addr, `DDR_BASE, `DDR_LEN));
+    endfunction
+
+    function automatic addr_t align_word(input addr_t addr);
+        align_word = {addr[63:OFFSET_WIDTH], {OFFSET_WIDTH{1'b0}}};
+    endfunction
+
+    function automatic index_t index_of(input addr_t addr);
+        index_of = addr[OFFSET_WIDTH + INDEX_WIDTH - 1:OFFSET_WIDTH];
+    endfunction
+
+    function automatic tag_t tag_of(input addr_t addr);
+        tag_of = addr[63:OFFSET_WIDTH + INDEX_WIDTH];
+    endfunction
+
+    function automatic data_t merge_mask(input data_t old_data, input data_t new_data, input mask_t mask);
+        data_t merged;
+        begin
+            merged = old_data;
+            for (int i = 0; i < BYTE_NUM; i++) begin
+                if (mask[i]) begin
+                    merged[i*8 +: 8] = new_data[i*8 +: 8];
+                end
+            end
+            merge_mask = merged;
+        end
+    endfunction
+```
+
+六个辅助函数：
+
+- `in_range`：判断地址是否落在 `[base, base+len)` 区间内。
+- `cacheable`：判断地址是否可缓存。只有 `ENABLE_CACHE` 开启且地址属于 ROM、BUFFER 或 DDR 区域时才可缓存。MMIO 设备（如 UART）的地址不可缓存，必须每次都访问真实硬件。
+- `align_word`：将地址向下对齐到字边界（清除低 `OFFSET_WIDTH` 位）。用于读未命中时向主存发起对齐的读请求。
+- `index_of`：从地址中提取索引字段。
+- `tag_of`：从地址中提取标签字段。
+- `merge_mask`：按字节掩码合并新旧数据。`mask[i]` 为 1 时取 `new_data` 的第 `i` 字节，否则保留 `old_data`。用于写命中时部分更新缓存行（例如 `sb`/`sh`/`sw` 只写部分字节）。
+
+6. 命中检测
+
+    ```sv
+        index_t read_index;
+        tag_t read_tag;
+        logic read_cacheable;
+        logic read_hit;
+
+        index_t write_index;
+        tag_t write_tag;
+        logic write_cacheable;
+        logic write_hit;
+
+        assign read_index = index_of(cpu_ift.r_request_bits.raddr);
+        assign read_tag = tag_of(cpu_ift.r_request_bits.raddr);
+        assign read_cacheable = cacheable(cpu_ift.r_request_bits.raddr);
+        assign read_hit = !flush && read_cacheable && valid[read_index] && (tag[read_index] == read_tag);
+
+        assign write_index = index_of(cpu_ift.w_request_bits.waddr);
+        assign write_tag = tag_of(cpu_ift.w_request_bits.waddr);
+        assign write_cacheable = cacheable(cpu_ift.w_request_bits.waddr);
+        assign write_hit = !flush && write_cacheable && valid[write_index] && (tag[write_index] == write_tag);
+    ```
+
+    分别对读地址和写地址进行索引/标签提取和命中判断：
+
+    - 读命中条件：未处于 flush、地址可缓存、对应行有效、标签匹配。读命中时可以直接从 Cache 返回数据，无需访问主存。
+    - 写命中条件：同上。写命中时在将写请求转发到主存的同时，也同步更新 Cache 中的数据（写直通 + 写更新）。
+
+7. 握手信号
+
+    ```sv
+        always_comb begin
+            cpu_ift.r_request_ready = 1'b0;
+            cpu_ift.r_reply_valid = 1'b0;
+            cpu_ift.r_reply_bits.rdata = read_data_q;
+            cpu_ift.r_reply_bits.rresp = read_resp_q;
+
+            cpu_ift.w_request_ready = 1'b0;
+            cpu_ift.w_reply_valid = 1'b0;
+            cpu_ift.w_reply_bits.bresp = write_resp_q;
+
+            mem_ift.r_request_valid = 1'b0;
+            mem_ift.r_request_bits.raddr = 64'b0;
+            mem_ift.r_reply_ready = 1'b0;
+
+            mem_ift.w_request_valid = 1'b0;
+            mem_ift.w_request_bits.waddr = 64'b0;
+            mem_ift.w_request_bits.wdata = 64'b0;
+            mem_ift.w_request_bits.wmask = 8'b0;
+            mem_ift.w_reply_ready = 1'b0;
+
+            case (state)
+                S_IDLE: begin
+                    if (cpu_ift.r_request_valid) begin
+                        if (read_hit) begin
+                            cpu_ift.r_request_ready = 1'b1;
+                        end else begin
+                            mem_ift.r_request_valid = 1'b1;
+                            mem_ift.r_request_bits.raddr =
+                                read_cacheable ? align_word(cpu_ift.r_request_bits.raddr)
+                                            : cpu_ift.r_request_bits.raddr;
+                            cpu_ift.r_request_ready = mem_ift.r_request_ready;
+                        end
+                    end else if (cpu_ift.w_request_valid) begin
+                        mem_ift.w_request_valid = 1'b1;
+                        mem_ift.w_request_bits.waddr = cpu_ift.w_request_bits.waddr;
+                        mem_ift.w_request_bits.wdata = cpu_ift.w_request_bits.wdata;
+                        mem_ift.w_request_bits.wmask = cpu_ift.w_request_bits.wmask;
+                        cpu_ift.w_request_ready = mem_ift.w_request_ready;
+                    end
+                end
+                S_READ_MEM: begin
+                    mem_ift.r_reply_ready = 1'b1;
+                end
+                S_READ_RESP: begin
+                    cpu_ift.r_reply_valid = 1'b1;
+                end
+                S_WRITE_MEM: begin
+                    mem_ift.w_reply_ready = 1'b1;
+                end
+                S_WRITE_RESP: begin
+                    cpu_ift.w_reply_valid = 1'b1;
+                end
+                default: begin
+                end
+            endcase
+        end
+    ```
+
+    这是状态机的**输出部分**，控制各接口的握手信号。所有信号默认置无效/零，再根据当前状态有选择地拉高：
+
+    - **`S_IDLE`（空闲）**：
+    - 读请求优先于写请求处理（`if ... else if` 结构）。
+    - **读命中**：直接拉高 `cpu_ift.r_request_ready` 接受请求，不访问主存。下一周期进入 `S_READ_RESP` 返回缓存数据。
+    - **读未命中**：将读请求转发到主存。若地址可缓存，使用字对齐地址 `align_word` 发起请求（确保取回完整缓存行）；若不可缓存，原样转发地址。CPU 侧的 `ready` 取决于主存侧是否 `ready`（背压传递）。
+    - **写请求**：无论是否命中，都将写请求原样转发到主存（写直通策略）。CPU 侧的 `ready` 同样取决于主存侧。
+
+    - **`S_READ_MEM`**：向主存表示"准备好接收读数据"（`r_reply_ready = 1`）。
+
+    - **`S_READ_RESP`**：向 CPU 表示"读数据已就绪"（`r_reply_valid = 1`），输出寄存器中保存的 `read_data_q` 和 `read_resp_q`。
+
+    - **`S_WRITE_MEM`**：向主存表示"准备好接收写应答"（`w_reply_ready = 1`）。
+
+    - **`S_WRITE_RESP`**：向 CPU 表示"写操作已完成"（`w_reply_valid = 1`），输出 `write_resp_q`。
+
+8. 时序逻辑（状态转移与缓存更新）
+
+    ```sv
+        always_ff @(posedge clk or posedge rst) begin
+            if (rst) begin
+                state <= S_IDLE;
+                read_data_q <= '0;
+                read_resp_q <= OKAY;
+                write_resp_q <= OKAY;
+                req_cacheable_q <= 1'b0;
+                req_index_q <= '0;
+                req_tag_q <= '0;
+                for (int i = 0; i < ENTRY_NUM; i++) begin
+                    valid[i] <= 1'b0;
+                    tag[i] <= '0;
+                    data[i] <= '0;
+                end
+            end else begin
+                if (flush) begin
+                    for (int i = 0; i < ENTRY_NUM; i++) begin
+                        valid[i] <= 1'b0;
+                    end
+                end
+
+                case (state)
+                    S_IDLE: begin
+                        if (cpu_ift.r_request_valid) begin
+                            if (read_hit) begin
+                                read_data_q <= data[read_index];
+                                read_resp_q <= OKAY;
+                                state <= S_READ_RESP;
+                            end else if (mem_ift.r_request_ready) begin
+                                req_cacheable_q <= read_cacheable;
+                                req_index_q <= read_index;
+                                req_tag_q <= read_tag;
+                                state <= S_READ_MEM;
+                            end
+                        end else if (cpu_ift.w_request_valid && mem_ift.w_request_ready) begin
+                            if (write_hit) begin
+                                data[write_index] <= merge_mask(
+                                    data[write_index],
+                                    cpu_ift.w_request_bits.wdata,
+                                    cpu_ift.w_request_bits.wmask
+                                );
+                            end
+                            state <= S_WRITE_MEM;
+                        end
+                    end
+                    S_READ_MEM: begin
+                        if (mem_ift.r_reply_valid) begin
+                            read_data_q <= mem_ift.r_reply_bits.rdata;
+                            read_resp_q <= mem_ift.r_reply_bits.rresp;
+                            if (req_cacheable_q && mem_ift.r_reply_bits.rresp == OKAY) begin
+                                valid[req_index_q] <= 1'b1;
+                                tag[req_index_q] <= req_tag_q;
+                                data[req_index_q] <= mem_ift.r_reply_bits.rdata;
+                            end
+                            state <= S_READ_RESP;
+                        end
+                    end
+                    S_READ_RESP: begin
+                        if (cpu_ift.r_reply_ready) begin
+                            state <= S_IDLE;
+                        end
+                    end
+                    S_WRITE_MEM: begin
+                        if (mem_ift.w_reply_valid) begin
+                            write_resp_q <= mem_ift.w_reply_bits.bresp;
+                            state <= S_WRITE_RESP;
+                        end
+                    end
+                    S_WRITE_RESP: begin
+                        if (cpu_ift.w_reply_ready) begin
+                            state <= S_IDLE;
+                        end
+                    end
+                    default: begin
+                        state <= S_IDLE;
+                    end
+                endcase
+            end
+        end
+
+    endmodule
+    ```
+
+    这是状态机的**状态转移和数据更新部分**：
+
+    - **复位 (`rst`)**：状态归 `S_IDLE`，所有寄存器和缓存行清零/置无效。
+
+    - **刷新 (`flush`)**：将所有缓存行的 `valid` 位清零。注意 `flush` 的处理独立于状态机 `case` 之外，意味着无论当前处于哪个状态，`flush` 都会立即使所有缓存行失效。这通常在执行 `fence.i` 或 `sfence.vma` 时触发，确保后续访问不会读到过期数据。
+
+    - **`S_IDLE` → 读路径**：
+    - **读命中**：将 `data[read_index]` 锁存到 `read_data_q`，响应置 `OKAY`，转 `S_READ_RESP`。整个过程只需一个周期延迟（下一周期即可返回数据）。
+    - **读未命中且主存 ready**：锁存当前请求的 `cacheable`、`index`、`tag` 到寄存器（因为下一周期 CPU 请求可能变化），转 `S_READ_MEM`。
+
+    - **`S_IDLE` → 写路径**：
+    - 当 CPU 发起写请求且主存 `ready` 时：
+        - 若**写命中**，使用 `merge_mask` 按字节掩码更新缓存行数据（写直通策略：同时更新 Cache 和主存）。
+        - 若**写未命中**，不更新 Cache（写不分配策略：不会因为写操作而将数据加载到 Cache 中）。
+    - 转 `S_WRITE_MEM` 等待主存完成写操作。
+
+    - **`S_READ_MEM`**：等待主存返回数据。收到后：
+    - 将数据和响应锁存到 `read_data_q` 和 `read_resp_q`。
+    - 如果地址可缓存且响应为 `OKAY`，则将数据**写入 Cache**（读分配策略）：设置 `valid`、写入 `tag` 和 `data`。
+    - 转 `S_READ_RESP`。
+
+    - **`S_READ_RESP`**：等待 CPU 接收读应答（`r_reply_ready`），完成后回 `S_IDLE`。
+
+    - **`S_WRITE_MEM`**：等待主存返回写应答，锁存响应码，转 `S_WRITE_RESP`。
+
+    - **`S_WRITE_RESP`**：等待 CPU 接收写应答（`w_reply_ready`），完成后回 `S_IDLE`。
+
+### Cache 接入 AxiCore
+
+**主要是因为MMU已经在AxiCore实例化了，而我们设计下Cache在MMU后面那一层，所以只能委屈一下repo/sys-project了，我们要把MemCache接到AxiCore里面**
+
+在 `AxiCore` 中新增两条内部 `Mem_ift`，把 `MMU` 输出先接到 `MemCache`，再由 `MemCache` 接到 `Mem2Axi`：
+
+```diff
+--- repo/sys-project/general/AxiCore.sv
++++ repo/sys-project/general/AxiCore.sv
+@@
+     Mem_ift #(
+         .ADDR_WIDTH(xLen),
+         .DATA_WIDTH(xLen)
+     ) mem_dmem_ift ();
++
++    Mem_ift #(
++        .ADDR_WIDTH(xLen),
++        .DATA_WIDTH(xLen)
++    ) cached_imem_ift ();
++
++    Mem_ift #(
++        .ADDR_WIDTH(xLen),
++        .DATA_WIDTH(xLen)
++    ) cached_dmem_ift ();
+@@
+     MMU mmu(
+         .clk(clk),
+         .rst(rst),
+@@
+         .mem_imem_ift(mem_imem_ift.Master),
+         .mem_dmem_ift(mem_dmem_ift.Master)
+     );
++
++    MemCache #(
++        .CACHE_BYTES(1024),
++        .ENABLE_CACHE(1)
++    ) imem_cache (
++        .clk(clk),
++        .rst(rst),
++        .flush(flush_imem),
++        .cpu_ift(mem_imem_ift.Slave),
++        .mem_ift(cached_imem_ift.Master)
++    );
++
++    MemCache #(
++        .CACHE_BYTES(1024),
++        .ENABLE_CACHE(1)
++    ) dmem_cache (
++        .clk(clk),
++        .rst(rst),
++        .flush(flush_dmem),
++        .cpu_ift(mem_dmem_ift.Slave),
++        .mem_ift(cached_dmem_ift.Master)
++    );
+ 
+     Mem2Axi imem2axi (
+         .clk(clk),
+         .rstn(rstn),
+-        .mem_ift(mem_imem_ift),
++        .mem_ift(cached_imem_ift),
+         .axi_ift(imem_ift)
+     );
+ 
+     Mem2Axi dmem2axi (
+         .clk(clk),
+         .rstn(rstn),
+-        .mem_ift(mem_dmem_ift),
++        .mem_ift(cached_dmem_ift),
+         .axi_ift(dmem_ift)
+     );
+```
+
+
+## 拓展部分：Return Stack Buffer (RSB)
+
+原有的BTB/BHT承担了所有跳转指令的prediction，现在我们修改它，改成Call/Return类型用RSB，其它类型用BTB/BHT处理。
+
+
+> Return-address prediction stacks are a common feature of
+> high-performance instruction-fetch units, but require accurate detection
+> of instructions used for procedure calls and returns to be effective.
+> For RISC-V, hints as to the instructions' usage are encoded implicitly
+> via the register numbers used. A `jal` instruction should push the return
+> address onto a return-address stack (RAS) only when *rd* is `x1` or
+> `x5`. `jalr` instructions should push/pop a RAS as shown in the
+> [table below](#rashints):
+> 
+> <a id="rashints"></a>
+> 
+> **Return-address stack prediction hints encoded in the register operands of a `jalr` instruction.**
+> 
+> | *rd* is `x1`/`x5` | *rs1* is `x1`/`x5` | *rd* = *rs1* | RAS action |
+> |-------------------|--------------------|--------------|------------|
+> | No                | No                 | --           | None       |
+> | No                | Yes                | --           | Pop        |
+> | Yes               | No                 | --           | Push       |
+> | Yes               | Yes                | No           | Pop, then push |
+> | Yes               | Yes                | Yes          | Push       |
+> 
+> > **Note:** Some other ISAs added explicit hint bits to their indirect-jump
+> > instructions to guide return-address stack manipulation. We use implicit
+> > hinting tied to register numbers and the calling convention to reduce
+> > the encoding space used for these hints.
+> >
+> > When two different link registers (`x1` and `x5`) are given as *rs1* and
+> > *rd*, then the RAS is both popped and pushed to support coroutines. If
+> > *rs1* and *rd* are the same link register (either `x1` or `x5`), the RAS
+> > is only pushed to enable macro-op fusion of the sequences:
+> > `lui ra, imm20; jalr ra, imm12(ra)` and `auipc ra, imm20; jalr ra, imm12(ra)`.
+
+### BranchPrediction：拓展模块接口、参数和基础数据结构
+
+```verilog
+module BranchPrediction #(
+    parameter DEPTH      = 32,
+    parameter ADDR_WIDTH = 64,
+    parameter STATE_NUM  = 2,
+    parameter RSB_DEPTH  = 8
+) (
+    input                   clk,
+    input                   rst,
+
+    input                   flush_bp,
+
+    input  [ADDR_WIDTH-1:0] pc_if,
+    input  [31:0]           inst_if,
+    input                   inst_valid_if,
+    input                   fetch_fire_if,
+    output logic            jump_pred_if,
+    output logic [ADDR_WIDTH-1:0] pc_target_if,
+
+    input  [ADDR_WIDTH-1:0] pc_exe,
+    input  [31:0]           inst_exe,
+    input                   inst_valid_exe,
+    input  [ADDR_WIDTH-1:0] pc_target_exe,
+    input                   is_jump_exe,
+    input                   rsb_repair_exe
+);
+
+    localparam logic [6:0] BRANCH_OPCODE = 7'b1100011;
+    localparam logic [6:0] JALR_OPCODE   = 7'b1100111;
+    localparam logic [6:0] JAL_OPCODE    = 7'b1101111;
+
+    localparam INDEX_BEGIN = 2;
+    localparam INDEX_LEN   = $clog2(DEPTH);
+    localparam INDEX_END   = INDEX_BEGIN + INDEX_LEN - 1;
+    localparam TAG_BEGIN   = INDEX_END + 1;
+    localparam TAG_END     = ADDR_WIDTH - 1;
+    localparam TAG_LEN     = TAG_END - TAG_BEGIN + 1;
+
+    typedef logic [TAG_LEN-1:0] tag_t;
+    typedef logic [INDEX_LEN-1:0] index_t;
+    typedef logic [STATE_NUM-1:0] state_t;
+    typedef logic [ADDR_WIDTH-1:0] addr_t;
+    typedef logic [31:0] inst_t;
+
+    localparam state_t STRONGLY_NOT_TAKEN = 2'b00;
+    localparam state_t WEAKLY_NOT_TAKEN   = 2'b01;
+    localparam state_t WEAKLY_TAKEN       = 2'b10;
+    localparam state_t STRONGLY_TAKEN     = 2'b11;
+
+    typedef struct packed {
+        tag_t   tag;
+        addr_t  target;
+        state_t state;
+        logic   valid;
+    } btb_line_t;
+
+    typedef struct packed {
+        logic  valid;
+        addr_t ra;
+    } rsb_line_t;
+
+    btb_line_t btb [DEPTH-1:0];
+    rsb_line_t rsb [RSB_DEPTH-1:0];
+    rsb_line_t rsb_next [RSB_DEPTH-1:0];
+```
+
+这里将原来的 `BranchPrediction` 接口扩展为同时接收 IF 和 EXE 两侧信息。IF 侧新增 `inst_if` 和 `fetch_fire_if`，这样 RSB 只有在指令真实进入 IF/ID 时才会更新，避免 ICache miss 或流水线 stall 时污染返回栈。EXE 侧新增 `inst_exe`，让预测器能判断当前解析的控制流是否为 return，从而决定是否更新 BTB。
+
+`btb_line_t` 合并了 BTB 和 BHT：`target` 是预测目标地址，`state` 是 2-bit 饱和计数器。`rsb_line_t` 是 RSB 的表项类型，只保存 `valid` 和返回地址 `ra`。
+
+### BranchPrediction：辅助函数
+
+```verilog
+    function automatic logic is_branch(input inst_t inst);
+        return inst[6:0] == BRANCH_OPCODE;
+    endfunction
+
+    function automatic logic is_jal(input inst_t inst);
+        return inst[6:0] == JAL_OPCODE;
+    endfunction
+
+    function automatic logic is_jalr(input inst_t inst);
+        return inst[6:0] == JALR_OPCODE;
+    endfunction
+
+    function automatic logic is_link_reg(input logic [4:0] reg_id);
+        return (reg_id == 5'd1) || (reg_id == 5'd5);
+    endfunction
+
+    function automatic logic is_call(input inst_t inst);
+        return (is_jal(inst) || is_jalr(inst)) && is_link_reg(inst[11:7]);
+    endfunction
+
+    function automatic logic is_return(input inst_t inst);
+        return is_jalr(inst) && is_link_reg(inst[19:15]) && (inst[19:15] != inst[11:7]);
+    endfunction
+
+    function automatic logic is_control_flow(input inst_t inst);
+        return is_branch(inst) || is_jal(inst) || is_jalr(inst);
+    endfunction
+
+    function automatic addr_t branch_imm(input inst_t inst);
+        return {{(ADDR_WIDTH-13){inst[31]}}, inst[31], inst[7], inst[30:25], inst[11:8], 1'b0};
+    endfunction
+
+    function automatic addr_t jal_imm(input inst_t inst);
+        return {{(ADDR_WIDTH-21){inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0};
+    endfunction
+
+    function automatic state_t next_state(input state_t state, input logic taken);
+        if (taken) begin
+            return (state == STRONGLY_TAKEN) ? STRONGLY_TAKEN : state + 2'b01;
+        end else begin
+            return (state == STRONGLY_NOT_TAKEN) ? STRONGLY_NOT_TAKEN : state - 2'b01;
+        end
+    endfunction
+```
+
+### BranchPrediction：IF 阶段表项查询与预测优先级
+
+```verilog
+    tag_t tag_if;
+    index_t index_if;
+    btb_line_t btb_if;
+    logic btb_hit_if;
+    logic bht_taken_if;
+
+    assign tag_if       = pc_if[TAG_END:TAG_BEGIN];
+    assign index_if     = pc_if[INDEX_END:INDEX_BEGIN];
+    assign btb_if       = btb[index_if];
+    assign btb_hit_if   = btb_if.valid && (btb_if.tag == tag_if);
+    assign bht_taken_if = btb_hit_if && btb_if.state[STATE_NUM-1];
+
+    logic if_is_return;
+    logic if_is_jal;
+    logic if_is_branch;
+    logic if_is_indirect;
+
+    assign if_is_return  = inst_valid_if && is_return(inst_if);
+    assign if_is_jal     = inst_valid_if && is_jal(inst_if);
+    assign if_is_branch  = inst_valid_if && is_branch(inst_if);
+    assign if_is_indirect = inst_valid_if && is_jalr(inst_if) && !is_return(inst_if);
+
+    always_comb begin
+        jump_pred_if = 1'b0;
+        pc_target_if = '0;
+
+        if (if_is_return && rsb[0].valid) begin
+            jump_pred_if = 1'b1;
+            pc_target_if = rsb[0].ra;
+        end else if (if_is_jal) begin
+            jump_pred_if = 1'b1;
+            pc_target_if = pc_if + jal_imm(inst_if);
+        end else if (if_is_branch && bht_taken_if) begin
+            jump_pred_if = 1'b1;
+            pc_target_if = pc_if + branch_imm(inst_if);
+        end else if (if_is_indirect && bht_taken_if) begin
+            jump_pred_if = 1'b1;
+            pc_target_if = btb_if.target;
+        end
+    end
+```
+
+IF 阶段的预测优先级是：
+
+1. return 且 RSB 栈顶有效：直接预测为 `rsb[0].ra`。
+2. `JAL`：直接由 `pc + imm` 算出目标。
+3. 条件分支：只有 BTB hit 且 BHT 高位为 1 时预测 taken，目标为 `pc + branch_imm`。
+4. 非 return 的 `JALR`：目标不可由立即数直接算出，使用 BTB 保存的历史目标。
+
+这样可以把 `ret` 从 BTB 中剥离出来。
+
+### BranchPrediction： EXE 阶段 BTB/BHT 更新
+
+```verilog
+    tag_t tag_exe;
+    index_t index_exe;
+    btb_line_t btb_exe;
+    logic exe_is_return;
+    logic exe_is_call;
+    logic exe_is_uncond_jump;
+    logic btb_update_en;
+    state_t btb_alloc_state;
+
+    assign tag_exe           = pc_exe[TAG_END:TAG_BEGIN];
+    assign index_exe         = pc_exe[INDEX_END:INDEX_BEGIN];
+    assign btb_exe           = btb[index_exe];
+    assign exe_is_return     = is_return(inst_exe);
+    assign exe_is_call       = is_call(inst_exe);
+    assign exe_is_uncond_jump = is_jal(inst_exe) || is_jalr(inst_exe);
+    assign btb_update_en     = inst_valid_exe && is_control_flow(inst_exe) && !exe_is_return;
+
+    always_comb begin
+        if (is_jump_exe) begin
+            btb_alloc_state = exe_is_uncond_jump ? STRONGLY_TAKEN : WEAKLY_TAKEN;
+        end else begin
+            btb_alloc_state = WEAKLY_NOT_TAKEN;
+        end
+    end
+
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) begin
+            for (integer i = 0; i < DEPTH; i = i + 1) begin
+                btb[i].valid  <= 1'b0;
+                btb[i].tag    <= '0;
+                btb[i].target <= '0;
+                btb[i].state  <= STRONGLY_NOT_TAKEN;
+            end
+        end else if (btb_update_en) begin
+            btb[index_exe].valid  <= 1'b1;
+            btb[index_exe].tag    <= tag_exe;
+            btb[index_exe].target <= pc_target_exe;
+
+            if (btb_exe.valid && (btb_exe.tag == tag_exe)) begin
+                btb[index_exe].state <= next_state(btb_exe.state, is_jump_exe);
+            end else begin
+                btb[index_exe].state <= btb_alloc_state;
+            end
+        end
+    end
+```
+
+EXE 阶段拥有真实跳转结果 `is_jump_exe` 和真实目标 `pc_target_exe`，因此在这里训练 BTB/BHT。`btb_update_en` 显式排除了 return。
+
+新表项的初始状态做了区分：
+
+- `JAL/JALR` 这类无条件跳转初始为 `STRONGLY_TAKEN`。
+- 条件分支若实际 taken，初始为 `WEAKLY_TAKEN`。
+- 条件分支若实际 not-taken，初始为 `WEAKLY_NOT_TAKEN`。
+
+其他部分与原有实现不变
+
+### BranchPrediction： RSB
+
+```verilog
+    logic rsb_push_if;
+    logic rsb_pop_if;
+    logic rsb_repair_push_exe;
+    addr_t rsb_push_addr_if;
+    addr_t rsb_repair_addr_exe;
+
+    assign rsb_push_if         = fetch_fire_if && is_call(inst_if);
+    assign rsb_pop_if          = fetch_fire_if && is_return(inst_if) && rsb[0].valid;
+    assign rsb_repair_push_exe = rsb_repair_exe && inst_valid_exe && exe_is_call;
+    assign rsb_push_addr_if    = pc_if + {{(ADDR_WIDTH-3){1'b0}}, 3'd4};
+    assign rsb_repair_addr_exe = pc_exe + {{(ADDR_WIDTH-3){1'b0}}, 3'd4};
+
+    always_comb begin
+        for (integer i = 0; i < RSB_DEPTH; i = i + 1) begin
+            rsb_next[i] = rsb[i];
+        end
+
+        if (rsb_push_if && rsb_pop_if) begin
+            rsb_next[0].valid = 1'b1;
+            rsb_next[0].ra    = rsb_push_addr_if;
+        end else if (rsb_push_if) begin
+            for (integer i = RSB_DEPTH - 1; i > 0; i = i - 1) begin
+                rsb_next[i] = rsb_next[i-1];
+            end
+            rsb_next[0].valid = 1'b1;
+            rsb_next[0].ra    = rsb_push_addr_if;
+        end else if (rsb_pop_if) begin
+            for (integer i = 0; i < RSB_DEPTH - 1; i = i + 1) begin
+                rsb_next[i] = rsb_next[i+1];
+            end
+            rsb_next[RSB_DEPTH-1].valid = 1'b0;
+            rsb_next[RSB_DEPTH-1].ra    = '0;
+        end
+
+        if (flush_bp) begin
+            for (integer i = 0; i < RSB_DEPTH; i = i + 1) begin
+                rsb_next[i].valid = 1'b0;
+                rsb_next[i].ra    = '0;
+            end
+        end
+
+        if (rsb_repair_push_exe) begin
+            for (integer i = RSB_DEPTH - 1; i > 0; i = i - 1) begin
+                rsb_next[i] = rsb_next[i-1];
+            end
+            rsb_next[0].valid = 1'b1;
+            rsb_next[0].ra    = rsb_repair_addr_exe;
+        end
+    end
+
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) begin
+            for (integer i = 0; i < RSB_DEPTH; i = i + 1) begin
+                rsb[i].valid <= 1'b0;
+                rsb[i].ra    <= '0;
+            end
+        end else begin
+            for (integer i = 0; i < RSB_DEPTH; i = i + 1) begin
+                rsb[i] <= rsb_next[i];
+            end
+        end
+    end
+
+endmodule
+```
+
+RSB 的行为设计如下：
+
+- push：新返回地址写入栈顶，原有条目整体下移。
+- pop：栈顶弹出，后续条目整体上移，最后一项无效化。
+- push + pop：只替换栈顶，不整体移动。
+- flush：清空整个 RSB。
+
+
+
+### 新 BranchPrediction 接入 Core
+
+1. 信号
+
+    ```verilog
+        logic jump_pred_if;
+        logic [63:0] pc_target_if;
+        logic fetch_fire_if;
+        logic rsb_repair_exe;
+
+        assign fetch_fire_if = hit_icache && ~global_stall && ~load_use_stall && ~flush_imem;
+        assign rsb_repair_exe = refetch && ~csr_flush && ~translation_flush;
+    ```
+
+    `fetch_fire_if` 和 IF/ID 写入条件保持一致：只有 ICache hit，并且没有全局 stall、load-use stall、flush 时，当前 IF 指令才算真正被流水线使用。RSB push/pop 使用这个信号，避免在取指失败或暂停时提前改变返回栈。
+
+    `rsb_repair_exe` 表示当前发生的是普通控制流误预测修复，而不是 CSR 或地址翻译 flush。只有这种情况下，EXE 侧的 call 修复 push 才有意义。
+
+2. 实例化
+
+    ```verilog
+        BranchPrediction #(
+            .DEPTH(32),
+            .ADDR_WIDTH(64),
+            .RSB_DEPTH(8)
+        ) bp (
+            .clk(clk),
+            .rst(rst),
+            .flush_bp(flush_imem),
+            .pc_if(pc),
+            .inst_if(icache_inst),
+            .inst_valid_if(hit_icache),
+            .fetch_fire_if(fetch_fire_if),
+            .jump_pred_if(jump_pred_if),
+            .pc_target_if(pc_target_if),
+            .pc_exe(idexe_reg.pc),
+            .inst_exe(idexe_reg.inst),
+            .inst_valid_exe(idexe_reg.valid && idexe_reg.npc_sel),
+            .pc_target_exe(alu_res),
+            .is_jump_exe(jump_occur),
+            .rsb_repair_exe(rsb_repair_exe)
+        );
+    ```
+
+    新的预测器仍然复用原来的 `jump_pred_if` 和 `pc_target_if` 输出，因此后续 `next_pc` 选择逻辑和 IF/ID、ID/EXE 中已有的预测信息传递可以保持不变。
+
+    EXE 侧传入 `idexe_reg.inst`，预测器据此判断当前解析的是 branch、JAL、JALR、call 还是 return。这样 BTB/BHT 更新逻辑不再依赖 `Core.sv` 外部拼接复杂条件，控制流分类集中在 `BranchPrediction.sv` 内部。
+
+
+
+
+
+## 支线任务：CPI测试
+
+怎么计算CPI呢？这一集[在Lab2已经玩过了](./lab2)
+
+> 对代码的修改
+> 
+> ```verilog
+> reg [31:0] cnt=32'b0;
+> reg [31:0] core_cnt=32'b0;
+> reg [31:0] valid_cnt=32'b0;
+> always@(posedge core_clk)begin
+>     if (rstn) begin
+>         core_cnt <= core_cnt + 32'b1;
+>         if (cosim_valid) begin
+>             valid_cnt <= valid_cnt + 32'b1;
+>         end
+>         
+>         $display("[CPI-STAT] Cycles: %0d, Insts: %0d, CPI: %f", core_cnt, valid_cnt, $itor(core_cnt) / $itor(valid_cnt));
+>     end
+> end
+> ```
+
+### 实验结果
+
+1. 使用的是：lab5 kernel FORK1作为执行的代码
+2. 执行10000000周期，看commit了多少valid指令
+
+执行10000000周期的时候，基本上都是已经完成了初始化快要进入正常指令的位置了
+
+另外，由于我们commit树比较乱，等到意识到要做CPI测试的时候，还能拆开来checkout过去的就是以下几个位置了:(
+
+实际结果
+
+| 类目 | Instns | CPI | 
+| --- | --- | --- |
+| baseline | 654269 | 15.284233 |
+| 第一版Cache+TLB | 1409435 | 7.095042 |
+| 实现RSB后 | 1417002 | 7.057153 |
+
+
+### CPI画廊（x）
+
+*Baseline*
+
+![](./cpi-baseline.png)
+
+*Cache1+TLB*
+
+![](./cpi-cache1.png)
+
+*RSB*
+
+![](./cpi-rsb.png)
+
+## 前置任务：写一个乘除法比较多的kernel来测试我们稍后要实现的M拓展
+
+全场消费由libgcc公子买单
+
+### 软件除法
+
+来自[`libgcc/config/riscv/div.S`](https://gcc.gnu.org/git/?p=gcc.git;a=blob_plain;f=libgcc/config/riscv/div.S;hb=HEAD)
+
+```riscvasm
+/* Integer division routines for RISC-V.
+
+   Copyright (C) 2016-2026 Free Software Foundation, Inc.
+
+This file is part of GCC.
+
+GCC is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3, or (at your option) any later
+version.
+
+GCC is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+Under Section 7 of GPL version 3, you are granted additional
+permissions described in the GCC Runtime Library Exception, version
+3.1, as published by the Free Software Foundation.
+
+You should have received a copy of the GNU General Public License and
+a copy of the GCC Runtime Library Exception along with this program;
+see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+<http://www.gnu.org/licenses/>.  */
+
+#include "riscv-asm.h"
+
+  .text
+  .align 2
+
+#if __riscv_xlen == 32
+/* Our RV64 64-bit routines are equivalent to our RV32 32-bit routines.  */
+# define __udivdi3 __udivsi3
+# define __umoddi3 __umodsi3
+# define __divdi3 __divsi3
+# define __moddi3 __modsi3
+#else
+FUNC_BEGIN (__udivsi3)
+  /* Compute __udivdi3(a0 << 32, a1 << 32); cast result to uint32_t.  */
+  sll    a0, a0, 32
+  sll    a1, a1, 32
+  move   t0, ra
+  jal    HIDDEN_JUMPTARGET(__udivdi3)
+  sext.w a0, a0
+  jr     t0
+FUNC_END (__udivsi3)
+
+FUNC_BEGIN (__umodsi3)
+  /* Compute __udivdi3((uint32_t)a0, (uint32_t)a1); cast a1 to uint32_t.  */
+  sll    a0, a0, 32
+  sll    a1, a1, 32
+  srl    a0, a0, 32
+  srl    a1, a1, 32
+  move   t0, ra
+  jal    HIDDEN_JUMPTARGET(__udivdi3)
+  sext.w a0, a1
+  jr     t0
+FUNC_END (__umodsi3)
+
+FUNC_ALIAS (__modsi3, __moddi3)
+
+FUNC_BEGIN( __divsi3)
+  /* Check for special case of INT_MIN/-1. Otherwise, fall into __divdi3.  */
+  li    t0, -1
+  beq   a1, t0, .L20
+#endif
+
+FUNC_BEGIN (__divdi3)
+  bltz  a0, .L10
+  bltz  a1, .L11
+  /* Since the quotient is positive, fall into __udivdi3.  */
+
+FUNC_BEGIN (__udivdi3)
+  mv    a2, a1
+  mv    a1, a0
+  li    a0, -1
+  beqz  a2, .L5
+  li    a3, 1
+  bgeu  a2, a1, .L2
+.L1:
+  blez  a2, .L2
+  slli  a2, a2, 1
+  slli  a3, a3, 1
+  bgtu  a1, a2, .L1
+.L2:
+  li    a0, 0
+.L3:
+  bltu  a1, a2, .L4
+  sub   a1, a1, a2
+  or    a0, a0, a3
+.L4:
+  srli  a3, a3, 1
+  srli  a2, a2, 1
+  bnez  a3, .L3
+.L5:
+  ret
+FUNC_END (__udivdi3)
+HIDDEN_DEF (__udivdi3)
+
+FUNC_BEGIN (__umoddi3)
+  /* Call __udivdi3(a0, a1), then return the remainder, which is in a1.  */
+  move  t0, ra
+  jal   HIDDEN_JUMPTARGET(__udivdi3)
+  move  a0, a1
+  jr    t0
+FUNC_END (__umoddi3)
+
+  /* Handle negative arguments to __divdi3.  */
+.L10:
+  neg   a0, a0
+  /* Zero is handled as a negative so that the result will not be inverted.  */
+  bgtz  a1, .L12     /* Compute __udivdi3(-a0, a1), then negate the result.  */
+
+  neg   a1, a1
+  j     HIDDEN_JUMPTARGET(__udivdi3)     /* Compute __udivdi3(-a0, -a1).  */
+.L11:                /* Compute __udivdi3(a0, -a1), then negate the result.  */
+  neg   a1, a1
+.L12:
+  move  t0, ra
+  jal   HIDDEN_JUMPTARGET(__udivdi3)
+  neg   a0, a0
+  jr    t0
+FUNC_END (__divdi3)
+
+FUNC_BEGIN (__moddi3)
+  move   t0, ra
+  bltz   a1, .L31
+  bltz   a0, .L32
+.L30:
+  jal    HIDDEN_JUMPTARGET(__udivdi3)    /* The dividend is not negative.  */
+  move   a0, a1
+  jr     t0
+.L31:
+  neg    a1, a1
+  bgez   a0, .L30
+.L32:
+  neg    a0, a0
+  jal    HIDDEN_JUMPTARGET(__udivdi3)    /* The dividend is hella negative.  */
+  neg    a0, a1
+  jr     t0
+FUNC_END (__moddi3)
+
+#if __riscv_xlen == 64
+  /* continuation of __divsi3 */
+.L20:
+  sll   t0, t0, 31
+  bne   a0, t0, __divdi3
+  ret
+FUNC_END (__divsi3)
+#endif
+```
+
+### 软件乘法
+
+- 64位
+
+    来自[`libgcc/config/riscv/muldi3.S`](https://gcc.gnu.org/git/?p=gcc.git;a=blob_plain;f=libgcc/config/riscv/muldi3.S;hb=HEAD)
+
+
+    ```riscvasm
+    /* Integer multiplication routines for RISC-V.
+
+    Copyright (C) 2016-2026 Free Software Foundation, Inc.
+
+    This file is part of GCC.
+
+    GCC is free software; you can redistribute it and/or modify it under
+    the terms of the GNU General Public License as published by the Free
+    Software Foundation; either version 3, or (at your option) any later
+    version.
+
+    GCC is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    Under Section 7 of GPL version 3, you are granted additional
+    permissions described in the GCC Runtime Library Exception, version
+    3.1, as published by the Free Software Foundation.
+
+    You should have received a copy of the GNU General Public License and
+    a copy of the GCC Runtime Library Exception along with this program;
+    see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+    <http://www.gnu.org/licenses/>.  */
+
+    #include "riscv-asm.h"
+
+    .text
+    .align 2
+
+    #if __riscv_xlen == 32
+    /* Our RV64 64-bit routine is equivalent to our RV32 32-bit routine.  */
+    # define __muldi3 __mulsi3
+    #endif
+
+    FUNC_BEGIN (__muldi3)
+    mv     a2, a0
+    li     a0, 0
+    .L1:
+    andi   a3, a1, 1
+    beqz   a3, .L2
+    add    a0, a0, a2
+    .L2:
+    srli   a1, a1, 1
+    slli   a2, a2, 1
+    bnez   a1, .L1
+    ret
+    FUNC_END (__muldi3)
+    ```
+
+- 128位
+
+    来自[`libgcc/config/riscv/multi3.c`](https://gcc.gnu.org/git/?p=gcc.git;a=blob_plain;f=libgcc/config/riscv/multi3.c;hb=HEAD)
+
+    ```c
+    /* Multiplication two double word integers for RISC-V.
+
+    Copyright (C) 2016-2026 Free Software Foundation, Inc.
+
+    This file is part of GCC.
+
+    GCC is free software; you can redistribute it and/or modify it under
+    the terms of the GNU General Public License as published by the Free
+    Software Foundation; either version 3, or (at your option) any later
+    version.
+
+    GCC is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    Under Section 7 of GPL version 3, you are granted additional
+    permissions described in the GCC Runtime Library Exception, version
+    3.1, as published by the Free Software Foundation.
+
+    You should have received a copy of the GNU General Public License and
+    a copy of the GCC Runtime Library Exception along with this program;
+    see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+    <http://www.gnu.org/licenses/>.  */
+
+    #include "tconfig.h"
+    #include "tsystem.h"
+    #include "coretypes.h"
+    #include "tm.h"
+    #include "libgcc_tm.h"
+    #define LIBGCC2_UNITS_PER_WORD (__riscv_xlen / 8)
+
+    #include "libgcc2.h"
+
+    #if __riscv_xlen == 32
+    /* Our RV64 64-bit routines are equivalent to our RV32 32-bit routines.  */
+    # define __multi3 __muldi3
+    #endif
+
+    DWtype
+    __multi3 (DWtype u, DWtype v)
+    {
+    const DWunion uu = {.ll = u};
+    const DWunion vv = {.ll = v};
+    DWunion w;
+    UWtype u_low = uu.s.low;
+    UWtype v_low = vv.s.low;
+    UWtype u_low_msb;
+    UWtype w_low = 0;
+    UWtype new_w_low;
+    UWtype w_high = 0;
+    UWtype w_high_tmp = 0;
+    UWtype w_high_tmp2x;
+    UWtype carry;
+
+    /* Calculate low half part of u and v, and get a UDWtype result just like
+        what __umulsidi3 do.  */
+    do
+        {
+        new_w_low = w_low + u_low;
+        w_high_tmp2x = w_high_tmp << 1;
+        w_high_tmp += w_high;
+        if (v_low & 1)
+        {
+        carry = new_w_low < w_low;
+        w_low = new_w_low;
+        w_high = carry + w_high_tmp;
+        }
+        u_low_msb = (u_low >> ((sizeof (UWtype) * 8) - 1));
+        v_low >>= 1;
+        u_low <<= 1;
+        w_high_tmp = u_low_msb | w_high_tmp2x;
+        }
+    while (v_low);
+
+    w.s.low = w_low;
+    w.s.high = w_high;
+
+    if (uu.s.high)
+        w.s.high = w.s.high + __muluw3(vv.s.low, uu.s.high);
+
+    if (vv.s.high)
+        w.s.high += __muluw3(uu.s.low, vv.s.high);
+
+    return w.ll;
+    }
+    ```
+
+### M拓展
+
+文档：[riscv-isa-manual/src/unpriv/m-st-ext.adoc at main · riscv/riscv-isa-manual](https://github.com/riscv/riscv-isa-manual/blob/main/src/unpriv/m-st-ext.adoc)
+
+我们要实现13种指令：
+
+
+| 指令 | 说明 |
+|------|------|
+| `mul` | 低 64 位乘法（有符号×有符号） |
+| `mulh` | 高 64 位乘法（有符号×有符号） |
+| `mulhu` | 高 64 位乘法（无符号×无符号） |
+| `mulhsu` | 高 64 位乘法（有符号×无符号） |
+| `mulw` | 32 位乘法（结果符号扩展至 64 位） |
+| `div` / `divu` | 有符号/无符号 64 位除法 |
+| `rem` / `remu` | 有符号/无符号 64 位余数 |
+| `divw` / `divuw` | 32 位有符号/无符号除法（结果符号扩展） |
+| `remw` / `remuw` | 32 位有符号/无符号余数（结果符号扩展） |
+
+
+
+### 测试用kernel
+
+```c
+#include <printk.h>
+#include <sbi.h>
+#include <stdint.h>
+
+#define DETAIL  4
+#define BULK    100
+
+extern void soft_mul128(uint64_t a, uint64_t b, uint64_t *hi, uint64_t *lo);
+
+extern uint64_t __udivdi3(uint64_t n, uint64_t d);
+extern uint64_t __umoddi3(uint64_t n, uint64_t d);
+extern int64_t  __divdi3(int64_t n, int64_t d);
+extern int64_t  __moddi3(int64_t n, int64_t d);
+
+extern int32_t  __divsi3(int32_t n, int32_t d);
+extern int32_t  __modsi3(int32_t n, int32_t d);
+extern uint32_t __udivsi3(uint32_t n, uint32_t d);
+extern uint32_t __umodsi3(uint32_t n, uint32_t d);
+
+static uint64_t seed = 0xDEADBEEFCAFEBABEULL;
+
+static uint64_t rand64(void) {
+  seed = seed * 6364136223846793005ULL + 1;
+  return seed;
+}
+
+// static uint64_t get_time(void) {
+//   uint64_t t;
+//   asm volatile("rdtime %0" : "=r"(t));
+//   return t;
+// }
+#define MISC_BASE 0x10002000UL
+
+long get_time(void) {
+  return *(volatile uint64_t *)MISC_BASE;
+}
+
+static uint64_t rand_small(void) {
+  return (rand64() & 0xFFFFF) + 1;
+}
+
+static int64_t rand_signed(void) {
+  return (int64_t)rand64();
+}
+
+static int64_t rand_small_signed(void) {
+  int64_t v = (int64_t)((rand64() & 0xFFFFF) + 1);
+  if (rand64() & 1) v = -v;
+  return v;
+}
+
+_Noreturn void start_kernel(void) {
+  printk("\n============================================\n");
+  printk("=== RISC-V M Extension Full Coverage Test ===\n");
+  printk("============================================\n\n");
+
+  /* ---------- MUL ---------- */
+  {
+    uint64_t total_sw = 0, total_hw = 0;
+    int pass = 0, fail = 0;
+    int total = DETAIL + BULK;
+
+    for (int i = 0; i < total; i++) {
+      uint64_t a = rand64();
+      uint64_t b = rand64();
+      uint64_t sw_r, hw_r, t0, t1, sw_cyc, hw_cyc;
+
+      t0 = get_time();
+      { uint64_t hi, lo; soft_mul128(a, b, &hi, &lo); sw_r = lo; }
+      t1 = get_time();
+      sw_cyc = t1 - t0;
+      total_sw += sw_cyc;
+
+      t0 = get_time();
+      asm volatile("mul %0, %1, %2" : "=&r"(hw_r) : "r"(a), "r"(b));
+      t1 = get_time();
+      hw_cyc = t1 - t0;
+      total_hw += hw_cyc;
+
+      int ok = (sw_r == hw_r);
+      if (ok) pass++; else fail++;
+
+      if (i < DETAIL) {
+        printk("[mul #%d] a=0x%016lx b=0x%016lx\n", i + 1, a, b);
+        printk("  sw=0x%016lx (%lu cyc)  hw=0x%016lx (%lu cyc)  %s\n",
+               sw_r, sw_cyc, hw_r, hw_cyc, ok ? "PASS" : "FAIL");
+      }
+    }
+
+    printk("\n--- mul ---\n");
+    printk("  %d pass, %d fail\n", pass, fail);
+    printk("  sw avg: %lu cycles, hw avg: %lu cycles\n\n",
+           total_sw / total, total_hw / total);
+  }
+
+  /* ---------- mulh ---------- */
+  {
+    uint64_t total_sw = 0, total_hw = 0;
+    int pass = 0, fail = 0;
+    int total = DETAIL + BULK;
+
+    for (int i = 0; i < total; i++) {
+      uint64_t a = (uint64_t)rand_signed();
+      uint64_t b = (uint64_t)rand_signed();
+      uint64_t sw_r, hw_r, t0, t1, sw_cyc, hw_cyc, hi, lo;
+
+      t0 = get_time();
+      soft_mul128(a, b, &hi, &lo);
+      sw_r = hi;
+      if ((int64_t)a < 0) sw_r -= b;
+      if ((int64_t)b < 0) sw_r -= a;
+      t1 = get_time();
+      sw_cyc = t1 - t0;
+      total_sw += sw_cyc;
+
+      t0 = get_time();
+      asm volatile("mulh %0, %1, %2" : "=&r"(hw_r) : "r"(a), "r"(b));
+      t1 = get_time();
+      hw_cyc = t1 - t0;
+      total_hw += hw_cyc;
+
+      int ok = (sw_r == hw_r);
+      if (ok) pass++; else fail++;
+
+      if (i < DETAIL) {
+        printk("[mulh #%d] a=0x%016lx(%ld) b=0x%016lx(%ld)\n",
+               i + 1, a, (int64_t)a, b, (int64_t)b);
+        printk("  sw=0x%016lx (%lu cyc)  hw=0x%016lx (%lu cyc)  %s\n",
+               sw_r, sw_cyc, hw_r, hw_cyc, ok ? "PASS" : "FAIL");
+      }
+    }
+
+    printk("\n--- mulh ---\n");
+    printk("  %d pass, %d fail\n", pass, fail);
+    printk("  sw avg: %lu cycles, hw avg: %lu cycles\n\n",
+           total_sw / total, total_hw / total);
+  }
+
+  /* ---------- mulhu ---------- */
+  {
+    uint64_t total_sw = 0, total_hw = 0;
+    int pass = 0, fail = 0;
+    int total = DETAIL + BULK;
+
+    for (int i = 0; i < total; i++) {
+      uint64_t a = rand64();
+      uint64_t b = rand64();
+      uint64_t sw_r, hw_r, t0, t1, sw_cyc, hw_cyc, hi, lo;
+
+      t0 = get_time();
+      soft_mul128(a, b, &hi, &lo);
+      sw_r = hi;
+      t1 = get_time();
+      sw_cyc = t1 - t0;
+      total_sw += sw_cyc;
+
+      t0 = get_time();
+      asm volatile("mulhu %0, %1, %2" : "=&r"(hw_r) : "r"(a), "r"(b));
+      t1 = get_time();
+      hw_cyc = t1 - t0;
+      total_hw += hw_cyc;
+
+      int ok = (sw_r == hw_r);
+      if (ok) pass++; else fail++;
+
+      if (i < DETAIL) {
+        printk("[mulhu #%d] a=0x%016lx b=0x%016lx\n", i + 1, a, b);
+        printk("  sw=0x%016lx (%lu cyc)  hw=0x%016lx (%lu cyc)  %s\n",
+               sw_r, sw_cyc, hw_r, hw_cyc, ok ? "PASS" : "FAIL");
+      }
+    }
+
+    printk("\n--- mulhu ---\n");
+    printk("  %d pass, %d fail\n", pass, fail);
+    printk("  sw avg: %lu cycles, hw avg: %lu cycles\n\n",
+           total_sw / total, total_hw / total);
+  }
+
+  /* ---------- mulhsu ---------- */
+  {
+    uint64_t total_sw = 0, total_hw = 0;
+    int pass = 0, fail = 0;
+    int total = DETAIL + BULK;
+
+    for (int i = 0; i < total; i++) {
+      uint64_t a = (uint64_t)rand_signed();
+      uint64_t b = rand64();
+      uint64_t sw_r, hw_r, t0, t1, sw_cyc, hw_cyc, hi, lo;
+
+      t0 = get_time();
+      soft_mul128(a, b, &hi, &lo);
+      sw_r = hi;
+      if ((int64_t)a < 0) sw_r -= b;
+      t1 = get_time();
+      sw_cyc = t1 - t0;
+      total_sw += sw_cyc;
+
+      t0 = get_time();
+      asm volatile("mulhsu %0, %1, %2" : "=&r"(hw_r) : "r"(a), "r"(b));
+      t1 = get_time();
+      hw_cyc = t1 - t0;
+      total_hw += hw_cyc;
+
+      int ok = (sw_r == hw_r);
+      if (ok) pass++; else fail++;
+
+      if (i < DETAIL) {
+        printk("[mulhsu #%d] a=0x%016lx(%ld) b=0x%016lx(%lu)\n",
+               i + 1, a, (int64_t)a, b, b);
+        printk("  sw=0x%016lx (%lu cyc)  hw=0x%016lx (%lu cyc)  %s\n",
+               sw_r, sw_cyc, hw_r, hw_cyc, ok ? "PASS" : "FAIL");
+      }
+    }
+
+    printk("\n--- mulhsu ---\n");
+    printk("  %d pass, %d fail\n", pass, fail);
+    printk("  sw avg: %lu cycles, hw avg: %lu cycles\n\n",
+           total_sw / total, total_hw / total);
+  }
+
+  /* ---------- div ---------- */
+  {
+    uint64_t total_sw = 0, total_hw = 0;
+    int pass = 0, fail = 0;
+    int total = DETAIL + BULK;
+
+    for (int i = 0; i < total; i++) {
+      int64_t a = rand_signed();
+      int64_t b = rand_small_signed();
+      int64_t sw_r, hw_r;
+      uint64_t t0, t1, sw_cyc, hw_cyc;
+
+      t0 = get_time();
+      sw_r = __divdi3(a, b);
+      t1 = get_time();
+      sw_cyc = t1 - t0;
+      total_sw += sw_cyc;
+
+      t0 = get_time();
+      asm volatile("div %0, %1, %2" : "=&r"(hw_r) : "r"(a), "r"(b));
+      t1 = get_time();
+      hw_cyc = t1 - t0;
+      total_hw += hw_cyc;
+
+      int ok = (sw_r == hw_r);
+      if (ok) pass++; else fail++;
+
+      if (i < DETAIL) {
+        printk("[div #%d] a=%ld b=%ld\n", i + 1, a, b);
+        printk("  sw=%ld (%lu cyc)  hw=%ld (%lu cyc)  %s\n",
+               sw_r, sw_cyc, hw_r, hw_cyc, ok ? "PASS" : "FAIL");
+      }
+    }
+
+    printk("\n--- div ---\n");
+    printk("  %d pass, %d fail\n", pass, fail);
+    printk("  sw avg: %lu cycles, hw avg: %lu cycles\n\n",
+           total_sw / total, total_hw / total);
+  }
+
+  /* ---------- divu ---------- */
+  {
+    uint64_t total_sw = 0, total_hw = 0;
+    int pass = 0, fail = 0;
+    int total = DETAIL + BULK;
+
+    for (int i = 0; i < total; i++) {
+      uint64_t a = rand64();
+      uint64_t b = rand_small();
+      uint64_t sw_r, hw_r, t0, t1, sw_cyc, hw_cyc;
+
+      t0 = get_time();
+      sw_r = __udivdi3(a, b);
+      t1 = get_time();
+      sw_cyc = t1 - t0;
+      total_sw += sw_cyc;
+
+      t0 = get_time();
+      asm volatile("divu %0, %1, %2" : "=&r"(hw_r) : "r"(a), "r"(b));
+      t1 = get_time();
+      hw_cyc = t1 - t0;
+      total_hw += hw_cyc;
+
+      int ok = (sw_r == hw_r);
+      if (ok) pass++; else fail++;
+
+      if (i < DETAIL) {
+        printk("[divu #%d] a=0x%016lx(%lu) b=0x%016lx(%lu)\n",
+               i + 1, a, a, b, b);
+        printk("  sw=%lu (%lu cyc)  hw=%lu (%lu cyc)  %s\n",
+               sw_r, sw_cyc, hw_r, hw_cyc, ok ? "PASS" : "FAIL");
+      }
+    }
+
+    printk("\n--- divu ---\n");
+    printk("  %d pass, %d fail\n", pass, fail);
+    printk("  sw avg: %lu cycles, hw avg: %lu cycles\n\n",
+           total_sw / total, total_hw / total);
+  }
+
+  /* ---------- rem ---------- */
+  {
+    uint64_t total_sw = 0, total_hw = 0;
+    int pass = 0, fail = 0;
+    int total = DETAIL + BULK;
+
+    for (int i = 0; i < total; i++) {
+      int64_t a = rand_signed();
+      int64_t b = rand_small_signed();
+      int64_t sw_r, hw_r;
+      uint64_t t0, t1, sw_cyc, hw_cyc;
+
+      t0 = get_time();
+      sw_r = __moddi3(a, b);
+      t1 = get_time();
+      sw_cyc = t1 - t0;
+      total_sw += sw_cyc;
+
+      t0 = get_time();
+      asm volatile("rem %0, %1, %2" : "=&r"(hw_r) : "r"(a), "r"(b));
+      t1 = get_time();
+      hw_cyc = t1 - t0;
+      total_hw += hw_cyc;
+
+      int ok = (sw_r == hw_r);
+      if (ok) pass++; else fail++;
+
+      if (i < DETAIL) {
+        printk("[rem #%d] a=%ld b=%ld\n", i + 1, a, b);
+        printk("  sw=%ld (%lu cyc)  hw=%ld (%lu cyc)  %s\n",
+               sw_r, sw_cyc, hw_r, hw_cyc, ok ? "PASS" : "FAIL");
+      }
+    }
+
+    printk("\n--- rem ---\n");
+    printk("  %d pass, %d fail\n", pass, fail);
+    printk("  sw avg: %lu cycles, hw avg: %lu cycles\n\n",
+           total_sw / total, total_hw / total);
+  }
+
+  /* ---------- remu ---------- */
+  {
+    uint64_t total_sw = 0, total_hw = 0;
+    int pass = 0, fail = 0;
+    int total = DETAIL + BULK;
+
+    for (int i = 0; i < total; i++) {
+      uint64_t a = rand64();
+      uint64_t b = rand_small();
+      uint64_t sw_r, hw_r, t0, t1, sw_cyc, hw_cyc;
+
+      t0 = get_time();
+      sw_r = __umoddi3(a, b);
+      t1 = get_time();
+      sw_cyc = t1 - t0;
+      total_sw += sw_cyc;
+
+      t0 = get_time();
+      asm volatile("remu %0, %1, %2" : "=&r"(hw_r) : "r"(a), "r"(b));
+      t1 = get_time();
+      hw_cyc = t1 - t0;
+      total_hw += hw_cyc;
+
+      int ok = (sw_r == hw_r);
+      if (ok) pass++; else fail++;
+
+      if (i < DETAIL) {
+        printk("[remu #%d] a=0x%016lx(%lu) b=0x%016lx(%lu)\n",
+               i + 1, a, a, b, b);
+        printk("  sw=%lu (%lu cyc)  hw=%lu (%lu cyc)  %s\n",
+               sw_r, sw_cyc, hw_r, hw_cyc, ok ? "PASS" : "FAIL");
+      }
+    }
+
+    printk("\n--- remu ---\n");
+    printk("  %d pass, %d fail\n", pass, fail);
+    printk("  sw avg: %lu cycles, hw avg: %lu cycles\n\n",
+           total_sw / total, total_hw / total);
+  }
+
+  /* ---------- mulw ---------- */
+  {
+    uint64_t total_sw = 0, total_hw = 0;
+    int pass = 0, fail = 0;
+    int total = DETAIL + BULK;
+
+    for (int i = 0; i < total; i++) {
+      int32_t a = (int32_t)rand64();
+      int32_t b = (int32_t)rand64();
+      uint64_t sw_r, hw_r, t0, t1, sw_cyc, hw_cyc;
+
+      t0 = get_time();
+      {
+        uint64_t ua = (uint64_t)(int64_t)a;
+        uint64_t ub = (uint64_t)(int64_t)b;
+        uint64_t hi, lo;
+        soft_mul128(ua, ub, &hi, &lo);
+        sw_r = (uint64_t)(int64_t)(int32_t)lo;
+      }
+      t1 = get_time();
+      sw_cyc = t1 - t0;
+      total_sw += sw_cyc;
+
+      t0 = get_time();
+      asm volatile("mulw %0, %1, %2" : "=&r"(hw_r) : "r"((int64_t)a), "r"((int64_t)b));
+      t1 = get_time();
+      hw_cyc = t1 - t0;
+      total_hw += hw_cyc;
+
+      int ok = (sw_r == hw_r);
+      if (ok) pass++; else fail++;
+
+      if (i < DETAIL) {
+        printk("[mulw #%d] a=%d b=%d\n", i + 1, a, b);
+        printk("  sw=%ld (%lu cyc)  hw=%ld (%lu cyc)  %s\n",
+               (int64_t)sw_r, sw_cyc, (int64_t)hw_r, hw_cyc,
+               ok ? "PASS" : "FAIL");
+      }
+    }
+
+    printk("\n--- mulw ---\n");
+    printk("  %d pass, %d fail\n", pass, fail);
+    printk("  sw avg: %lu cycles, hw avg: %lu cycles\n\n",
+           total_sw / total, total_hw / total);
+  }
+
+  /* ---------- divw ---------- */
+  {
+    uint64_t total_sw = 0, total_hw = 0;
+    int pass = 0, fail = 0;
+    int total = DETAIL + BULK;
+
+    for (int i = 0; i < total; i++) {
+      int32_t a = (int32_t)rand64();
+      int32_t b = (int32_t)((rand64() & 0xFFF) + 1);
+      if (rand64() & 1) b = -b;
+      int64_t sw_r, hw_r;
+      uint64_t t0, t1, sw_cyc, hw_cyc;
+
+      t0 = get_time();
+      sw_r = (int64_t)__divsi3(a, b);
+      t1 = get_time();
+      sw_cyc = t1 - t0;
+      total_sw += sw_cyc;
+
+      t0 = get_time();
+      asm volatile("divw %0, %1, %2" : "=&r"(hw_r) : "r"((int64_t)a), "r"((int64_t)b));
+      t1 = get_time();
+      hw_cyc = t1 - t0;
+      total_hw += hw_cyc;
+
+      int ok = (sw_r == hw_r);
+      if (ok) pass++; else fail++;
+
+      if (i < DETAIL) {
+        printk("[divw #%d] a=%d b=%d\n", i + 1, a, b);
+        printk("  sw=%ld (%lu cyc)  hw=%ld (%lu cyc)  %s\n",
+               sw_r, sw_cyc, hw_r, hw_cyc, ok ? "PASS" : "FAIL");
+      }
+    }
+
+    printk("\n--- divw ---\n");
+    printk("  %d pass, %d fail\n", pass, fail);
+    printk("  sw avg: %lu cycles, hw avg: %lu cycles\n\n",
+           total_sw / total, total_hw / total);
+  }
+
+  /* ---------- divuw ---------- */
+  {
+    uint64_t total_sw = 0, total_hw = 0;
+    int pass = 0, fail = 0;
+    int total = DETAIL + BULK;
+
+    for (int i = 0; i < total; i++) {
+      uint32_t a = (uint32_t)rand64();
+      uint32_t b = (uint32_t)((rand64() & 0xFFF) + 1);
+      int64_t sw_r, hw_r;
+      uint64_t t0, t1, sw_cyc, hw_cyc;
+
+      t0 = get_time();
+      sw_r = (int64_t)(int32_t)__udivsi3(a, b);
+      t1 = get_time();
+      sw_cyc = t1 - t0;
+      total_sw += sw_cyc;
+
+      t0 = get_time();
+      asm volatile("divuw %0, %1, %2" : "=&r"(hw_r)
+                   : "r"((int64_t)(int32_t)a), "r"((int64_t)(int32_t)b));
+      t1 = get_time();
+      hw_cyc = t1 - t0;
+      total_hw += hw_cyc;
+
+      int ok = (sw_r == hw_r);
+      if (ok) pass++; else fail++;
+
+      if (i < DETAIL) {
+        printk("[divuw #%d] a=%u b=%u\n", i + 1, a, b);
+        printk("  sw=%ld (%lu cyc)  hw=%ld (%lu cyc)  %s\n",
+               sw_r, sw_cyc, hw_r, hw_cyc, ok ? "PASS" : "FAIL");
+      }
+    }
+
+    printk("\n--- divuw ---\n");
+    printk("  %d pass, %d fail\n", pass, fail);
+    printk("  sw avg: %lu cycles, hw avg: %lu cycles\n\n",
+           total_sw / total, total_hw / total);
+  }
+
+  /* ---------- remw ---------- */
+  {
+    uint64_t total_sw = 0, total_hw = 0;
+    int pass = 0, fail = 0;
+    int total = DETAIL + BULK;
+
+    for (int i = 0; i < total; i++) {
+      int32_t a = (int32_t)rand64();
+      int32_t b = (int32_t)((rand64() & 0xFFF) + 1);
+      if (rand64() & 1) b = -b;
+      int64_t sw_r, hw_r;
+      uint64_t t0, t1, sw_cyc, hw_cyc;
+
+      t0 = get_time();
+      sw_r = (int64_t)__modsi3(a, b);
+      t1 = get_time();
+      sw_cyc = t1 - t0;
+      total_sw += sw_cyc;
+
+      t0 = get_time();
+      asm volatile("remw %0, %1, %2" : "=&r"(hw_r) : "r"((int64_t)a), "r"((int64_t)b));
+      t1 = get_time();
+      hw_cyc = t1 - t0;
+      total_hw += hw_cyc;
+
+      int ok = (sw_r == hw_r);
+      if (ok) pass++; else fail++;
+
+      if (i < DETAIL) {
+        printk("[remw #%d] a=%d b=%d\n", i + 1, a, b);
+        printk("  sw=%ld (%lu cyc)  hw=%ld (%lu cyc)  %s\n",
+               sw_r, sw_cyc, hw_r, hw_cyc, ok ? "PASS" : "FAIL");
+      }
+    }
+
+    printk("\n--- remw ---\n");
+    printk("  %d pass, %d fail\n", pass, fail);
+    printk("  sw avg: %lu cycles, hw avg: %lu cycles\n\n",
+           total_sw / total, total_hw / total);
+  }
+
+  /* ---------- remuw ---------- */
+  {
+    uint64_t total_sw = 0, total_hw = 0;
+    int pass = 0, fail = 0;
+    int total = DETAIL + BULK;
+
+    for (int i = 0; i < total; i++) {
+      uint32_t a = (uint32_t)rand64();
+      uint32_t b = (uint32_t)((rand64() & 0xFFF) + 1);
+      int64_t sw_r, hw_r;
+      uint64_t t0, t1, sw_cyc, hw_cyc;
+
+      t0 = get_time();
+      sw_r = (int64_t)(int32_t)__umodsi3(a, b);
+      t1 = get_time();
+      sw_cyc = t1 - t0;
+      total_sw += sw_cyc;
+
+      t0 = get_time();
+      asm volatile("remuw %0, %1, %2" : "=&r"(hw_r)
+                   : "r"((int64_t)(int32_t)a), "r"((int64_t)(int32_t)b));
+      t1 = get_time();
+      hw_cyc = t1 - t0;
+      total_hw += hw_cyc;
+
+      int ok = (sw_r == hw_r);
+      if (ok) pass++; else fail++;
+
+      if (i < DETAIL) {
+        printk("[remuw #%d] a=%u b=%u\n", i + 1, a, b);
+        printk("  sw=%ld (%lu cyc)  hw=%ld (%lu cyc)  %s\n",
+               sw_r, sw_cyc, hw_r, hw_cyc, ok ? "PASS" : "FAIL");
+      }
+    }
+
+    printk("\n--- remuw ---\n");
+    printk("  %d pass, %d fail\n", pass, fail);
+    printk("  sw avg: %lu cycles, hw avg: %lu cycles\n\n",
+           total_sw / total, total_hw / total);
+  }
+
+  printk("============================================\n");
+  printk("=== All 13 M-extension instructions tested ===\n");
+  printk("============================================\n");
+  printk("Powering off.\n");
+
+  sbi_ecall(0x53525354, 0, 0, 0, 0, 0, 0, 0);
+  __builtin_unreachable();
+}
+```
+
+对于需要测试的13种指令，它会：
+
+1. 执行4次，输出完整过程，用于检验正确性
+2. 执行100次，不输出过程，用于度量速度
+
+### qemu仿真
+
+import qemuMext from "./qemu-mext1.cast?url"
+
+<Asciinema url={qemuMext} />
+
+| 指令名 | 软件算法平均周期 | 硬件算法平均周期 | 加速比 |
+|--------|----------------|----------------|------|
+| mul | 16 | 2 | 8.0000 |
+| mulh | 32 | 3 | 10.6667 |
+| mulhu | 12 | 3 | 4.0000 |
+| mulhsu | 19 | 4 | 4.7500 |
+| div | 32 | 4 | 8.0000 |
+| divu | 12 | 3 | 4.0000 |
+| rem | 20 | 4 | 5.0000 |
+| remu | 15 | 4 | 3.7500 |
+| mulw | 19 | 10 | 1.9000 |
+| divw | 10 | 4 | 2.5000 |
+| divuw | 15 | 3 | 5.0000 |
+| remw | 10 | 4 | 2.5000 |
+| remuw | 11 | 4 | 2.7500 |
+
+
+## 拓展部分： RISC-V M-扩展（乘除法指令）实现
+
+
+
+### 新增结构体与枚举定义
+
+```diff
+--- a/repo/sys-project/include/core_struct.vh
++++ b/repo/sys-project/include/core_struct.vh
++    typedef enum logic [1:0] {
++        FU_NONE, FU_ALU, FU_MEXT
++    } fu_sel_enum;
++
++    typedef enum logic [3:0] {
++        MEXT_MUL,   MEXT_MULH,  MEXT_MULHSU, MEXT_MULHU,
++        MEXT_MULW,  MEXT_DIV,   MEXT_DIVU,   MEXT_DIVW,
++        MEXT_DIVUW, MEXT_REM,   MEXT_REMU,   MEXT_REMW,
++        MEXT_REMUW, MEXT_NONE
++    } mext_op_enum;
++
++    parameter BASE_FUNCT7   = 7'b0000000;
++    parameter ALT_FUNCT7    = 7'b0100000;
++    parameter MULDIV_FUNCT7 = 7'b0000001;
+```
+
+- `fu_sel_enum`：功能单元选择枚举，新增 `FU_MEXT` 表示乘除法单元，原有的整数运算走 `FU_ALU`。
+- `mext_op_enum`：乘除法操作码枚举，覆盖全部 RV64M 指令（12 种），用于在流水线各级传递具体操作类型。
+- `MULDIV_FUNCT7 = 7'b0000001`：M-扩展指令的 funct7 常量。RISC-V 规范中，乘除法指令共享 `OP` (0110011) 或 `OP-32` (0111011) 操作码，通过 `funct7 = 0000001` 区分。
+- 同时将原有的 `7'b0000000` 和 `7'b0100000` 抽象为 `BASE_FUNCT7` / `ALT_FUNCT7`。
+
+**管道寄存器新增字段**（`PipelinePack::IDEXE` 等）：
+
+```diff
++        fu_sel_enum         fu_sel;
++        mext_op_enum        mext_op;
+```
+
+在 ID/EXE 管道寄存器中新增 `fu_sel` 和 `mext_op` 字段，将 Controller 译码的功能单元选择和具体操作码随指令沿流水线向下传递，供 EXE 阶段的 MExtUnit 使用。
+
+### MExtMultiplier 单周期乘法器
+
+```verilog
+module MExtMultiplier (
+    input  logic                  clk,
+    input  logic                  rst,
+    input  logic                  flush,
+    input  logic                  valid_i,
+    input  CorePack::mext_op_enum op_i,
+    input  CorePack::data_t       lhs_i,
+    input  CorePack::data_t       rhs_i,
+    output logic                  valid_o,
+    output CorePack::data_t       result_o
+);
+```
+
+核心逻辑：
+
+```verilog
+    always_comb begin
+        sign_lhs = (op_i == MEXT_MULH) || (op_i == MEXT_MULHSU);
+        sign_rhs = (op_i == MEXT_MULH);
+        lhs_ext = $signed({lhs_i[63] & sign_lhs, lhs_i});
+        rhs_ext = $signed({rhs_i[63] & sign_rhs, rhs_i});
+        product_ext = lhs_ext * rhs_ext;
+
+        case (op_i)
+            MEXT_MULH,
+            MEXT_MULHSU,
+            MEXT_MULHU: result_d = product_ext[127:64];
+            MEXT_MULW:  result_d = {{32{product_ext[31]}}, product_ext[31:0]};
+            default:    result_d = product_ext[63:0];
+        endcase
+    end
+```
+
+- 利用 SystemVerilog 的 `$signed()` 和自动位宽扩展，将 64 位操作数扩展为 65 位后再做乘法，得到一个 130 位的完整积，从而正确区分有符号/无符号高位乘法。
+- `MULH` 取两操作数均为有符号时积的高 64 位，`MULHSU` 取 lhs 有符号、rhs 无符号时积的高 64 位，`MULHU` 取两操作数均为无符号时积的高 64 位。
+- `MULW` 取积的低 32 位符号扩展至 64 位。
+- `MUL` 直接取积的低 64 位。
+- 乘法在 1 拍内完成组合逻辑计算后寄存输出（`valid_o = valid_q`，即一拍延迟）。
+
+### MExtDivider 多周期除法器
+
+```verilog
+module MExtDivider (
+    input  logic                  clk,
+    ...
+    output logic                  ready_o,
+    output logic                  valid_o,
+    input  logic                  ready_i,
+    output CorePack::data_t       result_o
+);
+```
+
+#### 状态机
+
+```verilog
+    typedef enum logic [1:0] {
+        DIV_IDLE,
+        DIV_RUN,
+        DIV_RESULT
+    } div_state_enum;
+```
+
+- `DIV_IDLE`：空闲，接收除法请求。收到 `valid_i` 后检查除零和有符号溢出（`signed_overflow`），条件成立则 1 拍出结果进入 `DIV_RESULT`，否则进入 `DIV_RUN` 进行逐位迭代。
+- `DIV_RUN`：执行恢复余数算法，每拍处理一个 bit，从高位向低位迭代。
+- `DIV_RESULT`：等待外部 `ready_i` 握手后返回 `DIV_IDLE`。
+
+#### 前处理（绝对值、除零检测、符号分离）
+
+```verilog
+    always_comb begin
+        signed_op = is_signed_op(op_i);
+        word_op   = is_word_op(op_i);
+        rem_op    = is_rem_op(op_i);
+        // 符号扩展 / 零扩展 32 位操作数
+        if (word_op) begin
+            if (signed_op) lhs_eff = sext32(lhs_i[31:0]);
+            else           lhs_eff = {32'b0, lhs_i[31:0]};
+            ...
+        end
+        lhs_neg = signed_op && lhs_eff[63];
+        rhs_neg = signed_op && rhs_eff[63];
+        lhs_abs = lhs_neg ? (~lhs_eff + 1) : lhs_eff;
+        rhs_abs = rhs_neg ? (~rhs_eff + 1) : rhs_eff;
+
+        div_by_zero = (rhs_eff == 0);
+        signed_overflow = (lhs_i == INT64_MIN && rhs_i == -1) || (lhs_i[31:0] == INT32_MIN && rhs_i[31:0] == -1);
+```
+
+- 对 DIVW/DIVUW/REMW/REMUW 等 W 变体，先按有符号/无符号扩展或截取低 32 位再操作。
+- 取绝对值后进入迭代，符号信息保存在 `quotient_neg_q` 和 `remainder_neg_q` 中，迭代完成后再还原符号。
+- 除零时：除法返回全 1 (`0xffff_ffff_ffff_ffff`)，取余返回被除数本身。
+- 有符号溢出（`INT64_MIN / -1`）时：除法返回被除数，取余返回 0。
+
+#### 恢复余数迭代算法
+
+```verilog
+    always_comb begin
+        current_dividend_bit = dividend_q[bit_index_q];
+        shifted_remainder = {remainder_q[63:0], current_dividend_bit};
+        divisor_ext = {1'b0, divisor_q};
+        subtract_en = (shifted_remainder >= divisor_ext);
+        next_remainder = subtract_en ? (shifted_remainder - divisor_ext) : shifted_remainder;
+        next_quotient[bit_index_q] = subtract_en;
+    end
+```
+
+- 每拍将余数左移 1 位并补入被除数的当前 bit。
+- 比较移位后的余数与除数：若大于等于则减去除数，并将商的对应位设为 1；否则保持并设 0。
+- 64 位操作需 64 拍，32 位 W 变体需 32 拍（通过 `bit_index_q` 的初值控制：word_op 时初值 31，否则 63）。
+- 迭代完成后，根据符号标志对商和余数取反、按 W 变体做符号/零扩展。
+
+#### 握手协议
+
+```verilog
+    assign ready_o = (state_q == DIV_IDLE);
+    assign valid_o = (state_q == DIV_RESULT);
+```
+
+除法器使用 valid/ready 握手接口：`ready_o` 表示可接收新请求，`valid_o` 表示结果已就绪。这样 MExtUnit 的顶层状态机可以统一调度除法和乘法。
+
+### MExtUnit 多周期乘除法调度
+
+```verilog
+module MExtUnit (
+    input  logic                  clk,
+    input  logic                  rst,
+    input  logic                  flush,
+    input  logic                  req_valid_i,
+    input  CorePack::mext_op_enum op_i,
+    input  CorePack::data_t       lhs_i,
+    input  CorePack::data_t       rhs_i,
+    output logic                  req_ready_o,
+    output logic                  result_valid_o,
+    input  logic                  result_ready_i,
+    output CorePack::data_t       result_o
+);
+```
+
+#### 状态机设计
+
+```verilog
+    typedef enum logic [1:0] {
+        MEXT_IDLE,
+        MEXT_MUL_WAIT,
+        MEXT_DIV_WAIT,
+        MEXT_RESULT
+    } mext_state_enum;
+```
+
+- `MEXT_IDLE`：空闲。`req_ready_o = 1`，可接收请求。根据 `op_i` 判断是乘法还是除法，分别启动对应的子模块。
+- `MEXT_MUL_WAIT`：等待乘法器输出 `mul_valid`。乘法为定长延迟（1 拍），收到后立即存结果切至 `MEXT_RESULT`。
+- `MEXT_DIV_WAIT`：等待除法器输出 `div_valid`。除法数据路径中的 `ready_i` 始终接 `(state_q == MEXT_DIV_WAIT)`，除法完成时取结果。
+- `MEXT_RESULT`：`result_valid_o = 1`，等待外部 `result_ready_i` 握手后切回 `MEXT_IDLE`。
+
+#### 操作类型分发
+
+```verilog
+    function automatic logic is_mul_op(input mext_op_enum op);
+        is_mul_op = (op == MEXT_MUL)  || (op == MEXT_MULH) ||
+                    (op == MEXT_MULHSU) || (op == MEXT_MULHU) ||
+                    (op == MEXT_MULW);
+    endfunction
+
+    function automatic logic is_div_op(input mext_op_enum op);
+        is_div_op = (op == MEXT_DIV)   || (op == MEXT_DIVU)  ||
+                    (op == MEXT_DIVW)  || (op == MEXT_DIVUW) ||
+                    (op == MEXT_REM)   || (op == MEXT_REMU)  ||
+                    (op == MEXT_REMW)  || (op == MEXT_REMUW);
+    endfunction
+```
+
+MExtUnit 内部例化了 `MExtMultiplier` 和 `MExtDivider`，通过 `is_mul_op` / `is_div_op` 将请求分发到对应的子单元。两个子单元可以独立保持流水但互不干扰（当前设计不在 ME 单元内并行执行——状态机在同一时刻只处理一个请求）。
+
+### Controller 译码与非法指令检测更新
+
+#### 指令类型识别
+
+在原有译码逻辑基础上，新增 M-extension 指令识别：
+
+```verilog
+    assign is_mext_reg  = is_reg && (funct7 == MULDIV_FUNCT7);
+    assign is_mext_regw = is_regw && (funct7 == MULDIV_FUNCT7) &&
+                          ((funct3 == 3'b000) || (funct3[2] == 1'b1));
+    assign is_mext      = is_mext_reg || is_mext_regw;
+```
+
+M-扩展指令位于 `OP`（0110011）或 `OP-32`（0111011）操作码空间，通过 `funct7 = 0000001` 区分。对于 RV64 的 W 变体，合法的 funct3 编码为 `000`（MULW）和 `1xx`（DIVW/DIVUW/REMW/REMUW），通过 `funct3[2] == 1` 快速筛选。
+
+#### 功能单元选择
+
+```verilog
+    always_comb begin
+        if (is_mext) begin
+            fu_sel = FU_MEXT;
+        end else if (is_load | is_store | is_branch | is_jal | is_jalr |
+                     is_lui | is_auipc | is_imm | is_immw | is_reg | is_regw) begin
+            fu_sel = FU_ALU;
+        end else begin
+            fu_sel = FU_NONE;
+        end
+    end
+```
+
+#### MEXT 操作码译码
+
+```verilog
+    always_comb begin
+        mext_op = MEXT_NONE;
+        if (is_mext_reg) begin
+            case (funct3)
+                3'b000: mext_op = MEXT_MUL;
+                3'b001: mext_op = MEXT_MULH;
+                3'b010: mext_op = MEXT_MULHSU;
+                3'b011: mext_op = MEXT_MULHU;
+                3'b100: mext_op = MEXT_DIV;
+                3'b101: mext_op = MEXT_DIVU;
+                3'b110: mext_op = MEXT_REM;
+                3'b111: mext_op = MEXT_REMU;
+            endcase
+        end else if (is_mext_regw) begin
+            case (funct3)
+                3'b000: mext_op = MEXT_MULW;
+                3'b100: mext_op = MEXT_DIVW;
+                3'b101: mext_op = MEXT_DIVUW;
+                3'b110: mext_op = MEXT_REMW;
+                3'b111: mext_op = MEXT_REMUW;
+            endcase
+        end
+    end
+```
+
+#### ALU 操作码
+
+当 `is_mext` 为真时，ALU 操作设为 `ALU_DEFAULT`（直通），因为实际运算在 MExtUnit 中完成，ALU 结果不被使用（后续流水线通过 `exe_result` 选择 MEXT 结果而非 `alu_res`）。
+
+```verilog
+    always_comb begin
+        if (is_mext)
+            alu_op = ALU_DEFAULT;
+        ...
+```
+
+#### 新增非法指令检测
+
+在 Controller 中实现了覆盖全部指令 **opcode × funct3 × funct7** 的合法性检查，输出 `illegal_inst` 信号：
+
+```verilog
+    always_comb begin
+        illegal_inst = 1'b0;
+        case (opcode)
+            LOAD_OPCODE:   illegal_inst = !(funct3 in {LB,LH,LW,LD,LBU,LHU,LWU});
+            STORE_OPCODE:  illegal_inst = !(funct3 in {SB,SH,SW,SD});
+            BRANCH_OPCODE: illegal_inst = !(funct3 in {BEQ,BNE,BLT,BGE,BLTU,BGEU});
+            JAL_OPCODE, LUI_OPCODE, AUIPC_OPCODE: illegal_inst = 1'b0;
+            JALR_OPCODE:   illegal_inst = (funct3 != 3'b000);
+            IMM_OPCODE:    // 检查 funct3 + funct7 合法性（SLL/SRL/SRA）
+            IMMW_OPCODE:   // 检查 funct3 + funct7 合法性（SLLW/SRLW/SRAW）
+            REG_OPCODE: begin
+                case (funct7)
+                    BASE_FUNCT7:   illegal_inst = 1'b0;
+                    ALT_FUNCT7:    illegal_inst = !(funct3 == ADD || funct3 == SRL);
+                    MULDIV_FUNCT7: illegal_inst = 1'b0;  // M-extension 全部合法
+                    default:       illegal_inst = 1'b1;
+                endcase
+            end
+            REGW_OPCODE: begin
+                case (funct7)
+                    BASE_FUNCT7: illegal_inst = !(funct3 in {ADDW,SLLW,SRLW});
+                    ALT_FUNCT7:  illegal_inst = !(funct3 in {ADDW,SRLW});
+                    MULDIV_FUNCT7: illegal_inst = !(funct3 == 000 || funct3[2] == 1);
+                    default: illegal_inst = 1'b1;
+                endcase
+            end
+            CSR_OPCODE:    // 检查 ECALL/EBREAK/MRET/SRET/SFENCE 及各 CSR 指令
+            default: illegal_inst = 1'b1;
+        endcase
+    end
+```
+
+与非法的 `inst[1:0] != 2'b11` 检测不同，此处的 `illegal_inst` 能精确区分 **合法 M-扩展指令** 和真正未定义的指令编码。控制器随后将 `illegal_inst` 用于门控所有写使能信号（`we_reg`、`we_mem`、`re_mem`、`we_csr`），防止非法指令产生副作用。
+
+### Core 接入M拓展
+
+#### mext_wait 停顿机制
+
+多周期乘除法指令的核心问题是在流水线中产生可变长停顿。为此引入了 `mext_wait` 信号：
+
+```verilog
+    assign mext_instr_exe = idexe_reg.valid && (idexe_reg.fu_sel == FU_MEXT);
+    assign mext_wait = mext_instr_exe && !mext_result_valid;
+```
+
+`mext_wait` 的条件是：EXE 阶段有一条有效的 M-扩展指令，且 MExtUnit 尚未返回结果。该信号被注入到流水线的多个停顿点：
+
+1. **IF 阶段取指停顿**：`fetch_fire_if`、PC 更新、IF/ID 寄存器写入均需 `~mext_wait`。
+2. **ID/EXE 寄存器**：`mext_wait` 时保持 ID/EXE 不变（函数同 `global_stall`）。
+3. **EXE/MEM 寄存器**：`mext_wait` 时写入气泡（各级控制信号清零），这是因为 EXE 阶段的乘除法指令不能在这一拍进入 MEM 阶段。
+4. **异常传递**：ID 阶段异常检查的 stall 加上了 `mext_wait`，EXE→MEM 异常寄存器的 flush 条件增加 `mext_wait && !global_stall`。
+
+这种停顿机制保证了：多周期乘除法期间，IF/ID 阶段暂停取指，ID/EXE 保持当前指令不变，EXE/MEM 后续各级被清空气泡（NOP）。当 MExtUnit 的结果就绪后（`mext_result_valid` 变高），`mext_wait` 解除，指令正常流出。
+
+#### 结果选择与前递
+
+```verilog
+    data_t exe_result;
+    assign exe_result = (idexe_reg.fu_sel == FU_MEXT) ? mext_result : alu_res;
+```
+
+EXE 阶段的最终结果根据 `fu_sel` 选择 MExtUnit 输出或 ALU 输出。对于 M-扩展指令，写入 EXE/MEM 管道的 `alu_res` 字段实际是 `exe_result`（即 `mext_result`）。
+
+在前递路径中，MExtUnit 的结果也需要被纳入前递网络：
+
+```verilog
+    always_comb begin
+        if (idexe_reg.we_csr) fwd_idexe = idexe_reg.csr_val;
+        else if (idexe_reg.fu_sel == FU_MEXT) fwd_idexe = mext_result;
+        else if (idexe_reg.wb_sel == WB_SEL_PC) fwd_idexe = idexe_reg.pc_4;
+        else fwd_idexe = alu_res;
+        ...
+    end
+```
+
+当 EXE 阶段的前递源是 M-扩展指令时，直接从 `mext_result` 取值。这意味着乘除法指令的结果在 `result_valid_o` 为高的当拍就能被后续 ID 阶段的指令通过 forwarding 使用。
+
+#### 握手时序
+
+```verilog
+    assign mext_result_ready = mext_result_valid && !global_stall && !csr_flush && !translation_flush;
+
+    MExtUnit u_mext (
+        .req_valid_i(mext_instr_exe && !global_stall && !flush_imem),
+        ...
+        .result_ready_i(mext_result_ready),
+        ...
+    );
+```
+
+- `req_valid_i`：乘除法指令进入 EXE 且流水线未被阻塞/冲刷时，向 MExtUnit 发起计算请求。
+- `result_ready_i`：MExtUnit 输出有效结果且流水线能接收时，取走结果（MExtUnit 回到 IDLE）。
+
+
+### 仿真
+
+
+import realMext from "./real-mext1.cast?url"
+
+<Asciinema url={realMext} />
+
+| 指令名 | 软件算法平均周期 | 硬件算法平均周期 | 加速比 |
+|--------|----------------|----------------|------|
+| mul | 3118 | 30 | 103.9333 |
+| mulh | 3173 | 30 | 105.7667 |
+| mulhu | 3135 | 30 | 104.5000 |
+| mulhsu | 3149 | 30 | 104.9667 |
+| div | 1570 | 93 | 16.8817 |
+| divu | 1580 | 93 | 16.9892 |
+| rem | 1582 | 93 | 17.0108 |
+| remu | 1592 | 93 | 17.1183 |
+| mulw | 2439 | 30 | 81.3000 |
+| divw | 822 | 60 | 13.7000 |
+| divuw | 851 | 60 | 14.1833 |
+| remw | 806 | 60 | 13.4333 |
+| remuw | 852 | 60 | 14.2000 |
