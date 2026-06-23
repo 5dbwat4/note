@@ -1,3 +1,7 @@
+---
+title: HDFS使用cheatsheet
+---
+
 # List files in HDFS
 /opt/hadoop/bin/hdfs dfs -ls /
 
