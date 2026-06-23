@@ -1,4 +1,4 @@
 export default {
-    "entries":[],
+    "entries":"auto",
     "name":"BruceJqs's DB Notes"
 }                       
