@@ -1,3 +1,7 @@
+---
+title: 第 12 章 物理存储系统
+---
+
 # 物理存储系统
 
 在前面各章中，我们强调了数据库较高层的模型。例如，在概念层或逻辑层上，我们认为关系模型中的数据库是表的集合。实际上，数据库的逻辑模型正是数据库用户所关注的恰当层次。这是因为数据库系统的目标是简化和协助对数据的访问；数据库系统的用户不应当被系统实现的物理细节所困扰。
@@ -36,7 +40,7 @@
 
 根据不同存储介质的速度和成本，可以把它们按层次结构组织起来（见图12-1）。层次越高的存储介质的成本越贵，但是速度越快。当我们沿着层次结构向下，存储介质每比特的成本下降，但是访问时间会增加。这种权衡是合理的：如果在其他性质相同的情况下，一个给定的存储系统比另外的存储系统快且便宜，那么就没有理由使用那种又慢又昂贵的存储器了。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/7385b99b-0419-481e-a6fb-46261fbfe9eb/d32f430671780dcd50176e88db2d5b2cc919ae3d467e78af51859042badc61c4.jpg)
+![image](./assets/d32f430671780dcd50176e88db2d5b2cc919ae3d467e78af51859042badc61c4.jpg)
 
 
 
@@ -51,7 +55,7 @@
 
 磁盘以及基于闪存的固态硬盘通过高速互连连接到计算机系统。磁盘通常支持串行 ATA（Serial ATA，SATA）接口或串行连接的 SCSI（Serial Attached SCSI，SAS）接口。SAS 接口通常仅在服务器中使用。SATA 的 SATA-3 版本名义上支持每秒传输 6 GB 的数据，实际允许每秒最多传输 600 MB 的数据，而 SAS 的版本 3 所支持的数据传输速率为每秒 12 GB。非易失性存储器标准（Non-Volatile Memory Express，NVMe）接口是为了更好地支持 SSD 而开发的逻辑接口标准，并且通常与 PCIe 接口一起使用（PCIe 接口提供计算机系统内部的高速数据传输）。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/7385b99b-0419-481e-a6fb-46261fbfe9eb/a05e698989b1be8eafb9601dacbff8c2af3e3992252eba8f8b88c67a3c4c0ef5.jpg)
+![image](./assets/a05e698989b1be8eafb9601dacbff8c2af3e3992252eba8f8b88c67a3c4c0ef5.jpg)
 
 
 而磁盘通常可以通过电缆直接连接到计算机系统的磁盘接口，它们也可以被远程放置并通过高速网络连接到计算机。在存储区域网（Storage Area Network，SAN）体系结构中，大量的磁盘通过高速网络与许多服务器机相连。通常采用一种称作独立磁盘冗余阵列（Redundant Arrays of Independent Disks，RAID）（将在后面12.5节中介绍）的存储组织技术来对磁盘进行本地组织，以便为服务器提供一个非常大的并且非常可靠的磁盘的逻辑视图。在存储区域网中使用的互连技术包括：iSCSI，它允许在IP网络上发送SCSI命令；光纤通道（Fiber Channel，FC），它支持每秒 1.6 GB 至 12 GB 的传输速率，具体取决于其版本；以及 InfiniBand，它提供了非常低延迟的高带宽网络通信。
@@ -68,14 +72,14 @@
 
 图 12-2 显示了磁盘的示意图，而图 12-3 显示了实际磁盘的内部结构。每张磁盘的盘片（platter）具有扁平的圆形形状。它的两个表面被磁性材料覆盖，并且信息被记录在其表面上。盘片是由硬质金属或玻璃制成的。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/7385b99b-0419-481e-a6fb-46261fbfe9eb/fc4f269dbe1db5c030103e017118437f4bb1633c454b07fda7f1e0be6f0d38f1.jpg)
+![image](./assets/fc4f269dbe1db5c030103e017118437f4bb1633c454b07fda7f1e0be6f0d38f1.jpg)
 
 
 
 图12-2 磁盘的示意图
 
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/7385b99b-0419-481e-a6fb-46261fbfe9eb/f0dab7e2bba5176b98271372540258edbc2e63f12d2ac902e72d0747cd5ac0d2.jpg)
+![image](./assets/f0dab7e2bba5176b98271372540258edbc2e63f12d2ac902e72d0747cd5ac0d2.jpg)
 
 
 
@@ -194,7 +198,7 @@ SSD 的性能通常被表示为:
 
 镜像提供了高可靠性，但它很昂贵。拆分提供了高数据传输率，但并未提高可靠性。各
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/7385b99b-0419-481e-a6fb-46261fbfe9eb/587fa2f2f10a48fdae49b978c98790dcebcb7e09c848b35900ffd1b8db8770c7.jpg)
+![image](./assets/587fa2f2f10a48fdae49b978c98790dcebcb7e09c848b35900ffd1b8db8770c7.jpg)
 
 
 种替代方案旨在通过结合磁盘拆分和“奇偶校验块”，以较低的代价提供冗余。
@@ -493,7 +497,7 @@ b. RAID 5 级（块级拆分，分布的奇偶校验）
 
 
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/7385b99b-0419-481e-a6fb-46261fbfe9eb/8c216cb929d4351fe66ff8ccdb3530ea00ac7081553c29fb046200f8047d57cb.jpg)
+![image](./assets/8c216cb929d4351fe66ff8ccdb3530ea00ac7081553c29fb046200f8047d57cb.jpg)
 
 
 

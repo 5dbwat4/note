@@ -1,3 +1,7 @@
+---
+title: 第 16 章 查询优化
+---
+
 ## 查询优化
 
 为了处理一个给定的查询，尤其是复杂查询，通常会有许多种可能的策略，查询优化（query optimization）就是从这许多策略中选出最高效的查询执行计划的处理过程。我们并不期望用户编写出能够被高效处理的查询。相反，我们期望系统构造一个能够让查询执行代价最小化的查询执行计划。这正是查询优化起作用的地方。
@@ -24,14 +28,14 @@ $$
 
 一个执行计划确切地定义了每种运算应使用的算法，以及运算之间的执行应该如何协调。图16-2说明了图16-1b的表达式的一个可能的执行计划。正如我们已看到的，对于每种关系运算可以使用几种不同的算法，从而产生可替代的执行计划。在图16-2中，对于其中一个连接运算选择了散列－连接，而对于另一个则在连接属性ID上将关系排序后，选用归并－连接。假定所有边都是流水线化的，除了被标记为物化的边之外。对于流水线化的边，生产者的输出直接送给消费者，而不会被写出到磁盘；另一方面，对于物化的边，输出将被写到磁盘，然后再由消费者从磁盘读取。在图 16-2 的执行计划中不存在物化的边，尽管一些运算符（如排序和散列－连接）可以使用其间有物化的边的子运算符来表示，正如我们在 15.7.2.2 节中所看到的。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/4a307f9e-b522-49d1-ae35-21071638701f/62cc95c2d28ecb8ea4ad87e159bca866164c076e9d3e74152eef37166fc1d5fa.jpg)
+![image](./assets/62cc95c2d28ecb8ea4ad87e159bca866164c076e9d3e74152eef37166fc1d5fa.jpg)
 
 
 
 a) 初始表达式树
 
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/4a307f9e-b522-49d1-ae35-21071638701f/89201a7bd013f2c13a9274daa68194cc8f9d83dec4ccb0063e87f0ada8dbb16a.jpg)
+![image](./assets/89201a7bd013f2c13a9274daa68194cc8f9d83dec4ccb0063e87f0ada8dbb16a.jpg)
 
 
 
@@ -46,7 +50,7 @@ b) 转换后的表达式树
 
 我们在图 16-1 中看到的表达式未必会产生对于计算结果具有最低代价的执行计划，因为它仍然计算整个 teaches 关系与 course 关系的连接。下面的表达式给出了相同的最终结果，但是产生了更小的中间结果，因为它只将 teaches 与对应于音乐系的 instructor 元组进行连接，然后将此结果再与 course 进行连接。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/4a307f9e-b522-49d1-ae35-21071638701f/3a0a74dfc7e6ef44cdc946434ca42d4fc34ede001c95ff4a7f17abde0b1b277f.jpg)
+![image](./assets/3a0a74dfc7e6ef44cdc946434ca42d4fc34ede001c95ff4a7f17abde0b1b277f.jpg)
 
 
 
@@ -103,7 +107,7 @@ $$
 
 下面描述关系代数表达式上的一些等价规则。图 16-3 展示了某些等价式。我们用 $\theta$ 、 $\theta_{1}$ 、 $\theta_{2}$ 等来表示谓词，用 $L_{1}$ 、 $L_{2}$ 、 $L_{3}$ 等来表示属性列表，并且用 E、 $E_{1}$ 、 $E_{2}$ 等来表示关系代数表达式。关系名 r 是关系代数表达式的一个特例，并且可以用在 E 出现的任何地方。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/4a307f9e-b522-49d1-ae35-21071638701f/e1ff6b6789d0418e54b15832f05f8320464a78eafc35272c3c23ba48d2c16f0f.jpg)
+![image](./assets/e1ff6b6789d0418e54b15832f05f8320464a78eafc35272c3c23ba48d2c16f0f.jpg)
 
 
 
@@ -112,7 +116,7 @@ $$
 
 1. 合取选择运算可分解为单个选择运算的序列。该变换称为 $\sigma$ 的级联：
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/4a307f9e-b522-49d1-ae35-21071638701f/7af6f1937c7b848ff281f608386e98e511682220ae0b632eff0d3f968733772f.jpg)
+![image](./assets/7af6f1937c7b848ff281f608386e98e511682220ae0b632eff0d3f968733772f.jpg)
 
 
 $$
@@ -367,14 +371,14 @@ $$
 
 初始表达式以及经过上述所有转换后的最终表达式的图形化表示如图 16-4 所示。我们也可以应用规则 7.b 来直接得到等价的最终表达式，而不必用规则 1 将选择条件分解为两个选择条件。事实上，规则 7.b 本身可由规则 1 及规则 7.a 推导出来。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/4a307f9e-b522-49d1-ae35-21071638701f/382355b117e0bb159b4816b9d40c1501fa89ad2d898ab9ec343f19955f153c25.jpg)
+![image](./assets/382355b117e0bb159b4816b9d40c1501fa89ad2d898ab9ec343f19955f153c25.jpg)
 
 
 
 a) 初始表达式树
 
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/4a307f9e-b522-49d1-ae35-21071638701f/7c5ba8af94afd9adb36448746a175eecc13f1c7bcefea1cb8e5ce93ecd0c9827.jpg)
+![image](./assets/7c5ba8af94afd9adb36448746a175eecc13f1c7bcefea1cb8e5ce93ecd0c9827.jpg)
 
 
 
@@ -542,7 +546,7 @@ $$
 
 这里提到的统计信息是简化过的。现实的优化器经常维护更深入的统计信息，以提高执行计划的代价评估的精确度。例如，大多数数据库将每个属性的取值分布存储成一张直方图（histogram）：在直方图中，属性的取值被拆分成若干个区间，并且对于每个区间，直方图将属性值落在每个区间中的元组个数与该区间相关联。图16-6展示了一个对于整数型属性取值在1到25之间的直
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/4a307f9e-b522-49d1-ae35-21071638701f/0de79dbf72b9d2d62cccf5d78288e5570173a5ae9b9e336afe62f60e26a1a055.jpg)
+![image](./assets/0de79dbf72b9d2d62cccf5d78288e5570173a5ae9b9e336afe62f60e26a1a055.jpg)
 
 
 
@@ -635,7 +639,7 @@ $$
 
 我们可以通过估计对条件 $\theta$ 的求值结果为未知的元组数量然后从上面忽略空值的估算中减去该数量的方式来考虑空值。对该数量的估计需要在目录中维护额外的统计信息。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/4a307f9e-b522-49d1-ae35-21071638701f/13aa98dda2751f49caf3c3cd22c677d9e2dd4eb4e3aec63d297b3d58088af048.jpg)
+![image](./assets/13aa98dda2751f49caf3c3cd22c677d9e2dd4eb4e3aec63d297b3d58088af048.jpg)
 
 
 ## 16.3.3 连接规模估计
@@ -886,14 +890,14 @@ n 个关系的子集总数是 $2^{n}$ ，但有趣的排序次序的数量一般
 
 图 16-8 说明了左深连接树与非左深连接树之间的区别。考虑所有左深连接次序所花费的时间代价是 $O(n!)$ ，这比考虑所有连接次序的时间要少得多。使用动态规划的优化方法，System R 优化器可以在 $O(n2^{n})$ 的时间内找到最佳连接次序。请把这一代价同找出总体上最佳的连接次序所需的时间 $O(3^n)$ 进行比较。System R 优化器使用启发式方法来将选择与投影沿着查询树往下推。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/4a307f9e-b522-49d1-ae35-21071638701f/1d0a072af40a39026d43e3a31745c0c1344f1c9744e20821ef44ea2ffbe8048d.jpg)
+![image](./assets/1d0a072af40a39026d43e3a31745c0c1344f1c9744e20821ef44ea2ffbe8048d.jpg)
 
 
 
 a) 左深连接树
 
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/4a307f9e-b522-49d1-ae35-21071638701f/87a69547b471099ee93cdd73683fc7566d3f2d4d1ccd75d8f12c0a9e9ebd99a9.jpg)
+![image](./assets/87a69547b471099ee93cdd73683fc7566d3f2d4d1ccd75d8f12c0a9e9ebd99a9.jpg)
 
 
 
@@ -1471,7 +1475,7 @@ b. 当不是在外码上进行连接时。
 
 
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/4a307f9e-b522-49d1-ae35-21071638701f/9f7d31ce9b1657c32123fc071849eaaf879bf468f1761d08a1f0f13bec1f98e3.jpg)
+![image](./assets/9f7d31ce9b1657c32123fc071849eaaf879bf468f1761d08a1f0f13bec1f98e3.jpg)
 
 
 

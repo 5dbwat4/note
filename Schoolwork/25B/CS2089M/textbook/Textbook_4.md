@@ -1,3 +1,9 @@
+---
+title: 第 4 章 中级SQL
+---
+
+# 高级SQL
+
 在本章中我们继续学习 SQL。我们考虑具有更复杂形式的 SQL 查询、视图定义、事务、完整性约束，以及关于 SQL 数据定义和授权的更多详细信息。
 
 ## 4.1 连接表达式
@@ -277,7 +283,7 @@ from student inner join takes using (ID);
 
 图 4-7 给出了我们已讨论的各种连接类型的完全列表。从图中可以看出，任意的连接形式（内连接、左外连接、右外连接或全外连接）可以和任意的连接条件（自然连接、using 条件连接或 on 条件连接）进行组合。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/43636c50-8f1f-4e7e-bb7e-0eb4aa13dfe2/3f164af1d04fa079365267e59db797ae52398dd33fc67a3f7728b24dd8a2f430.jpg)
+![image](./assets/3f164af1d04fa079365267e59db797ae52398dd33fc67a3f7728b24dd8a2f430.jpg)
 
 
 <table><tr><td>连接条件</td></tr><tr><td>natural
@@ -1282,7 +1288,7 @@ grant select on department to Amit with grant option;
 
 假设数据库管理员决定收回用户 $U_{1}$ 的授权。由于 $U_{4}$ 从 $U_{1}$ 处获得过授权，因此该权限也应该被收回。可是， $U_{5}$ 既从 $U_{1}$ 处又从 $U_{2}$ 处获得过授权。由于数据库管理员并没有从 $U_{2}$ 处收回 teaches 上的更新权限，因此 $U_{5}$ 继续拥有 teaches 上的更新权限。如果 $U_{2}$ 最终从 $U_{5}$ 处收回授权，则 $U_{5}$ 将失去权限。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/43636c50-8f1f-4e7e-bb7e-0eb4aa13dfe2/295bcca38a6eed5b82c5d9db1d506cf341d1a329e809cb2b12530d94f2c21915.jpg)
+![image](./assets/295bcca38a6eed5b82c5d9db1d506cf341d1a329e809cb2b12530d94f2c21915.jpg)
 
 
 

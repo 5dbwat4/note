@@ -1,3 +1,7 @@
+---
+title: 第 3 章 SQL 介绍
+---
+
 # SQL 介绍
 
 在本章以及第 4～5 章，我们学习使用最为广泛的数据库查询语言：SQL。
@@ -181,10 +185,10 @@ from instructor;
 
 因为一个系可以有不止一位教师，所以在 instructor 关系中，一个系的名称可能不止一次出现。上述查询的结果是一个包含系名的关系，如图 3-3 所示。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/836a4d65-bd89-4989-9f9b-614148dd5a21/f95ee7fdf98f656a867231d64d47b406d97a73e9a3310b3b61beba78475936b9.jpg)
+![image](./assets/f95ee7fdf98f656a867231d64d47b406d97a73e9a3310b3b61beba78475936b9.jpg)
 
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/836a4d65-bd89-4989-9f9b-614148dd5a21/ea0aa80be6eb3bfddff587a8fa263e14f71e9b63fd101b3459ba32e92e0ffec2.jpg)
+![image](./assets/ea0aa80be6eb3bfddff587a8fa263e14f71e9b63fd101b3459ba32e92e0ffec2.jpg)
 
 
 
@@ -233,7 +237,7 @@ where dept_name = 'Comp. Sci.' and salary > 70000;
 
 如果 instructor 关系如图 2-1 所示，那么上述查询的结果关系如图 3-4 所示。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/836a4d65-bd89-4989-9f9b-614148dd5a21/0a4a94ef9da9f0fbd0e4fc68a603695c06bd029dc36e457c6f1bcfaeb36ca4ef.jpg)
+![image](./assets/0a4a94ef9da9f0fbd0e4fc68a603695c06bd029dc36e457c6f1bcfaeb36ca4ef.jpg)
 
 
 
@@ -352,7 +356,7 @@ where instructor.ID= teaches.ID and instructor.dept_name='Comp. Sci.';
 
 通常说来，一个 SQL 查询的含义可以理解如下：
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/836a4d65-bd89-4989-9f9b-614148dd5a21/a386a733e9c90ad07f2f79b7a8b046b0feaa7c50159b4b7473e8e9f36788496d.jpg)
+![image](./assets/a386a733e9c90ad07f2f79b7a8b046b0feaa7c50159b4b7473e8e9f36788496d.jpg)
 
 
 1. 为 from 子句中列出的关系产生笛卡儿积。
@@ -586,14 +590,14 @@ where semester = 'Spring' and year = 2018;
 
 85 
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/836a4d65-bd89-4989-9f9b-614148dd5a21/b6e718e05d7f82de4e3d2674b4827f70e1e9974f9032c508fb828ebaded7dc2e.jpg)
+![image](./assets/b6e718e05d7f82de4e3d2674b4827f70e1e9974f9032c508fb828ebaded7dc2e.jpg)
 
 
 
 图3-8 $c_{1}$ 关系，列出2017年秋季开设的课程
 
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/836a4d65-bd89-4989-9f9b-614148dd5a21/06220a2002add561e4e75db93842a36d79513c510043fc3c959067e91b8a2ad2.jpg)
+![image](./assets/06220a2002add561e4e75db93842a36d79513c510043fc3c959067e91b8a2ad2.jpg)
 
 
 
@@ -632,7 +636,7 @@ where semester = 'Spring' and year= 2018);
 
 ECE-101 在 2017 年秋季学期开设 4 个课程段，并且在 2018
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/836a4d65-bd89-4989-9f9b-614148dd5a21/e6dfc78d60d70159d73e152437c58b7a2fb125b346afa788f6db3a611e23e9d6.jpg)
+![image](./assets/e6dfc78d60d70159d73e152437c58b7a2fb125b346afa788f6db3a611e23e9d6.jpg)
 
 
 
@@ -663,7 +667,7 @@ intersect 运算自动去除重复 $^{①}$ 。例如，如果存在这样的情
 
 年春季学期开设 2 个课程段，那么在结果中只有 1 个 ECE-87 101 元组。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/836a4d65-bd89-4989-9f9b-614148dd5a21/601672deb13a491de415215dc9db0498968c87846b75edbd00278985649b9185.jpg)
+![image](./assets/601672deb13a491de415215dc9db0498968c87846b75edbd00278985649b9185.jpg)
 
 
 
@@ -704,7 +708,7 @@ except 运算 $^{②}$ 从其第一个输入中输出不出现在第二个输入
 
 此运算在执行集差操作之前自动去除输入中的重复项。例如，如果 ECE-101 在 2017 年秋季学期开设 4 个课程段，并且在 2018 年春季学期开设 2 个课程段，那么在 except 运算的结果中将没有 ECE-101 的任何拷贝。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/836a4d65-bd89-4989-9f9b-614148dd5a21/a81b10fa9a85b624d854f35421b01be7abf635a0be11ece5a86229f8840a4ced.jpg)
+![image](./assets/a81b10fa9a85b624d854f35421b01be7abf635a0be11ece5a86229f8840a4ced.jpg)
 
 
 
@@ -924,7 +928,7 @@ having avg (salary) > 42000;
 
 包含聚集、group by 或 having 子句的查询的含义可通过下述运算序列来定义：
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/836a4d65-bd89-4989-9f9b-614148dd5a21/da8d5caac75b2ba272c3d29150220843ca573383b75a7bc0fa5ae65d5523db52.jpg)
+![image](./assets/da8d5caac75b2ba272c3d29150220843ca573383b75a7bc0fa5ae65d5523db52.jpg)
 
 
 1. 与不带聚集的查询情况类似，首先根据 from 子句来计算出一个关系。
@@ -1738,7 +1742,7 @@ a. 找出 2017 年其车辆出过交通事故的人员总数。
 
 b. 删除 ID 为 '12345' 的人拥有的年份为 2010 的所有汽车。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/836a4d65-bd89-4989-9f9b-614148dd5a21/e3217a2b850967c026e4a41b83ed9cb25f150d759195953401345abeddb82ca3.jpg)
+![image](./assets/e3217a2b850967c026e4a41b83ed9cb25f150d759195953401345abeddb82ca3.jpg)
 
 
 

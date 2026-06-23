@@ -1,3 +1,7 @@
+---
+title: 第 15 章 查询处理
+---
+
 ## 查询处理
 
 查询处理（query processing）是指从数据库中提取数据所涉及的一系列活动。这些活动包括：将用高层数据库语言表示的查询语句翻译为能在文件系统的物理层上使用的表达式、各种查询优化转换，以及查询的实际执行。
@@ -12,7 +16,7 @@
 
 3. 执行。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/a85f0c94-de4b-4910-b279-7e5b779d82e7/27114d6ee384b150068a3e147a59b130c68c527a1a023f7b8973bb371b6e0266.jpg)
+![image](./assets/27114d6ee384b150068a3e147a59b130c68c527a1a023f7b8973bb371b6e0266.jpg)
 
 
 
@@ -45,7 +49,7 @@ execution plan 或 query-evaluation plan)。图 15-2 展示了对于我们的示
 
 对于给定查询的不同执行计划会有不同的代价。我们不能寄希望于用户写出具有最高效率执行计划的查询语句。相反，构造具有最小查询执行代价的查询执行计划应当是系统的责任。这项工作叫作查询优化（query optimization）。第16章将详细介绍查询优化。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/a85f0c94-de4b-4910-b279-7e5b779d82e7/be30ebef2d57c3eec3e050cbd16bb14cdc3fb9585b6d59db5c858c1a543b96d2.jpg)
+![image](./assets/be30ebef2d57c3eec3e050cbd16bb14cdc3fb9585b6d59db5c858c1a543b96d2.jpg)
 
 
 
@@ -248,7 +252,7 @@ until 所有的输入缓冲块均为空
 
 图 15-4 显示了对一个示例关系进行外排序－归并的步骤。为了方便说明，我们假定一个块中只能容纳一个元组 $(f_{r}=1)$ ，并且假定内存最多容纳三个块。在归并阶段，两个块用于输入，另一个块用于输出。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/a85f0c94-de4b-4910-b279-7e5b779d82e7/1f82bee75415beaccd715474255ac8cf59d0d4c681523749705936fb613ae135.jpg)
+![image](./assets/1f82bee75415beaccd715474255ac8cf59d0d4c681523749705936fb613ae135.jpg)
 
 
 
@@ -428,14 +432,14 @@ $$
 
 图 15-8 给出了两个在它们的连接属性 a1 上排好序的关系。在图 15-8 所示的关系上具体地执行一遍归并－连接算法的步骤是有启发意义的。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/a85f0c94-de4b-4910-b279-7e5b779d82e7/618c017645f9e74e0f944b842805403c85b78832bbb4eeeefb8034454d7e1045.jpg)
+![image](./assets/618c017645f9e74e0f944b842805403c85b78832bbb4eeeefb8034454d7e1045.jpg)
 
 
 
 图 15-8 用于归并 - 连接的已排序关系
 
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/a85f0c94-de4b-4910-b279-7e5b779d82e7/c93038ffebcc89a86b7e7b963bfa1cd7a09bde7b05c8881ff1d900dbeb7f3899.jpg)
+![image](./assets/c93038ffebcc89a86b7e7b963bfa1cd7a09bde7b05c8881ff1d900dbeb7f3899.jpg)
 
 
 图 15-7 的归并－连接算法要求内存能容纳在连接属性上具有相同值的所有元组构成的每个集合 $S_{s}$ 。即使关系 s 很大，这个要求通常也可以满足。如果对于某些连接属性值来说， $S_{s}$ 大于可用内存，则对于这种集合 $S_{s}$ 可以执行块嵌套－循环连接，以将它们与 r 中对于连接属性取值相同的元组所对应的块进行匹配。
@@ -498,7 +502,7 @@ $$
 
 例如，如果 d 是 student 中的一个元组，c 是 takes 中的一个元组，h 是元组属性 ID 上的散列函数，那么只有在 $h(c)=h(d)$ 时才必须比较 d 与 c。若 $h(c)\neq h(d)$ ，则 c 与 d 对于 ID 的取值必不相等。然而，如果 $h(c)=$ 
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/a85f0c94-de4b-4910-b279-7e5b779d82e7/71889b1ddc7ef4b601c01f9b77b12d4b0b1b81e63b887a2ccfd1306d58997975.jpg)
+![image](./assets/71889b1ddc7ef4b601c01f9b77b12d4b0b1b81e63b887a2ccfd1306d58997975.jpg)
 
 
 
@@ -769,7 +773,7 @@ $$
 
 如果应用物化方法，我们从表达式中的最底层运算（在树的底部）开始。在我们的示例中，只有一个这样的运算：department上的选择运算。最底层运算的输入是数据库中的关系。我们使用前面学习过的算法来执行这些运算，并且将结果存储在临时关系中。我们可以使用这些临时关系来执行树中更高一层的运算；这时的输入要么是临时关系，要么是存储在数据库中的关系。在我
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/a85f0c94-de4b-4910-b279-7e5b779d82e7/1d15c1881dbf6fc6c243addff7ee0b7b7114f84a522f1c173ffde1cd1f698b7f.jpg)
+![image](./assets/1d15c1881dbf6fc6c243addff7ee0b7b7114f84a522f1c173ffde1cd1f698b7f.jpg)
 
 
 
@@ -842,14 +846,14 @@ $$
 
 图 15-12a 展示了连接两个关系 r 和 s 然后在结果上执行聚集的查询；为了简单起见，省略了连接谓词、分组属性和聚集函数的详细信息。图 15-12b 展示了对于查询使用散列－连接和内存散列聚集的一个流水线计划。流水线边用普通线显示，阻塞边用粗体线显示。流水线段用虚线框包围起来。请注意散列－连接被拆分成了三个子算子。有两个子算子被显示为缩写的 Part.，分别表示对 r 和 s 的分区。第三个子算子缩写为 HJ-BP，它执行散列－连接的构造和探查阶段。HA-IM 算子是内存散列聚集算子。从分区算子到 HJ-BP 算子的边是阻塞边，因为 HJ-BP 算子只能在分区算子完成执行后才能开始执行。从关系（假设使用关系扫描算子进行扫描）到分区算子的边是流水线边，从 HJ-BP 算子到 HA-IM 算子的边也是流水线边。所生成的流水线段包含在虚线框中。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/a85f0c94-de4b-4910-b279-7e5b779d82e7/1d0786507a88db294370f3de701501a25f6a49d3cbf83d0f134f1a95d9c873bb.jpg)
+![image](./assets/1d0786507a88db294370f3de701501a25f6a49d3cbf83d0f134f1a95d9c873bb.jpg)
 
 
 
 a) 逻辑查询
 
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/a85f0c94-de4b-4910-b279-7e5b779d82e7/6816b454dc98e5adfbc9f0b9dc080c32775e8489c8bf0110c519dd5916d424ad.jpg)
+![image](./assets/6816b454dc98e5adfbc9f0b9dc080c32775e8489c8bf0110c519dd5916d424ad.jpg)
 
 
 

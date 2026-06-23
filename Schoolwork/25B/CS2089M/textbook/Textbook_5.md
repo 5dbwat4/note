@@ -1,3 +1,7 @@
+---
+title: 第 5 章 高级SQL
+---
+
 ## 高级 SQL
 
 第 3～4 章详细介绍了 SQL 的基本结构。在本章中，我们首先解决如何使用通用程序设计语言来访问 SQL 的问题，这对于构建使用数据库来管理数据的应用程序是非常重要的。然后，我们将介绍 SQL 的一些更高级的特性，从如何在数据库内部执行过程性代码开始，其方式是要么通过扩展 SQL 语言来支持过程性操作，要么通过允许在数据库内部执行以过程性语言定义的函数。我们将介绍触发器，它可以用来指定在特定事件发生的情况下自动执行的动作，这些事件诸如在指定关系中插入、删除或更新元组。最后，我们将讨论 SQL 支持的递归查询和高级聚集特性。
@@ -713,7 +717,7 @@ referencing old row as 子句可以用来创建一个变量，它存储一个已
 
 each row 子句。然后可以用 referencing old table as 子句或 referencing new table as 子句来指代包含所有受影响行的临时表（称为过渡表（transition table））。过渡表不能用于 before 触发器，但是它们可以用于 after 触发器，无论是语句触发器还是行触发器。这样，在过渡表的基础上，单条 SQL 语句就可以用来
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/ebf9d029-96db-4b1c-882a-546009c56a2b/b6e00b05764be1dfc114b35d62784c68e05ee6970fe4c1d2e5a11eabb412ed11.jpg)
+![image](./assets/b6e00b05764be1dfc114b35d62784c68e05ee6970fe4c1d2e5a11eabb412ed11.jpg)
 
 
 
@@ -917,7 +921,7 @@ SQL 标准使用 with recursive 子句来支持递归的受限形式，其中的
 
 任何递归视图都必须被定义为两个子查
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-20/ebf9d029-96db-4b1c-882a-546009c56a2b/f9544e1538e294d72e515ec7b2d53530af4dd2ffadba70860c954b2f1a579c1b.jpg)
+![image](./assets/f9544e1538e294d72e515ec7b2d53530af4dd2ffadba70860c954b2f1a579c1b.jpg)
 
 
 

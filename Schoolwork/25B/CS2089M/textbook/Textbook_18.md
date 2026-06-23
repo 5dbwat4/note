@@ -1,3 +1,7 @@
+---
+title: 第 18 章 并发控制
+---
+
 ## 并发控制
 
 在第 17 章中，我们了解了事务的一个基本特性是隔离性。然而，当数据库中有几个事务并发执行时，隔离性可能不一定能够保持。为了确保事务的隔离性，系统必须对并发事务之间的交互加以控制；这种控制是通过各种称为并发控制（concurrency-control）机制中的一种来实现的。在本章中，我们考虑对并发执行事务的管理，并且我们忽略故障。在第 19 章中，我们将看到系统如何从故障中进行恢复。
@@ -40,7 +44,7 @@
 
 作为一个示例，请再次考虑我们在第17章中介绍的银行示例。令A与B是被事务 $T_{1}$ 与 $T_{2}$ 访问的两个账户。事务 $T_{1}$ 从账户B转$50到账户A（见图18-2）。事务 $T_{2}$ 显示账户A与B上的总金额，即A+B的总和（见图18-3）。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/01606218d06418818ee2c473af1fab8760f7aaca15e3cb995ebbcd872462daaa.jpg)
+![image](./assets/01606218d06418818ee2c473af1fab8760f7aaca15e3cb995ebbcd872462daaa.jpg)
 
 
 
@@ -65,14 +69,14 @@
 
 现在假定延迟到事务结束时才释放锁。事务 $T_{3}$ 对应于 $T_{1}$ ，它延迟了锁的释放（见图 18-5）；事务 $T_{4}$ 对应于 $T_{2}$ ，它也延迟了锁的释放（见图 18-6）。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/f6305a6bb6baa3e51f5904c005e71814e272a43bf313dc1b196b7d893c969b5b.jpg)
+![image](./assets/f6305a6bb6baa3e51f5904c005e71814e272a43bf313dc1b196b7d893c969b5b.jpg)
 
 
 
 图 18-5 事务 $T_{3}$ （具有延迟解锁的事务 $T_{1}$ ）
 
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/1ebfd5579a7706cde246ee342d5955a30789a6791e563ac6a0ddc0f225f2b6a6.jpg)
+![image](./assets/1ebfd5579a7706cde246ee342d5955a30789a6791e563ac6a0ddc0f225f2b6a6.jpg)
 
 
 
@@ -91,7 +95,7 @@ $$
 
 遗憾的是，封锁可能导致一种不受欢迎的情形。请考察如图18-7部分调度。由于 $T_{3}$ 持有在B上的排他模式锁，而 $T_{4}$ 正在申请B上的共享模式锁，所以 $T_{4}$ 等待 $T_{3}$ 释放B上的锁；类似地，由于 $T_{4}$ 持有在A上的共享模式锁，而 $T_{3}$ 正在申请A上的排他模式锁，所以 $T_{3}$ 等待 $T_{4}$ 释放A上的锁。于是，我们进入了这样一种哪个事务都不能继续其正常执行的状态。这种情形称为死锁（deadlock）。当死锁发生时，系统必须回滚这两个事务中的一个。一旦一个事务被回滚，被该事务锁住的数据项就被解锁。另一个事务就可以访问这些数据项，从而继续它的执行。我们将在18.2节中再回来讨论死锁处理的问题。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/bec717b84365e1db4e9369cd56290e826425736470013aa338d3be08c1222384.jpg)
+![image](./assets/bec717b84365e1db4e9369cd56290e826425736470013aa338d3be08c1222384.jpg)
 
 
 我们如果不使用封锁，或者如果我们对数据项进行读或写之后太
@@ -140,7 +144,7 @@ $$
 
 级联回滚可以通过将两阶段封锁修改为称作严格两阶段封锁协议（strict two-phase locking protocol）来避免。这种协议不但要求封锁是两阶段的，而且还要求事务所持有的所有排他模式锁必须在事务提交后方可释放。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/20d0b2587a6345f2384b538a2b78f1c917bfdf2d4a19300ae8be72d41bbb990a.jpg)
+![image](./assets/20d0b2587a6345f2384b538a2b78f1c917bfdf2d4a19300ae8be72d41bbb990a.jpg)
 
 
 
@@ -197,7 +201,7 @@ $$
 
 图 18-10 展示了一个锁表的示例。该表包含对于五个不同数据项 I4、I7、I23、I44 和 I912 的封锁。锁表采用溢出链，因此对于在锁表中的每一个表项都有一个数据项的链表。对于每一个数据项都有一个已经授予锁或者正在等待锁的事务的列表。已经授予锁的用深色阴影填充的方块表示，而等待请求则用浅色阴影填充的方块表示。为了保持图形简洁我们省略了锁的模式。例如，从图中可以看出，T23已经在I912和I7上被授予锁，并且正在等待I4上的锁。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/e8129223f422b689090093cebf56210f39f8150996eb83143444337fd6ec85cd.jpg)
+![image](./assets/e8129223f422b689090093cebf56210f39f8150996eb83143444337fd6ec85cd.jpg)
 
 
 
@@ -252,7 +256,7 @@ $T_{12}$ : lock-X(B); lock-X(E); unlock(E); unlock(B).
 
 $T_{13}$ : lock-X(D); lock-X(H); unlock(D); unlock(H). 
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/0400815bd1daf50a5cad348e7f510493b6df1b59ec94d11806e0a7cf63eb1fd9.jpg)
+![image](./assets/0400815bd1daf50a5cad348e7f510493b6df1b59ec94d11806e0a7cf63eb1fd9.jpg)
 
 
 
@@ -343,7 +347,7 @@ $T_{13}$ : lock-X(D); lock-X(H); unlock(D); unlock(H).
 
 - 事务 $T_{19}$ 正在等待事务 $T_{18}$ 。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/fc732df58bdc1cb1bc2bb5debacbe9331c3fc38028f3e06df511ea861340a162.jpg)
+![image](./assets/fc732df58bdc1cb1bc2bb5debacbe9331c3fc38028f3e06df511ea861340a162.jpg)
 
 
 851 
@@ -366,7 +370,7 @@ $$
 
 由此引出了这样的问题：我们应该何时调用检测算法？答案取决于两个因素：
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/3c96529ace23ce972c944ad09ea80b0f5c1b8137f940ae43e7a2480c20002473.jpg)
+![image](./assets/3c96529ace23ce972c944ad09ea80b0f5c1b8137f940ae43e7a2480c20002473.jpg)
 
 
 ## 1. 死锁发生的频率如何？
@@ -411,7 +415,7 @@ d. 回滚时将牵涉多少事务。
 
 作为一个示例，请考虑图 18-15 所示的树。它由四层节点组成，最高层表示整个数据库，其下是 area 类型的节点，该数据库恰好由这些域组成。每个域随之又以 file 类型的节点作为它的子节点，每个域恰好由作为其子节点的那些文件组成。任何文件不能同时属于多个域。最后，每个文件由 record 类型的节点组成。和前面一样，文件恰好由作为其子节点的那些记录组成，并且任何记录不能同时属于多个文件。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/39feb9baa4ba0048540b7163ee67fc5266afcc05b02389a40dcef73ec5dc740c.jpg)
+![image](./assets/39feb9baa4ba0048540b7163ee67fc5266afcc05b02389a40dcef73ec5dc740c.jpg)
 
 
 
@@ -770,7 +774,7 @@ $$
 
 有效性检查机制自动预防了级联回滚，因为只有发出写操作的事务提交之后实际的写才发生。然而，存在长事务被饿死的可能性，原因是一系列冲突的短事务引起长事务的反复重启。为了避免饿死，与之冲突的事务应当暂时阻塞，以使该长事务能够完成。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/2cfc95fbccbe972bda0108b13f70a18b43e0b20f43ff15086d21224bbe65a550.jpg)
+![image](./assets/2cfc95fbccbe972bda0108b13f70a18b43e0b20f43ff15086d21224bbe65a550.jpg)
 
 
 还要注意的是，有效性检查的条件只会导致一个事务 T 在 T 启动之后才完成的一组事务 $T_{i}$ 上被验证，因而这组事务的串行次序排在 T 之前。在有效性检查的测试中，图 18-19 调度 6，通过采用有效性检查产生的一个调度
@@ -925,7 +929,7 @@ $$
 
 - 请考虑图18-20中所示的事务调度。有两个并发事务 $T_{i}$ 和 $T_{j}$ 都要读取数据项 $A$ 和 $B$ 。 $T_{i}$ 设置 $A = B$ ，然后写 $A$ ；而 $T_{j}$ 设置 $B = A$ ，然后写 $B$ 。由于 $T_{i}$ 和 $T_{j}$ 是并发的，在快照隔离下任何事务在其快照中都看不到对方的更新。但是，因为它们更新的是不同的数据项，不管系统采用先更新者胜策略或者是先提交者胜策略，两者都可以提交。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/aa49638d7a5cbfd4f25ae168220505a10a0feaf7546259e77b8f290ad32deeca.jpg)
+![image](./assets/aa49638d7a5cbfd4f25ae168220505a10a0feaf7546259e77b8f290ad32deeca.jpg)
 
 
 但是，该执行是不可串行化的，因为它会导致交换 A 和 B 的值，而任何可串行化的调度会将 A 和 B 都设置为相同的值：要么是 A 的初始值，要么是 B 的初始值，这取决于 $T_{i}$ 和 $T_{j}$ 的次序。
@@ -1004,7 +1008,7 @@ $$
 
 读取不是可重复读的，但是由于排他锁直到事务提交前一直被持有，没有事务可以读取未提交的值。因此，二级一致性是已提交读隔离性级别的一种特殊实现。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/0d3dad742df175df8794e27b9973666c89eb823bd9fc08211fd43b5c3c8b70a3.jpg)
+![image](./assets/0d3dad742df175df8794e27b9973666c89eb823bd9fc08211fd43b5c3c8b70a3.jpg)
 
 
 有趣的是，请注意在二级一致性下，扫描索引的事务可能
@@ -1143,7 +1147,7 @@ $$
 
 但是，如果两个进程在同一个链表上并发执行 insert() 函数，则可能这两个进程都会读取相同的 head 变量的值，并且在那之后两个进程都会更新该变量。最后的结果将包含被插入的两个节点中的一个，而被插入的另一个节点将会丢失。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/162a5ce6043dbc0aa9705a73d2d4b7c53a97fbd221fb2fbc9605a4d7f7e7a3ab.jpg)
+![image](./assets/162a5ce6043dbc0aa9705a73d2d4b7c53a97fbd221fb2fbc9605a4d7f7e7a3ab.jpg)
 
 
 
@@ -1215,7 +1219,7 @@ delete_latchfree(head) {
 
 1. 正确性取决于对于数据库的特定的一致性约束。
 
-![image](https://cdn-mineru.openxlab.org.cn/result/2026-06-23/8c299842-4e3a-4015-8e4b-3afbf63b2d27/ff11b120b7ff09bdc3bcf8798ec9f87bcd7cccb3a610ae45c0284b3d64a10df0.jpg)
+![image](./assets/ff11b120b7ff09bdc3bcf8798ec9f87bcd7cccb3a610ae45c0284b3d64a10df0.jpg)
 
 
 2. 正确性取决于每个事务所执行操作的性质。
