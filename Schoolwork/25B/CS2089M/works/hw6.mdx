@@ -2,41 +2,252 @@
 title: Homework 6
 ---
 
-7.1, 7.13, 7.21, 7.22, and 7.29 
+> 7.1 假设我们将模式 $R = (A, B, C, D, E)$ 分解为
+> 
+> $$
+> \begin{array}{l} (A, B, C) \\ (A, D, E) \\ \end{array}
+> $$
+> 
+> 如果如下函数依赖集 F 成立，请证明该分解是无损分解：
+> 
+> $$
+> \begin{array}{l} A \rightarrow B C \\ C D \rightarrow E \\ B \rightarrow D \\ E \rightarrow A \\ \end{array}
+> $$
 
+**解答：**
 
+令 $R_1=(A,B,C)$，$R_2=(A,D,E)$。对于二元分解，若
+$(R_1\cap R_2)\rightarrow R_1$ 或 $(R_1\cap R_2)\rightarrow R_2$
+属于 $F^+$，则该分解无损。
 
-7.1 假设我们将模式 $R = (A, B, C, D, E)$ 分解为
-
-$$
-\begin{array}{l} (A, B, C) \\ (A, D, E) \\ \end{array}
-$$
-
-如果如下函数依赖集 F 成立，请证明该分解是无损分解：
-
-$$
-\begin{array}{l} A \rightarrow B C \\ C D \rightarrow E \\ B \rightarrow D \\ E \rightarrow A \\ \end{array}
-$$
-
-
-
-7.13 请证明实践习题 7.1 中的分解不是保持依赖的分解。
-
-
-7.21 请给出实践习题 7.1 中模式 R 的一个无损的 BCNF 分解。
-
-7.22 请给出实践习题 7.1 中模式 R 的一个无损并保持依赖的 3NF 分解。
-
-
-7.29 请证明对实践习题 7.1 中模式 R 的如下分解不是无损分解：
+这里
 
 $$
-(A, B, C)
+R_1\cap R_2=\{A\}.
+$$
+
+由已知函数依赖 $A\rightarrow BC$ 可得
+
+$$
+A\rightarrow ABC,
+$$
+
+即 $(R_1\cap R_2)\rightarrow R_1$。因此分解
+
+$$
+(A,B,C),\quad (A,D,E)
+$$
+
+是无损分解。
+
+> 7.13 请证明实践习题 7.1 中的分解不是保持依赖的分解。
+
+**解答：**
+
+仍令 $R_1=(A,B,C)$，$R_2=(A,D,E)$。若该分解保持依赖，则原依赖集
+$F$ 中的每个依赖都应能由投影依赖
+
+$$
+\pi_{R_1}(F)\cup \pi_{R_2}(F)
+$$
+
+推出。
+
+考虑原依赖中的
+
+$$
+B\rightarrow D.
+$$
+
+在 $R_1=(A,B,C)$ 上，投影依赖只涉及属性 $A,B,C$；在 $R_2=(A,D,E)$
+上，投影依赖只涉及属性 $A,D,E$。因此在
+$\pi_{R_1}(F)\cup \pi_{R_2}(F)$ 下，从 $B$ 出发无法应用任何非平凡依赖得到
+新属性。也就是说，
+
+$$
+B^+_{\pi_{R_1}(F)\cup \pi_{R_2}(F)}=\{B\}.
+$$
+
+于是
+
+$$
+D\notin B^+_{\pi_{R_1}(F)\cup \pi_{R_2}(F)},
+$$
+
+所以投影依赖不能推出 $B\rightarrow D$。但 $B\rightarrow D$ 是 $F$ 中的函数依赖，
+故该分解不是保持依赖的分解。
+
+> 7.21 请给出实践习题 7.1 中模式 R 的一个无损的 BCNF 分解。
+
+**解答：**
+
+在原模式 $R(A,B,C,D,E)$ 中，
+
+$$
+A^+=ABCDE,\qquad E^+=ABCDE,\qquad (BC)^+=ABCDE,\qquad (CD)^+=ABCDE.
+$$
+
+因此 $A,E,BC,CD$ 都是候选码。依赖
+
+$$
+B\rightarrow D
+$$
+
+的左部 $B$ 不是超码，所以它违反 BCNF。按该依赖分解 $R$，得到
+
+$$
+R_1=(B,D),\qquad R_2=(A,B,C,E).
+$$
+
+该分解无损，因为
+
+$$
+R_1\cap R_2=\{B\},
+$$
+
+且 $B\rightarrow D$，即 $(R_1\cap R_2)\rightarrow R_1$。
+
+下面检查 BCNF：
+
+- 在 $R_1=(B,D)$ 中，非平凡依赖为 $B\rightarrow D$，$B$ 是 $R_1$ 的码。
+- 在 $R_2=(A,B,C,E)$ 中，投影依赖可由
+  $A\rightarrow BCE$、$E\rightarrow ABC$、$BC\rightarrow AE$ 表示；其左部
+  $A,E,BC$ 都是 $R_2$ 的超码。
+
+因此
+
+$$
+(B,D),\quad (A,B,C,E)
+$$
+
+是 $R$ 的一个无损 BCNF 分解。
+
+> 7.22 请给出实践习题 7.1 中模式 R 的一个无损并保持依赖的 3NF 分解。
+
+**解答：**
+
+先将依赖集写成一个规范覆盖形式；若要求右部单属性，可将 $A\rightarrow BC$
+拆为 $A\rightarrow B$ 与 $A\rightarrow C$，这里将相同左部合并书写：
+
+$$
+A\rightarrow BC,\qquad CD\rightarrow E,\qquad B\rightarrow D,\qquad E\rightarrow A.
+$$
+
+对每个依赖 $X\rightarrow Y$ 构造关系模式 $XY$，得到
+
+$$
+R_1=(A,B,C),\quad R_2=(C,D,E),\quad R_3=(B,D),\quad R_4=(A,E).
+$$
+
+该分解保持依赖，因为原依赖集中的每个依赖都完整地包含在某个分解后的模式中：
+
+$$
+A\rightarrow BC \text{ 在 } R_1 \text{ 中，}
 $$
 
 $$
-(C, D, E)
+CD\rightarrow E \text{ 在 } R_2 \text{ 中，}
 $$
 
-提示：给出关系 $r(R)$ 的一个示例，使得 $\prod_{A,B,C}(r)\bowtie \prod_{C,D,E}(r)\neq r$ 。
+$$
+B\rightarrow D \text{ 在 } R_3 \text{ 中，}
+$$
+
+$$
+E\rightarrow A \text{ 在 } R_4 \text{ 中。}
+$$
+
+该分解无损，因为 $R_1=(A,B,C)$ 包含原模式 $R$ 的候选码 $A$，而 3NF 综合算法在
+包含原模式候选码时保证无损连接。
+
+同时，每个分解后的关系模式都满足 3NF：在 $R_1$ 中 $A$ 和 $BC$ 是码；在 $R_2$
+中 $CD$ 和 $E$ 是码；在 $R_3$ 中 $B$ 是码；在 $R_4$ 中 $A$ 和 $E$ 是码。因此
+
+$$
+(A,B,C),\quad (C,D,E),\quad (B,D),\quad (A,E)
+$$
+
+是一个无损并保持依赖的 3NF 分解。
+
+> 7.29 请证明对实践习题 7.1 中模式 R 的如下分解不是无损分解：
+> 
+> $$
+> (A, B, C)
+> $$
+> 
+> $$
+> (C, D, E)
+> $$
+> 
+> 提示：给出关系 $r(R)$ 的一个示例，使得 $\prod_{A,B,C}(r)\bowtie \prod_{C,D,E}(r)\neq r$ 。
+
+**解答：**
+
+给出如下关系实例 $r(R)$：
+
+$$
+\begin{array}{c|c|c|c|c}
+A & B & C & D & E\\
+\hline
+a_1 & b_1 & c & d_1 & e_1\\
+a_2 & b_2 & c & d_2 & e_2
+\end{array}
+$$
+
+其中除 $C$ 列相同外，其余对应值两两不同。该关系满足给定依赖集 $F$：
+
+- $A\rightarrow BC$：没有两个元组具有相同的 $A$ 值。
+- $CD\rightarrow E$：两个元组的 $(C,D)$ 值分别为 $(c,d_1)$ 和 $(c,d_2)$，并不相同。
+- $B\rightarrow D$：没有两个元组具有相同的 $B$ 值。
+- $E\rightarrow A$：没有两个元组具有相同的 $E$ 值。
+
+对该关系投影：
+
+$$
+\pi_{A,B,C}(r)=
+\begin{array}{c|c|c}
+A & B & C\\
+\hline
+a_1 & b_1 & c\\
+a_2 & b_2 & c
+\end{array}
+$$
+
+$$
+\pi_{C,D,E}(r)=
+\begin{array}{c|c|c}
+C & D & E\\
+\hline
+c & d_1 & e_1\\
+c & d_2 & e_2
+\end{array}
+$$
+
+由于两个投影的公共属性只有 $C$，而两行的 $C$ 值都相同，自然连接会产生四个元组：
+
+$$
+\pi_{A,B,C}(r)\bowtie \pi_{C,D,E}(r)=
+\begin{array}{c|c|c|c|c}
+A & B & C & D & E\\
+\hline
+a_1 & b_1 & c & d_1 & e_1\\
+a_1 & b_1 & c & d_2 & e_2\\
+a_2 & b_2 & c & d_1 & e_1\\
+a_2 & b_2 & c & d_2 & e_2
+\end{array}
+$$
+
+其中第二、第三个元组不在原关系 $r$ 中。因此
+
+$$
+\pi_{A,B,C}(r)\bowtie \pi_{C,D,E}(r)\neq r,
+$$
+
+所以分解
+
+$$
+(A,B,C),\quad (C,D,E)
+$$
+
+不是无损分解。
 

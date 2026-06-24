@@ -1,140 +1,196 @@
-### 习题 4.7
-**问题：**
-请考虑图 4-12 中的员工数据库。请给出这个数据库的 SQL DDL 定义。请指出应该保持的引用完整性约束，并把它们包括在 DDL 定义中。
-
-**答案：**
-根据图 4-12 中带下划线的主码标识，该数据库包含四个关系。在 DDL 定义中，需要声明主键（Primary Key）和外键（Foreign Key）以维护引用完整性约束。
-
-```sql
--- 1. 创建 company 表（被参照关系需优先创建）
-CREATE TABLE company (
-    company_name VARCHAR(50),
-    city VARCHAR(50),
-    PRIMARY KEY (company_name)
-);
-
--- 2. 创建 employee 表
-CREATE TABLE employee (
-    ID VARCHAR(10),
-    person_name VARCHAR(50),
-    street VARCHAR(50),
-    city VARCHAR(50),
-    PRIMARY KEY (ID)
-);
-
--- 3. 创建 works 表
--- 引用完整性约束：ID 参照 employee(ID)，company_name 参照 company(company_name)
-CREATE TABLE works (
-    ID VARCHAR(10),
-    company_name VARCHAR(50),
-    salary NUMERIC(10,2),
-    PRIMARY KEY (ID),
-    FOREIGN KEY (ID) REFERENCES employee(ID),
-    FOREIGN KEY (company_name) REFERENCES company(company_name)
-);
-
--- 4. 创建 manages 表
--- 引用完整性约束：ID 参照 employee(ID)，manager_id 参照 employee(ID)
-CREATE TABLE manages (
-    ID VARCHAR(10),
-    manager_id VARCHAR(10),
-    PRIMARY KEY (ID),
-    FOREIGN KEY (ID) REFERENCES employee(ID),
-    FOREIGN KEY (manager_id) REFERENCES employee(ID)
-);
-```
-
+---
+title: Homework 4
 ---
 
-### 习题 4.18
-**问题：**
-对于图 4-12 中的数据库，请编写一个查询来找出没有经理的每位员工的 ID。请注意，一位员工可能只是没有列出经理，或者可能经理值为空。请使用外连接来编写你的查询，然后根本不使用外连接再重写查询。
+> 4.7 请考虑图 4-12 中的员工数据库。请给出这个数据库的 SQL DDL 定义。请指出应该保持的引用完整性约束，并把它们包括在 DDL 定义中。
+>
+> <div>
+> employee (<u>ID</u>, person_name, street, city)<br/>
+> works (<u>ID</u>, company_name, salary)<br/>
+> company (<u>company_name</u>, city)<br/>
+> manages (<u>ID</u>, manager_id)
+> </div>
+>
+> 图 4-12 员工数据库
 
-**答案：**
+**解答:**
 
-**使用外连接（Outer Join）的查询：**
+一种 SQL DDL 定义如下：
+
 ```sql
-SELECT e.ID
-FROM employee e 
-LEFT OUTER JOIN manages m ON e.ID = m.ID
-WHERE m.manager_id IS NULL;
-```
+create table employee (
+    ID varchar(20),
+    person_name varchar(50) not null,
+    street varchar(50),
+    city varchar(30),
+    primary key (ID)
+);
 
-**不使用外连接重写的查询：**
-```sql
-SELECT ID
-FROM employee
-WHERE ID NOT IN (
-    SELECT ID
-    FROM manages
-    WHERE manager_id IS NOT NULL
+create table company (
+    company_name varchar(50),
+    city varchar(30),
+    primary key (company_name)
+);
+
+create table works (
+    ID varchar(20),
+    company_name varchar(50),
+    salary numeric(12, 2) check (salary >= 0),
+    primary key (ID),
+    foreign key (ID) references employee(ID),
+    foreign key (company_name) references company(company_name)
+);
+
+create table manages (
+    ID varchar(20),
+    manager_id varchar(20),
+    primary key (ID),
+    foreign key (ID) references employee(ID),
+    foreign key (manager_id) references employee(ID)
 );
 ```
 
----
+其中需要保持的引用完整性约束是：
 
-### 习题 5.4
-**问题：**
-请描述你会选择使用嵌入式 SQL 而不是单独使用 SQL 或仅仅使用通用程序设计语言的情况。
+1. `works.ID` 必须引用 `employee.ID`，即只有员工才能出现在 `works` 中。
 
-**答案：**
-选择使用嵌入式 SQL 通常基于以下情况：
-1. [cite_start]**弥补 SQL 的功能不完备性：** 单独的 SQL 是一种声明式查询语言，它缺乏如图灵完备的控制流结构（如循环、复杂的条件判断）以及直接操作底层计算系统资源的能力 [cite: 803]。当业务逻辑需要复杂的数学计算或算法流程时，单独的 SQL 无法胜任。
-2. **弥补通用编程语言的数据处理短板：** 单纯使用通用编程语言（如 C、Java 等）去处理和遍历海量数据效率极低，因为它们没有针对关系型数据进行专门的底层查询优化和存储管理。
-3. [cite_start]**结合两者的优势：** 当应用程序既需要通用编程语言的强大计算能力、交互界面控制能力，又需要高效地存取、更新和管理数据库中的大量持久化数据时，就会将 SQL 嵌入到宿主语言（Host language）中 [cite: 808]。
+2. `works.company_name` 必须引用 `company.company_name`，即员工工作的公司必须存在于 `company` 中。
 
----
+3. `manages.ID` 必须引用 `employee.ID`，即只有员工才需要记录经理信息。
 
-### 习题 5.15
-**问题：**
-请考虑具有两个关系的雇员数据库：
-`employee (employee_name, street, city)`
-`works (employee_name, company_name, salary)`
-其中主码用下划线标出。请编写一个 `avg_salary` 函数，它以公司名称作为参数，并查找该公司员工的平均工资。然后，请使用该函数编写一条 SQL 语句，来查找员工平均工资高于 "First Bank" 平均工资的公司。
+4. `manages.manager_id` 必须引用 `employee.ID`，即经理本身也必须是员工。由于题目 4.18 说明经理值可能为空，所以上述定义没有把 `manager_id` 声明为 `not null`。
 
-**答案：**
+> 4.18 对于图 4-12 中的数据库，请编写一个查询来找出没有经理的每位员工的 ID。请注意，一位员工可能只是没有列出经理，或者可能经理值为空。请使用外连接来编写你的查询，然后根本不使用外连接再重写查询。
 
-**创建 `avg_salary` 函数：**
+**解答:**
+
+使用外连接可以写为：
+
 ```sql
-CREATE FUNCTION avg_salary(c_name VARCHAR(50))
-RETURNS NUMERIC(10, 2)
-BEGIN
-    DECLARE avg_sal NUMERIC(10, 2);
-    
-    SELECT AVG(salary) INTO avg_sal
-    FROM works
-    WHERE company_name = c_name;
-    
-    RETURN avg_sal;
-END;
+select employee.ID
+from employee left outer join manages
+    on employee.ID = manages.ID
+where manages.manager_id is null;
 ```
 
-**使用该函数查询平均工资高于 "First Bank" 的公司：**
+这里，如果某个员工在 `manages` 中没有对应元组，左外连接会为 `manager_id` 补上空值；如果该员工有对应元组但 `manager_id` 本身为空，也会被 `where` 条件选出。因此这条查询覆盖了题目中的两种情况。
+
+不使用外连接，可以写为：
+
 ```sql
-SELECT DISTINCT company_name
-FROM works
-WHERE avg_salary(company_name) > avg_salary('First Bank');
+select ID
+from employee
+where not exists (
+    select *
+    from manages
+    where manages.ID = employee.ID
+      and manager_id is not null
+);
 ```
 
----
+这条查询选择那些“不存在一条非空经理记录”的员工，因此同样包括没有列在 `manages` 中的员工，以及列在 `manages` 中但 `manager_id` 为空的员工。
 
-### 习题 5.19
-**问题：**
-假设有两个关系 $r$ 和 $s$，使得 $r$ 的外码 $B$ 引用 $s$ 的主码 $A$。请描述如何使用触发器机制来实现从 $s$ 中删除一个元组时的级联删除（on delete cascade）选项。
+> 5.4 请描述你会选择使用嵌入式 SQL 而不是单独使用 SQL 或仅仅使用通用程序设计语言的情况。
 
-**答案：**
-[cite_start]要使用触发器模拟 `ON DELETE CASCADE` 的级联删除机制，我们需要在被参照关系 $s$ 上创建一个 `AFTER DELETE` 类型的行级触发器 [cite: 340, 366]。
+**解答:**
 
-该触发器的逻辑是：每当 $s$ 中的一行记录被删除时，捕获被删除的旧记录（`old row`），提取其主码 $A$ 的值，然后自动去参照关系 $r$ 中执行 `DELETE` 语句，删除所有外码 $B$ 等于该 $A$ 值的相关元组。
+当应用程序既需要数据库查询和更新，又需要通用程序设计语言提供的控制逻辑、用户交互、报表输出或复杂计算时，应选择嵌入式 SQL。
 
-**SQL 触发器实现示例（遵循 SQL:1999 语法）：**
+单独使用 SQL 不适合完成所有应用逻辑。例如，SQL 很适合声明式地查询关系数据，但不适合直接处理用户界面、格式化报表、与文件系统或网络服务交互，也不适合表达某些复杂的过程性算法。
+
+仅仅使用通用程序设计语言也不合适，因为数据库中的选择、连接、分组、更新、完整性约束和事务处理应交给 DBMS 执行。若完全在通用语言中手工处理这些功能，不仅代码复杂，而且会丧失查询优化、并发控制、恢复和授权等数据库系统能力。
+
+嵌入式 SQL 的适用场景是：应用程序主体用 C、Java 等宿主语言编写，但其中的 SQL 语句在编译前由预处理器识别并转换为宿主语言调用。这样既能使用宿主语言完成过程性任务，又能直接在程序中写 SQL 查询和更新。相对于运行时拼接字符串的动态 SQL，嵌入式 SQL 中的查询更清晰，并且某些 SQL 相关错误可以在预处理或编译阶段发现。
+
+> 5.5 请说明如何使用一个触发器来保证“一位教师不能在一个学期的同一时间段讲授两门不同的课”的约束（要知道，对 teaches 关系和 section 关系的改变都可能违反该约束）。
+
+**解答:**
+
+这个约束涉及 `teaches` 和 `section` 两个关系：`teaches` 记录教师讲授哪个课程段，`section` 记录课程段的学期、年份和时间段。因此，向 `teaches` 插入或更新授课记录，或者向 `section` 插入或更新时间信息，都可能产生冲突。
+
+可以把“存在冲突”的条件写成如下查询：存在同一名教师 `t1.ID = t2.ID`，讲授两个不同课程段，并且这两个课程段在同一学期、同一年、同一时间段。
+
+下面给出概念上的 SQL 标准触发器写法。实际数据库系统可能需要把 `insert` 和 `update` 拆成两个触发器，语法也可能略有不同。
+
 ```sql
-CREATE TRIGGER cascade_delete_r 
-AFTER DELETE ON s
-REFERENCING OLD ROW AS orow 
-FOR EACH ROW
-BEGIN ATOMIC
-    DELETE FROM r
-    WHERE r.B = orow.A;
-END;
+create trigger check_teaches_conflict
+after insert or update on teaches
+for each row
+when (exists (
+    select *
+    from teaches t1 join section s1
+        on t1.course_id = s1.course_id
+       and t1.sec_id = s1.sec_id
+       and t1.semester = s1.semester
+       and t1.year = s1.year,
+         teaches t2 join section s2
+        on t2.course_id = s2.course_id
+       and t2.sec_id = s2.sec_id
+       and t2.semester = s2.semester
+       and t2.year = s2.year
+    where t1.ID = t2.ID
+      and (t1.course_id <> t2.course_id
+           or t1.sec_id <> t2.sec_id
+           or t1.semester <> t2.semester
+           or t1.year <> t2.year)
+      and s1.semester = s2.semester
+      and s1.year = s2.year
+      and s1.time_slot_id = s2.time_slot_id
+))
+begin atomic
+    rollback
+end;
 ```
+
+还需要在 `section` 上建立类似触发器，因为改变一个课程段的时间段也可能使已经存在的授课记录违反约束：
+
+```sql
+create trigger check_section_conflict
+after insert or update on section
+for each row
+when (exists (
+    select *
+    from teaches t1 join section s1
+        on t1.course_id = s1.course_id
+       and t1.sec_id = s1.sec_id
+       and t1.semester = s1.semester
+       and t1.year = s1.year,
+         teaches t2 join section s2
+        on t2.course_id = s2.course_id
+       and t2.sec_id = s2.sec_id
+       and t2.semester = s2.semester
+       and t2.year = s2.year
+    where t1.ID = t2.ID
+      and (t1.course_id <> t2.course_id
+           or t1.sec_id <> t2.sec_id
+           or t1.semester <> t2.semester
+           or t1.year <> t2.year)
+      and s1.semester = s2.semester
+      and s1.year = s2.year
+      and s1.time_slot_id = s2.time_slot_id
+))
+begin atomic
+    rollback
+end;
+```
+
+如果触发器检测到上述 `exists` 条件为真，就说明某位教师在同一学期、同一时间段被安排讲授两个不同课程段，因此回滚触发该检查的修改。
+
+> 5.19 假设有两个关系 $r$ 和 $s$ ，使得 $r$ 的外码 $B$ 引用 $s$ 的主码 $A$ 。请描述如何使用触发器机制来实现从 $s$ 中删除一个元组时的级联删除（on delete cascade）选项。
+
+**解答:**
+
+可以在被引用关系 `s` 上定义一个删除触发器。每当从 `s` 删除一个元组时，触发器自动删除 `r` 中所有引用该元组的元组。概念写法如下：
+
+```sql
+create trigger cascade_delete_r
+after delete on s
+referencing old row as orow
+for each row
+begin atomic
+    delete from r
+    where r.B = orow.A;
+end;
+```
+
+这里 `orow` 表示刚从 `s` 中删除的旧元组。若删除的是 `s` 中主码值为 `orow.A` 的元组，则所有满足 `r.B = orow.A` 的 `r` 元组都会被删除，从而模拟外码声明中的 `on delete cascade` 行为。若其他关系又引用 `r`，则它们也可以通过类似触发器继续级联处理。
