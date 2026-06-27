@@ -18,31 +18,31 @@
 
 (4) Assume that the B+ tree contains 1000 index items, please estimate the size (i.e. the number of nodes) of the B+ tree. (5 points)
 
-<span style="color:red">(1) Answers:</span>
+<p style="color:red">(1) Answers:</p>
 
 ![B+ tree after inserting 14](4-insert-14-b-plus-tree.png)
 
-<span style="color:red">(2) Answers:</span>
+<p style="color:red">(2) Answers:</p>
 
 ![B+ tree after deleting 19](4-delete-19-b-plus-tree.png)
 
-<span style="color:red">(3) Answers:</span>
+<p style="color:red">(3) Answers:</p>
 
-<span style="color:red">$\left\lceil \log_3 \frac{1000}{2} \right\rceil + 1 \le \text{height} \le \left\lceil \log_{\left\lceil\frac{3}{2}\right\rceil} 1000 \right\rceil + 1$</span>
+<p style="color:red">$\left\lceil \log_3 \frac{1000}{2} \right\rceil + 1 \le \text{height} \le \left\lceil \log_{\left\lceil\frac{3}{2}\right\rceil} 1000 \right\rceil + 1$</p>
 
-<span style="color:red">$8 \le \text{height} \le 11$</span>
+<p style="color:red">$8 \le \text{height} \le 11$</p>
 
-<span style="color:red">Or</span>
+<p style="color:red">Or</p>
 
-<span style="color:red">$7 \le \text{height} \le 10$</span>
+<p style="color:red">$7 \le \text{height} \le 10$</p>
 
-<span style="color:red">(4) Answers:</span>
+<p style="color:red">(4) Answers:</p>
 
-<span style="color:red">$\text{size} \ge 500 + 167 + 56 + 19 + 7 + 3 + 1 = 753$</span>
+<p style="color:red">$\text{size} \ge 500 + 167 + 56 + 19 + 7 + 3 + 1 = 753$</p>
 
-<span style="color:red">$\text{size} \le 1000 + 500 + 250 + 125 + 62 + 31 + 15 + 7 + 3 + 1 = 1994$</span>
+<p style="color:red">$\text{size} \le 1000 + 500 + 250 + 125 + 62 + 31 + 15 + 7 + 3 + 1 = 1994$</p>
 
-<span style="color:red">$753 \le \text{size} \le 1994$</span>
+<p style="color:red">$753 \le \text{size} \le 1994$</p>
 
 **Problem 2.** A relation *r* has 400 blocks. Available memory is 20 blocks (i.e., M=20). External sort-merge is used to sort *r*. During the external sort-merge:
 
@@ -50,9 +50,9 @@
 
 (2) What are the numbers of merge passes for *r*? (15 points)
 
-<span style="color:red">(1) Answers: The numbers of created runs are 400/20=20.</span>
+<p style="color:red">(1) Answers: The numbers of created runs are 400/20=20.</p>
 
-<span style="color:red">(2) Answers: As 20 > M-1, The numbers of merge passes are $\left\lceil \log_{M-1} 20 \right\rceil = 2$.</span>
+<p style="color:red">(2) Answers: As 20 > M-1, The numbers of merge passes are $\left\lceil \log_{M-1} 20 \right\rceil = 2$.</p>
 
 **Problem 3.** Suppose that a B+-tree index on *building* is available on relation *department* and that no other index is available. What would be the best way to execute the following selections that involve negation based on the B+-tree index? (30 points)
 
@@ -74,12 +74,12 @@ $$
 \sigma_{\neg(\text{build}<\text{"Watson"} \lor \text{budget}<50000)}(\mathit{department})
 $$
 
-<span style="color:red">(1) Use the index to locate the first tuple whose <em>building</em> field has value “Watson”. From this tuple, follow the pointer chains till the end, retrieving all the tuples.</span>
+<p style="color:red">(1) Use the index to locate the first tuple whose <em>building</em> field has value “Watson”. From this tuple, follow the pointer chains till the end, retrieving all the tuples.</p>
 
-<span style="color:red">(2) For this query, the index serves no purpose. We can scan the file sequentially and select all tuples whose <em>building</em> field is anything other than “Watson”.</span>
+<p style="color:red">(2) For this query, the index serves no purpose. We can scan the file sequentially and select all tuples whose <em>building</em> field is anything other than “Watson”.</p>
 
-<span style="color:red">(3) This query is equivalent to the query:</span>
+<p style="color:red">(3) This query is equivalent to the query:</p>
 
-<span style="color:red">$\sigma_{\text{building}\ge\text{"Watson"} \land \text{budget}\ge50000}(\mathit{department})$</span>
+<p style="color:red">$\sigma_{\text{building}\ge\text{"Watson"} \land \text{budget}\ge50000}(\mathit{department})$</p>
 
-<span style="color:red">Using the <em>building</em> index, we can retrieve all tuples with <em>building</em> value greater than or equal to “Watson” by following the pointer chains from the first “Watson” tuple. We also apply the additional criteria of budget $\ge$ 50000 on every tuple.</span>
+<p style="color:red">Using the <em>building</em> index, we can retrieve all tuples with <em>building</em> value greater than or equal to “Watson” by following the pointer chains from the first “Watson” tuple. We also apply the additional criteria of budget $\ge$ 50000 on every tuple.</p>
