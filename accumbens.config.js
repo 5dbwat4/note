@@ -13,4 +13,5 @@ export default {
         "./example",
         "./blog-rcs"
     ],
+    "entries":[ "Changelog.md" ]
 }

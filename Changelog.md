@@ -84,7 +84,7 @@ Accumbens的changelog在noting里面，惊不惊喜，意不意外？
 
 喜欢这个名字吗？我很喜欢。neuron是神经元，myelin是髓鞘，而accumbens是伏隔核，一切都对上了。
 
-而且neuron和myelin字符数相同，也就是说他们的编译产物文件是对齐的、强迫症友好的。
+而且neuron和myelin字符数相同，也就是说他们的编译产物文件名是对齐的、强迫症友好的。
 
 
 2026/3/7 997723cb4d4c1ba6461ae2cadab67a66bff48048
