@@ -22,3 +22,4 @@
 - [Lab 3 实验3 SQL 数据完整性](./lab3)
 - [Lab 4 实验4 SQL 安全性](./lab4)
 - [Lab 5 实验5 数据库程序设计：图书管理系统](./lab5)
+- [MiniSQL 模块报告：RecordManager](./lab-minisql)
