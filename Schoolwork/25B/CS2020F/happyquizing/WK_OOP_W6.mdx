@@ -1,0 +1,613 @@
+---
+title: "浙大26春OOP W6 inside class作业"
+---
+
+import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+
+<PTAQuiz true-or-false title="一个类的友元函数是这个类的成员。  " correct={false} meta={{label: "1-3", score: 2, difficulty: 0, author: "董俊", org: "燕山大学"}}>
+  <Q>
+    一个类的友元函数是这个类的成员。
+  </Q>
+  <Explanation>
+    **错误。** 友元函数**不是**类的成员函数。友元函数是在类外部定义的普通函数（或另一个类的成员函数），只是被该类通过`friend`关键字声明为"友元"，从而获得了访问该类私有成员和保护成员的特权。但它不属于该类，没有`this`指针，也不能通过对象调用。成员函数定义在类的作用域内，而友元函数定义在类的作用域外。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="在C++语言中引入内联函数（inline function）的主要目的是降低空间复杂度，即缩短目标代码长度。" correct={false} meta={{label: "1-4", score: 2, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    在C++语言中引入内联函数（`inline` function）的主要目的是降低空间复杂度，即缩短目标代码长度。
+  </Q>
+  <Explanation>
+    **错误。** 内联函数的主要目的是**提高程序的运行效率（降低时间复杂度）**，而非降低空间复杂度。内联函数在编译时将函数体代码直接插入到每个调用点，省去了函数调用的控制转移、参数压栈、保存/恢复现场等开销，从而加快执行速度。但代价是代码体积可能膨胀——如果内联函数被多处调用，目标代码长度反而会**增加**（空间换时间），因此实际上可能增加了空间复杂度。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="主程序调用内联函数（inline）时，不发生控制转移，无需保存和恢复环境变量等，因此，节省了系统开销。内联函数的声明以及最终的生" correct={false} meta={{label: "1-5", score: 2, difficulty: 0, author: "李志明", org: "燕山大学"}}>
+  <Q>
+    主程序调用内联函数（`inline`）时，不发生控制转移，无需保存和恢复环境变量等，因此，节省了系统开销。内联函数的声明以及最终的生效，是由程序员决定的。
+  </Q>
+  <Explanation>
+    **错误。** 前半句是正确的：调用内联函数时确实不发生控制转移，编译器将函数体直接展开到调用处，避免了函数调用的开销。但后半句错误：内联函数的生效**最终由编译器决定**，而非程序员。`inline`关键字只是给编译器的一个"建议"，编译器会根据函数复杂度（如是否含循环、递归、代码量等）自主决定是否真正内联展开。即使程序员声明了`inline`，编译器也可能忽略；反之，编译器也可能自动内联某些未声明`inline`的简单函数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="（2020final）一个函数功能不太复杂，但要求被频繁调用，可选用（    ）。" correct={0} meta={{label: "2-1", score: 2, difficulty: 0, author: "王秀", org: "福州大学"}}>
+  <Q>
+    （2020final）一个函数功能不太复杂，但要求被频繁调用，可选用（    ）。
+
+
+  </Q>
+  <C>内联函数</C>
+  <C>重载函数</C>
+  <C>递归函数</C>
+  <C>嵌套函数</C>
+  <Explanation>
+    **答案：A. 内联函数。** 内联函数（`inline`）适用于**功能简单、代码少但频繁调用**的场景。编译器将函数体直接插入调用处，避免了函数调用的控制转移和现场保护/恢复开销，从而显著提升频繁调用时的性能。选项B"重载函数"解决的是同名函数参数不同的问题；C"递归函数"自己调用自己，不适合频繁调用（有栈开销）；D"嵌套函数"指在函数内部定义函数（C++标准不支持）。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="在（    ）情况下适宜采用inline定义内联函数。" correct={2} meta={{label: "2-2", score: 2, difficulty: 0, author: "王秀", org: "福州大学"}}>
+  <Q>
+    在（    ）情况下适宜采用`inline`定义内联函数。
+
+  </Q>
+  <C>函数体含有循环语句</C>
+  <C>函数体含有递归语句</C>
+  <C>函数代码少、频繁调用</C>
+  <C>函数代码多、不常调用</C>
+  <Explanation>
+    **答案：C. 函数代码少、频繁调用。** 内联函数最适合代码量小且调用频繁的情况。代码少则展开后不会显著增大目标代码体积；频繁调用则省去的函数调用开销累积起来效果显著。A和B错误：含循环或递归的函数代码量大且逻辑复杂，内联展开会导致代码严重膨胀，编译器通常会忽略`inline`建议。D错误：代码多且不常调用的函数，内联带来的开销节省微不足道，反而白白增加代码体积。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下面说法正确的是（）。" correct={1} meta={{label: "2-3", score: 2, difficulty: 0, author: "王秀", org: "福州大学"}}>
+  <Q>
+    下面说法正确的是（）。
+
+  </Q>
+  <C>内联函数在运行时是将该函数的目标代码插入每个调用该函数的地方</C>
+  <C>内联函数在编译时是将该函数的目标代码插入每个调用该函数的地方</C>
+  <C>类的内联函数必须在类体内定义</C>
+  <C>类的内联函数必须在类体外通过加关键字`inline`定义</C>
+  <Explanation>
+    **答案：B. 内联函数在编译时是将该函数的目标代码插入每个调用该函数的地方。** 内联展开发生在**编译时**，而非运行时。编译器在编译阶段将内联函数的代码直接嵌入到每个调用点。选项A错在"运行时"。选项C错误：类的内联函数既可以在类体内直接定义（此时自动成为内联），也可以在类体外用`inline`关键字定义。选项D过于绝对，类体内定义的成员函数自动成为内联候选，不一定要在类体外。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="如果默认参数的函数声明为“ void fun(int a,int b=1,char c='a',float d=3.2);”，" correct={1} meta={{label: "2-4", score: 2, difficulty: 0, author: "wangxiu", org: "福州大学"}}>
+  <Q>
+如果默认参数的函数声明为“ `void fun(int a,int b=1,char c='a',float d=3.2);` ”，
+    则下面调用写法正确的是（ ）。
+
+  </Q>
+  <C>`fun();`</C>
+  <C>`fun(2,3);`</C>
+  <C>`fun(2, ,'c',3.14)`</C>
+  <C>`fun(int a=1);`</C>
+  <Explanation>
+    **答案：B. `fun(2,3);`** 是正确的调用。调用时实参`2`传给`a`，`3`传给`b`，`c`和`d`分别使用默认值`'a'`和`3.2`。选项A错误：`fun()`缺少对第一个参数`a`的实参，而`a`没有默认值，因此不合法。选项C错误：C++不允许"跳过"参数来使用后续参数的默认值，写成`fun(2, ,'c',3.14)`（跳过了`b`）在语法上是非法的。选项D错误：函数调用时不应带数据类型和默认值，这是声明/定义时的写法。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="在C++中，关于下列设置缺省参数值的描述中，（）是正确的。" correct={1} meta={{label: "2-5", score: 2, difficulty: 0, author: "王秀", org: "福州大学"}}>
+  <Q>
+    在C++中，关于下列设置缺省参数值的描述中，（）是正确的。
+
+  </Q>
+  <C>不允许设置缺省参数值；</C>
+  <C>在指定了缺省值的参数右边，不能出现没有指定缺省值的参数；</C>
+  <C>只能在函数的定义性声明中指定参数的缺省值；</C>
+  <C>设置缺省参数值时，必须全部都设置；</C>
+  <Explanation>
+    **答案：B. 在指定了缺省值的参数右边，不能出现没有指定缺省值的参数。** 这是C++默认参数的铁律：默认参数必须从右向左连续指定，即如果一个参数有默认值，它右边的所有参数也必须有默认值。选项A错误：C++允许设置默认参数。选项C错误：默认值可以在声明或定义中指定（但不能在声明和定义中同时为同一参数指定默认值，且通常放在声明中）。选项D错误：不必全部参数都设置默认值，可以只给最右边的若干参数设置。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="决定C++语言中函数的返回值类型的是（）" correct={3} meta={{label: "2-6", score: 2, difficulty: 0, author: "高巍然", org: "西安邮电大学"}}>
+  <Q>
+    决定C++语言中函数的返回值类型的是（）
+  </Q>
+  <C>`return`语句中的表达式类型</C>
+  <C>调用该函数时系统随机产生的类型</C>
+  <C>调用该函数时的主调用函数类型</C>
+  <C>在定义该函数时所指定的数据类型</C>
+  <Explanation>
+    **答案：D. 在定义该函数时所指定的数据类型。** 函数的返回值类型由函数定义时声明的返回类型决定，例如`int func()`的返回类型就是`int`。`return`语句中表达式的类型如果不是`int`，会被隐式转换为`int`后返回（可能截断或警告）。选项A错误：`return`表达式的类型在编译时会被转换为函数声明的返回类型，它本身不决定最终返回值类型。选项B错误：返回值类型是编译时确定的，不是运行时随机产生。选项C错误：与主调函数无关。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="如有函数定义：void func(int x = 0, int y = 0){ …. }，则下列函数调用中会出现问题的是\\_\\_" correct={0} meta={{label: "2-7", score: 2, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    {`
+    如有函数定义：void func(int x = 0, int y = 0){ …. }，则下列函数调用中会出现问题的是\\_\\_\\_\\_。
+
+    `}
+  </Q>
+  <C>`func(1,2, 3);`</C>
+  <C>`func(1,2);`</C>
+  <C>`func(1);`</C>
+  <C>`func();`</C>
+  <Explanation>
+    **答案：A. `func(1,2,3);`** 会出现问题。函数`func`只有两个形参（`int x`和`int y`），而`func(1,2,3)`传递了三个实参，参数数量不匹配，编译器会报错。选项B正确：`1`传`x`、`2`传`y`。选项C正确：`1`传`x`，`y`使用默认值`0`。选项D正确：两个参数都使用默认值`0`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="以下选项中，是正确的函数默认形参设置的是。  " correct={1} meta={{label: "2-8", score: 2, difficulty: 0, author: "GONG", org: "哈尔滨华德学院"}}>
+  <Q>
+    以下选项中，是正确的函数默认形参设置的是。
+
+
+  </Q>
+  <C>`int fun(int a,int b,int c);`</C>
+  <C>`int fun(int a,int b,int c=1);`</C>
+  <C>`int fun(int a,int b=1,int c);`</C>
+  <C>`int fun(int a=1,int b,int c);`</C>
+  <Explanation>
+    **答案：B. `int fun(int a,int b,int c=1);`** 是正确的默认形参设置。最右边的参数`c`有默认值`1`，其左边没有无默认值的参数，符合"从右向左连续设置"规则。选项A本身语法合法（声明了一个普通函数），但没有设置默认参数。选项C错误：`b`有默认值但`c`没有，导致有默认值的参数`b`右边出现了没有默认值的参数`c`，违反规则。选项D错误：`a`有默认值但`b`和`c`没有，违反了默认参数必须从右向左设置的规则。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="对于以下关于友元的说法" correct={3} meta={{label: "2-9", score: 2, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    对于以下关于友元的说法
+
+
+  </Q>
+  <C>如果函数`fun`被声明为类`A`的友元函数，则该函数成为`A`的成员函数</C>
+  <C>如果函数`fun`被声明为类`A`的友元函数，则该函数能访问`A`的保护成员，但不能访问私有成员</C>
+  <C>如果函数`fun`被声明为类`A`的友元函数，则`fun`的形参类型不能是`A`。</C>
+  <C>以上答案都不对</C>
+  <Explanation>
+    **答案：D. 以上答案都不对。** 逐一分析：A错误，友元函数**不是**类的成员函数，它是在类外部定义的普通函数，只是被授予了访问权限。B错误，友元函数可以访问类的**所有成员**，包括私有成员和保护成员，私人数据对它完全透明。C错误，友元函数的形参类型完全可以是类`A`（事实上参数为类`A`的引用或对象是友元函数的常见用法，如运算符重载）。三句话全错，故选D。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="对于类之间的友元关系：" correct={3} meta={{label: "2-10", score: 2, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    对于类之间的友元关系：
+
+  </Q>
+  <C>如果类`A`是类`B`的友元，则`B`的成员函数可以访问`A`的私有成员</C>
+  <C>如果类`A`是类`B`的友元，则`B`也是`A`的友元。</C>
+  <C>如果类`A`是类`B`的友元，并且类`B`是类`C`的友元，则类`A`也是类`C`的友元。</C>
+  <C>以上答案都不对。</C>
+  <Explanation>
+    **答案：D. 以上答案都不对。** 友元关系具有三个关键特性——**单向性、不可传递性、不可继承性**。选项A错误：类`A`是类`B`的友元，意味着`A`的成员函数可以访问`B`的私有成员，而非反过来；`B`的成员函数不能访问`A`的私有成员（方向反了）。选项B错误：友元关系**不对称**，`A`是`B`的友元并不意味着`B`是`A`的友元。选项C错误：友元关系**不传递**，`A`→`B`→`C`的友元链不会自动使`A`成为`C`的友元。三项全错，故选D。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="友元的作用是" correct={0} meta={{label: "2-11", score: 2, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    友元的作用是
+
+  </Q>
+  <C>提高程序的运用效率</C>
+  <C>加强类的封装性</C>
+  <C>实现数据的隐藏性</C>
+  <C>增加成员函数的种类</C>
+  <Explanation>
+    **答案：A. 提高程序的运用效率。** 友元的主要作用是提高程序运行效率。通过将外部函数或另一个类声明为友元，允许它们直接访问该类的私有和保护成员，避免了通过公有成员函数间接访问的额外函数调用开销。选项B和C错误：友元恰恰**破坏了**类的封装性和数据隐藏性——它暴露了私有成员给外部函数/类，这是封装的反面。选项D错误：友元函数不是成员函数，不会增加成员函数的种类。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下面关于友元的描述中，错误的是：" correct={3} meta={{label: "2-12", score: 2, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    下面关于友元的描述中，错误的是：
+
+  </Q>
+  <C>友元函数可以访问该类的私有数据成员</C>
+  <C>一个类的友元类中的成员函数都是这个类的友元函数</C>
+  <C>友元可以提高程序的运行效率</C>
+  <C>类与类之间的友元关系可以继承</C>
+  <Explanation>
+    **答案：D. 类与类之间的友元关系可以继承。** 这句话**错误**——友元关系**不能继承**。如果类`A`是类`B`的友元，而类`C`继承自类`B`，类`A`不会自动成为类`C`的友元。同理，如果类`D`继承自类`A`，类`D`也不会自动成为类`B`的友元。选项A正确：友元函数确实可以访问该类的私有数据成员。选项B正确：将类`A`声明为类`B`的友元类后，类`A`的所有成员函数都是类`B`的友元函数。选项C正确：友元通过允许直接访问提高了效率。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="已知类A是类B的友元，类B是类C的友元，则：" correct={3} meta={{label: "2-13", score: 2, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    已知类`A`是类`B`的友元，类`B`是类`C`的友元，则：
+
+  </Q>
+  <C>类`A`一定是类`C`的友元</C>
+  <C>类`C`一定是类`A`的友元</C>
+  <C>类`C`的成员函数可以访问类`B`的对象的任何成员</C>
+  <C>类`A`的成员函数可以访问类`B`的对象的任何成员</C>
+  <Explanation>
+    **答案：D. 类`A`的成员函数可以访问类`B`的对象的任何成员。** 题目条件："类`A`是类`B`的友元"——这意味着类`A`的所有成员函数都可以访问类`B`的**任何成员**（包括私有和保护成员），所以D正确。选项A和B错误：友元关系不传递也不对称——`A`是`B`的友元、`B`是`C`的友元，并不能推出`A`是`C`的友元或`C`是`A`的友元。选项C错误：类`C`不是类`B`的友元（仅`B`是`C`的友元，方向反向也是不成立的），`C`的成员函数无法访问`B`的私有成员。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="不属于类的成员函数的是（ ） 。   " correct={2} meta={{label: "2-14", score: 2, difficulty: 0, author: "范鹏程", org: "内蒙古师范大学"}}>
+  <Q>
+    不属于类的成员函数的是（ ） 。
+
+  </Q>
+  <C>构造函数</C>
+  <C>析构函数</C>
+  <C>友元函数</C>
+  <C>复制构造函数</C>
+  <Explanation>
+    **答案：C. 友元函数。** 友元函数**不属于**类的成员函数。它虽然被类通过`friend`声明，但本质上是在类外部定义的普通函数（或另一个类的成员函数），不属于该类的成员。它没有`this`指针，不能通过对象来调用，也不在类的作用域内。选项A构造函数、选项B析构函数和选项D复制构造函数都是**特殊的成员函数**——它们在类内声明/定义，属于类的一部分，用于对象的创建、销毁和拷贝。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="若类A被说明成类B的友元，则（ ） 。   " correct={3} meta={{label: "2-15", score: 2, difficulty: 0, author: "范鹏程", org: "内蒙古师范大学"}}>
+  <Q>
+    若类`A`被说明成类`B`的友元，则（ ） 。
+
+
+  </Q>
+  <C>类`A`的成员即类`B`的成员</C>
+  <C>类`B`的成员即类`A`的成员</C>
+  <C>类`A`的成员函数不能访问类`B`的成员</C>
+  <C>类`B`不一定是类`A`的友元</C>
+  <Explanation>
+    **答案：D. 类`B`不一定是类`A`的友元。** 友元关系是**单向、不对称**的。类`A`被说明成类`B`的友元，意味着`A`可以访问`B`的私有成员，但这不意味着`B`也能访问`A`的私有成员——除非`B`也被显式声明为`A`的友元。所以"类`B`不一定（通常不是）类`A`的友元"是正确的。选项A和B明显荒谬：友元不会使两个类的成员合并。选项C错误：`A`是`B`的友元，`A`的成员函数可以访问`B`的成员（正是友元的作用）。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="在下列关键字中,用以说明类中公有成员的是（ ）。" correct={0} meta={{label: "2-16", score: 2, difficulty: 0, author: "余春艳", org: "福州大学"}}>
+  <Q>
+    在下列关键字中,用以说明类中公有成员的是（ ）。
+
+  </Q>
+  <C>`public`</C>
+  <C>`private`</C>
+  <C>`protected`</C>
+  <C>`friend`</C>
+  <Explanation>
+    **答案：A. `public`。** `public`关键字用于声明类的**公有成员**，公有成员可以被类外部的任何代码（包括对象和外部函数）直接访问。选项B `private`用于声明私有成员，仅类的成员函数和友元可以访问。选项C `protected`用于声明保护成员，仅类自身、派生类和友元可以访问。选项D `friend`不是访问修饰符——它用于声明友元函数或友元类，授予它们访问私有和保护成员的权限。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="Suppose a class is defined without any keywords such as public, " correct={2} meta={{label: "2-17", score: 2, difficulty: 0, author: "翁恺", org: "浙江大学"}}>
+  <Q>
+    Suppose a class is defined without any keywords such as `public`, `private` and `protected`，all members default to
+
+
+  </Q>
+  <C>`public`</C>
+  <C>`protected`</C>
+  <C>`private`</C>
+  <C>`static`</C>
+  <Explanation>
+    **答案：C. `private`。** 在C++中，使用`class`关键字定义的类，其成员默认访问权限是**private**（私有的）。也就是说，如果类定义中没有显式写出`public`、`private`或`protected`，则所有成员默认为私有，只能被类的成员函数和友元访问。注意：如果使用`struct`关键字定义，默认访问权限则是`public`。选项A `public`是`struct`的默认权限。选项B `protected`需要显式声明。选项D `static`是存储类说明符，不是访问修饰符。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="Who can access a private member of a class? " correct={1} meta={{label: "2-18", score: 2, difficulty: 0, author: "翁恺", org: "浙江大学"}}>
+  <Q>
+    Who can access a `private` member of a class?
+
+  </Q>
+  <C>Only member functions of that class.</C>
+  <C>Only member functions of that class and `friend` functions or member functions of `friend` classes</C>
+  <C>Only member functions of that class and derived classes</C>
+  <C>None of the others</C>
+  <Explanation>
+    **答案：B. Only member functions of that class and `friend` functions or member functions of `friend` classes。** 类的私有成员可以被子类自身的成员函数、友元函数以及友元类的成员函数访问。选项A不完整：遗漏了友元函数和友元类成员函数。选项C错误：**派生类不能访问基类的私有成员**——派生类只能访问基类的保护成员和公有成员，私有成员在派生类中不可见。这和Java等语言不同，C++中`private`成员对派生类是不可访问的。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="静态成员函数没有：" correct={1} meta={{label: "2-19", score: 2, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    静态成员函数没有：
+
+  </Q>
+  <C>返回值</C>
+  <C>`this`指针</C>
+  <C>指针参数</C>
+  <C>返回类型</C>
+  <Explanation>
+    **答案：B. `this`指针。** 静态成员函数没有`this`指针，因为它**属于类本身而不是某个具体对象**。静态成员函数通过类名直接调用，没有被调用时绑定的具体对象，因此不存在`this`指针。这也意味着静态成员函数不能直接访问非静态成员变量（因为没有`this`指针来定位属于哪个对象的成员）。选项A和D错误：静态成员函数可以有返回值，也有返回类型。选项C错误：静态成员函数完全可以有指针参数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="For the code below:" correct={0} meta={{label: "2-20", score: 2, difficulty: 0, author: "翁恺", org: "浙江大学"}}>
+  <Q>
+    For the code below:
+    ```
+    class A {
+      static int i;
+      //...
+    };
+    ```
+    Which statement is NOT true?
+
+
+  </Q>
+  <C>All objects of class `A` reserve a space for `i`</C>
+  <C>All objects of class `A` share the space of `i`</C>
+  <C>`i` is a member variable of class `A`</C>
+  <C>`i` is allocated in global data space</C>
+  <Explanation>
+    **答案：A. All objects of class `A` reserve a space for `i`。** 题目要求选出"NOT true"的选项。静态成员变量`i`属于整个类，**只有一份拷贝**，存储在全局数据区（静态存储区），所有对象**共享**这个唯一的内存空间——不会为每个对象单独分配`i`的空间。因此A错误（不是每个对象都保留一份空间）、B正确（共享空间）、C正确（`i`确实是类`A`的成员变量）、D正确（分配在全局数据区而非堆或栈）。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="复数的加减运算" meta={{label: "6-1", score: 10, difficulty: 0, author: "fpc", org: "内蒙古师范大学"}}>
+  <Q>
+    ###复数加减（友元的应用）
+    1. 声明一个复数类`CComplex`（类私有数据成员为`double`型的`real`和`image`）
+    2. 定义构造函数，用于指定复数的实部与虚部。
+    3. 定义成员函数，调用该函数时，以格式`real+image i`的格式输出当前对象（当虚部为正数时，实部虚部中间用+号连接，当虚部为复数时，实部虚部用-号连接）。
+    4. 编写加法友元函数，以复数对象`c1`, `c2`为参数，求两个复数对象之和（实部虚部分别相加）。
+    5. 编写减法友元函数，以复数对象`c1`, `c2`为参数，求两个复数对象的差（实部虚部分别相减）
+
+    输入格式:
+    输入有两行：
+    第一行是复数`c1`的实部与虚部，以空格分隔；
+    第二行是复数`c2`的实部与虚部，以空格分隔。
+
+    输出格式:
+    输出共四行:
+    第一行是`c1`；
+    第二行是`c2`；
+    第三行是`c1`与`c2`之和；
+    第四行是`c1`与`c2`之差；
+
+    #### 函数接口定义：
+    ```cpp
+    在这里描述类定义
+    class CComplex{...}
+    ```
+
+    #### 裁判测试程序样例：
+    ```cpp
+    int main()
+    {
+      double r1,r2,i1,i2;
+    	cin>>r1>>i1;
+    	cin>>r2>>i2;
+    	CComplex c1(r1,i1),c2(r2,i2),c3,c4;
+    	c1.display();
+    	c2.display();
+    	c3=add(c1,c2);
+    	c3.display();
+    	c4=	sub(c1,c2);
+    	c4.display();
+    }
+
+    /* 请在这里填写答案 */
+    ```
+
+    ####输入样例：
+
+    ```in
+    10 20
+    30 40
+    ```
+
+    #### 输出样例：
+
+    ```out
+    10+20i
+    30+40i
+    40+60i
+    -20-20i
+    ```
+
+  </Q>
+  <A>
+    {`
+    class CComplex{
+        private:
+        double real, image;
+        public:
+        CComplex (double a, double b){
+            real = a, image = b;
+        }
+        CComplex (){
+            real=0,image=0;
+        }
+        void display(){
+            cout << this->real << (((this->image) >= 0) ? "+" : "") << this->image << "i" << endl;
+        }
+        friend CComplex add(CComplex a, CComplex b);
+        friend CComplex sub(CComplex a, CComplex b);
+    };
+
+    CComplex add(CComplex a, CComplex b){
+        return CComplex(a.real + b.real, a.image + b.image);
+    }
+    CComplex sub(CComplex a, CComplex b){
+        return CComplex(a.real - b.real, a.image - b.image);
+    }
+    `}
+  </A>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="函数重载实现两数相加" meta={{label: "6-2", score: 10, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    设计一个重载函数`add`，该函数有两个参数，可以实现两个类型相同的参数相加的操作，函数返回相加的结果。两个参数可以是整数、实数和字符串，但必须保证两个参数类型相同。
+    ### 裁判测试程序样例：
+    ```cpp
+    #include <iostream>
+    #include <string>
+    #include <iomanip>
+    using namespace std;
+
+    /* 请在这里填写答案 */
+
+
+    int main()
+    {
+        int a, b;
+        double c, d;
+        string s1, s2;
+
+        cin >> a >> b;
+        cin >> c >> d;
+        cin >> s1 >> s2;
+
+        cout << add(a, b) << endl;
+        cout << fixed << setprecision(2) << add(c, d) << endl;
+        cout << add(s1, s2) << endl;
+
+        return 0;
+    }
+    ```
+
+    ### 输入样例：
+    ```in
+    3 5
+    3.3333 5.555555
+    hello world
+    ```
+
+    ### 输出样例：
+    ```out
+    8
+    8.89
+    helloworld
+    ```
+
+  </Q>
+  <A>
+    {`
+    int add(int a, int b){
+        return a + b;
+    }
+
+    double add(double a, double b){
+        return a + b;
+    }
+
+    string add(string a, string b){
+        return a + b;
+    }
+    `}
+  </A>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="带默认形参值的函数" meta={{label: "6-3", score: 10, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    设计一个带默认形参值的函数`add`，该函数有三个参数，可以实现三个整数类型的参数相加的操作，函数返回相加的结果。默认形参值从右至左分别是30、20。
+    ### 裁判测试程序样例：
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    /* 请在这里填写答案 */
+
+
+    int main()
+    {
+        int a, b, c;
+
+        cin >> a >> b >> c;
+
+        cout << add(a) << endl;
+        cout << add(a, b) << endl;
+        cout << add(a, b, c) << endl;
+
+        return 0;
+    }
+    ```
+
+    ### 输入样例：
+    ```in
+    1 2 3
+    ```
+
+    ### 输出样例：
+    ```out
+    51
+    33
+    6
+    ```
+
+  </Q>
+  <A>
+    {`
+
+    int add(int a, int b, int c){
+        return a + b + c;
+    }
+
+    int add(int a){
+        return add(a, 20, 30);
+    }
+
+    int add(int a, int b){
+        return add(a, b, 30);
+    }
+    `}
+  </A>
+</PTAQuiz>
+
+<PTAQuiz programming title="统计英文单词个数" meta={{label: "7-1", score: 10, difficulty: 0, author: "吴云鹏", org: "郑州大学"}}>
+  <Q>
+    给出一篇英文文章，现在需要统计文章中出现英文单词的数量。
+
+    ### 输入格式:
+
+    第一行一个`T`，代表数据组数
+
+    对于每组数据，第一行一个`n`，代表文章中单词的个数，其后`n`行每行一个只包含小写字母的长度为1到10的字符串
+
+    ### 输出格式:
+
+    每组数据输出若干行，每行输出单词以及它出现的次数（中间空格隔开），不同单词按单词字典序从小到大输出
+
+    保证单词出现的总次数 `<=` `1e5`
+
+    ### 输入样例:
+
+    ```in
+    1
+    8
+    it
+    is
+    a
+    pen
+    it
+    is
+    a
+    dog
+    ```
+
+    ### 输出样例:
+
+    ```out
+    a 2
+    dog 1
+    is 2
+    it 2
+    pen 1
+    ```
+
+  </Q>
+</PTAQuiz>
+
+<PTAQuiz programming title="众数" meta={{label: "7-2", score: 10, difficulty: 0, author: "小黑", org: "临沂大学"}}>
+  <Q>
+    给出若干个正整数，请找出出现次数最多的数。
+
+    ### 输入格式:
+
+    在一行中输入若干个数，以空格间隔（读入数的总个数不超过5000）。
+
+    ### 输出格式:
+
+    输出出现次数最多的数（若答案不唯一，输出最小的那个）。
+
+    ### 输入样例:
+
+    在这里给出一组输入。例如：
+
+    ```in
+    18 999 999 2100000000
+    ```
+
+    ### 输出样例:
+
+    在这里给出相应的输出。例如：
+
+    ```out
+    999
+    ```
+
+  </Q>
+</PTAQuiz>

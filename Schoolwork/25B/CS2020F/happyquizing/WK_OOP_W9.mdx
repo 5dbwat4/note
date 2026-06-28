@@ -1,0 +1,1074 @@
+---
+title: "浙大26春OOP W9多态作业"
+---
+
+import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+
+<PTAQuiz true-or-false title="虚函数是用virtual 关键字说明的成员函数。" correct={true} meta={{label: "1-1", score: 1, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    虚函数是用`virtual` 关键字说明的成员函数。
+  </Q>
+  <Explanation>
+    **正确答案：正确（TRUE）**
+
+    这是虚函数的**基本定义**。在 C++ 中，虚函数必须使用 `virtual` 关键字声明：
+    ```cpp
+    class Base {
+    public:
+        virtual void func();  // func 是虚函数
+    };
+    ```
+
+    `virtual` 关键字告诉编译器为该函数建立虚函数表（`vtable`）条目，使得通过基类指针/引用调用时能够进行**动态绑定**（运行时根据实际对象类型选择正确的函数版本）。这是 C++ 多态的实现基础，该说法完全正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="将构造函数说明为纯虚函数是没有意义的。" correct={true} meta={{label: "1-2", score: 1, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    将构造函数说明为纯虚函数是没有意义的。
+  </Q>
+  <Explanation>
+    **正确答案：正确（TRUE）**
+
+    构造函数**不能**被声明为虚函数或纯虚函数，原因如下：
+    1. **构造函数的作用**是初始化对象，在构造过程中虚函数表指针（`vptr`）逐步建立，动态绑定机制此时尚未就绪，虚函数调用无法正常工作。
+    2. **纯虚函数**意味着该类是抽象类，不能实例化——但构造函数的存在意义恰好是为了创建对象，两者矛盾。
+    3. C++ 标准禁止构造函数使用 `virtual` 关键字，编译器会直接报错。
+
+    因此试图将构造函数声明为纯虚函数既不合理也无意义，该说法正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="抽象类是指一些没有说明对象的类。" correct={false} meta={{label: "1-3", score: 1, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    抽象类是指一些没有说明对象的类。
+  </Q>
+  <Explanation>
+    **正确答案：错误（FALSE）**
+
+    抽象类的正确 C++ 定义是：**包含至少一个纯虚函数的类**。这个定义是明确且严格的。
+
+    原说法"没有说明对象的类"存在两个问题：
+    1. 表述不准确，"没有说明对象"不是 C++ 标准中的术语，缺乏精确定义。
+    2. 容易引起误解——虽然抽象类确实不能实例化对象，但定义抽象类的依据是"是否包含纯虚函数"，而非"能否说明对象"。
+
+    因此该说法错误。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="动态绑定是在运行时选定调用的成员函数的。" correct={true} meta={{label: "1-4", score: 1, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    动态绑定是在运行时选定调用的成员函数的。
+  </Q>
+  <Explanation>
+    **正确答案：正确（TRUE）**
+
+    **动态绑定（Dynamic Binding）** 是 C++ 多态的实现机制：
+    - 通过基类指针或引用调用虚函数时，调用的具体函数版本**在运行时**根据指针/引用所指向的**实际对象类型**确定，而非编译时确定。
+    - 这一过程依赖于**虚函数表（`vtable`）** 和**虚函数表指针（`vptr`）**：在运行时通过 `vptr` 查找 `vtable` 中的函数地址。
+
+    与之相对的是**静态绑定**（编译时确定）。该说法准确描述了动态绑定的含义，正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="因为静态成员函数不能是虚函数，所以它们不能实现多态。" correct={true} meta={{label: "1-5", score: 5, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    因为静态成员函数不能是虚函数，所以它们不能实现多态。
+  </Q>
+  <Explanation>
+    **正确答案：正确（TRUE）**
+
+    静态成员函数：
+    1. **不能声明为 `virtual`**：因为静态函数属于类而非对象，没有 `this` 指针，无法通过对象的 `vptr` 进行动态分派。
+    2. **无法实现多态**：多态的核心机制是动态绑定（通过基类指针/引用调用虚函数，运行时根据实际对象类型选择函数），而静态成员函数不参与此机制——调用在编译时即确定。
+
+    该说法正确：静态成员函数既不能是虚函数，因此也不具备多态能力。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="在多继承中，派生类的构造函数需要依次调用其基类的构造函数，调用顺序取决于定义派生类时所指定的各基类的顺序。" correct={true} meta={{label: "1-6", score: 1, difficulty: 0, author: "黄万丽", org: "曲阜师范大学"}}>
+  <Q>
+    在多继承中，派生类的构造函数需要依次调用其基类的构造函数，调用顺序取决于定义派生类时所指定的各基类的顺序。
+
+  </Q>
+  <Explanation>
+    **正确答案：正确（TRUE）**
+
+    C++ 标准规定，多继承时派生类构造函数中基类构造函数的调用顺序由**派生类声明时的继承列表顺序**决定，与构造函数初始化列表中的书写顺序无关。
+
+    例如：`class D : public A, public B` —— 无论 D 的构造函数初始化列表中如何排列，始终先调用 A 的构造函数，再调用 B 的构造函数。
+
+    该说法正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="类的组合关系可以用“Has-A”描述；类间的继承与派生关系可以用“Is-A”描述。  " correct={true} meta={{label: "1-7", score: 2, difficulty: 0, author: "李志明", org: "燕山大学"}}>
+  <Q>
+    类的组合关系可以用“Has-A”描述；类间的继承与派生关系可以用“Is-A”描述。
+  </Q>
+  <Explanation>
+    **正确答案：正确（TRUE）**
+
+    面向对象设计中两个经典的关系术语：
+    - **Has-A（组合/包含关系）**：一个类包含另一个类的对象作为成员，如"汽车有一个引擎"。代码中体现为对象成员。
+    - **Is-A（继承/派生关系）**：派生类是基类的一种，如"猫是一种动物"。代码中体现为公有继承。
+
+    这是 OOP 设计模式中的标准术语，该说法正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="虚函数具有继承性。  " correct={true} meta={{label: "1-8", score: 2, difficulty: 0, author: "Gloria", org: "沈阳师范大学"}}>
+  <Q>
+    虚函数具有继承性。
+  </Q>
+  <Explanation>
+    **正确答案：正确（TRUE）**
+
+    虚函数的**继承性**是 C++ 多态的核心特性：
+    - 一旦基类中将某成员函数声明为 `virtual`，派生类中**同签名**的函数自动成为虚函数，无论派生类中是否显式写出 `virtual` 关键字。
+    - 虚函数的特性会沿着**继承链**一直向下传递（派生类的派生类也继承虚函数特性）。
+    - 这使得通过基类指针或引用调用时，始终能根据对象的**实际类型**动态绑定到正确的函数版本。
+
+    因此该说法正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="静态成员函数可以声明为虚函数。  " correct={false} meta={{label: "1-9", score: 2, difficulty: 0, author: "Gloria", org: "沈阳师范大学"}}>
+  <Q>
+    静态成员函数可以声明为虚函数。
+  </Q>
+  <Explanation>
+    **正确答案：错误（FALSE）**
+
+    C++ **不允许**静态成员函数声明为 `virtual`。原因是：
+    - 静态成员函数属于**类本身**而非特定对象，没有隐含的 `this` 指针。
+    - 虚函数的动态绑定依赖于对象的**虚函数表指针（`vptr`）**，而静态成员函数的调用不涉及任何对象，无法通过 `vptr` 进行动态分派。
+    - 编译器会直接报错：`static member function cannot be virtual`。
+
+    因此该说法错误，静态成员函数不能是虚函数，也就不能参与多态。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="如果一个类的函数全部都是纯虚函数，则这个类不能有自己类的实现（包括引用和指针），只能通过派生类继承实现。" correct={false} meta={{label: "1-10", score: 2, difficulty: 0, author: "Gloria", org: "沈阳师范大学"}}>
+  <Q>
+    如果一个类的函数全部都是纯虚函数，则这个类不能有自己类的实现（包括引用和指针），只能通过派生类继承实现。
+  </Q>
+  <Explanation>
+    **正确答案：错误（FALSE）**
+
+    该说法有两处错误：
+
+    1. **关于引用和指针**：即使类的全部函数都是纯虚函数，该类仍然是抽象类，**可以**定义该类的**指针**和**引用**（如 `AbstractBase *p;` 或 `AbstractBase &ref;`）。这正是多态的核心用法——通过基类指针/引用指向派生类对象。说"不能有指针和引用"是错误的。
+
+    2. **关于"自己类的实现"**：纯虚函数也可以有函数体（定义在类外），并非完全不能有实现。
+
+    正确的理解是：纯虚函数使类成为抽象类，抽象类不能直接实例化对象，但可以定义指针和引用。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="Which one is the characteristic of abstract class? " correct={3} meta={{label: "2-1", score: 2, difficulty: 0, author: "翁恺", org: "浙江大学"}}>
+  <Q>
+    Which one is the characteristic of abstract class?
+
+
+  </Q>
+  <C>May have virtual functions</C>
+  <C>May have constructors overloaded</C>
+  <C>May have friend function</C>
+  <C>Can not make instance of this class</C>
+  <Explanation>
+    **正确答案：D**
+
+    抽象类的**核心特征**就是**不能实例化对象**（无法创建该类的实例），原因是它包含至少一个纯虚函数，该类是不完整的。
+
+    - **A（可以有虚函数）**：普通类也可以有虚函数，这不是抽象类的独有特征。
+    - **B（可以有重载构造函数）**：普通类也可以重载构造函数，与抽象无关。
+    - **C（可以有友元函数）**：普通类也可以声明友元函数，与抽象无关。
+
+    只有 D 是抽象类区别于具体类的本质特征。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="Given:" correct={3} meta={{label: "2-2", score: 2, difficulty: 0, author: "翁恺", org: "浙江大学"}}>
+  <Q>
+    Given:
+
+    ```
+    class A {
+    	A() {};
+    	virtual f() {};
+    	int i;
+    };
+    ```
+
+    which statement is NOT true:
+
+  </Q>
+  <C>`i` is `private`</C>
+  <C>`f()` is an `inline` function</C>
+  <C>`i` is a member of class `A`</C>
+  <C>`sizeof(A) == sizeof(int)`</C>
+  <Explanation>
+    **正确答案：D**
+
+    由于类 A 中声明了虚函数 `virtual f() {}`，编译器会为对象添加**虚函数表指针（`vptr`）**（通常占 4 或 8 字节）。因此 `sizeof(A) = sizeof(int) + sizeof(vptr) > sizeof(int)`，该判断不成立。
+
+    - **A**：未指定访问控制，成员默认 `private`，表述正确。
+    - **B**：`f()` 在类内定义，自动成为 `inline` 函数，表述正确。
+    - **C**：`i` 确实是类 `A` 的成员，表述正确。
+
+    关键点：只要类中有虚函数（无论是否为纯虚函数），对象就会包含 `vptr`，`sizeof` 会增大。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="Given:" correct={3} meta={{label: "2-3", score: 2, difficulty: 0, author: "翁恺", org: "浙江大学"}}>
+  <Q>
+    Given:
+    ```
+    class A {
+    	A() {}
+    	virtual f() = 0;
+    	int i;
+    };
+    ```
+    which statement below is **NOT** true:
+  </Q>
+  <C>`i` is `private`</C>
+  <C>Objects of class `A` can not be created</C>
+  <C>`i` is a member of class `A`</C>
+  <C>`sizeof(A) == sizeof(int)`</C>
+  <Explanation>
+    **正确答案：D**
+
+    类 A 中由于 `virtual f() = 0;` 声明了纯虚函数，编译器同样会为对象添加**虚函数表指针（`vptr`）**（通常占 4 或 8 字节）。因此 `sizeof(A) > sizeof(int)`，该判断不成立。
+
+    - **A**：未指定访问控制，成员默认 `private`，表述正确。
+    - **B**：`f()` 是纯虚函数，A 为抽象类，不能创建对象，表述正确。
+    - **C**：`i` 确实是类 `A` 的成员，表述正确。
+
+    注意：纯虚函数不意味着没有 `vptr`——编译器仍需 `vptr` 以支持动态绑定，即便纯虚函数本身没有实现。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="Given: " correct={2} meta={{label: "2-4", score: 2, difficulty: 0, author: "翁恺", org: "浙江大学"}}>
+  <Q>
+    Given:
+    ```
+    class X {
+    	int i;
+    	virtual void f() {};
+    };
+    ```
+    If `sizeof(int *) == sizeof(int) == 4`, then `sizeof(X)`==?
+
+  </Q>
+  <C>4</C>
+  <C>6</C>
+  <C>8</C>
+  <C>Undetermined</C>
+  <Explanation>
+    **正确答案：C（8）**
+
+    类 `X` 包含一个 `int` 成员变量和一个虚函数 `virtual void f()`。虚函数导致编译器为对象添加**虚函数表指针（`vptr`）**。给定 `sizeof(int*) == sizeof(int) == 4`：
+
+    `sizeof(X) = sizeof(int) + sizeof(vptr) = 4 + 4 = 8`
+
+    - **A（4）错误**：忽略了 `vptr` 的空间开销。
+    - **B（6）错误**：无任何依据。
+    - **D（Undetermined）错误**：在给定条件下（`vptr` 和 `int` 大小已知，默认对齐无额外填充），结果确定是 8。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="如果一个类至少有一个纯虚函数，那么就称该类为（）。   " correct={0} meta={{label: "2-5", score: 2, difficulty: 0, author: "Gloria", org: "沈阳师范大学"}}>
+  <Q>
+    如果一个类至少有一个纯虚函数，那么就称该类为（）。
+
+
+  </Q>
+  <C>抽象类</C>
+  <C>虚函数</C>
+  <C>派生类</C>
+  <C>具体类</C>
+  <Explanation>
+    **正确答案：A（抽象类）**
+
+    包含**至少一个**纯虚函数的类就称为**抽象类**，这是 C++ 的明确定义。抽象类不能实例化对象，只能作为基类被继承，派生类必须实现所有纯虚函数才能成为具体类。
+
+    - **B（虚函数）**：虚函数是用 `virtual` 修饰的成员函数，是函数的概念，不是类的分类。
+    - **C（派生类）**：派生类是继承自基类的类，与是否包含纯虚函数无关。
+    - **D（具体类）**：具体类是可以直接实例化对象的类，与抽象类相对。包含纯虚函数的类不能实例化，因此不是具体类。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="假设A为抽象类，下列声明（）是正确的。   " correct={1} meta={{label: "2-6", score: 2, difficulty: 0, author: "Gloria", org: "沈阳师范大学"}}>
+  <Q>
+    假设A为抽象类，下列声明（）是正确的。
+
+
+  </Q>
+  <C>`A fun(int);`</C>
+  <C>`A *p;`</C>
+  <C>`int fun(A);`</C>
+  <C>`A Obj;`</C>
+  <Explanation>
+    **正确答案：B**
+
+    抽象类（包含至少一个纯虚函数的类）**不能实例化对象**，但可以定义指向抽象类的**指针**或**引用**，这是实现多态的核心机制——通过基类指针指向派生类对象。
+
+    - **A 错误**：`A fun(int);` 函数的返回类型为抽象类（按值返回），需要创建 A 类型的临时对象，这是不允许的。
+    - **C 错误**：`int fun(A);` 函数的参数为抽象类（按值传递），需要创建 A 类型的形参对象，这也是不允许的。
+    - **D 错误**：`A Obj;` 直接声明抽象类对象，编译器会报错，因为抽象类不能实例化。
+
+    只有 **B** `A *p;` 声明的是一个指针，不创建对象，完全合法。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="在创建派生类对象时，构造函数的执行顺序是(    )。   " correct={1} meta={{label: "2-8", score: 2, difficulty: 0, author: "xuwz", org: "广东东软学院"}}>
+  <Q>
+    在创建派生类对象时，构造函数的执行顺序是(    )。
+
+
+  </Q>
+  <C>对象成员构造函数、基类构造函数、派生类本身的构造函数</C>
+  <C>基类构造函数、对象成员构造函数、派生类本身的构造函数</C>
+  <C>基类构造函数、派生类本身的构造函数、对象成员构造函数</C>
+  <C>派生类本身的构造函数、基类构造函数、对象成员构造函数</C>
+  <Explanation>
+    **正确答案：B**
+
+    C++ 中创建派生类对象时，构造函数的执行顺序是固定的：
+    1. **基类构造函数**（按继承声明列表的顺序）
+    2. **对象成员构造函数**（按成员在类中声明的顺序）
+    3. **派生类自身的构造函数体**
+
+    - **A 错误**：顺序完全颠倒。
+    - **C 错误**：对象成员构造函数应在派生类构造函数体之前执行（派生类构造函数体中可能使用对象成员，必须已初始化），顺序也不正确。
+    - **D 错误**：基类构造函数必须最先执行（派生类依赖基类），顺序完全错误。
+
+    记忆要点：先地基（基类），再组件（成员对象），最后自己。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="派生类中的私有成员" correct={0} meta={{label: "2-9", score: 1, difficulty: 0, author: "李祥", org: "湖北经济学院"}}>
+  <Q>
+    派生类中的私有成员
+
+    若采用私有继承方式，则派生类对象中的私有成员不可能为 ▁▁▁▁▁。
+
+
+  </Q>
+  <C>基类中定义的私有成员</C>
+  <C>基类中定义的保护成员</C>
+  <C>基类中定义的公有成员</C>
+  <C>派生类中新增的私有成员</C>
+  <Explanation>
+    **正确答案：A**
+
+    在**私有继承**方式下，基类中定义的私有成员虽然在派生类对象的内存空间中存在（被继承下来），但它们在派生类中**不可访问**，因此不能成为派生类的"私有成员"（派生类无法直接使用它们）。
+
+    - **B（保护成员）**：基类中的保护成员在私有继承下变为派生类的**私有成员**，派生类可以访问。
+    - **C（公有成员）**：基类中的公有成员在私有继承下也变为派生类的**私有成员**，派生类可以访问。
+    - **D（新增私有成员）**：派生类自己新增的私有成员当然是派生类的私有成员。
+
+    本质区别：基类私有成员虽然内存在，但访问权限不属于派生类，因此**不可能**成为派生类的私有成员。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="以下说法正确的是？   " correct={1} meta={{label: "2-10", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
+  <Q>
+    以下说法正确的是？
+
+
+  </Q>
+  <C>在虚函数中不能使用`this`指针</C>
+  <C>在构造函数中调用虚函数，不是动态联编</C>
+  <C>抽象类的成员函数都是纯虚函数</C>
+  <C>构造函数和析构函数都不能是虚函数</C>
+  <Explanation>
+    **正确答案：B**
+
+    在构造函数和析构函数中调用虚函数时，执行的是**静态联编**（static binding），而非动态联编。因为在构造/析构期间，派生类部分尚未初始化或已被销毁，虚函数表指针（`vptr`）指向当前正在构造/析构的类的虚函数表，而非最终派生类的虚函数表。
+
+    - **A 错误**：虚函数中完全可以使用 `this` 指针，虚函数的调用本身依赖 `this` 指向对象的 `vptr`。
+    - **C 错误**：抽象类的定义是包含**至少一个**纯虚函数的类，不要求全部成员函数都是纯虚函数。抽象类完全可以有非纯虚函数甚至具体成员函数。
+    - **D 错误**：析构函数可以且通常**应该**声明为虚函数（当类作为基类时），以确保通过基类指针 `delete` 派生类对象时正确调用派生类析构函数。构造函数不能是虚函数（构造时 `vptr` 尚未就位），但析构函数可以是虚函数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="B Fill in the blanks" meta={{label: "5-1", score: 3, difficulty: 0, author: "hulanqing", org: "浙江大学"}}>
+  <Q>
+    {`
+    Run the following program, the output is:   B::f()
+
+    \`\`\`c++
+    #include <iostream>
+    using namespace std;
+    class A{
+    public:
+        @@[](1){ cout<<"A::f()\\n"; }
+     };
+    class B:public A{
+     public:
+    	  void f() {cout<<"B::f()\\n"; }
+     };
+    int main()
+    {
+       B b;
+       A &p @@[](1);
+       @@[](1)f();
+       return 0;
+    }
+    \`\`\`
+
+
+    *Unplaced blanks:*
+    <Blank>virtual void f()</Blank>
+    <Blank>	 = b</Blank>
+    <Blank>	 p.</Blank>
+    `}
+  </Q>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="包含子对象的派生类构造函数" meta={{label: "5-2", score: 2, difficulty: 0, author: "范鹏程", org: "内蒙古师范大学"}}>
+  <Q>
+    {`
+    根据所定义的基类，定义派生类，请填空完成程序的功能
+
+    \`\`\`c++
+    #include <iostream>
+    #include <string>
+    using namespace std;
+    class Student                              //声明基类
+     {public:                                  //公用部分
+       Student(int n,string nam)              //基类构造函数
+        {num=n;
+         name=nam;
+        }
+       void display()                           //输出基类数据成员
+        {cout<<"num:"<<num<<endl<<"name:"<<name<<endl;}
+      protected:                                //保护部分
+        int num;
+        string name;
+    };
+
+    class Student1: public Student              //用public继承方式声明派生类student
+     {public:
+       @@[](2)              //派生类构造函数
+        {age=a;                                 //在此处只对派生类新增的数据成员初始化
+         addr=ad;
+        }
+       void show( )
+        {cout<<"This student is:"<<endl;
+         display();                               //输出num和name
+         cout<<"age: "<<age<<endl;
+         cout<<"address: "<<addr<<endl<<endl;
+        }
+
+       void show_monitor()                        //输出子对象的数据成员
+        {cout<<endl<<"Class monitor is:"<<endl;
+         monitor.display();                       //调用基类成员函数
+        }
+       private:                                //派生类的私有数据
+        Student monitor;                       //定义子对象(班长)
+        int age;
+        string addr;
+      };
+
+    int main( )
+     {Student1 stud1(10010,"Wang-li",10001,"Li-sun",19,"115 Beijing Road,Shanghai");
+      stud1.show( );                             //输出第一个学生的数据
+      stud1.show_monitor();                       //输出子对象的数据
+      return 0;
+     }
+
+    \`\`\`
+    ###程序输出如下
+    \`\`\`
+    This student is:
+    num:10010
+    name:Wang-li
+    age: 19
+    address: 115 Beijing Road,Shanghai
+
+
+    Class monitor is:
+    num:10001
+    name:Li-sun
+
+    \`\`\`
+
+
+    *Unplaced blanks:*
+    <Blank>Student1(int n, string nam, int mn, string mnam, int a, string ad): Student(n, nam), monitor(mn, mnam)</Blank>
+    `}
+  </Q>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="多层派生时的构造函数" meta={{label: "5-3", score: 5, difficulty: 0, author: "范鹏程", org: "内蒙古师范大学"}}>
+  <Q>
+    {`
+    根据所定义的基类，完成派生类的定义。
+
+    \`\`\`c++
+    #include <iostream>
+    #include<string>
+    using namespace std;
+    class Student
+     {public:
+       Student(int n, string nam )
+        {num=n;
+         name=nam;
+        }
+       void display()
+        {cout<<"num:"<<num<<endl;
+         cout<<"name:"<<name<<endl;
+        }
+      protected:
+        int num;
+        string name;
+    };
+
+    class Student1: public Student
+     {public:
+       @@[](2)
+        {age=a; }
+       void show( )
+        {display();
+         cout<<"age: "<<age<<endl;
+        }
+       private:
+        int age;
+      };
+
+    class Student2:public Student1
+     {public:
+        @@[](3)
+        {score=s;}
+       void show_all()
+        {show();
+         cout<<"score:"<<score<<endl;
+        }
+      private:
+       int score;
+     };
+
+    int main( )
+     {Student2 stud(10010,"Li",17,89);
+      stud.show_all( );
+      return 0;
+     }
+    \`\`\`
+
+
+    *Unplaced blanks:*
+    <Blank>Student1(int n, string nam, int a): Student(n, nam)</Blank>
+    <Blank>Student2(int n, string nam, int a, int s): Student1(n, nam, a)</Blank>
+    `}
+  </Q>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="汽车类的继承" meta={{label: "6-1", score: 10, difficulty: 0, author: "范鹏程", org: "内蒙古师范大学"}}>
+  <Q>
+    根据给定的汽车类`vehicle`（包含的数据成员有车轮个数`wheels`和车重`weight`）声明，完成其中成员函数的定义，之后再定义其派生类并完成测试。
+    小车类`car`是它的派生类，其中包含载人数`passenger_load`。每个类都有相关数据的输出方法。
+
+    ###`Vehicle`类声明如下：
+    ```
+    #include<iostream>
+    using namespace std;
+    class Vehicle
+    {
+    	protected:
+    		int wheels;
+    		float weight;
+    	public:
+    		Vehicle(int wheels,float weight);
+    		int get_wheels();
+    		float get_weight();
+    		float wheel_load();
+    		void show();
+    };
+
+    /* 请在这里填写答案 */
+    ```
+
+    ### 裁判测试程序样例：
+    ```cpp
+    int main ()
+    {
+    	Vehicle v(4,1000);
+    	v.show();
+    	Car car1(4,2000,5);
+    	car1.show ();
+    	return 0;
+    }
+
+    ```
+
+    ### 输出样例：
+
+    在这里给出相应的输出。例如：
+
+    ```out
+    Type:Vehicle
+    Wheel:4
+    Weight:1000kg
+    Type:Car
+    Type:Vehicle
+    Wheel:4
+    Weight:2000kg
+    Load:5 persons
+    ```
+
+  </Q>
+  <A>
+    {`
+    // Vehicle类成员函数实现
+    Vehicle::Vehicle(int wheels, float weight) {
+        this->wheels = wheels;
+        this->weight = weight;
+    }
+
+    int Vehicle::get_wheels() {
+        return wheels;
+    }
+
+    float Vehicle::get_weight() {
+        return weight;
+    }
+
+    float Vehicle::wheel_load() {
+        return weight / wheels;
+    }
+
+    void Vehicle::show() {
+        cout << "Type:Vehicle" << endl;
+        cout << "Wheel:" << wheels << endl;
+        cout << "Weight:" << weight << "kg" << endl;
+    }
+
+    // Car派生类定义
+    class Car : public Vehicle {
+    private:
+        int passenger_load;
+    public:
+        Car(int wheels, float weight, int passenger_load)
+            : Vehicle(wheels, weight), passenger_load(passenger_load) {
+        }
+        void show() {
+            cout << "Type:Car" << endl;
+            Vehicle::show();  // 调用基类show输出Vehicle部分信息
+            cout << "Load:" << passenger_load << " persons" << endl;
+        }
+    };
+    `}
+  </A>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="水上飞机*" meta={{label: "6-2", score: 20, difficulty: 0, author: "李祥", org: "湖北经济学院"}}>
+  <Q>
+    请设计以下航行器、飞机、船、水上飞机等 4 个类。
+
+    - `CRAFT` 为航行器类，是公共基类，提供航行器的基本特性。包括：
+
+      一个保护数据成员：`speed`(速度)。
+
+      三个公有成员函数：构造函数(初始化速度)、析构函数和 `Show` 函数(显示速度)。
+
+    - `PLANE` 为飞机类，以公有方式继承 `CRAFT` 类，在航行器类的基础上增加飞机的特性。包括：
+
+      一个保护数据成员：`width`(翼展)。
+
+      三个公有成员函数：构造函数(初始化速度和翼展)、析构函数和 `Show` 函数(显示速度和翼展)。
+
+    - `SHIP` 为船类，以公有方式继承 `CRAFT` 类，在航行器类的基础上增加船的特性。包括：
+
+      一个保护数据成员：`depth`(吃水深度)。
+
+      三个公有成员函数：构造函数(初始化速度和吃水深度)、析构函数和 `Show` 函数(显示速度和吃水深度)。
+
+    - `SEAPLANE` 为水上飞机类，同时以公有方式继承 `PLANE` 类和 `SHIP` 类，兼具飞机和船的特性。包括：
+
+      三个公有成员函数：构造函数(初始化速度、翼展、吃水深度)、析构函数和 `Show` 函数(显示速度、翼展和吃水深度)。
+
+    #### 测试用例
+
+    - 样例一
+
+    ```cpp
+    CRAFT *p;
+    p = new CRAFT(87.2);
+    p->Show();
+    delete p;
+    ```
+
+    ```
+    创建航行器(速度: 87.2)
+    航行(速度: 87.2)
+    销毁航行器(速度: 87.2)
+    ```
+
+    - 样例二
+
+    ```cpp
+    CRAFT *p;
+    p = new PLANE(613.5, 45.3);
+    p->Show();
+    delete p;
+    ```
+
+    ```
+    创建航行器(速度: 613.5)
+    创建飞机(翼展: 45.3)
+    航行(速度: 613.5, 翼展: 45.3)
+    销毁飞机(翼展: 45.3)
+    销毁航行器(速度: 613.5)
+    ```
+
+    - 样例三
+
+    ```cpp
+    CRAFT *p;
+    p = new SHIP(45.8, 8.3);
+    p->Show();
+    delete p;
+    ```
+
+    ```
+    创建航行器(速度: 45.8)
+    创建船(吃水: 8.3)
+    航行(速度: 45.8, 吃水: 8.3)
+    销毁船(吃水: 8.3)
+    销毁航行器(速度: 45.8)
+    ```
+
+    - 样例四
+
+    ```cpp
+    CRAFT *p;
+    p = new SEAPLANE(415.2, 36.5, 2.1);
+    p->Show();
+    delete p;
+    ```
+
+    ```
+    创建航行器(速度: 415.2)
+    创建飞机(翼展: 36.5)
+    创建船(吃水: 2.1)
+    创建水上飞机
+    航行(速度: 415.2, 翼展: 36.5, 吃水: 2.1)
+    销毁水上飞机
+    销毁船(吃水: 2.1)
+    销毁飞机(翼展: 36.5)
+    销毁航行器(速度: 415.2)
+    ```
+
+    #### 裁判程序
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    /* 你提交的代码将被嵌在这里 */
+
+    int main()
+    {
+    	double s, w, d;
+    	CRAFT *p;
+    	cin >> s >> w >> d;
+    	p = new SEAPLANE(s, w, d);
+    	p->Show();
+    	delete p;
+    	return 0;
+    }
+    ```
+
+    #### 输入样例
+    ```in
+    583.6 48.2 3.8
+
+    ```
+
+    #### 输出样例
+
+    ```out
+    创建航行器(速度: 583.6)
+    创建飞机(翼展: 48.2)
+    创建船(吃水: 3.8)
+    创建水上飞机
+    航行(速度: 583.6, 翼展: 48.2, 吃水: 3.8)
+    销毁水上飞机
+    销毁船(吃水: 3.8)
+    销毁飞机(翼展: 48.2)
+    销毁航行器(速度: 583.6)
+
+    ```
+
+  </Q>
+  <A>
+    {`
+    #include <iostream>
+    using namespace std;
+
+    // 基类：航行器 CRAFT
+    class CRAFT {
+    protected:
+        double speed;  // 速度
+    public:
+        CRAFT(double s) : speed(s) {
+            cout << "创建航行器(速度: " << s << ")" << endl;
+        }
+        virtual ~CRAFT() {
+            cout << "销毁航行器(速度: " << speed << ")" << endl;
+        }
+        virtual void Show() {
+            cout << "航行(速度: " << speed << ")" << endl;
+        }
+    };
+
+    // 飞机类 PLANE：虚继承 CRAFT
+    class PLANE : public virtual CRAFT {
+    protected:
+        double width;  // 翼展
+    public:
+        PLANE(double s, double w) : CRAFT(s), width(w) {
+            cout << "创建飞机(翼展: " << w << ")" << endl;
+        }
+        virtual ~PLANE() {
+            cout << "销毁飞机(翼展: " << width << ")" << endl;
+        }
+        virtual void Show() {
+            cout << "航行(速度: " << speed << ", 翼展: " << width << ")" << endl;
+        }
+    };
+
+    // 船类 SHIP：虚继承 CRAFT
+    class SHIP : public virtual CRAFT {
+    protected:
+        double depth;  // 吃水深度
+    public:
+        SHIP(double s, double d) : CRAFT(s), depth(d) {
+            cout << "创建船(吃水: " << d << ")" << endl;
+        }
+        virtual ~SHIP() {
+            cout << "销毁船(吃水: " << depth << ")" << endl;
+        }
+        virtual void Show() {
+            cout << "航行(速度: " << speed << ", 吃水: " << depth << ")" << endl;
+        }
+    };
+
+    // 水上飞机 SEAPLANE：多重继承 PLANE 和 SHIP
+    class SEAPLANE : public PLANE, public SHIP {
+    public:
+        // 虚基类必须由最派生类直接初始化
+        SEAPLANE(double s, double w, double d)
+            : CRAFT(s), PLANE(s, w), SHIP(s, d) {
+            cout << "创建水上飞机" << endl;
+        }
+        virtual ~SEAPLANE() {
+            cout << "销毁水上飞机" << endl;
+        }
+        virtual void Show() {
+            cout << "航行(速度: " << speed
+                 << ", 翼展: " << width
+                 << ", 吃水: " << depth << ")" << endl;
+        }
+    };
+    `}
+  </A>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="从shape类派生出一个正n边形" meta={{label: "6-3", score: 10, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    在一个正n边形（Regular Polygon）中，所有边的边长都相等，且所有角的度数相同（即这个多边形是等边、等角的）。请从下列的抽象类`shape`类扩展出一个正n边形类`RegularPolygon`,这个类将正n边形的边数`n`和边长`s`作为私有成员，类中包含初始化边数`n`和边长`s`的构造函数。
+    ```
+    class shape {// 形状类
+    public:
+     double getArea()  // 求面积
+     {return -1;}
+     double getPerimeter() // 求周长
+     {return -1;}
+    };
+    ```
+    计算正n边形的面积公式为： `Area=n×a×a/(tan((180度/n))×4);`
+
+    注意：**需要将角度转换成弧度后再计算三角函数。π取3.1415926**
+    ### 函数接口定义：
+    ```cpp
+    类名：RegularPolygon
+    ```
+
+    ### 裁判测试程序样例：
+    ```cpp
+    #include <iostream>
+    #include <cmath>
+    using namespace std;
+
+    class shape {// 形状类
+    public:
+     double getArea()  // 求面积
+     {return -1;}
+     double getPerimeter() // 求周长
+     {return -1;}
+    };
+    /* 请在这里填写答案 */
+    //Your code will be embed-ed here.
+
+    int main()
+    {
+    	int n;
+    	double s;
+
+    	cin>>n>>s;
+    	RegularPolygon p(n,s);
+    	cout<<p.getArea()<<endl;
+
+    	cout<<p.getPerimeter()<<endl;
+
+    	return 0;
+    }
+    ```
+
+    ### 输入样例：
+
+    在这里给出一组输入。例如：
+
+    ```in
+    5   3.3
+    ```
+
+    ### 输出样例：
+
+    在这里给出相应的输出。例如：
+
+    ```out
+    18.736
+    16.5
+    ```
+
+  </Q>
+  <A>
+    {`
+    class RegularPolygon : public shape {
+    private:
+        int n;          // 边数
+        double s;       // 边长
+    public:
+        // 构造函数：初始化边数n和边长s
+        RegularPolygon(int n, double s) : n(n), s(s) {
+        }
+
+        // 重写求面积函数
+        double getArea() {
+            const double PI = 3.1415926;
+            // 将角度转换为弧度：(180/n)度 = (180/n) * PI / 180 弧度
+            double angle_rad = (180.0 / n) * PI / 180.0;
+            // 面积公式：Area = n×s×s / (tan(180°/n) × 4)
+            return n * s * s / (tan(angle_rad) * 4);
+        }
+
+        // 重写求周长函数
+        double getPerimeter() {
+            return n * s;
+        }
+    };
+    `}
+  </A>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="派生类使用基类的成员函数" meta={{label: "6-4", score: 10, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    按要求完成下面的程序：
+    1、定义一个`Animal`类，成员包括：
+    （1）整数类型的私有数据成员`m_nWeightBase`，表示`Animal`的体重；
+    （2）整数类型的保护数据成员`m_nAgeBase`，表示`Animal`的年龄；
+    （3）公有函数成员`set_weight`，用指定形参初始化数据成员`nWeightBase`；
+    （4）公有成员函数`get_weight`，返回数据成员`nWeightBase`的值；
+    （5）公有函数成员`set_age`，用指定形参初始化数据成员`m_nAgeBase`；
+    2、定义一个`Cat`类，公有继承自`Animal`类，其成员包括：
+    （1）`string`类型的私有数据成员`m_strName`;
+    （2）带参数的构造函数，用指定形参对私有数据成员进行初始化；
+    （3）公有的成员函数`print_age`，功能是首先输出成员`m_strName`的值，然后输出“, age = ”，接着输出基类的数据成员`m_nAgeBase`的值。具体输出格式参见`main`函数和样例输出。
+
+    ### 类和函数接口定义：
+    ```cpp
+    参见题目描述。
+    ```
+
+    ### 裁判测试程序样例：
+    ```cpp
+    #include <iostream>
+    #include <string>
+    using namespace std;
+
+    /* 请在这里填写答案 */
+
+    int main()
+    {
+        Cat cat("Persian");   //定义派生类对象cat
+        cat.set_age(5);       //派生类对象调用从基类继承的公有成员函数
+        cat.set_weight(6);    //派生类对象调用从基类继承的公有成员函数
+        cat.print_age();      //派生类对象调用自己的公有函数
+        cout << "cat weight = " << cat.get_weight() << endl;
+        return 0;
+    }
+
+    ```
+
+    ### 输入样例：
+
+    本题无输入。
+
+
+    ### 输出样例：
+
+    ```out
+    Persian, age = 5
+    cat weight = 6
+    ```
+
+  </Q>
+  <A>
+    {`
+    // Animal类定义（基类）
+    class Animal {
+    private:
+        int m_nWeightBase;  // 体重（私有成员）
+    protected:
+        int m_nAgeBase;     // 年龄（保护成员，派生类可访问）
+    public:
+        // 设置体重：用指定形参初始化私有数据成员
+        void set_weight(int nWeightBase) {
+            m_nWeightBase = nWeightBase;
+        }
+
+        // 获取体重：返回私有数据成员的值
+        int get_weight() {
+            return m_nWeightBase;
+        }
+
+        // 设置年龄：用指定形参初始化保护数据成员
+        void set_age(int age) {
+            m_nAgeBase = age;
+        }
+    };
+
+    // Cat类定义（公有继承Animal）
+    class Cat : public Animal {
+    private:
+        string m_strName;   // 猫的名字（私有成员）
+    public:
+        // 构造函数：初始化名字
+        Cat(string name) {
+            m_strName = name;
+        }
+
+        // 打印年龄：输出名字和从基类继承的保护成员m_nAgeBase
+        void print_age() {
+            cout << m_strName << ", age = " << m_nAgeBase << endl;
+        }
+    };
+    `}
+  </A>
+</PTAQuiz>

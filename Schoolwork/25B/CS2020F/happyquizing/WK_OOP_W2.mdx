@@ -1,0 +1,417 @@
+---
+title: "浙大26春OOP W2 容器"
+---
+
+import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+
+<PTAQuiz multiple-choice title="vector::size()" correct={3} meta={{label: "2-1", score: 2, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    若有下面的语句：
+    ```cpp
+    vector<int> v;
+    for (int i = 0; i < 4; i++)
+        v.push_back(i + 1);
+    cout << v.size() << endl;
+    ```
+    则执行后程序的输出结果是
+  </Q>
+  <C>1</C>
+  <C>2</C>
+  <C>3</C>
+  <C>4</C>
+  <Explanation>
+    **答案：4**。循环执行4次（i=0,1,2,3），每次 `push_back(i+1)` 分别压入1、2、3、4，因此 `v.size()` 返回4。其他选项（1、2、3）均小于实际元素个数，不符合循环次数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="vector构造函数调用时机" correct={2} meta={{label: "2-2", score: 2, difficulty: 0, author: "孔德桢", org: "浙大城市学院"}}>
+  <Q>
+    设有定义 `vector<string> v(10);`
+    执行下列哪条语句时会调用构造函数？
+  </Q>
+  <C>`v[0] += "abc";`</C>
+  <C>`v[0] = "2018";`</C>
+  <C>`v.push_back("ZUCC");`</C>
+  <C>`cout << (v[1] == "def");`</C>
+  <Explanation>
+    **答案：`v.push_back("ZUCC");`**。`vector<string> v(10)` 已创建了10个空字符串对象。`v[0] += "abc"` 和 `v[0] = "2018"` 均修改已存在的元素，不调用 `string` 的构造函数；`cout << (v[1] == "def")` 仅进行比较操作。而 `push_back("ZUCC")` 需要将字符串字面量 `"ZUCC"` 转换为 `string` 临时对象再插入，因此会调用 `string` 的构造函数。A、B、D均不涉及新对象的构造。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="map与char*键" correct={1} meta={{label: "2-3", score: 2, difficulty: 0, author: "孔德桢", org: "浙大城市学院"}}>
+  <Q>
+    设有如下代码段：
+    ```cpp
+    std::map<char *, int> m;
+    const int MAX_SIZE = 100;
+    int main() {
+        char str[MAX_SIZE];
+        for (int i = 0; i < 10; i++) {
+            std::cin >> str;
+            m[str] = i;
+        }
+        std::cout << m.size() << std::endl;
+    }
+    ```
+    读入10个字符串，则输出的 `m.size()` 为
+  </Q>
+  <C>0</C>
+  <C>1</C>
+  <C>10</C>
+  <Explanation>
+    **答案：1**。`std::map<char*, int>` 使用 `char*` 作为键，而 `char*` 的默认比较是比较**指针地址**而非字符串内容。代码中10次输入都读入同一个字符数组 `str`（其地址始终不变），因此 `m[str] = i` 每次操作的键都是同一地址，后续赋值会覆盖前一次的值。最终 map 中只有1个键值对，`m.size()` 为1。若想按字符串内容索引，应使用 `std::map<std::string, int>`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="关于STL的错误描述" correct={3} meta={{label: "2-4", score: 2, difficulty: 0, author: "刘莹", org: "威海职业学院"}}>
+  <Q>下列关于STL的描述中，错误的是。</Q>
+  <C>STL的内容从广义上讲分为容器、迭代器、算法三个主要部分</C>
+  <C>STL的一个基本理念就是将数据和操作分离</C>
+  <C>STL中的所有组件都由模板构成，其元素可以是任意类型</C>
+  <C>STL的容器、迭代器、算法是三个完全独立的部分，彼此也无任何联系</C>
+  <Explanation>
+    **答案：D（STL的容器、迭代器、算法是三个完全独立的部分，彼此也无任何联系）**。这是错误的描述——STL的三大组件紧密协作：迭代器是容器与算法之间的桥梁，算法通过迭代器访问和操作容器中的元素，三者并非"完全独立、无任何联系"。A正确，STL确实包含容器、迭代器、算法三大部分；B正确，STL将数据（容器）与操作（算法）分离；C正确，STL通过模板实现，元素类型可以是任意类型。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="创建vector的错误方法" correct={3} meta={{label: "2-5", score: 2, difficulty: 0, author: "刘莹", org: "威海职业学院"}}>
+  <Q>
+    下列创建 `vector` 容器对象的方法中，错误的是。
+
+    A. `vector<int> v(10);`
+    B. `vector<int> v(10, 1);`
+    C. `vector<int> v{10, 1};`
+    D. `vector<int> v = (10, 1);`
+  </Q>
+  <C>`vector<int> v(10);`</C>
+  <C>`vector<int> v(10, 1);`</C>
+  <C>`vector<int> v{10, 1};`</C>
+  <C>`vector<int> v = (10, 1);`</C>
+  <Explanation>
+    **答案：D（`vector<int> v = (10, 1);`）**。`(10, 1)` 是C++的逗号运算符，先计算 `10`（丢弃），再计算 `1`，整个表达式的值为 `1`。因此该语句等价于 `vector<int> v = 1;`，而 `vector<int>` 没有接受单个 `int` 的转换构造函数，导致编译错误。A正确：`vector<int> v(10)` 创建10个默认值0的元素；B正确：`vector<int> v(10, 1)` 创建10个值均为1的元素；C正确：`vector<int> v{10, 1}` 使用列表初始化，创建包含元素 `{10, 1}` 的`vector`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="哪一项不是迭代器" correct={3} meta={{label: "2-6", score: 2, difficulty: 0, author: "刘莹", org: "威海职业学院"}}>
+  <Q>下列选项中，哪一项不是迭代器。</Q>
+  <C>输入迭代器</C>
+  <C>前向迭代器</C>
+  <C>双向迭代器</C>
+  <C>删除迭代器</C>
+  <Explanation>
+    **答案：D（删除迭代器）**。C++ STL定义了五种迭代器类别：输入迭代器（`Input Iterator`）、输出迭代器（`Output Iterator`）、前向迭代器（`Forward Iterator`）、双向迭代器（`Bidirectional Iterator`）和随机访问迭代器（`Random Access Iterator`）。不存在"删除迭代器"这一类别。A、B、C均为STL中真实存在的迭代器类型。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="string::find返回值" correct={1} meta={{label: "2-7", score: 2, difficulty: 0, author: "黄龙军", org: "绍兴大学"}}>
+  <Q>
+    执行以下代码后，`k`的值是(&emsp;&emsp;&emsp;)。
+    ```cpp
+    string s = "123456", t = "7788";
+    int k = s.find(t);
+    ```
+  </Q>
+  <C>`4294967295`</C>
+  <C>`-1`</C>
+  <C>`0`</C>
+  <C>`0xfffffffe`</C>
+  <Explanation>
+    **答案：`-1`**。`s.find(t)` 在 `"123456"` 中查找 `"7788"`，未找到时返回 `string::npos`。`string::npos` 的类型是 `string::size_type`（无符号整型），其值定义为 `static const size_type npos = -1;`，即无符号类型的最大值（如32位下为`4294967295`）。当 `npos` 赋给 `int k` 时，发生无符号到有符号的转换，在二进制补码系统中该位模式被解释为 `-1`。A（`4294967295`）是 `npos` 在32位下的无符号字面值，但 `k` 为 `int` 类型，实际存的是 `-1`；C和D均不正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="string与char的+运算" correct={2} meta={{label: "2-8", score: 2, difficulty: 0, author: "黄龙军", org: "绍兴大学"}}>
+  <Q>
+    以下代码的输出结果是(&emsp;&emsp;&emsp;)。
+    ```cpp
+    string s = "123";
+    char c = 'a';
+    cout << s + c << endl;
+    ```
+  </Q>
+  <C>语句出错</C>
+  <C>188</C>
+  <C>`123a`</C>
+  <C>`12310`</C>
+  <Explanation>
+    **答案：`123a`**。`std::string` 重载了 `operator+`，其中一个重载接受 `char` 参数：`string operator+(const string&, char)`。因此 `s + c` 会将字符 `'a'` 追加到字符串 `"123"` 末尾，得到新字符串 `"123a"`。A错误，语句语法正确，不会出错；B（188）是将 `'a'` 的ASCII码97与 `"123"` 做数值运算的结果，但 `string + char` 执行的是字符串拼接而非数值加法；D（12310）无依据，`'a'` 的ASCII码为97而非10。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="cin输入字符串（空格截断）" correct={1} meta={{label: "2-9", score: 2, difficulty: 0, author: "黄龙军", org: "绍兴大学"}}>
+  <Q>
+    有代码如下：
+    ```cpp
+    string s;
+    cin >> s;
+    cout << s << endl;
+    ```
+    输入以下字符串，以上语句输出的是(&emsp;&emsp;&emsp;)。
+    ```plain
+    123 abc
+    ```
+  </Q>
+  <C>`123 abc`</C>
+  <C>`123`</C>
+  <C>`abc`</C>
+  <C>`123abc`</C>
+  <Explanation>
+    **答案：`123`**。`cin >> s` 使用 `operator>>` 读取字符串时，默认以空白字符（空格、制表符、换行符等）作为分隔符。输入 `"123 abc"` 时，`cin` 读取到空格后停止，因此 `s` 只包含 `"123"`，后续的 `"abc"` 留在输入缓冲区中未被读取。A错误，`cin >>` 不读取一整行（应使用 `getline`）；C错误，`"abc"` 未被读入 `s`；D错误，`cin >>` 以空格分隔，不会将输入拼接成 `"123abc"`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="stack/queue的错误说法" correct={3} meta={{label: "2-10", score: 2, difficulty: 0, author: "黄龙军", org: "绍兴大学"}}>
+  <Q>关于STL之 `stack` 和 `queue` 的以下说法中，错误的是(&emsp;&emsp;&emsp;)。</Q>
+  <C>`stack` 的 `push` 方法用于将元素入栈</C>
+  <C>`queue` 的 `push` 方法用于将元素入队</C>
+  <C>`queue` 的 `front` 方法用于取得队头元素</C>
+  <C>`stack` 的 `top` 方法用于取得栈顶元素的下标</C>
+  <Explanation>
+    **答案：D（`stack` 的 `top` 方法用于取得栈顶元素的下标）**。`stack::top()` 返回的是栈顶元素的**引用**（reference），而非下标。栈是一种后进先出（LIFO）的数据结构，没有下标的概念，只能访问栈顶元素的值。A正确，`stack::push()` 将元素压入栈顶；B正确，`queue::push()` 将元素加入队尾；C正确，`queue::front()` 返回队头元素的引用。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="众数——习题19-1" meta={{label: "5-1", score: 10, difficulty: 0, author: "海洋饼干叔叔", org: "重庆大学"}}>
+  <Q>
+    {`
+从键盘读入数量不确定的正整数，然后从中找出出现次数最多的数。操作者输入-1表示结束输入。后台测试用例确保至少输入一个正整数，且众数唯一。
+
+请将下述程序补充完整，使其能正常运行，找出众数。
+
+\\#include <iostream>\\
+\\#include <vector>\\
+using namespace std;
+
+int main() {\\
+    vector<int> a;\\
+    while (true){\\
+        int i;\\
+        cin >> i;\\
+        if <Blank>(~i)</Blank>\\
+            a.push_back(i);\\
+        else\\
+            <Blank>break;</Blank>\\
+    }
+
+    int iMaxCount = 0;
+    int iMode = a[0];
+    for (auto x : a){
+        int iCount = 0;
+        for (<Blank>auto y : a</Blank>){
+            if (x == y)
+                iCount++;
+        }
+
+        if (iCount <Blank>></Blank> iMaxCount){
+            iMaxCount = iCount;
+            <Blank>iMode =</Blank> x;
+        }
+    }
+
+    cout << "The mode is " << iMode;
+    return 0;
+}
+
+输入示例：
+
+\`\`\`plain
+3
+2
+1
+33
+3
+3
+4
+-1
+\`\`\`
+
+输出示例：
+
+\`\`\`plain
+The mode is 3
+\`\`\`
+`}
+  </Q>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="排队领糖——习题19-3" meta={{label: "5-2", score: 10, difficulty: 0, author: "海洋饼干叔叔", org: "重庆大学"}}>
+  <Q>
+    {`
+幼稚园阿姨发糖，先到先得。请查询资料，使用队列（queue）容器模拟幼稚园小朋友Jack、Mary、Tom、Angela和Alex依次到达（入队）并依次出队领糖的过程。
+
+\`\`\`cpp
+#include <iostream>
+<Blank>#include <queue></Blank>
+using namespace std;
+
+int main()
+{
+    queue<<Blank>string</Blank>> q;
+    q.push("Jack");
+    q.push("Mary");
+    q.push("Tom");
+    q.push(<Blank>"Angela"</Blank>);
+    q.push("Alex");
+
+    while (!q.empty()){
+        string s = q.front();
+        <Blank>q.pop();</Blank>
+        cout << <Blank>s</Blank> << " get candy." << endl;
+    }
+
+    return 0;
+}
+\`\`\`
+
+程序期望的输出：
+
+\`\`\`plain
+Jack get candy.
+Mary get candy.
+Tom get candy.
+Angela get candy.
+Alex get candy.
+\`\`\`
+`}
+  </Q>
+  <Explanation>
+    **Note: This answer was written by AI and may not be correct.**
+    Answers: `#include <queue>`, `string`, `"Angela"`, `q.pop();`, `s`
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="筛法求质数" meta={{label: "6-1", score: 20, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    本题要求使用筛法求出1~N以内的质数。
+
+    ### 函数接口定义
+    ```cpp
+    vector<int> sieve(int n); //函数声明, 求n以内的质数
+    ```
+
+    求 `n` 以内的质数。其中 `n` 是传入的参数。`n` 的值不超过10 000 000的范围；求出的质数存入容器 `vector` 并返回。
+
+    ### 裁判测试程序样例
+    ```cpp
+    #include <iostream>
+    #include <vector>
+    using namespace std;
+
+    vector<int> sieve(int n); //函数声明,求n以内的质数
+
+    int main(int argc, char const *argv[])
+    {
+        int n;
+        cin >> n;
+        vector<int> ans = sieve(n);
+        cout << ans.size() << endl;
+        for (int i = 0; i < ans.size(); i++) {
+            cout << ans[i];
+            if (i < ans.size() - 1) cout << " ";
+        }
+        cout << endl;
+        return 0;
+    }
+    /* 请在这里填写答案 */
+    ```
+
+    ### 输入样例
+
+    输入在一行中给出一个正整数N，其值不超过10 000 000。
+    ```in
+    10
+    ```
+
+    ### 输出样例
+
+    输出首先在一行中输出指定范围内的质数个数，然后在另一行输出指定范围内的所有质数，以空格分隔，但是最后一个质数后面没有多余空格。
+    ```out
+    4
+    2 3 5 7
+    ```
+  </Q>
+  <A>
+    {`
+#include <bitset>
+
+vector<int> sieve(int n){
+    // char num[n+1];
+    bitset<10000001> num;
+    vector<int> ret;
+    for(int i = 0; i <= n; i++){
+        num[i] = 1;
+    }
+    num[2] = 1;
+    for (int i = 2; i <= n; i++){
+        if (num[i]){
+            for (int j = 2 * i; j <= n; j += i){
+                num[j] = 0;
+            }
+            ret.push_back(i);
+        }
+    }
+    return ret;
+}
+`}
+  </A>
+</PTAQuiz>
+
+<PTAQuiz programming title="众数" meta={{label: "7-1", score: 10, difficulty: 0, author: "小黑", org: "临沂大学"}}>
+  <Q>
+    给出若干个正整数，请找出出现次数最多的数。
+
+    ### 输入格式
+
+    在一行中输入若干个数，以空格间隔（读入数的总个数不超过5000）。
+
+    ### 输出格式
+
+    输出出现次数最多的数（若答案不唯一，输出最小的那个）。
+
+    ### 输入样例
+    ```in
+    18 999 999 2100000000
+    ```
+
+    ### 输出样例
+    ```out
+    999
+    ```
+  </Q>
+</PTAQuiz>
+
+<PTAQuiz programming title="括号匹配问题" meta={{label: "7-2", score: 10, difficulty: 0, author: "王宇", org: "集美大学诚毅学院"}}>
+  <Q>
+    {`
+假设一个表达式或一段程序中含有三种括号：圆括号"("和")"、方括号"["和"]"、花括号"{"和"}"。试写一个程序判别给定的表达式或程序中所含括号是否正确配对出现，可以使用C++ STL解决问题。
+
+### 输入格式
+
+输入一个只含有括号的表达式
+
+### 输出格式
+
+输出一个"DO NOT MATCH"或"DO MATCH"，表明正确匹配与否
+
+### 输入样例1
+\`\`\`in
+{{{[]()}[()]}}
+\`\`\`
+
+### 输出样例1
+\`\`\`out
+DO MATCH
+\`\`\`
+
+### 输入样例2
+\`\`\`in
+{{]])
+\`\`\`
+
+### 输出样例2
+\`\`\`out
+DO NOT MATCH
+\`\`\`
+`}
+  </Q>
+</PTAQuiz>

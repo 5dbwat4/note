@@ -1,0 +1,231 @@
+---
+title: "浙大26春OOP W7组合作业"
+---
+
+import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+
+<PTAQuiz multiple-choice title="有如下类的定义：" correct={0} meta={{label: "2-1", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
+  <Q>
+    有如下类的定义：
+    ```
+    class Sample
+    {
+    public:
+    	Sample( );
+    	Sample(int x );
+    	......
+    };
+    ```
+    动态申请对象存储单元，调用一个带参构造函数，初值为2的语句是（）。
+
+
+  </Q>
+  <C>`Sample *a=new Sample(2);`</C>
+  <C>`Sample a=new Sample(2);`</C>
+  <C>`Sample *a=new Sample[2];`</C>
+  <C>`Sample a=new Sample[2];`</C>
+  <Explanation>
+    正确答案：A：`Sample *a=new Sample(2);`
+
+    题目要求“动态申请对象存储单元”并“调用带参构造函数，初值为 2”。
+
+    - `new Sample(2)` 在堆上创建一个对象，并用圆括号 `(2)` 把实参 2 传给带参构造函数 `Sample(int x)`，返回的是指向该对象的指针 `Sample*`，所以必须用指针变量 `Sample *a` 接收。A 完全符合要求。
+    - B：`Sample a=new Sample(2);` 错误。`new` 返回的是指针 `Sample*`，而 `a` 被声明为对象（`Sample`），类型不匹配，无法用指针初始化一个对象。
+    - C：`Sample *a=new Sample[2];` 错误。方括号 `[2]` 表示创建一个含 2 个元素的对象数组，每个元素只能调用**无参（默认）构造函数**，并不会调用带参构造函数，也不是“初值为 2”。
+    - D：`Sample a=new Sample[2];` 错误。既把指针赋给对象（类型不匹配），又用 `[2]` 创建数组调用默认构造函数，双重错误。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="有如下定义：" correct={0} meta={{label: "2-2", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
+  <Q>
+    有如下定义：
+    ```
+    class Sample
+    {
+    public:
+    	Sample( );
+    	Sample(int x );
+    	......
+    };
+    ```
+    如果用`new`创建对象数组，该数组中包含10个对象，则正确的语句为（）。
+
+
+  </Q>
+  <C>`Sample *a=new Sample[10];`</C>
+  <C>`Sample *a=new Sample(10);`</C>
+  <C>`Sample *a=new Sample[ ];`</C>
+  <C>`Sample *a=new Sample;`</C>
+  <Explanation>
+    正确答案：A：`Sample *a=new Sample[10];`
+
+    要用 `new` 创建一个包含 10 个对象的**对象数组**，正确语法是 `new 类型[元素个数]`，并用指针接收。
+
+    - A：`Sample *a=new Sample[10];` 正确。方括号 `[10]` 表示分配 10 个连续的 `Sample` 对象（每个调用默认构造函数），返回首元素地址给指针 `a`。
+    - B：`Sample *a=new Sample(10);` 错误。圆括号 `(10)` 表示创建**一个**对象，并把 10 作为实参传给带参构造函数 `Sample(int x)`，得到的是单个对象而非 10 个对象的数组。
+    - C：`Sample *a=new Sample[ ];` 错误。用 `new` 创建数组时必须显式指定元素个数，方括号不能为空，否则编译报错。
+    - D：`Sample *a=new Sample;` 错误。这只创建**一个**对象（调用默认构造函数），并非 10 个对象的数组。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="若类A的构造函数定义为 " correct={2} meta={{label: "2-3", score: 2, difficulty: 0, author: "范鹏程", org: "内蒙古师范大学"}}>
+  <Q>
+    {`
+    若类A的构造函数定义为
+    A(int aa=1, int bb=0) { a = aa; b = bb; }
+    则执行：A x(4);后，x.a和x.b的值分别是（ ）
+
+
+    `}
+  </Q>
+  <C>1,0</C>
+  <C>1,4</C>
+  <C>4,0</C>
+  <C>4,1</C>
+  <Explanation>
+    正确答案：C：`4,0`
+
+    构造函数 `A(int aa=1, int bb=0)` 中，`aa` 与 `bb` 都有默认值（`aa=1`、`bb=0`）。
+
+    执行 `A x(4);` 时，按形参顺序从左到右传递实参：第一个实参 4 赋给 `aa`，因此 `aa=4`；没有提供第二个实参，于是 `bb` 取默认值 0，即 `bb=0`。
+
+    构造函数体中 `a = aa; b = bb;`，所以 `x.a = 4`，`x.b = 0`。
+
+    - A `1,0`：误以为没传参，全部取默认值，但实际上 4 已传给了 `aa`。
+    - B `1,4`：把 4 错配给了第二个参数 `bb`，并保留 `aa` 的默认值，实参顺序理解错误。
+    - D `4,1`：`b` 的默认值应是 0 而非 1，记错了默认值。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="假设A是一个类的名字，下面程序片段，类A会调用析构函数几次？" correct={2} meta={{label: "2-4", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
+  <Q>
+    {`
+    假设A是一个类的名字，下面程序片段，类A会调用析构函数几次？
+    int main(){
+    A \`* p = new A[2];\`
+    A \`* p2 = new A;\`
+    A a;
+    delete [] p;
+    }
+
+
+    `}
+  </Q>
+  <C>1</C>
+  <C>2</C>
+  <C>3</C>
+  <C>4</C>
+  <Explanation>
+    正确答案：C：`3`
+
+    逐行分析每个对象的析构情况：
+
+    1. `A * p = new A[2];`：在堆上创建一个含 **2 个** `A` 对象的数组（调用 2 次构造函数）。
+    2. `A * p2 = new A;`：在堆上创建 **1 个** `A` 对象（调用 1 次构造函数）。
+    3. `A a;`：在栈上创建 **1 个**局部对象 `a`（调用 1 次构造函数）。
+    4. `delete [] p;`：用 `delete[]` 释放数组 `p`，会对数组中**全部 2 个**对象调用析构函数 → **2 次析构**。
+
+    main 函数结束时：
+
+    - 局部对象 `a` 离开作用域，自动调用析构函数 → **1 次析构**。
+    - 堆对象 `p2` 由于始终**没有 `delete p2`**，造成内存泄漏，其析构函数**不会被调用** → 0 次析构。
+
+    因此析构函数总调用次数 = 数组 2 次 + 局部对象 a 的 1 次 = **3 次**，选 C。
+
+    - A `1` / B `2`：漏算了部分对象的析构（如忘记栈对象 `a` 或数组的两个元素）。
+    - D `4`：错误地认为 `p2` 指向的对象也会被析构。但程序未对 `p2` 调用 `delete`，该对象不会被释放，故不应计入，正确答案是 3 而非 4。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="你好，构造函数的初始化列表" meta={{label: "5-1", score: 10, difficulty: 0, author: "向训文", org: "惠州学院"}}>
+  <Q>
+    {`
+    在构造函数中，使用初始化列表对数据成员进行初始化：
+
+    样例程序：
+    \`\`\`c++
+    #include<iostream>
+    using namespace std;
+    class Point {
+    public:
+        // 构造函数，使用初始化列表对数据成员进行初始化
+        Point(int x, int y) {}
+        int getX() { return m_x; }
+        int getY() { return m_y; }
+    private:
+        int m_x, m_y;
+    };
+    int main() {
+        int x, y;
+        cin >> x >> y; // 输入点的x，y坐标
+        Point p(x, y); // 创建点对象
+        cout << p.getX() << " " << p.getY() << endl; // 输出点的坐标
+        return 0;
+    }
+    \`\`\`
+
+
+    *Unplaced blanks:*
+    <Blank>:m_x(x), m_y(y)</Blank>
+    `}
+  </Q>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="最大值函数重载" meta={{label: "6-1", score: 10, difficulty: 0, author: "杨军", org: "四川师范大学"}}>
+  <Q>
+    编写重载函数myMax可分别求取两个整数，三个整数，两个双精度数的最大值。
+
+    ### 函数接口定义：
+    ```cpp
+
+    ```
+
+    ### 裁判测试程序样例：
+    ```cpp
+
+    /* 请在这里填写答案 */
+
+    int main(){
+    	cout<<myMax(3,4)<<endl;
+    	cout<<myMax(3,4,5)<<endl;
+    	cout<<myMax(4.3,3.4)<<endl;
+    }
+
+    ```
+
+    ### 输入样例：
+
+
+    无
+
+    ### 输出样例：
+
+    在这里给出相应的输出。例如：
+
+    ```out
+    4
+    5
+    4.3
+
+    ```
+
+  </Q>
+  <A>
+    {`
+    #include <iostream>
+    using namespace std;
+
+    int myMax(int a, int b) {
+        return (a > b) ? a : b;
+    }
+
+    int myMax(int a, int b, int c) {
+        return myMax(myMax(a, b), c);
+    }
+
+    double myMax(double a, double b) {
+        return (a > b) ? a : b;
+    }
+    `}
+  </A>
+</PTAQuiz>

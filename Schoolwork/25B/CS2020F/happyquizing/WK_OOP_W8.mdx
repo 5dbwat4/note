@@ -1,0 +1,327 @@
+---
+title: "浙大26春OOP W8继承作业"
+---
+
+import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+
+<PTAQuiz true-or-false title="In C++, inheritance allows a derived class to directly access al" correct={false} meta={{label: "1-1", score: 1, difficulty: 0, author: "翁恺", org: "浙江大学"}}>
+  <Q>
+    In C++, inheritance allows a derived class to directly access all of the functions and data of its base class.
+  </Q>
+  <Explanation>
+    该说法**错误**。
+
+    派生类通过继承**不能**直接访问基类的 `private` 私有成员。基类的私有成员对派生类是不可见的，只有基类的 `public` 和 `protected` 成员才能被派生类直接访问。
+
+    总结：继承的"可见性"受基类访问控制符限制——`private` 成员不会被子类继承访问，`public` 和 `protected` 成员可以。
+
+    示例：
+    ```cpp
+    class Base {
+    private:
+        int x;   // 派生类无法直接访问
+    protected:
+        int y;   // 派生类可以直接访问
+    public:
+        int z;   // 派生类可以直接访问
+    };
+    ```
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="One class can have more than one super classes.  " correct={true} meta={{label: "1-2", score: 1, difficulty: 0, author: "翁恺", org: "浙江大学"}}>
+  <Q>
+    One class can have more than one super classes.
+  </Q>
+  <Explanation>
+    该说法**正确**。
+
+    C++ 支持**多继承**（multiple inheritance），一个派生类可以同时继承自多个基类（即拥有多个"父类"/"super class"）。
+
+    语法示例：
+    ```cpp
+    class Derived : public Base1, public Base2, public Base3 {
+        // 同时继承 Base1、Base2、Base3
+    };
+    ```
+
+    需要注意：多继承可能引入**二义性**（如菱形继承问题），C++ 通过虚基类（`virtual` inheritance）来解决此类问题。但本题仅讨论"一个类是否可以有多个父类"——答案是肯定的。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="write the output of the code below." meta={{label: "4-1", score: 5, difficulty: 0, author: "hulanqing", org: "浙江大学"}}>
+  <Q>
+    write the output of the code below.
+
+    1.the output at //1 is <Blank>1</Blank>
+
+    2.the output at //2 is <Blank>2</Blank>
+
+    3.the output at //3 is <Blank>7</Blank>
+
+    4.the output at //4 is <Blank>0</Blank>
+
+    5.the output at //5 is <Blank>0</Blank>
+
+    ```
+    #include <iostream>
+    #include <string>
+    using namespace std ;
+
+    class Testing
+    {
+    private:
+    	string words;
+    	int number ;
+    public:
+    	Testing(const string & s = "Testing")
+    	{
+    		words = s ;
+    		number = words.length();
+    		if (words.compare("Testing")==0)
+    			cout << 1;
+    		else if (words.compare("Heap1")==0)
+    			cout << 2;
+    		else
+    			cout << 3;
+    	}
+    	~Testing()
+    	{
+    		cout << 0;
+    	}
+    	void show() const
+    	{
+    		cout << number;
+    	}
+    };
+    int main()
+    {
+    	Testing *pc1 , *pc2;
+    	pc1 = new Testing ;          //1
+    	pc2 = new Testing("Heap1");  //2
+    	pc1->show();   //3
+    	delete pc1 ;   //4
+    	delete pc2 ;   //5
+    	return 0;
+    }
+    ```
+
+
+  </Q>
+  <Explanation>
+    **Note: This answer was written by AI and may not be correct.**
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="For the code segment below, in the main(), " meta={{label: "4-2", score: 10, difficulty: 0, author: "翁恺", org: "浙江大学"}}>
+  <Q>
+    For the code segment below, in the `main()`,
+    1.  the output at //1 is <Blank>11</Blank><Blank>4</Blank> ;
+    2. the output at //2 is <Blank>30</Blank><Blank>30</Blank><Blank>62</Blank> ;
+    3. the output at //3 is <Blank>11</Blank><Blank>5</Blank> ;
+    4. the output at //4 is <Blank>30</Blank><Blank>30</Blank><Blank>62</Blank> ;
+
+    ```
+    class A{
+    	int i;
+    public:
+    	A(int ii=0):i(ii) { cout << 1; }
+    	A(const A& a) {
+    		i = a.i;
+    		cout << 2;
+    	}
+    	void print() const { cout << 3 << i; }
+    };
+
+    class B : public A {
+    	int i;
+    	A a;
+    public:
+    	B(int ii = 0) : i(ii) { cout << 4; }
+    	B(const B& b) {
+    		i = b.i;
+    		cout << 5;
+    	}
+    	void print() const {
+    		A::print();
+    		a.print();
+    		cout << 6 << i;
+    	}
+    };
+
+    int main()
+    {
+    	B b(2);		//1
+    	b.print();	//2
+    	B c(b);		//3
+    	c.print();	//4
+    }
+    ```
+
+  </Q>
+  <Explanation>
+    **Note: This answer was written by AI and may not be correct.**
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="派生类使用基类的成员函数" meta={{label: "6-1", score: 10, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    按要求完成下面的程序：
+    1、定义一个`Animal`类，成员包括：
+    （1）整数类型的私有数据成员`m_nWeightBase`，表示`Animal`的体重；
+    （2）整数类型的保护数据成员`m_nAgeBase`，表示`Animal`的年龄；
+    （3）公有函数成员`set_weight`，用指定形参初始化数据成员`nWeightBase`；
+    （4）公有成员函数`get_weight`，返回数据成员`nWeightBase`的值；
+    （5）公有函数成员`set_age`，用指定形参初始化数据成员`m_nAgeBase`；
+    2、定义一个`Cat`类，公有继承自`Animal`类，其成员包括：
+    （1）`string`类型的私有数据成员`m_strName`;
+    （2）带参数的构造函数，用指定形参对私有数据成员进行初始化；
+    （3）公有的成员函数`print_age`，功能是首先输出成员`m_strName`的值，然后输出“, age = ”，接着输出基类的数据成员`m_nAgeBase`的值。具体输出格式参见`main`函数和样例输出。
+
+    ### 类和函数接口定义：
+    ```cpp
+    参见题目描述。
+    ```
+
+    ### 裁判测试程序样例：
+    ```cpp
+    #include <iostream>
+    #include <string>
+    using namespace std;
+
+    /* 请在这里填写答案 */
+
+    int main()
+    {
+        Cat cat("Persian");   //定义派生类对象cat
+        cat.set_age(5);       //派生类对象调用从基类继承的公有成员函数
+        cat.set_weight(6);    //派生类对象调用从基类继承的公有成员函数
+        cat.print_age();      //派生类对象调用自己的公有函数
+        cout << "cat weight = " << cat.get_weight() << endl;
+        return 0;
+    }
+
+    ```
+
+    ### 输入样例：
+
+    本题无输入。
+
+
+    ### 输出样例：
+
+    ```out
+    Persian, age = 5
+    cat weight = 6
+    ```
+
+  </Q>
+  <A>
+    {`
+    class Animal{
+    private:
+        int m_nWeightBase;
+    protected:
+        int m_nAgeBase;
+    public:
+        void set_weight(int weight){this->m_nWeightBase = weight;}
+        int get_weight(){return this->m_nWeightBase;}
+        void set_age(int age){this->m_nAgeBase = age;}
+    };
+
+    class Cat : public Animal {
+    private:
+        string m_strName;
+    public:
+        Cat(string name): m_strName(name){}
+        void print_age(){
+            cout << this->m_strName << ", age = " << this->Animal::m_nAgeBase << endl;
+        }
+    };
+
+    `}
+  </A>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="私有继承派生类使用基类的成员函数" meta={{label: "6-2", score: 10, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    按要求完成下面的程序：
+    1、定义一个`Animal`类，成员包括：
+    （1）整数类型的私有数据成员`m_nWeightBase`，表示`Animal`的体重；
+    （2）整数类型的保护数据成员`m_nAgeBase`，表示`Animal`的年龄；
+    （3）公有函数成员`set_weight`，用指定形参初始化数据成员`m_nWeightBase`；
+    （4）公有成员函数`get_weight`，返回数据成员`m_nWeightBase`的值；
+    （5）公有函数成员`set_age`，用指定形参初始化数据成员`m_nAgeBase`；
+    2、定义一个`Cat`类，私有继承自`Animal`类，其成员包括：
+    （1）`string`类型的私有数据成员`m_strName`;
+    （2）带参数的构造函数，用指定形参对私有数据成员进行初始化；
+    （3）公有的成员函数`set_print_age`，功能是首先调用基类的成员函数`set_age`设置数据成员`m_nAgeBase`的值为5，接着输出成员`m_strName`的值，然后输出“, age = ”，最后输出基类的数据成员`m_nAgeBase`的值。具体输出格式参见`main`函数和样例输出。
+    （4）公有的成员函数`set_print_weight`，功能是首先调用基类的成员函数`set_weight`设置数据成员`nWeightBase`的值为6，接着输出成员`m_strName`的值，然后输出“, weight = ”，最后调用基类的成员函数`get_weight`输出基类的数据成员`m_nAgeBase`的值。具体输出格式参见`main`函数和样例输出。
+
+
+    ### 类和函数接口定义：
+    ```cpp
+    参见题目描述。
+    ```
+
+    ### 裁判测试程序样例：
+    ```cpp
+    #include <iostream>
+    #include <string>
+    using namespace std;
+
+    /* 请在这里填写答案 */
+
+    int main()
+    {
+        Cat cat("Persian");     //定义派生类对象cat
+        cat.set_print_age();
+        cat.set_print_weight(); //派生类对象调用自己的公有函数
+        return 0;
+    }
+
+    ```
+
+    ### 输入样例：
+
+    本题无输入。
+
+
+    ### 输出样例：
+
+    ```out
+    Persian, age = 5
+    Persian, weight = 6
+    ```
+
+  </Q>
+  <A>
+    {`
+    class Animal {
+    private:
+        int m_nWeightBase;
+    protected:
+        int m_nAgeBase;
+    public:
+        void set_weight(int weight){this->m_nWeightBase = weight;}
+        int get_weight(){return this->m_nWeightBase;}
+        void set_age(int age){this->m_nAgeBase = age;}
+    };
+
+    class Cat : private Animal {
+    private:
+        string m_strName;
+    public:
+        Cat(string name): m_strName(name) {}
+        void set_print_age(){
+            this->Animal::set_age(5);
+            cout << m_strName << ", age = " << this->Animal::m_nAgeBase << endl;
+        }
+        void set_print_weight(){
+            this->Animal::set_weight(6);
+            cout << m_strName << ", weight = " << this->Animal::get_weight() << endl;
+        }
+    };
+    `}
+  </A>
+</PTAQuiz>

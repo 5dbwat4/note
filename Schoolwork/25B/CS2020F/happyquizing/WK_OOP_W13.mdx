@@ -1,0 +1,848 @@
+---
+title: "浙大26春OOP W13异常作业"
+---
+
+import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+
+<PTAQuiz true-or-false title="If you are not interested in the contents of an exception object" correct={true} meta={{label: "1-1", score: 1, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    If you are not interested in the contents of an exception object, the `catch` block parameter may be omitted.。
+  </Q>
+  <Explanation>
+    正确答案：**TRUE**（命题成立）。
+
+    `catch` 块的参数与函数参数类似：如果你需要访问异常对象的内容，就写出参数名，如 `catch (const MyExc& e)`，然后在块内通过 `e` 使用它；如果你**只关心异常的类型而不关心其内容**，则可以省略参数名，只写类型，例如 `catch (const MyExc&)` 甚至 `catch (int)`。这是合法的语法，编译器允许只声明类型而不命名形参。
+
+    因此“若对异常对象内容不感兴趣，`catch` 块的参数可以省略（不写形参名）”这一说法是正确的。注意：能省略的是**参数名**，类型一般仍需保留（唯一可完全省略类型的是捕获一切的 `catch (...)`）。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="catch (type p) acts very much like a parameter in a function. On" correct={true} meta={{label: "1-2", score: 1, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    `catch (type p)` acts very much like a parameter in a function. Once the exception is caught, you can access the thrown value from this parameter in the body of a `catch` block.。
+  </Q>
+  <Explanation>
+    正确答案：**TRUE**（命题成立）。
+
+    `catch (type p)` 中的 `p` 与函数形参的行为非常相似：当 `throw` 抛出的对象被该 `catch` 捕获时，抛出的值会以"传参"的方式（按值则拷贝构造，按引用则绑定）传递给 `p`，于是在 `catch` 块体内就可以通过 `p` 访问到被抛出的值。
+
+    例如 `throw 5;` 被 `catch (int e)` 捕获后，`e` 的值就是 5。因此该说法正确。（实践中推荐用 `const&` 接收以避免不必要的拷贝和对象切片，但这并不改变“可通过该形参访问抛出值”这一结论。）
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="异常处理的catch{ }语句块必须紧跟try{ }语句块之后，这两个语句之间不能插入另外语句。" correct={true} meta={{label: "1-3", score: 1, difficulty: 0, author: "黄万丽", org: "曲阜师范大学"}}>
+  <Q>
+    {`
+    异常处理的catch{ }语句块必须紧跟try{ }语句块之后，这两个语句之间不能插入另外语句。
+    `}
+  </Q>
+  <Explanation>
+    正确答案：**TRUE**（命题成立）。
+
+    在 C++ 的异常处理结构中，`try` 块与其后的 `catch` 块在语法上是一个**整体**：`catch` 处理器必须**紧接**在 `try` 块（或上一个 `catch` 块）之后，中间不允许插入任何其它语句、声明或表达式。例如下面写法是非法的：
+
+    ```cpp
+    try { /* ... */ }
+    int x = 0;          // 错误：try 和 catch 之间不能插入语句
+    catch (int e) { /* ... */ }
+    ```
+
+    一个 `try` 可以跟随**多个** `catch`，但这些 `catch` 之间同样必须连续排列。因此“catch 必须紧跟 try、之间不能插入其它语句”的说法正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="有如下语句序列" correct={false} meta={{label: "1-4", score: 1, difficulty: 0, author: "黄万丽", org: "曲阜师范大学"}}>
+  <Q>
+    有如下语句序列
+    ```
+    第1行：	int a=1;
+    第2行：	try{
+    第3行：	   if(a==1) throw(a);
+    第4行：	   a++;
+    第5行：	}
+    第6行：	catch(int b){
+    第7行：	   cout << “error! a = ” << b << endl;
+    第8行：	}
+    ```
+    以上语句的第6行有编译错误，只能写成`catch(int)`。
+  </Q>
+  <Explanation>
+    正确答案：**FALSE**（命题不成立）。
+
+    第 6 行 `catch(int b)` 是**完全合法**的写法，并不存在编译错误。`catch` 的参数和函数参数一样：既可以**带形参名**（`catch(int b)`，便于在块内通过 `b` 使用被抛出的值），也可以**只写类型省略形参名**（`catch(int)`，当你不关心异常内容时）。
+
+    在本例中，`throw(a)` 抛出 `int` 值 1，被 `catch(int b)` 捕获后 `b` 为 1，第 7 行会输出 `error! a = 1`，程序正常运行。所以“第 6 行有编译错误、只能写成 `catch(int)`”是错误的，本题判为 FALSE。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="One of the major features in C++ is  （   ）  handling,which is a " correct={3} meta={{label: "2-1", score: 2, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    One of the major features in C++ is  （   ）  handling,which is a better way of handling errors.
+
+  </Q>
+  <C>data</C>
+  <C>pointer</C>
+  <C>test</C>
+  <C>`exception`</C>
+  <Explanation>
+    正确答案：**D. `exception`**。
+
+    句意为“C++ 的一大重要特性是 ____ 处理，它是处理错误的更好方式”。这里描述的正是 **`exception`（异常）处理**：通过 `try`/`throw`/`catch` 机制，把错误检测与错误处理相分离，比传统的返回错误码方式更安全、更清晰。
+
+    其余选项不符合题意：data（数据）、pointer（指针）、test（测试）都不是“处理错误的机制”，与 “a better way of handling errors” 的描述对不上。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="What is wrong in the following code?" correct={2} meta={{label: "2-2", score: 2, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    What is wrong in the following code?
+
+    ```
+      vector<int> v;
+      v[0] = 2.5;
+    ```
+
+
+  </Q>
+  <C>The program has a compile error because there are no elements in the `vector`.</C>
+  <C>The program has a compile error because you cannot assign a double value to `v[0]`.</C>
+  <C>The program has a runtime error because there are no elements in the `vector`.</C>
+  <C>The program has a runtime error because you cannot assign a double value to `v[0]`.</C>
+  <Explanation>
+    正确答案：**C. 运行时错误，因为 `vector` 中没有任何元素**。
+
+    分析代码：
+    ```cpp
+    vector<int> v;   // 空向量，size() == 0
+    v[0] = 2.5;      // 访问下标 0
+    ```
+
+    - `vector::operator[]` **不做边界检查**。对一个空的 `vector` 使用 `v[0]` 属于越界访问，是**未定义行为（运行时错误）**，而不是编译错误。所以这是“运行时”问题，排除 A、B 两个“compile error”选项。
+    - 把 `2.5`（`double`）赋给 `int` 元素并**不是错误**：会发生隐式窄化转换，结果被截断为 `2`，编译器至多给出警告，不会报错。因此 D（“因为不能把 `double` 赋给 `v[0]`”）说法错误。
+    - 真正的问题在于 `vector` 为空、`v[0]` 越界，故选 C。
+
+    （补充：若想要带越界检查并抛出 `std::out_of_range` 异常，应使用 `v.at(0)`。）
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="If you enter 1 0, what is the output of the following code?   " correct={3} meta={{label: "2-3", score: 2, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    If you enter 1 0, what is the output of the following code?
+    ```cpp
+    #include "iostream"
+    using namespace std;
+
+    int main()
+
+    {
+      // Read two integers
+
+
+    	cout << "Enter two integers: ";
+
+      int number1, number2;
+
+      cin >> number1 >> number2;
+
+      try
+      {
+        if (number2 == 0)
+          throw number1;
+
+        cout << number1 << " / " << number2 << " is "
+          << (number1 / number2) << endl;
+
+        cout << "C" << endl;
+      }
+      catch (int e)
+      {
+        cout << "A" ;
+      }
+
+      cout << "B" << endl;
+
+      return 0;
+    }
+    ```
+
+
+  </Q>
+  <C>A</C>
+  <C>B</C>
+  <C>C</C>
+  <C>AB</C>
+  <Explanation>
+    正确答案：**D. AB**。
+
+    输入为 `1 0`，即 `number1 = 1`，`number2 = 0`。逐步追踪 `try`/`catch`：
+
+    1. 进入 `try` 块，判断 `if (number2 == 0)` 成立 → 执行 `throw number1;` 抛出 `int` 值 1。
+    2. 由于抛出了异常，`try` 块中**后续语句被跳过**：既不会执行除法输出 `1 / 0 is ...`，也不会输出 `"C"`。
+    3. 异常被 `catch (int e)` 捕获，执行 `cout << "A";` 输出 **A**（注意没有 `endl`）。
+    4. `try`/`catch` 结束后，继续执行 `cout << "B" << endl;` 输出 **B** 并换行。
+
+    最终输出为 `AB`，故选 D。其余选项：A 漏了 `catch` 之后的 “B”；B 漏了 `catch` 中的 “A”；C 对应的是 `number2 != 0`（未抛异常）时的正常分支，不符合本输入。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="The function what() is defined in ______________.  " correct={0} meta={{label: "2-4", score: 2, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    The function `what()` is defined in ______________.
+
+
+  </Q>
+  <C>`exception`</C>
+  <C>`runtime_error`</C>
+  <C>`overflow_error`</C>
+  <C>`bad_exception`</C>
+  <Explanation>
+    正确答案：**A. `exception`**。
+
+    `what()` 是一个返回 `const char*` 描述信息的虚函数，它最初声明（定义）在标准异常体系的**根基类 `std::exception`** 中（原型为 `virtual const char* what() const noexcept;`）。
+
+    `runtime_error`、`overflow_error`、`bad_exception` 等都是直接或间接**派生自 `exception`** 的子类，它们只是**重写/继承**了 `what()`，而该函数最初的声明来源是基类 `exception`。因此“`what()` 定义在 `exception` 中”最准确，选 A。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="Which of the following statements are true?   " correct={0} meta={{label: "2-5", score: 2, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    Which of the following statements are true?
+
+
+  </Q>
+  <C>A custom exception class is just like a regular class.</C>
+  <C>A custom exception class must always be derived from class `exception`.</C>
+  <C>A custom exception class must always be derived from a derived class of class `exception`.</C>
+  <C>A custom exception class must always be derived from class `runtime_error`.</C>
+  <Explanation>
+    正确答案：**A. 自定义异常类就和普通类一样**。
+
+    在 C++ 中，`throw` 可以抛出**任意类型**的对象（甚至 `int`、`char*`），并不要求异常类继承自某个特定基类。因此自定义异常类本质上**就是一个普通的类**，可以拥有自己的数据成员、构造函数和方法。
+
+    其余选项都把“推荐做法”错当成“强制要求”：
+    - B：并非必须派生自 `exception`；
+    - C：并非必须派生自 `exception` 的某个派生类；
+    - D：更不要求派生自 `runtime_error`。
+
+    实践中**推荐**让自定义异常继承 `std::exception`（或其子类如 `runtime_error`）以便统一用基类引用捕获并重写 `what()`，但这只是良好习惯，并非语法强制。故选 A。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="Suppose Exception2 is derived from Exception1. Analyze the follo" correct={0} meta={{label: "2-6", score: 2, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    {`
+    Suppose Exception2 is derived from Exception1. Analyze the following code.
+
+    try {
+
+    	statement1;
+
+    	statement2;
+
+    	statement3;
+
+    }
+
+    catch (Exception1 ex1)
+    {
+    }
+
+    catch (Exception2 ex2)
+    {
+    }
+
+
+    `}
+  </Q>
+  <C>If an exception of the `Exeception2` type occurs, this exception is caught by the first `catch` block.</C>
+  <C>If an exception of the `Exeception2` type occurs, this exception is caught by the second `catch` block.</C>
+  <C>The program has a compile error because these two `catch` blocks are in wrong order.</C>
+  <C>The program has a runtime error because these two `catch` blocks are in wrong order.</C>
+  <Explanation>
+    正确答案：**A. 该异常被第一个 `catch` 块捕获**。
+
+    前提：`Exception2` 派生自 `Exception1`，即 `Exception2` **是一种** `Exception1`（is-a 关系）。`catch` 块的匹配规则是**按书写顺序自上而下**逐个尝试，并且基类的 `catch` 可以捕获其派生类对象。
+
+    本例中顺序为：
+    ```cpp
+    catch (Exception1 ex1) { ... }   // 第一个
+    catch (Exception2 ex2) { ... }   // 第二个
+    ```
+    当抛出 `Exception2` 类型异常时，第一个 `catch (Exception1)` 因为 `Exception2` 是 `Exception1` 的派生类而**首先匹配成功**，于是异常被第一个 `catch` 块捕获，故选 A。
+
+    其余选项分析：
+    - B 错：被第一个而非第二个 `catch` 捕获；
+    - C/D 错：把派生类的 `catch` 放在基类 `catch` 之后，会使第二个 `catch` 成为**永远不可达**的“死代码”，标准 C++ 中这通常只产生**警告**，并**不是编译错误，也不是运行时错误**。
+
+    （正确写法应把更具体的派生类 `catch` 放在前面、基类 `catch` 放在后面。）
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="Suppose that statement3 throws an exception of type Exception3 i" correct={2} meta={{label: "2-7", score: 2, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    {`
+    Suppose that statement3 throws an exception of type Exception3 in the following statement:
+
+    try {
+
+      statement1;
+
+      statement2;
+
+      statement3;
+
+    }
+
+    catch (Exception1 ex1)
+    {
+    }
+
+    catch (Exception2 ex2)
+    {
+    }
+
+    catch (Exception3 ex3)
+    {
+      statement4;
+      throw;
+    }
+
+    statement5;
+
+
+    Which statements are executed after statement3 is executed?
+
+
+    `}
+  </Q>
+  <C>`statement2`</C>
+  <C>`statement3`</C>
+  <C>`statement4`</C>
+  <C>`statement5`</C>
+  <Explanation>
+    正确答案：**C. `statement4`**。
+
+    `statement3` 抛出 `Exception3` 类型的异常后，执行流程如下：
+
+    1. 异常抛出后，`try` 块立即终止，按顺序匹配 `catch`。前两个 `catch(Exception1)`、`catch(Exception2)` 都不匹配 `Exception3`，第三个 `catch (Exception3 ex3)` 匹配成功。
+    2. 进入该 `catch` 块：先执行 **`statement4`**，再执行 **`throw;`**（不带操作数的 `throw` 表示**重新抛出**当前正在处理的异常）。
+    3. 重抛后，该异常被传递到**外层**的 `try`-`catch`（本函数内已无外层处理器），因此 `catch` 块之后的 `statement5` **不会被执行**。
+
+    所以 `statement3` 之后被执行的只有 `statement4`，选 C。其余：`statement2` 在 `statement3` 之前就已执行；`statement3` 是抛异常者本身；`statement5` 因重抛而被跳过。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列关于异常处理的说法不正确的是（ ）。   " correct={2} meta={{label: "2-8", score: 1, difficulty: 0, author: "黄万丽", org: "曲阜师范大学"}}>
+  <Q>
+    下列关于异常处理的说法不正确的是（ ）。
+
+
+  </Q>
+  <C>异常处理的`throw`与`catch`通常不在同一个函数中，实现异常检测与异常处理的分离。</C>
+  <C>`catch`语句块必须跟在`try`语句块的后面，一个`try`语句块后可以有多个`catch`语句块。</C>
+  <C>在对函数进行异常规范声明时，若形参表后没有任何表示抛出异常类型的说明，它表示该函数不能抛出任何异常。</C>
+  <C>`catch`语句块中，`catch(…)`表示该`catch`可以捕捉任意类型的异常，必须将`catch(…)`放在`catch`结构的最后。</C>
+  <Explanation>
+    本题要选**说法不正确**的一项，正确答案：**C**。
+
+    - **C（错误，即本题答案）**：“若形参表后没有任何表示抛出异常类型的说明，表示该函数不能抛出任何异常。” 这是错的——函数若**完全不写**异常规范，表示它**可以抛出任意类型的异常**；只有写成**空的** `throw()`（C++11 起等价于 `noexcept`）才表示“不抛出任何异常”。该选项把“没有规范”与“空规范”混为一谈，故错误。
+    - A（正确）：`throw` 与 `catch` 通常分处不同函数，实现异常检测与处理的分离，是异常机制的设计目的之一。
+    - B（正确）：`catch` 必须紧跟 `try` 之后，一个 `try` 后可有多个 `catch`。
+    - D（正确）：`catch(...)` 能捕获任意类型异常，因其“包罗万象”，必须放在所有 `catch` 的**最后**，否则会拦截掉本应被后面更具体 `catch` 处理的异常。
+
+    故不正确的是 C。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="以下关于异常处理的描述错误的是（）。   " correct={3} meta={{label: "2-9", score: 1, difficulty: 0, author: "黄万丽", org: "曲阜师范大学"}}>
+  <Q>
+    以下关于异常处理的描述错误的是（）。
+
+
+  </Q>
+  <C>C++程序中出现异常时，编译器不会进行提示</C>
+  <C>将可能产生异常的代码放在`try`语句块内</C>
+  <C>使用`catch`关键字接收并处理异常</C>
+  <C>重抛异常可以在`try`语句块或者`catch`语句块中调用`throw`实现</C>
+  <Explanation>
+    本题要选**描述错误**的一项，正确答案：**D**。
+
+    - **D（错误，即本题答案）**：“重抛异常可以在 `try` 语句块**或** `catch` 语句块中调用 `throw` 实现。” 这是错的——**重抛**（不带操作数的 `throw;`）的语义是“把当前正在处理的异常再次抛出”，它只能在**`catch` 块**（或由 `catch` 块调用的函数）中使用。在没有“正在处理的异常”的 `try` 块里执行 `throw;` 会导致 `std::terminate`，并非合法的重抛。
+    - A（正确）：异常属于运行期事件，源码本身语法合法时编译器不会对“将来会发生的异常”作出提示。
+    - B（正确）：把可能产生异常的代码放进 `try` 块。
+    - C（正确）：用 `catch` 关键字接收并处理异常。
+
+    故错误的描述是 D。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列关于异常的描述中，错误的是（）。   " correct={0} meta={{label: "2-10", score: 2, difficulty: 0, author: "刘莹", org: "威海职业学院"}}>
+  <Q>
+    下列关于异常的描述中，错误的是（）。
+
+
+  </Q>
+  <C>编译错属于异常，可以抛出</C>
+  <C>运行错属于异常</C>
+  <C>硬件故障也可当异常抛出</C>
+  <C>只要是编程者认为是异常的都可当异常抛出</C>
+  <Explanation>
+    本题要选**错误**的一项，正确答案：**A**。
+
+    - **A（错误，即本题答案）**：“编译错属于异常，可以抛出。” 这是错的——**编译错误**是在**编译阶段**由编译器发现的语法/语义问题，程序根本无法生成可执行文件，谈不上“抛出”。C++ 的异常机制处理的是**运行期**发生的非正常事件，编译错并不属于异常。
+    - B（正确）：运行期错误（如除零、越界、内存不足等）属于异常，可在运行时抛出/捕获。
+    - C（正确）：硬件故障等运行期异常情况也可以被当作异常抛出处理。
+    - D（正确）：异常的判定具有主观性，编程者可以把自己认为“异常”的情形封装为异常抛出。
+
+    故错误的是 A。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列关于异常类的说法中，错误的是。   " correct={0} meta={{label: "2-11", score: 2, difficulty: 0, author: "刘莹", org: "威海职业学院"}}>
+  <Q>
+    下列关于异常类的说法中，错误的是。
+
+
+  </Q>
+  <C>异常类由标准库提供，不可以自定义</C>
+  <C>C++的异常处理机制具有为抛出异常前构造的所有局部对象自动调用析构函数的能力</C>
+  <C>若`catch`块采用异常类对象接收异常信息，则在抛出异常时将通过拷贝构造函数进行对象复制，异常处理完后才将两个异常对象进行析构，释放资源</C>
+  <C>异常类对象抛出后，`catch`块会用类对象引用接收它以便执行相应的处理动作</C>
+  <Explanation>
+    本题要选**错误**的一项，正确答案：**A**。
+
+    - **A（错误，即本题答案）**：“异常类由标准库提供，不可以自定义。” 这是错的——除了标准库提供的 `std::exception` 及其子类（如 `runtime_error`、`out_of_range` 等）外，程序员**完全可以自定义异常类**（通常继承自 `std::exception` 以统一处理），甚至可以抛出任意类型的对象。
+    - B（正确）：异常机制具有**栈展开（stack unwinding）**能力，从抛出点到捕获点之间，已构造的局部对象会被自动调用析构函数，保证资源释放。
+    - C（正确）：若 `catch` 块以**对象**（按值）接收，抛出时会通过拷贝构造复制一份；异常处理完毕后再析构相关临时对象，释放资源。
+    - D（正确）：`catch` 用**引用**接收异常对象可避免拷贝与对象切片，是推荐做法。
+
+    故错误的是 A。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列关于重抛异常的描述中，错误的是。   " correct={2} meta={{label: "2-12", score: 2, difficulty: 0, author: "刘莹", org: "威海职业学院"}}>
+  <Q>
+    下列关于重抛异常的描述中，错误的是。
+
+
+  </Q>
+  <C>处理不了的异常，可以通过在`catch`结构中调用`throw`重新抛出异常，将当前异常传递到外部的`try`-`catch`结构中</C>
+  <C>重抛异常时只能从`catch`语句块或从`catch`块中的调用函数中完成</C>
+  <C>重抛的异常可以被同一个`catch`语句捕捉</C>
+  <C>可以单独使用`throw`关键字完成异常重抛</C>
+  <Explanation>
+    本题要选**错误**的一项，正确答案：**C**。
+
+    - **C（错误，即本题答案）**：“重抛的异常可以被**同一个** `catch` 语句捕捉。” 这是错的——在 `catch` 块中执行 `throw;` 重抛后，异常会被传递到**外层（更外面）**的 `try`-`catch` 结构去处理，而**不会**再被当前这个 `catch`（或同级 `catch`）重新捕获，否则将造成无限循环。
+    - A（正确）：当前 `catch` 处理不了的异常，可在 `catch` 中 `throw;` 重抛，交给外层 `try`-`catch`。
+    - B（正确）：重抛只能发生在 `catch` 块内，或由 `catch` 块所调用的函数中（此时仍处于异常处理状态）。
+    - D（正确）：重抛使用**单独的** `throw;`（不带操作数），表示原样抛出当前正在处理的异常。
+
+    故错误的是 C。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列关于断言的描述中，错误的是。   " correct={3} meta={{label: "2-13", score: 2, difficulty: 0, author: "刘莹", org: "威海职业学院"}}>
+  <Q>
+    下列关于断言的描述中，错误的是。
+
+
+  </Q>
+  <C>断言是调试程序的一种手段</C>
+  <C>若断言情况发生，一般会终止程序</C>
+  <C>在C++中，宏`assert()`用来在调试阶段实现断言</C>
+  <C>断言在程序调试与发布版本中都可以使用断言</C>
+  <Explanation>
+    本题要选**错误**的一项，正确答案：**D**。
+
+    - **D（错误，即本题答案）**：“断言在程序调试与发布版本中都可以使用。” 这是错的——`assert()` 宏受宏 **`NDEBUG`** 控制：在**发布（release）版本**中通常会定义 `NDEBUG`，此时 `assert()` 被预处理器**展开为空**，断言**完全失效、不再起作用**。因此断言主要用于**调试阶段**，发布版中一般被关闭。
+    - A（正确）：断言是一种调试手段，用于在开发期检查“本不该发生”的条件。
+    - B（正确）：断言条件为假时，会打印诊断信息并调用 `abort()`，**终止程序**。
+    - C（正确）：C++ 中由 `<cassert>` 提供的宏 `assert()` 在调试阶段实现断言。
+
+    故错误的是 D。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="C++处理异常的机制是由（）3部分组成。   " correct={1} meta={{label: "2-14", score: 2, difficulty: 0, author: "吕华", org: "河北工业大学"}}>
+  <Q>
+    C++处理异常的机制是由（）3部分组成。
+
+
+  </Q>
+  <C>编辑、编译和运行</C>
+  <C>检查、抛出和捕获</C>
+  <C>编辑、编译和捕获</C>
+  <C>检查、抛出和运行</C>
+  <Explanation>
+    正确答案：**B. 检查、抛出和捕获**。
+
+    C++ 的异常处理机制由三个部分组成，恰好对应三个关键字：
+    - **检查（try）**：把可能发生异常的代码放入 `try` 块中进行监控；
+    - **抛出（throw）**：当检测到异常情况时用 `throw` 抛出一个异常对象；
+    - **捕获（catch）**：用 `catch` 块捕获并处理对应类型的异常。
+
+    其余选项中的“编辑、编译、运行”是程序的开发/执行流程，并不是异常处理机制的组成部分，故 A、C、D 均不符合，选 B。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="D Fill in the blanks" meta={{label: "5-1", score: 10, difficulty: 0, author: "hulanqing", org: "浙江大学"}}>
+  <Q>
+    {`
+    Run the following program, Enter: 1, the output is:  55 34 21 13 8 5 3 2 1 1
+
+    \`\`\`
+    #include <iostream>
+    using namespace std;
+
+    enum ERROR{UnderFlow,OverFlow};
+    template<typename T>
+    class StackTemplate {
+    	enum { ssize = 100 };
+    	T stack[ssize];
+    	int top;
+    public:
+    	StackTemplate() : top(0) {}
+    	void push(const T& i) {
+    		if (top >= ssize)  @@[](1);
+    		stack[top++] = i;
+    	}
+    	T pop() {
+    		if (@@[](1)) throw UnderFlow;
+    		return @@[](1);
+    	}
+    	int size() const
+    	{ return top; }
+    };
+    int fibonacci(int n);
+
+    int main() {
+    	@@[](1) {
+    		@@[](1) is;
+    		for(int i = 0; i < 20; i++)
+    			is.push(fibonacci(i));
+    		for(int k = 0; k < 20; k++)
+    			cout << is.pop() << "\\t";
+    	}
+    	catch( ERROR e ) {
+    		switch(@@[](1))
+    		{
+    		case OverFlow:
+    			exit;
+    		case UnderFlow:
+    			exit;
+    		}
+    	}
+    	catch(...)
+    	{
+    		exit;
+    	}
+    	return 0;
+    }
+
+    int fibonacci(int n)
+    {
+    	@@[](1) int sz = 100;
+    	int i;
+    	static int f[sz];
+    	if (n >= sz) @@[](1);
+    	   f[0] = f[1] = 1;
+    	for(i = 0; i < sz; i++)
+    		if(f[i] == 0) break;
+    	while(i <= n) {
+    		@@[](1) = f[i-1] + f[i-2];
+    		i++;
+    	}
+    	return @@[](1);
+    }
+
+    \`\`\`
+
+
+    *Unplaced blanks:*
+    <Blank>throw OverFlow</Blank>
+    <Blank>top == 0</Blank>
+    <Blank>stack[--top]</Blank>
+    <Blank>try</Blank>
+    <Blank>StackTemplate<int></Blank>
+    <Blank>e</Blank>
+    <Blank>const</Blank>
+    <Blank>throw OverFlow</Blank>
+    <Blank>f[i]</Blank>
+    <Blank>f[n]</Blank>
+    `}
+  </Q>
+  <Explanation>
+    **Note: This answer was written by AI and may not be correct.**
+    Answer: throw OverFlow
+    Answer: `top <= 0`
+    Answer: -1
+    Answer: try
+    Answer: StackTemplate
+    Answer: e
+    Answer: const
+    Answer: return -1
+    Answer: f[i]
+    Answer: f[n]
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="异常处理程序填空" meta={{label: "5-2", score: 10, difficulty: 0, author: "黄万丽", org: "曲阜师范大学"}}>
+  <Q>
+    {`
+    下面程序定义栈类模板StackTemplate，创建栈对象存储斐波那契数列的前10项数值，并以后进先出的方式取出元素并输出，输出结果为：55 34 21 13 8 5 3 2 1 1。其中void push(const T& i)函数为添加元素、T pop()函数为取出栈顶元素，int fibonacci(int n)函数为计算斐波那契数列的第n项值。在计算斐波那契数列值、添加元素和取出元素的过程中要进行上溢（OverFlow）或者下溢（UnderFlow）的异常处理。请补充空白处的代码（每空1分）。
+
+    \`\`\`c++
+    #include <iostream>
+    using namespace std;
+
+    enum ERROR{UnderFlow,OverFlow};
+
+    template<typename T>
+    class StackTemplate {
+    	enum { ssize = 100 };
+    	T stack[ssize];
+    	int top;
+       public:
+    	StackTemplate() : top(0) {}
+    	void push(const T& i) {
+    	   if (top >= ssize)
+                  @@[](1);
+               stack[top++] = i;
+    	}
+    	T pop() {
+    	   if (@@[](1))
+    		throw UnderFlow;
+    	   return  @@[](1);
+    	}
+    	int size() const{
+    	    return top;
+    	}
+    };
+    int fibonacci(int n);
+    int main() {
+      @@[](1) {
+        @@[](1)  is;
+        for(int i = 0; i < 10; i++)
+           is.push(fibonacci(i));
+        for(int k = 0; k < 10; k++)
+           cout << is.pop() << "\\t";
+       }
+       catch( ERROR e ) {
+          switch(@@[](1) )  {
+            case OverFlow:  exit;
+            case UnderFlow: exit;
+          }
+        }
+        catch(...) {
+        }
+       return 0;
+     }
+
+    int fibonacci(int n) {
+        @@[](1)  int sz = 100;
+        int i;
+        static int f[sz];
+        if (n >= sz)
+            @@[](1);
+        f[0] = f[1] = 1;
+        for(i = 0; i < sz; i++)
+            if(f[i] == 0) break;
+        while(i <= n) {
+            @@[](1) = f[i-1] + f[i-2];
+            i++;
+        }
+        return @@[](1);
+    }
+    \`\`\`
+
+
+    *Unplaced blanks:*
+    <Blank>throw OverFlow</Blank>
+    <Blank>top == 0</Blank>
+    <Blank>stack[--top]</Blank>
+    <Blank>try</Blank>
+    <Blank>StackTemplate<int></Blank>
+    <Blank>e</Blank>
+    <Blank>const</Blank>
+    <Blank>throw OverFlow</Blank>
+    <Blank>f[i]</Blank>
+    <Blank>f[n]</Blank>
+    `}
+  </Q>
+  <Explanation>
+    **Note: This answer was written by AI and may not be correct.**
+    Answer: throw OverFlow
+    Answer: `top <= 0`
+    Answer: -1
+    Answer: try
+    Answer: StackTemplate
+    Answer: e
+    Answer: const
+    Answer: return -1
+    Answer: f[i]
+    Answer: f[n]
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="时间" meta={{label: "6-1", score: 5, difficulty: 0, author: "孔韦韦", org: "西安邮电大学"}}>
+  <Q>
+    本题要求输入小时、分钟和秒数，并将其输出。针对时间表示中出现的异常进行处理。例如小时数不应超过23，分钟不应超过59，秒数不应超过59。此外，以上三个变量均应大于等于0。
+
+    ### 函数接口定义：
+    ```cpp
+    在这里描述函数接口。例如：
+    void Time(int a,int b,int c);
+    ```
+
+    在这里解释接口参数。例如：其中 `a`,  `b`和 `c` 都是用户传入的参数，分别表示时、分、秒，函数应输出对应时间。
+
+    ### 裁判测试程序样例：
+    ```cpp
+    在这里给出函数被调用进行测试的例子。例如：
+    #include <iostream>
+    using namespace std;
+
+    int main( )
+    {
+    	double a,b,c;
+    	cin>>a>>b>>c;
+
+    	try
+    	{
+    		Time(a,b,c);
+    	}
+
+    	catch(char * arg)
+    	{
+    		cout<<arg<<endl;
+    	}
+
+    	catch(...)
+
+    	{
+    		cout<<"I have catched an exception!"<<endl;
+    	}
+
+    	return 0;
+    }
+
+    /* 请在这里填写答案 */
+    ```
+
+    ### 输入样例：
+
+    在这里给出三组输入。例如：
+
+    ```in
+    23 61 44
+    ```
+
+    ```in
+    -2 24 45
+    ```
+
+    ```in
+    14 45 38
+    ```
+
+    ### 输出样例：
+
+    在这里给出相应的输出。例如：
+
+    ```out
+    The time is wrong!
+    ```
+
+    ```out
+    I have catched an exception!
+    ```
+
+    ```out
+    The current time is: 14:45:38
+    ```
+
+  </Q>
+  <A>
+    {`
+    class Time{
+    private:
+        int sec;
+        int min;
+        int hour;
+    public:
+        Time(int a, int b, int c):hour(a),min(b),sec(c){
+            if(a<0 || b<0 || c<0){
+                throw 1;
+            } else if(a>23 || b>59 || c>59) {
+                cout << "The time is wrong!";
+            } else {
+                cout << "The current time is: " << hour << ":" << min
+     << ":" << sec;        }
+        }
+    };
+    `}
+  </A>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="除数为零异常" meta={{label: "6-2", score: 10, difficulty: 0, author: "张德慧", org: "西安邮电大学"}}>
+  <Q>
+    下面是这个程序处理除数为零的异常，在函数 division( )中抛出一个除以零的异常，并在main函数中的 `catch` 块中捕获该异常。
+    ### 函数接口定义：
+    ```cpp
+    double division(int a, int b);
+    ```
+
+    其中a为被除数，b为除数。
+
+    ### 裁判测试程序样例：
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    /* 请在这里填写答案 */
+
+    int main ()
+    {
+    	int x,y;
+    	double z = 0;
+
+    	cin>>x>>y;
+    	try {
+    		z = division(x, y);
+    		cout << z << endl;
+    	}catch (const char* msg) {
+    		cout << msg << endl;
+    	}
+    	return 0;
+    }
+
+    ```
+
+    ### 输入样例：
+
+    在这里给出一组输入。例如：
+
+    ```in
+    2  0
+    ```
+
+    ### 输出样例：
+
+    在这里给出相应的输出。例如：
+
+    ```out
+    Divided by zero!
+    ```
+
+  </Q>
+  <A>
+    {`
+    double division(int a, int b){
+        if(b==0) throw "Divided by zero!";
+        else return a/b;
+
+    }
+    `}
+  </A>
+</PTAQuiz>

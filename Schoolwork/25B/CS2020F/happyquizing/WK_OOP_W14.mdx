@@ -1,0 +1,77 @@
+---
+title: "浙大26春OOP W14 SmartPointer作业"
+---
+
+import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+
+<PTAQuiz multiple-file title="String: Object Counter version" meta={{label: "9-1", score: 10, difficulty: 0, author: "翁恺", org: "浙江大学"}}>
+  <Q>
+    编写一个以引用计数方式处理字符串内容的`String`类。
+
+    `String`类的声明如下：
+
+    ```cpp
+    class String
+    {
+    public:
+        String(const char *);
+        ~String();
+        String(const String &);
+        String &operator=(const String &);
+        int operator==(const String &) const;
+        String operator+(const String &) const;
+        int length() const;
+        const char *getRaw() const;
+        int refCount() const;
+    private:
+        //  define your own private members
+    };
+    ```
+
+    这些成员函数解释如下：
+
+    * `String(const char *)`  用C字符串构造`String`对象
+
+    * `~String()` 析构
+
+    * `String(const String &)` 拷贝构造。拷贝构造时，原始字符串要被共享。
+
+    * `String &operator=(const String &)` 拷贝赋值，原始字符串要被共享。
+
+    * `int operator==(const String &) const` 判断两个`String`对象里的字符串的内容是否相同
+
+    * `String operator+(const String &) const` 连接两个`String`对象形成一个新的`String`对象
+
+    * `int length() const`    返回字符串的长度
+
+    * `const char *getRaw() const`    返回内部保存C字符串的原始内存的首地址
+
+    * `int refCount() const`  返回内部字符串的引用计数值
+
+    你的所有的代码，包括`.cpp`和`.h`文件应该在`src`目录下。测试的`main.cpp`只会`#include "src/String.h"`。除了`String`类，你可以做任何需要做的类。`src`下所有需要产生的`.o`文件的文件名，都需要放在`src/objlist`文件中。这个文件可能的内容如下：
+
+    ```
+    SRCOBJS = src/String.o src/StringRep.o
+    ```
+
+    在本地测试时，如果使用Windows，可以用`mingw32-make`来执行`Makefile`完成编译，编译产生的是`test.exe`，用命令行执行时，必须加命令行参数来指定输出测试结果的文件名，如：
+
+    `test 123.txt`
+
+    运行过程不会看到任何输出，运行结束后，检查`123.txt`，其中的内容应该如下：
+
+    ```
+    create		PASS 1 1
+    create copy	PASS 1 2
+    length		PASS 1 3
+    assigment dec	PASS 1 4
+    assigment ins	PASS 1 5
+    assigment iso	PASS 1 6
+    assigment iso2	PASS 1 7
+    operator ==	PASS 1 8
+    operator+ 1	PASS 1 9
+    operator+ 2	PASS 1 10
+    10
+    ```
+  </Q>
+</PTAQuiz>

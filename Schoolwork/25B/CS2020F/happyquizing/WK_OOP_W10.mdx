@@ -1,0 +1,351 @@
+---
+title: "浙大26春OOP W10拷贝作业"
+---
+
+import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+
+<PTAQuiz true-or-false title="当用一个对象去初始化同类的另一个对象时,要调用拷贝构造函数。  " correct={true} meta={{label: "1-1", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
+  <Q>
+    当用一个对象去初始化同类的另一个对象时,要调用拷贝构造函数。
+  </Q>
+  <Explanation>**正确**。拷贝构造函数的定义即是：用一个已存在的同类对象去初始化一个新对象时调用的构造函数。例如 `AA d(c);` 或 `AA e = d;` 都是初始化而非赋值，会触发拷贝构造函数。赋值（如 `a1 = a2;`）则调用赋值运算符而非拷贝构造函数。</Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="对象间赋值将调用拷贝构造函数。  " correct={false} meta={{label: "1-2", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
+  <Q>
+    对象间赋值将调用拷贝构造函数。
+  </Q>
+  <Explanation>**错误**。对象间赋值调用的是**赋值运算符**（`operator=`），而非拷贝构造函数。拷贝构造函数仅在**初始化**新对象时调用（如 `AA b(a);` 或 `AA b = a;`），而赋值发生在对已构造对象进行操作时（如 `a = b;`），两者触发时机不同。</Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列各类函数中，不是类的成员函数的是" correct={2} meta={{label: "2-1", score: 2, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    下列各类函数中，不是类的成员函数的是
+  </Q>
+  <C>构造函数</C>
+  <C>析构函数</C>
+  <C>友元函数</C>
+  <C>拷贝构造函数</C>
+  <Explanation>答案为 **C 友元函数**。构造函数、析构函数和拷贝构造函数都是类的成员函数，它们属于类的作用域，可在内部访问所有成员。**友元函数**虽用 `friend` 声明在类内并可访问私有成员，但它并不是类的成员函数——它没有 `this` 指针，不被类作用域约束。</Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="设类AA已定义，假设以下语句全部合法，哪些语句会触发调用拷贝构造函数（  ）。   " correct={3} meta={{label: "2-2", score: 2, difficulty: 0, author: "陈晓梅", org: "广东外语外贸大学"}}>
+  <Q>
+    设类AA已定义，假设以下语句全部合法，哪些语句会触发调用拷贝构造函数（  ）。
+    ```
+    AA a, b; //1
+    AA c(10, 20); //2
+    AA d(c); //3
+    AA e = d; //4
+    ```
+
+
+  </Q>
+  <C>2</C>
+  <C>3</C>
+  <C>4</C>
+  <C>3 和 4</C>
+  <Explanation>答案为 **3 和 4**（即语句3 与语句4）。  
+
+- **语句1** `AA a, b;` → 调用默认构造函数，不涉及拷贝。  
+- **语句2** `AA c(10, 20);` → 调用带参构造函数，不涉及拷贝。  
+- **语句3** `AA d(c);` → 用已有对象 `c` **初始化**新对象 `d`，调用拷贝构造函数。  
+- **语句4** `AA e = d;` → 虽然出现了 `=`，但这是**初始化**语句（`e` 正在被定义），等价于 `AA e(d);`，同样调用拷贝构造函数，而非赋值运算符。  
+
+区分关键：对象**首次创建时用另一对象初始化** → 拷贝构造函数；两个**已存在的对象间用 `=`** → 赋值运算符。</Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="假设MyClass是一个类，则该类的拷贝初始化构造函数的声明语句为（ ）    " correct={2} meta={{label: "2-3", score: 2, difficulty: 0, author: "范鹏程", org: "内蒙古师范大学"}}>
+  <Q>
+    假设MyClass是一个类，则该类的拷贝初始化构造函数的声明语句为（ ）
+
+  </Q>
+  <C>`MyClass&(MyClass x);`</C>
+  <C>`MyClass(MyClass x);`</C>
+  <C>`MyClass(MyClass &x);`</C>
+  <C>`MyClass(MyClass *x);`</C>
+  <Explanation>答案为 **`MyClass(MyClass &x);`**。拷贝构造函数的标准签名形式为 `ClassName(const ClassName &obj);`。  
+
+- **A** `MyClass&(MyClass x);` → 返回引用类型，不是构造函数。  
+- **B** `MyClass(MyClass x);` → 参数按值传递，调用时会无限递归（传值本身就需要拷贝构造），编译器禁止这种写法。  
+- **C** `MyClass(MyClass &x);` → 正确，参数为同类型对象的引用（最好加上 `const`）。  
+- **D** `MyClass(MyClass *x);` → 参数为指针，不是拷贝构造函数签名。</Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列关于异常类的说法中，错误的是。   " correct={0} meta={{label: "2-4", score: 2, difficulty: 0, author: "刘莹", org: "威海职业学院"}}>
+  <Q>
+    下列关于异常类的说法中，错误的是。
+
+
+  </Q>
+  <C>异常类由标准库提供，不可以自定义</C>
+  <C>C++的异常处理机制具有为抛出异常前构造的所有局部对象自动调用析构函数的能力</C>
+  <C>若`catch`块采用异常类对象接收异常信息，则在抛出异常时将通过拷贝构造函数进行对象复制，异常处理完后才将两个异常对象进行析构，释放资源</C>
+  <C>异常类对象抛出后，`catch`块会用类对象引用接收它以便执行相应的处理动作</C>
+  <Explanation>答案为 **A（"异常类由标准库提供，不可以自定义"）**，这是错误的说法。  
+
+- **A** ✗ 用户**完全可以自定义**异常类，只需继承自 `std::exception` 或独立定义，与 `throw`/`catch` 配合即可。  
+- **B** ✓ 栈展开（stack unwinding）过程中，C++ 会自动调用所有已构造局部对象的析构函数，防止资源泄漏。  
+- **C** ✓ 若 `catch` 按值捕获异常对象，抛出时会调用拷贝构造函数创建副本，异常处理结束后两个对象先后析构。  
+- **D** ✓ `catch` 块常用引用接收异常（如 `catch(exception& e)`），避免不必要拷贝并支持多态。</Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列哪一个说法是错误的?   " correct={3} meta={{label: "2-5", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
+  <Q>
+    下列哪一个说法是错误的?
+
+
+  </Q>
+  <C>当用一个对象去初始化同类的另一个对象时,要调用拷贝构造函数</C>
+  <C>如果某函数有一个参数是类`A`的对象,那么该函数被调用时,类`A`的拷贝构造函数将被调用</C>
+  <C>如果函数的返回值是类`A`的对象时，则函数返回时，类`A`的拷贝构造函数将被调用</C>
+  <C>拷贝构造函数必须自己编写</C>
+  <Explanation>答案为 **D（"拷贝构造函数必须自己编写"）**，这是错误说法。  
+
+- **A** ✓ 拷贝构造函数的定义：用同类对象初始化新对象。  
+- **B** ✓ 函数参数为类对象且按值传递时，实参传给形参需要调用拷贝构造函数完成复制。  
+- **C** ✓ 函数返回值是类对象时，返回的临时对象通过拷贝构造函数从局部对象初始化（C++11 起可能用移动构造，但拷贝语义仍适用）。  
+- **D** ✗ **编译器会自动生成默认拷贝构造函数**，执行逐个成员的浅拷贝（member-wise copy）。只有需要深拷贝（如类含指针成员管理动态内存）时才需自行编写。</Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="假设A是一个类的名字,下面哪段程序不会用到A的拷贝构造函数？   " correct={0} meta={{label: "2-6", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
+  <Q>
+    {`
+    假设A是一个类的名字,下面哪段程序不会用到A的拷贝构造函数？
+
+    B. void func( A a) { cout<<"good"<< endl; }
+    C. A func() { A tmp; return tmp;}
+
+    `}
+  </Q>
+  <C>`A a1,a2; a1=a2;`</C>
+  <C>`void func( A a) { cout<<"good"<< endl; }`</C>
+  <C>`A func() { A tmp; return tmp;}`</C>
+  <C>`A a1; A a2(a1);`</C>
+  <Explanation>答案为 **A（`A a1,a2; a1=a2;`）**，该段程序不会用到拷贝构造函数。  
+
+- **A** `A a1,a2;` → 两个对象均通过默认构造函数创建；`a1=a2;` → **已存在对象间的赋值**，调用的是赋值运算符而非拷贝构造函数。✓ 不用拷贝构造。  
+- **B** `void func(A a) { ... }` → 按值传递对象参数，形参通过拷贝构造函数从实参初始化。  
+- **C** `A func() { A tmp; return tmp; }` → 按值返回对象，临时对象通过拷贝构造函数从局部对象 `tmp` 初始化。  
+- **D** `A a1; A a2(a1);` → 显式用 `a1` 拷贝构造 `a2`，调用拷贝构造函数。  
+
+记忆要点：带 `=` 的初始化和赋值区分——等号在**定义语句**中是初始化（拷贝构造），在**已定义对象之后**是赋值。</Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="如果某函数的返回值是个对象 ，则该函数被调用时，返回的对象？   " correct={0} meta={{label: "2-7", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
+  <Q>
+    如果某函数的返回值是个对象 ，则该函数被调用时，返回的对象？
+
+
+  </Q>
+  <C>是通过拷贝构造函数初始化的</C>
+  <C>是通过无参数的构造函数初始化的</C>
+  <C>用哪个构造函数初始化，取决于函数中`return` 语句是怎么写的</C>
+  <C>不需要初始化</C>
+  <Explanation>答案为 **A（"是通过拷贝构造函数初始化的"）**。  
+
+- **A** ✓ 函数按值返回对象时，C++ 创建一个临时的返回对象，该临时对象通过拷贝构造函数从函数内的局部对象构造（C++11 起可能触发移动构造，但标准语义仍属拷贝）。  
+- **B** ✗ 无参构造函数仅在对象未传入任何初始化参数时调用；返回对象是用已存在的局部对象初始化的，不会走无参构造。  
+- **C** ✗ 返回对象的初始化机制由语言规则决定（拷贝/移动构造），并非由 `return` 语句写法决定。  
+- **D** ✗ 所有对象在使用前都必须被初始化，不存在"不需要初始化"的情况。</Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="点类的定义和使用" meta={{label: "5-1", score: 20, difficulty: 0, author: "GONG", org: "哈尔滨华德学院"}}>
+  <Q>
+    {`
+    已知平面上的一点由其横纵坐标来标识。本题要求按照已给代码和注释完成一个基本的“点”类的定义（坐标均取整型数值）。并通过主函数中的点类对象完成一些简单操作，分析程序运行结果，将答案写在对应的空格中。
+
+    \`\`\`c++
+    #include <@@[](1)>
+    using namespace std;
+
+    class Point
+    {
+    @@[](1)//访问权限设置，私有权限
+    	int x;//横坐标
+    	int y;//纵坐标
+    @@[](1)//访问权限设置，公有权限
+
+    	//以下为构造函数，用参数a,b分别为横纵坐标进行初始化
+    	@@[](2)(int a,int b)
+    	{
+    		@@[](1);
+    		@@[](1);
+    	}
+
+    	//以下为拷贝构造函数，借用对象a_point完成初始化
+    	Point(@@[](2)a_point)
+    	{
+    		x=a_point.x;
+    		y=a_point.y;
+    	}
+
+    	//以下为析构函数
+    	@@[](2)
+    	{
+    		cout<<"Deconstructed Point";
+    		print();
+    	}
+
+    	//以下为输出点的信息的函数，要求在一行中输出点的坐标信息，形如：(横坐标,纵坐标)
+    	void print()
+    	{
+    		cout<<@@[](2)<<endl;
+    	}
+    };
+
+
+    int main()
+    {
+    	Point b_point(0,0);
+    	b_point.print();
+    	int a,b;
+    	@@[](2)//从标准输入流中提取数值给a,b
+    	Point c_point(a,b);
+    	c_point.print();
+      @@[](1)//主函数的返回语句
+    }
+    /*设输入为10 10，则本程序的运行结果为：
+    @@[](1)
+    @@[](1)
+    @@[](1)
+    @@[](1)
+    */
+
+    \`\`\`
+
+
+    *Unplaced blanks:*
+    <Blank>iostream</Blank>
+    <Blank>private:</Blank>
+    <Blank>public:</Blank>
+    <Blank>Point</Blank>
+    <Blank>x=a</Blank>
+    <Blank>y=b</Blank>
+    <Blank>const Point&</Blank>
+    <Blank>~Point()</Blank>
+    <Blank>'('<<x<<','<<y<<')'</Blank>
+    <Blank>cin>>a>>b;</Blank>
+    <Blank>return 0;</Blank>
+    <Blank>(0,0)</Blank>
+    <Blank>(10,10)</Blank>
+    <Blank>Deconstructed Point(10,10)</Blank>
+    <Blank>Deconstructed Point(0,0)</Blank>
+    `}
+  </Q>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="实现数组类（C++ 拷贝构造函数、拷贝函数）" meta={{label: "6-1", score: 10, difficulty: 0, author: "周强", org: "青岛大学"}}>
+  <Q>
+    裁判测试程序样例中展示的是一段实现“数组类”的代码，其中缺失了部分代码，请补充完整，以保证测试程序正常运行。
+
+    ### 函数接口定义：
+    ```cpp
+    提示：要想程序正确运行，至少需要补充以下函数（可能还需要补充其他函数）：
+    1. 带参构造函数
+    2. 拷贝构造函数
+    3. 拷贝函数（赋值运算符重载）
+    ```
+
+    ### 裁判测试程序样例：
+    ```cpp
+    #include <iostream>
+    using namespace std;
+    class ArrayIndexOutOfBoundsException{  // 异常类
+    public:
+        int index;
+        ArrayIndexOutOfBoundsException(int k){
+            index = k;
+        }
+    };
+    class Array{
+    private:
+        int *data;
+        int size;
+        static const int dSize = 10;   // 数组默认大小
+    public:
+        Array( ){  // 无参构造
+            size = dSize;
+            data = new int[size]( );
+        }
+
+    /** 你提交的代码将被嵌在这里（替换本行内容） **/
+
+        int& operator [] (int k){     // 运算符 [ ] 重载，以方便数组的使用
+            if(k<0 || k>=size) throw ArrayIndexOutOfBoundsException(k);
+            return data[k];
+        }
+        friend ostream& operator << (ostream& o, const Array& a);   // 运算符 << 重载，以方便输出
+    };
+    ostream& operator << (ostream& o, const Array& a){
+        o << '[' ;
+        for(int i=0; i<a.size-1; i++)
+            o << a.data[i] << ',' ;
+        o << a.data[a.size-1] << ']';
+        return o;
+    }
+    // 注意：实际测试程序中，在此处之前的代码与样例中相同
+    // 注意：实际测试程序中，在此处之后的代码（即main函数）可能与样例中不同
+    int main(){
+        int n, k;
+        cin >> n >> k;
+        Array a(n);  // 构造数组，大小为 n
+        for(int i=0; i<n; i++) a[i] = i;
+        Array b = a;  // 拷贝构造数组
+        b[n/2] = k;
+        cout << a << endl;
+        cout << b << endl;
+        Array c;  // 构造数组，默认大小
+        c = a; // 拷贝数组
+        c[n/2] = k;
+        cout << a << endl;
+        cout << c << endl;
+        a = a;
+        a[n/2] = 2223;
+        cout << a << endl;
+        return 0;
+    }
+    ```
+
+    ### 输入样例：
+    ```in
+    15 666
+    ```
+
+    ### 输出样例：
+    ```out
+    [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+    [0,1,2,3,4,5,6,666,8,9,10,11,12,13,14]
+    [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+    [0,1,2,3,4,5,6,666,8,9,10,11,12,13,14]
+    [0,1,2,3,4,5,6,2223,8,9,10,11,12,13,14]
+    ```
+
+  </Q>
+  <A>
+    {`
+        Array(int n) : size(n){
+            data = new int[size];
+        }
+
+        Array(const Array& other){
+            size = other.size;
+            data = new int[size];
+            for(int i=0;i<size;i++) data[i]=other.data[i];
+        }
+
+        Array& operator=(const Array& other){
+            if(this==&other){return *this;}
+            delete[] data;
+            size = other.size;
+            data = new int[size];
+            for(int i=0;i<size;i++) data[i]=other.data[i];
+            return *this;
+        }
+
+        ~Array(){
+            delete[] data;
+        }
+    `}
+  </A>
+</PTAQuiz>

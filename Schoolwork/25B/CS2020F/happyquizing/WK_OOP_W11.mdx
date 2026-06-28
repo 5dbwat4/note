@@ -1,0 +1,639 @@
+---
+title: "浙大26春OOP W11运算符重载作业"
+---
+
+import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+
+<PTAQuiz true-or-false title="多数运算符可以重载，个别运算符不能重载，运算符重载是通过函数定义实现的。" correct={true} meta={{label: "1-1", score: 1, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    多数运算符可以重载，个别运算符不能重载，运算符重载是通过函数定义实现的。
+  </Q>
+  <Explanation>
+    正确。C++中绝大多数运算符都可以重载（如`+`、`-`、`<<`、`>>`等），但少数运算符（如`::`、`.`、`.*`、`?:`、`sizeof`、`typeid`等）不能重载。运算符重载的本质是通过定义以`operator`关键字开头的函数来实现的，因此"运算符重载是通过函数定义实现的"这一说法是正确的。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="对每个可重载的运算符来讲，它既可以重载为友元函数，又可以重载为成员函数，还可以重载为非成员函数。" correct={false} meta={{label: "1-2", score: 1, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    对每个可重载的运算符来讲，它既可以重载为友元函数，又可以重载为成员函数，还可以重载为非成员函数。
+  </Q>
+  <Explanation>
+    错误。并非每个可重载的运算符都可以重载为友元函数或非成员函数。以下四个运算符**只能**重载为成员函数：`=`（赋值运算符）、`()`（函数调用运算符）、`[]`（下标运算符）、`->`（成员访问运算符）。如果尝试将它们重载为友元函数或非成员函数，编译器会报错。其他运算符则可以根据需要选择重载为成员函数或友元函数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="对单目运算符重载为友元函数时，可以说明一个形参。而重载为成员函数时，不能显式说明形参。" correct={true} meta={{label: "1-3", score: 1, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    对单目运算符重载为友元函数时，可以说明一个形参。而重载为成员函数时，不能显式说明形参。
+  </Q>
+  <Explanation>
+    正确。单目运算符重载为成员函数时，调用对象自身作为第一个操作数通过`this`指针隐式传递，因此无需显式声明形参，如`A operator-() const`。而重载为友元函数时没有`this`指针，必须显式说明一个形参来接收唯一的操作数，如`friend A operator-(const A& obj)`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="重载运算符可以保持原运算符的优先级和结合性不变。" correct={true} meta={{label: "1-4", score: 1, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    重载运算符可以保持原运算符的优先级和结合性不变。
+  </Q>
+  <Explanation>
+    正确。运算符重载**不能**改变原运算符的优先级和结合性，这些属性由C++语言本身固定。重载运算符只是改变了操作数的类型和运算逻辑，而优先级（如`*`高于`+`）和结合性（如赋值运算符右结合）保持不变。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="预定义的提取符和插入符是可以重载的。" correct={true} meta={{label: "1-5", score: 5, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    预定义的提取符和插入符是可以重载的。
+  </Q>
+  <Explanation>
+    正确。提取符`>>`和插入符`<<`（即流输入/输出运算符）是可以重载的。通常将它们重载为友元函数，以便自定义类对象能够使用`cin`和`cout`进行输入输出，例如`friend istream& operator>>(istream& in, MyClass& obj)`和`friend ostream& operator<<(ostream& out, const MyClass& obj)`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="重载operator+时，返回值的类型应当与形参类型一致。" correct={false} meta={{label: "1-6", score: 5, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    {`
+    重载operator+时，返回值的类型应当与形参类型一致。
+    比如以下程序中，operator+的返回值类型有错：
+
+    class A {
+
+    	int x;
+
+     public:
+
+     	A(int t=0):x(t){	 }
+
+            int operator+(const A& a1){ return x+a1.x;  }
+
+    };
+
+    `}
+  </Q>
+  <Explanation>
+    错误。重载`operator+`时，返回值的类型**不必**与形参类型一致。题目给出的示例代码中，`int operator+(const A& a1)`返回`int`类型，而形参类型是`const A&`，这在C++语法上是完全合法的。返回类型可以根据实际需要自由设计，可以返回新对象、引用或基本类型等。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="重载关系运算符一般都返回true或false值。  " correct={true} meta={{label: "1-7", score: 1, difficulty: 0, author: "黄万丽", org: "曲阜师范大学"}}>
+  <Q>
+    重载关系运算符一般都返回`true`或`false`值。
+  </Q>
+  <Explanation>
+    正确。重载关系运算符（如`<`、`>`、`==`、`!=`、`<=`、`>=`）时，为了保持语义上的一致性和直观性，通常返回`bool`类型的`true`或`false`值。虽然C++语法上允许返回其他类型，但遵循惯例返回布尔值是最佳实践。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="The operator `::` can not be overloaded.  " correct={true} meta={{label: "1-8", score: 1, difficulty: 0, author: "翁恺", org: "浙江大学"}}>
+  <Q>
+    The operator `::` can not be overloaded.
+  </Q>
+  <Explanation>
+    正确。`::`（作用域解析运算符）是C++中**不能**被重载的运算符之一。不能重载的运算符包括：`::`（作用域解析）、`.`（成员访问）、`.*`（成员指针解引用）、`?:`（三元条件）、`sizeof`、`typeid`、`const_cast`、`dynamic_cast`、`reinterpret_cast`、`static_cast`等。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false title="若重载为友元函数，函数定义格式如下：" correct={false} meta={{label: "1-9", score: 1, difficulty: 0, author: "屈巍", org: "沈阳师范大学"}}>
+  <Q>
+    {`
+    若重载为友元函数，函数定义格式如下：
+
+    <类型>operator<运算符>（<参数列表>）
+
+    {
+
+    <函数体>
+
+    }
+    `}
+  </Q>
+  <Explanation>
+    错误。题目给出的格式缺少了友元函数的关键标识。运算符重载为友元函数时，需先在类内部使用`friend`关键字声明（如`friend 类型 operator运算符(参数列表);`），然后在类外定义函数体（定义时不需要`friend`关键字，也不需要类名限定）。题目仅给出了类外定义的格式，但未包含类内`friend`声明，因此格式不完整。此外，`<`和`>`这些尖括号在代码中只是示意，实际书写时应替换为具体的类型和运算符名称。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列运算符中，（ ）运算符不能重载。" correct={2} meta={{label: "2-1", score: 2, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    下列运算符中，（ ）运算符不能重载。
+
+  </Q>
+  <C>`＆＆`</C>
+  <C>`[ ]`</C>
+  <C>`::`</C>
+  <C>`<<`</C>
+  <Explanation>
+    正确答案是`::`。作用域解析运算符`::`是C++中不能重载的运算符之一。`&&`（逻辑与）、`[]`（下标运算符）、`<<`（左移/流插入运算符）都是可以重载的。不能重载的运算符包括`::`、`.`、`.*`、`?:`、`sizeof`、`typeid`及四种C++类型转换运算符等。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列关于运算符重载的描述中，（ ）是正确的。" correct={3} meta={{label: "2-2", score: 2, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    下列关于运算符重载的描述中，（ ）是正确的。
+
+  </Q>
+  <C>运算符重载可以改变操作数的个数</C>
+  <C>运算符重载可以改变优先级</C>
+  <C>运算符重载可以改变结合性</C>
+  <C>运算符重载不可以改变语法结构</C>
+  <Explanation>
+    正确答案是"运算符重载不可以改变语法结构"。运算符重载有严格的限制：(A)不能改变操作数的个数——一元运算符重载后仍为一元，二元运算符仍是二元；(B)不能改变运算符的优先级，如`+`重载后优先级仍低于`*`；(C)不能改变结合性，如赋值运算符仍保持右结合；(D)不能改变语法结构是正确的——不能创建新运算符，也不能改变原有运算符在表达式中的语法形式。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="为了能出现在赋值表达式的左右两边，重载的\"[]\"运算符应定义为：" correct={1} meta={{label: "2-3", score: 2, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    为了能出现在赋值表达式的左右两边，重载的"`[]`"运算符应定义为：
+
+  </Q>
+  <C>`A operator [ ] (int);`</C>
+  <C>`A& operator [ ] (int);`</C>
+  <C>`const A operator [ ] (int);`</C>
+  <C>以上答案都不对</C>
+  <Explanation>
+    正确答案是`A& operator [ ] (int);`。要使`[]`运算符能出现在赋值表达式左侧（作为左值），重载函数必须返回引用类型`A&`，这样才能通过返回的引用直接修改对象内部数据（如`obj[i] = value;`）。选项A返回普通值类型，只能作为右值使用；选项C返回`const`引用，不能修改；因此只有B正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="在C++中不能重载的运算符是" correct={0} meta={{label: "2-4", score: 2, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    在C++中不能重载的运算符是
+  </Q>
+  <C>`?:`</C>
+  <C>`+`</C>
+  <C>`-`</C>
+  <C>`<=`</C>
+  <Explanation>
+    正确答案是`?:`。三元条件运算符`?:`是C++中不能重载的运算符之一，因为其操作数的求值规则特殊（短路求值）。`+`、`-`（算术运算符）和`<=`（关系运算符）都是可以重载的常见运算符。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列关于运算符重载的表述中，正确的是（）。   " correct={2} meta={{label: "2-5", score: 1, difficulty: 0, author: "黄万丽", org: "曲阜师范大学"}}>
+  <Q>
+    下列关于运算符重载的表述中，正确的是（）。
+
+
+  </Q>
+  <C>C++已有的任何运算符都可以重载</C>
+  <C>运算符函数的返回类型不能声明为基本数据类型</C>
+  <C>在类型转换符函数的定义中不需要声明返回类型</C>
+  <C>可以通过运算符重载来创建C++中原来没有的运算符</C>
+  <Explanation>
+    正确答案是"在类型转换符函数的定义中不需要声明返回类型"。类型转换运算符函数（如`operator int()`、`operator double()`等）的返回类型由函数名本身隐含确定，因此不允许也不能显式声明返回类型。A错：不是任何运算符都能重载（如`::`、`.`等不能）。B错：运算符函数的返回类型可以是任意类型，包括基本数据类型。D错：运算符重载不能创建C++中原来没有的新运算符。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="能用友元函数重载的运算符是（）。   " correct={0} meta={{label: "2-6", score: 2, difficulty: 0, author: "吕华", org: "河北工业大学"}}>
+  <Q>
+    能用友元函数重载的运算符是（）。
+
+  </Q>
+  <C>`+`</C>
+  <C>`=`</C>
+  <C>`[]`</C>
+  <C>`->`</C>
+  <Explanation>
+    正确答案是`+`。`+`（加法运算符）既可以用友元函数重载，也可以用成员函数重载。而`=`（赋值运算符）、`[]`（下标运算符）、`->`（成员访问指针运算符）是C++规定的只能重载为成员函数的运算符，不能用友元函数重载。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列哪一项说法是不正确的?   " correct={3} meta={{label: "2-8", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
+  <Q>
+    下列哪一项说法是不正确的?
+
+
+  </Q>
+  <C>运算符重载的实质是函数重载</C>
+  <C>运算符重载可以重载为普通函数,也成员可以重载为成员函数</C>
+  <C>运算符被多次重载时,根据实参的类型决定调用哪个运算符重载函数</C>
+  <C>运算符被多次重载时,根据函数类型决定调用哪个重载函数</C>
+  <Explanation>
+    正确答案（即**不正确**的说法）是D。当运算符被多次重载时，编译器根据**实参（操作数）的类型和个数**来进行重载决议，决定调用哪个运算符重载函数，而非根据函数类型（返回类型）。C++中函数的返回类型不参与重载决议。A、B、C均为正确说法：运算符重载的本质是函数重载；可重载为普通函数或成员函数；重载分辨率依据实参类型。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="如何区分自增运算符重载的前置形式和后置形式？    " correct={1} meta={{label: "2-9", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
+  <Q>
+    如何区分自增运算符重载的前置形式和后置形式？
+
+
+  </Q>
+  <C>重载时，前置形式的函数名是`++operator`，后置形式的函数名是`operator ++`</C>
+  <C>后置形式比前置形式多一个 `int` 类型的参数</C>
+  <C>无法区分，使用时不管前置形式还是后置形式，都调用相同的重载函数</C>
+  <C>前置形式比后置形式多一个 `int` 类型的参数</C>
+  <Explanation>
+    正确答案是"后置形式比前置形式多一个int类型的参数"。C++通过参数列表区分自增/自减运算符的前置和后置形式：前置形式声明为`operator++()`（无参数）；后置形式声明为`operator++(int)`（带一个`int`哑元参数，该参数仅用于语法区分，实际编码中通常不使用）。函数名始终是`operator++`，不存在`++operator`这种写法。C错，确实可以区分。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列关于运算符重载的描述正确的是（ ）。   " correct={2} meta={{label: "2-10", score: 2, difficulty: 0, author: "屈巍", org: "沈阳师范大学"}}>
+  <Q>
+    下列关于运算符重载的描述正确的是（ ）。
+
+
+  </Q>
+  <C>运算符重载可以改变操作数的个数</C>
+  <C>可以创造新的运算符</C>
+  <C>运算符可以重载为友元函数</C>
+  <C>任意运算符都可以重载</C>
+  <Explanation>
+    正确答案是"运算符可以重载为友元函数"。许多运算符（如`+`、`-`、`<<`、`>>`、`==`等）都可以根据需求重载为友元函数。A错：运算符重载不能改变操作数的个数。B错：不能创造新的运算符，只能重载C++已有的运算符。D错：并非任意运算符都可以重载，`::`、`.`、`.*`、`?:`等不能重载。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="在重载一个运算符时，如果其参数表中有一个参数，则说明该运算符是( )。" correct={3} meta={{label: "2-11", score: 2, difficulty: 0, author: "屈巍", org: "沈阳师范大学"}}>
+  <Q>
+    在重载一个运算符时，如果其参数表中有一个参数，则说明该运算符是( )。
+  </Q>
+  <C>一元成员运算符</C>
+  <C>二元成员运算符</C>
+  <C>一元友元运算符</C>
+  <C>二元成员运算符或一元友元运算符</C>
+  <Explanation>
+    正确答案是"二元成员运算符或一元友元运算符"。当参数表中恰好有一个参数时有两种情形：(1)**二元成员运算符**——左操作数由`this`指针隐式传递，右操作数作为唯一的显式参数；(2)**一元友元运算符**——友元函数没有`this`指针，需要一个显式参数来接收唯一的操作数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列关于运算符重载的描述中，错误的是（）。   " correct={1} meta={{label: "2-12", score: 2, difficulty: 0, author: "屈巍", org: "沈阳师范大学"}}>
+  <Q>
+    下列关于运算符重载的描述中，错误的是（）。
+
+
+  </Q>
+  <C>运算符重载不改变优先级</C>
+  <C>运算符重载后，原来运算符操作不可再用</C>
+  <C>运算符重载不改变结合性</C>
+  <C>运算符重载函数的参数个数与重载方式有关</C>
+  <Explanation>
+    正确答案（即**错误**的说法）是B。运算符重载后，原有运算符对内置类型的操作**仍然可用**，重载只是扩展了适用范围而非替换原有功能。例如重载了类`Complex`的`+`运算符后，`int a = 1 + 2;`仍可使用原有的整数加法。A、C是正确的：重载不改变优先级和结合性。D也是正确的：成员函数重载时参数个数比友元函数重载少一个（因为成员函数有隐式`this`指针）。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="若需要为xv类重载乘法运算符,运算结果为xv类型,在将其声明为类的成员函数时,下列原型声明正确的是_________。" correct={2} meta={{label: "2-13", score: 2, difficulty: 0, author: "李梅莲", org: "许昌学院"}}>
+  <Q>
+
+    若需要为`xv`类重载乘法运算符,运算结果为`xv`类型,在将其声明为类的成员函数时,下列原型声明正确的是_________。
+
+
+    A.
+    `xv*(xv);`
+
+
+  </Q>
+  <C>
+`xv*(xv);`
+</C>
+  <C>`operator*(xv);`
+</C>
+  <C>`xv operator*(xv);`
+</C>
+  <C>`xv operator*(xv,xv);`</C>
+  <Explanation>
+    正确答案是`xv operator*(xv);`。成员函数重载乘法运算符的格式为：`返回类型 operator*(参数列表);`。成员函数通过`this`指针隐式获得左操作数，因此对二元`*`运算符只需要一个显式参数（右操作数）。A缺少`operator`关键字，B缺少返回类型，D参数个数错误——成员函数不需要显式列出左操作数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列运算符中，不可以重载的是（  ）。" correct={2} meta={{label: "2-14", score: 2, difficulty: 0, author: "屈巍", org: "沈阳师范大学"}}>
+  <Q>
+    下列运算符中，不可以重载的是（  ）。
+
+
+  </Q>
+  <C>`new`</C>
+  <C>`++`</C>
+  <C>`.*`</C>
+  <C>`[]`</C>
+  <Explanation>
+    正确答案是`.*`。`.*`（成员指针解引用运算符）是C++中不能重载的运算符之一，与`.`（成员访问）类似，它们直接操作对象的内存布局，语言不允许重载。`new`（和`delete`）是可以重载的，`++`（自增）可以重载，`[]`（下标）也可以重载（只能作为成员函数）。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="运算符重载" meta={{label: "5-1", score: 20, difficulty: 0, author: "gong", org: "哈尔滨华德学院"}}>
+  <Q>
+    {`
+    圆类定义如下，重载输入、输出运算符为友元函数，重载算术减法运算符为成员函数，参考给出代码进行填空。
+
+    \`\`\`c++
+    class Circle
+    {
+    private:
+        double rad;
+        double area;
+        @@[](3) istream& operator>>(istream&in, Circle &cl);       //重载>>为Circle类的友元函数
+        friend @@[](3) operator<<(ostream&out, Circle &cl);        //重载<<为Circle类的友元函数
+    public:
+        Circle(double r=0)
+        {
+            rad=r;
+            area=3.14*r*r;
+        }
+        double @@[](3)(Circle &cl)//重载减号
+        {
+            return this->area-@@[](3);//返回两个圆的面积差
+        }
+    };
+    istream& operator>>(istream&in, Circle &cl)
+    {
+        @@[](3);   //从输入流中提取数据给圆的半径
+        cl.area=3.14*cl.rad*cl.rad;
+        return in;
+    }
+    ostream& operator<<(ostream&out, Circle &cl)
+    {
+        out<<@@[](5);    //输出圆的半径和面积，形如：rad=10 area=314
+        return out;
+    }
+
+    int main()
+    {
+        Circle c1,c2;
+        cin>>c1>>c2;
+        cout<<c1<<endl;
+        cout<<c2<<endl;
+        cout<<c2-c1<<endl;
+        return 0;
+    }
+    \`\`\`
+
+
+    *Unplaced blanks:*
+    <Blank>friend</Blank>
+    <Blank>ostream&</Blank>
+    <Blank>operator-</Blank>
+    <Blank>cl.area</Blank>
+    <Blank>in>>cl.rad</Blank>
+    <Blank>"rad="<<cl.rad<<" area="<<cl.area</Blank>
+    `}
+  </Q>
+  <Explanation>
+    **Note: This answer was written by AI and may not be correct.**
+    Answer: `friend`
+    Answer: `ostream&`
+    Answer: `operator-`
+    Answer: `cl->area`
+    Answer: `cin >> cl.area`
+    Answer: `"rad="<<cl.rad<<" area="<<cl.area`
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="Point类的运算" meta={{label: "6-1", score: 10, difficulty: 0, author: "杨军", org: "四川师范大学"}}>
+  <Q>
+    定义`Point`类，有坐标`x`,`y`两个私有成员变量;对`Point`类重载“`+`”（相加）、“`-`”（相减）和“`==`”（相等）运算符，实现对坐标的改变，要求用友元函数和成员函数两种方法实现。对`Point`类重载`<<`运算符，以使得代码 `Point p; cout<<p<<endl;`可以输出该点对象的坐标。
+
+    ### 函数接口定义：
+    实现`Point`类。
+
+    ### 裁判测试程序样例：
+    ```cpp
+
+    /* 请在这里填写答案 */
+
+
+    int main(int argc, char const *argv[])
+    {
+    	Point p1(2,3);
+    	cout<<p1<<endl;
+    	Point p2(4,5);
+    	cout<<p2<<endl;
+    	Point p3 = p1+p2;
+    	cout<<p3<<endl;
+    	p3 = p2-p1;
+    	cout<<p3<<endl;
+    	p1 += p2;
+    	cout<<p1<<endl;
+    	cout<<(p1==p2)<<endl;
+    	return 0;
+    }
+
+    ```
+
+    ### 输入样例：
+
+    无
+
+    ### 输出样例：
+
+    在这里给出相应的输出。例如：
+
+    ```out
+    2,3
+    4,5
+    6,8
+    2,2
+    6,8
+    0
+
+    ```
+
+  </Q>
+  <A>
+    {`
+    #include <iostream>
+    using namespace std;
+
+    class Point{
+    private:
+        int x;
+        int y;
+        friend ostream& operator<<(ostream& os, const Point& point);
+    public:
+        Point(int a, int b): x(a),y(b) {}
+        Point& operator+(const Point& other){
+            Point* temp = new Point(this->x, this->y);
+            temp->x+=other.x;
+            temp->y+=other.y;
+            return *temp;
+        }
+        Point& operator+=(const Point& other){
+            this->x= this->x+other.x;
+            this->y= this->y+other.y;
+            return *this;
+        }
+        Point& operator-(const Point& other){
+            Point* temp = new Point(this->x,this->y);
+            temp->x-=other.x;
+            temp->y-=other.y;
+            return *temp;
+        }
+        int operator==(const Point& other){
+            if(this->x==other.x && this->y==other.y){
+                return 1;
+            } else return 0;
+        }
+
+
+    };
+
+
+    ostream& operator<<(ostream& os, const Point& point){
+        os << point.x << "," << point.y;
+        return os;
+    }
+    `}
+  </A>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="复数的加减运算（运算符重载）" meta={{label: "6-2", score: 10, difficulty: 0, author: "fpc", org: "内蒙古师范大学"}}>
+  <Q>
+    ###复数加减（运算符重载）
+    1. 声明一个复数类`CComplex`（类私有数据成员为`double`型的`real`和`image`）
+    2. 定义构造函数，用于指定复数的实部与虚部。
+    3. 重载`<<`运算符，以格式`real+image i`的格式输出当前对象（当虚部为非负数时，实部虚部中间用`+`号连接，当虚部为负数时，实部虚部用`-`号连接：如3+4i，3-4i，3+0i）。
+    4. 重载`+`运算符，实现两个复数对象之和（实部虚部分别相加）。
+    5. 重载`-`运算符，实现两个复数对象的差（实部虚部分别相减）。
+
+    输入格式:
+    输入有两行：
+    第一行是复数`c1`的实部与虚部，以空格分隔；
+    第二行是复数`c2`的实部与虚部，以空格分隔。
+
+    输出格式:
+    输出共四行:
+    第一行是`c1`；
+    第二行是`c2`；
+    第三行是`c1`与`c2`之和；
+    第四行是`c1`与`c2`之差；
+
+    #### 函数接口定义：
+    ```cpp
+    在这里描述类定义
+    class CComplex{...}
+    ```
+
+    #### 裁判测试程序样例：
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    /* 请在这里填写答案 */
+
+    int main() {
+    	double r1,r2,i1,i2;
+    	cin>>r1>>i1;
+    	cin>>r2>>i2;
+    	CComplex c1(r1,i1),c2(r2,i2),c3,c4;
+    	cout<<c1;
+    	cout<<c2;
+    	c3=c1+c2;
+    	cout<<c3;
+    	c4=c1-c2;
+    	cout<<c4;
+    	return 0;
+    }
+    ```
+
+    ####输入样例：
+
+    ```in
+    10 20
+    30 40
+    ```
+
+    #### 输出样例：
+
+    ```out
+    10+20i
+    30+40i
+    40+60i
+    -20-20i
+
+    ```
+  </Q>
+  <A>
+    {`
+    class CComplex{
+    private:
+        double real;
+        double image;
+        friend ostream& operator<<(ostream& os, const CComplex& cmplx);
+    public:
+        CComplex(double a, double b):real(a),image(b){}
+        CComplex(){
+            real=0;
+            image=0;
+        }
+        CComplex& operator+(const CComplex& other){
+            CComplex* tmp = new CComplex(this->real,this->image);
+            tmp->real+=other.real;
+            tmp->image+=other.image;
+            return *tmp;
+        }
+        CComplex& operator-(const CComplex& other){
+            CComplex* tmp = new CComplex(this->real,this->image);
+            tmp->real-=other.real;
+            tmp->image-=other.image;
+            return *tmp;
+        }
+
+    };
+
+    ostream& operator<<(ostream& os, const CComplex& cmplx){
+
+        if (cmplx.image<0){
+            os << cmplx.real << cmplx.image << "i" << endl;
+        } else {
+        os << cmplx.real << '+' << cmplx.image << "i" << endl;
+        }
+        return os;
+    }
+
+
+    `}
+  </A>
+</PTAQuiz>
+
+<PTAQuiz programming title="分数加法运算重载" meta={{label: "7-1", score: 10, difficulty: 0, author: "余春艳", org: "浙江大学"}}>
+  <Q>
+    相信同学们对复数运算符重载已经相当熟悉啦，那今天那我们来看看分数又该如何处理呢?定义一个分数类`FS`，有私有成员分子`fz`，分母`fm`。另有公有成员函数`FS operator + (const FS &f)`对运算符“`+`”进行重载，实现两个分数相加。题目首先给出一个整型数`n`，紧跟着2`n`行输入，输入形如3z4m，代表分子为3，分母为4。其中分母不为0，输入时分母可以为负数，但输出时分母必须为正数。
+    要求对分数进行两两求和，并化简。(备注说明：分数为0时，表示成0z1m，如果结果为负数，那么分子取负数，分母为正数)
+
+    示例如下：
+
+    输入：
+
+    3
+
+    4z9m
+
+    2z9m
+
+    4z5m
+
+    5z4m
+
+    2z-5m
+
+    1z-5m
+
+    输出：
+
+    2z3m
+
+    41z20m
+
+    -3z5m
+  </Q>
+</PTAQuiz>
+
+<PTAQuiz programming title="复数的比较" meta={{label: "7-2", score: 10, difficulty: 0, author: "余春艳", org: "福州大学"}}>
+  <Q>
+    题目描述：建立一个复数类，实数和虚数是其私有数据成员。建立一个`>`（大于号）的运算符重载，比较两个复数间模的大小。
+
+    输入格式：测试输入包含若干测试用例，每个测试用例占一行。每个测试用例包括四个数字，前两个数字分别表示第一个复数的实部和虚部，第三个和第四个数字分别表示第二个复数的实部和虚部。每个数字之间用空格间隔。当读入一个测试用例是0 0 0 0时输入结束，相应的结果不要输出。
+
+    输出格式：对每个测试用例输出一行。当第一个复数的模大于第二个复数的模时，输出 `true` ，当第一个复数的模小于或等于第二个复数的模时，输出`false`
+
+    输入样例：
+
+    　　　3 5 4 0
+
+    　　　0 3 4 1
+
+    　　　0 0 0 0
+
+    输出样例：
+
+    　　　true
+
+    　　　false
+  </Q>
+</PTAQuiz>

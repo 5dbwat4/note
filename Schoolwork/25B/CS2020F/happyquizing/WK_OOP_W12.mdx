@@ -1,0 +1,486 @@
+---
+title: "浙大26春OOP W12模板作业"
+---
+
+import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+
+<PTAQuiz true-or-false title="pair类模板的作用是将两个数据组成一个数据，用来表示一个二元组或一个元素对，两个数据可以是同一个类型也可以是不同的类型。  " correct={true} meta={{label: "1-1", score: 1, difficulty: 0, author: "刘莹", org: "威海职业学院"}}>
+  <Q>
+    `pair`类模板的作用是将两个数据组成一个数据，用来表示一个二元组或一个元素对，两个数据可以是同一个类型也可以是不同的类型。
+  </Q>
+  <Explanation>
+    正确。`pair` 类模板定义在 `<utility>` 头文件中，它将两个值（`first` 和 `second`）组合成一个单元。第一个元素和第二个元素的类型可以是相同的（如 `pair<int,int>`），也可以是不同的（如 `pair<int,string>`）。`pair` 常用于需要返回两个值的场景，比如 map 的键值对。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="现有声明：" correct={0} meta={{label: "2-1", score: 2, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    {`
+    现有声明：
+
+    template <class T>
+
+    class Test{...};
+
+    则以下哪一个声明不可能正确。
+
+    `}
+  </Q>
+  <C>`Test a;`</C>
+  <C>`Test < int> a;`</C>
+  <C>`Test < float> a;`</C>
+  <C>`Test< Test < int> > a;`</C>
+  <Explanation>
+    正确答案：`Test a;`。`Test` 是一个类模板，使用类模板时必须提供模板实参（如 `Test<int>`）来实例化为具体的模板类。选项 A 缺少模板实参，编译器无法确定 `T` 的类型，因此不可能正确。选项 B、C 分别用 `int` 和 `float` 实例化，语法正确。选项 D 是嵌套模板用法 `Test<Test<int>>`，相当于用 `Test<int>` 作为模板实参，也是合法的。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="Given:" correct={3} meta={{label: "2-2", score: 2, difficulty: 0, author: "翁恺", org: "浙江大学"}}>
+  <Q>
+    Given:
+    ```
+    template < class T >
+    void swap( T& x, T& y ) {
+       T temp = x;
+       x = y;
+       y = temp;
+    }
+    int i,j;
+    float f,m;
+    ```
+    Which statement is incorrect?
+
+  </Q>
+  <C>`swap(i,j);`</C>
+  <C>`swap(j,i);`</C>
+  <C>`swap(f,m)`</C>
+  <C>`swap(i,f);`</C>
+  <Explanation>
+    正确答案：`swap(i,f);`。函数模板 `swap` 只有一个模板参数 `T`，在调用时编译器根据实参类型推导 `T`。`swap(i,f)` 中 `i` 为 `int`，`f` 为 `float`，导致 `T` 无法同时推导为两种不同类型，产生类型冲突。`swap((int)c,i)`（若存在）或显式指定 `swap<int>(i,f)` 无效，因为 `T&` 不能绑定不同类型的引用。选项 A、B、C 中两个实参类型一致，均可正确推导和调用。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="Given:" correct={0} meta={{label: "2-3", score: 2, difficulty: 0, author: "翁恺", org: "浙江大学"}}>
+  <Q>
+    Given:
+    ```
+    void f(int i) { cout << "Func1" << endl; }
+    template<class T>
+    void f(T t) { cout << "Func2" << endl; }
+    main() {
+    	f(2);
+    }
+    ```
+    The result is :
+
+  </Q>
+  <C>`Func1`</C>
+  <C>`Func2`</C>
+  <C>*nothing*</C>
+  <C>undetermined</C>
+  <Explanation>
+    正确答案：`Func1`。当同时存在普通函数和函数模板且都能匹配调用时，编译器优先选择普通函数（重载决议规则中的"更加特化"原则）。此处 `f(2)` 中 `2` 是 `int` 字面量，与普通函数 `void f(int)` 精确匹配；虽然函数模板 `void f(T)` 也能匹配，但非模板函数优先级更高，因此输出 `Func1`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列的模板说明中，正确的是。   " correct={2} meta={{label: "2-4", score: 2, difficulty: 0, author: "高巍然", org: "西安邮电大学"}}>
+  <Q>
+    下列的模板说明中，正确的是。
+
+
+  </Q>
+  <C>`template < typename T1, T2 >`</C>
+  <C>`template < class T1, T2 >`</C>
+  <C>`template < typename T1, typename T2 >`</C>
+  <C>`template ( typedef T1, typedef T2 )`</C>
+  <Explanation>
+    正确答案：`template < typename T1, typename T2 >`。模板参数列表中，每个类型参数名前必须用 `class` 或 `typename` 关键字修饰。选项 A 和 B 中 `T2` 前缺少关键字，语法错误。选项 D 中使用 `typedef` 是错误语法，模板参数声明不支持 `typedef`。只有选项 C 每个参数前都有 `typename`，完全正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="关于类模板，描述错误的是。   " correct={0} meta={{label: "2-5", score: 2, difficulty: 0, author: "高巍然", org: "西安邮电大学"}}>
+  <Q>
+    关于类模板，描述错误的是。
+
+
+  </Q>
+  <C>一个普通基类不能派生类模板</C>
+  <C>类模板可以从普通类派生，也可以从类模板派生</C>
+  <C>根据建立对象时的实际数据类型，编译器把类模板实例化为模板类</C>
+  <C>函数的类模板参数需生成模板类并通过构造函数实例化</C>
+  <Explanation>
+    正确答案："一个普通基类不能派生类模板"。这个说法是错误的，因为普通（非模板）类完全可以作为类模板的基类，这是合法的继承用法。选项 B 正确：类模板既可以从普通类继承，也可以从类模板继承。选项 C 正确：编译器根据创建对象时指定的实际类型将类模板实例化为具体的模板类。选项 D 正确：函数的类模板参数需要先通过模板实例化生成模板类，再通过构造函数创建对象。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="建立类模板对象的实例化过程为。   " correct={2} meta={{label: "2-6", score: 2, difficulty: 0, author: "高巍然", org: "西安邮电大学"}}>
+  <Q>
+    建立类模板对象的实例化过程为。
+
+
+  </Q>
+  <C>基类-派生类</C>
+  <C>构造函数-对象</C>
+  <C>模板类-对象</C>
+  <C>模板类-模板函数</C>
+  <Explanation>
+    正确答案：模板类-对象。类模板对象的实例化过程是：首先，编译器根据指定的类型实参将**类模板**（class template）实例化为**模板类**（即具体的类，如 `Test<int>`），然后再通过这个模板类创建**对象**。选项 A（基类-派生类）是继承关系，与模板实例化无关。选项 B（构造函数-对象）只是创建对象的最后一步，遗漏了模板→类的实例化。选项 D（模板类-模板函数）混淆了概念。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列有关模板的描述，错误的是\\_\\_\\_\\_。  " correct={3} meta={{label: "2-7", score: 2, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    下列有关模板的描述，错误的是\_\_\_\_。
+
+  </Q>
+  <C>模板把数据类型作为一个设计参数，称为参数化程序设计</C>
+  <C>使用时，模板参数与函数参数相同，是按位置而不是名称对应的</C>
+  <C>模板参数表中可以有类型参数和非类型参数</C>
+  <C>类模板与模板类是同一个概念</C>
+  <Explanation>
+    正确答案："类模板与模板类是同一个概念"。这个说法是错误的。**类模板**（class template）是模板定义本身，是一个未实例化的蓝图/模式，如 `template<class T> class A{...};`。**模板类**（template class）是类模板经过类型参数替换后生成的**具体类**，如 `A<int>`。两者是"模具"与"成品"的关系，概念不同。选项 A、B、C 的描述均正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="模板函数的真正代码是在哪个时期产生的\\_\\_\\_\\_。  " correct={2} meta={{label: "2-8", score: 2, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    模板函数的真正代码是在哪个时期产生的\_\_\_\_。
+
+  </Q>
+  <C>源程序中声明函数时</C>
+  <C>源程序中定义函数时</C>
+  <C>源程序中调用函数时</C>
+  <C>运行执行函数时</C>
+  <Explanation>
+    正确答案：源程序中调用函数时。模板函数的真正代码（即实例化后的具体函数）是在**编译期**生成的，触发时机是源代码中**第一次调用该函数模板**时。编译器根据调用处的实参类型推导模板参数，然后生成对应类型的函数代码。选项 A、B 时模板仅被声明/定义，尚未产生具体代码。选项 D（运行时）错误，模板实例化是编译时行为，不是运行时行为。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="类模板的使用实际上是将类模板实例化成一个\\_\\_\\_\\_。  " correct={2} meta={{label: "2-9", score: 2, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    类模板的使用实际上是将类模板实例化成一个\_\_\_\_。
+
+  </Q>
+  <C>函数</C>
+  <C>对象</C>
+  <C>类</C>
+  <C>抽象类</C>
+  <Explanation>
+    正确答案：类。类模板的使用实际上是将类模板实例化成一个**具体的类**（即模板类）。例如 `template<class T> class A{...}` 是类模板，当使用 `A<int>` 时，编译器生成一个 `T` 被替换为 `int` 的类。选项 A（函数）与类无关。选项 B（对象）是后续步骤——先用类创建对象。选项 D（抽象类）是包含纯虚函数的类，与模板实例化无关。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="声明模板的关键字为\\_\\_\\_\\_。  " correct={1} meta={{label: "2-10", score: 2, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    声明模板的关键字为\_\_\_\_。
+
+  </Q>
+  <C>`static`</C>
+  <C>`template`</C>
+  <C>`typename`</C>
+  <C>`class`</C>
+  <Explanation>
+    正确答案：`template`。声明模板的关键字是 `template`，后跟模板参数列表 `<...>`。`typename` 和 `class` 是模板参数列表中用于修饰类型参数名的关键字（如 `template <typename T>` 或 `template <class T>`），不是声明模板本身的关键字。`static` 与模板无关，用于声明静态变量或函数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列对模板的声明，正确的是\\_\\_\\_\\_。  " correct={2} meta={{label: "2-11", score: 2, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    下列对模板的声明，正确的是\_\_\_\_。
+
+  </Q>
+  <C>`template<T>`</C>
+  <C>`template<class T1, T2>`</C>
+  <C>`template<class T1, class T2>`</C>
+  <C>`template<class T1, class T1>`</C>
+  <Explanation>
+    正确答案：`template<class T1, class T2>`。模板参数列表中的每个类型参数都必须有 `class` 或 `typename` 关键字修饰。选项 A 中 `T` 前缺少关键字。选项 B 中 `T2` 前缺少关键字。选项 D 中两个参数使用了相同的名字 `T1`，参数名必须唯一。只有选项 C 两个参数各有 `class` 关键字且名称不同，语法正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列选项中，哪一项是类模板实例化的时期\\_\\_\\_\\_。  " correct={0} meta={{label: "2-12", score: 2, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    下列选项中，哪一项是类模板实例化的时期\_\_\_\_。
+
+  </Q>
+  <C>在编绎时期进行</C>
+  <C>属于动态联编</C>
+  <C>在运行时进行</C>
+  <C>在连接时进行</C>
+  <Explanation>
+    正确答案：在编译时期进行。类模板的实例化发生在**编译时期**。编译器在遇到模板的具体使用时（如声明 `MyClass<int>` 对象），根据模板定义和提供的类型实参生成具体的类代码。模板是静态多态（编译时多态）的机制，选项 B（动态联编）和选项 C（运行时进行）描述的是运行时多态（虚函数）。选项 D（连接时）也不正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列选项中，哪一个函数可以定义为对许多数据类型完成同一任务\\_\\_\\_\\_。  " correct={0} meta={{label: "2-13", score: 2, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    下列选项中，哪一个函数可以定义为对许多数据类型完成同一任务\_\_\_\_。
+  </Q>
+  <C>函数模板</C>
+  <C>递归函数</C>
+  <C>模板函数</C>
+  <C>重载函数</C>
+  <Explanation>
+    正确答案：函数模板。函数模板是一个蓝图，定义一次即可适用于多种不同数据类型执行同一逻辑。它与具体类型无关，编译器在调用时根据实参类型自动生成对应版本的函数代码。选项 B（递归函数）是调用自身的函数，与多类型无关。选项 C（模板函数）是函数模板实例化后的具体函数，而非"定义"本身。选项 D（重载函数）是针对不同类型写多个同名函数，需要为每种类型手写实现，不如函数模板简洁。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="一个\\_\\_\\_\\_允许用户为类定义一种模式，使得类中的某些数据成员及某些成员函数的返回值能取任意类型。" correct={2} meta={{label: "2-14", score: 2, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
+  <Q>
+    一个\_\_\_\_允许用户为类定义一种模式，使得类中的某些数据成员及某些成员函数的返回值能取任意类型。
+
+  </Q>
+  <C>函数模板</C>
+  <C>模板函数</C>
+  <C>类模板</C>
+  <C>模板类</C>
+  <Explanation>
+    正确答案：类模板。类模板（class template）允许为类定义一种模式，使得类中的数据成员类型、成员函数参数/返回值类型可以是任意类型（通过模板参数指定）。选项 A（函数模板）是针对函数的，不是为类定义模式。选项 B（模板函数）是函数模板实例化后的具体函数。选项 D（模板类）是类模板实例化后的具体类，是"成品"而非"模式/蓝图"。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="下列关于pair<>类模板的描述中，错误的是。   " correct={2} meta={{label: "2-15", score: 2, difficulty: 0, author: "刘莹", org: "威海职业学院"}}>
+  <Q>
+    下列关于 `pair<>` 类模板的描述中，错误的是。
+
+
+  </Q>
+  <C>`pair<>`类模板定义头文件`utility`中</C>
+  <C>`pair<>`类模板作用是将两个数据组成一个数据，两个数据可以是同一个类型也可以是不同的类型</C>
+  <C>创建`pair<>`对象只能调用其构造函数</C>
+  <C>`pair<>`类模拟提供了两个成员函数`first`与`second`来访问这的两个数据</C>
+  <Explanation>
+    正确答案："创建`pair<>`对象只能调用其构造函数"。这个说法是错误的，因为创建 `pair` 对象除了直接使用构造函数（如 `pair<int,string>(1,"hello")`）外，还可以使用 `std::make_pair()` 辅助函数（如 `make_pair(1,"hello")`），该函数能自动推导类型，使用更方便。选项 A 正确：`pair` 定义在 `<utility>` 头文件中。选项 B 正确：`pair` 将两个数据组合为一个单元，两个数据类型可以相同或不同。选项 D 正确：`pair` 通过 `first` 和 `second` 两个公有成员变量来访问存储的两个数据。
+  </Explanation>
+
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="模板的使用是为了（）。   " correct={0} meta={{label: "2-16", score: 2, difficulty: 0, author: "吕华", org: "河北工业大学"}}>
+  <Q>
+    模板的使用是为了（）。
+
+
+  </Q>
+  <C>提高代码的可重用性</C>
+  <C>提高代码的运行效率</C>
+  <C>加强类的封装性</C>
+  <C>实现多态性</C>
+  <Explanation>
+    正确答案：提高代码的可重用性。模板的核心目的是实现**代码重用**——编写一份与类型无关的通用代码，编译器根据实际使用的类型自动生成对应版本，避免为每种类型重复编写相同逻辑。选项 B（运行效率）并非模板的主要目的，模板虽在编译期确定类型无运行时开销，但这不是其设计初衷。选项 C（封装性）是类的特性。选项 D（多态性）主要通过虚函数和继承（运行时多态）实现，模板属于编译时多态（静态多态），但不是其主要目的。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice title="假设声明了一下的函数模板：" correct={3} meta={{label: "2-17", score: 2, difficulty: 0, author: "吕华", org: "河北工业大学"}}>
+  <Q>
+    假设声明了一下的函数模板：
+    ```
+    template<class T>
+    T max(T x, T y)
+    {
+        return  (x>y)?x:y;
+    }
+    ```
+    并定义了int i; char c;
+    错误的调用语句是（）。
+
+
+  </Q>
+  <C>`max(i,i);`</C>
+  <C>`max(c,c);`</C>
+  <C>`max((int)c,i);`</C>
+  <C>`max(i,c);`</C>
+  <Explanation>
+    正确答案：`max(i,c);`。函数模板 `max` 的模板参数 `T` 需要从两个实参中推导，且推导结果必须一致。`max(i,c)` 中 `i` 为 `int` 类型，`c` 为 `char` 类型，编译器无法将 `T` 同时推导为两种不同类型，产生歧义错误。选项 A 和 B 中两个实参类型一致（均为 `int` 或均为 `char`），可正常调​用。选项 C 中 `(int)c` 显式将 `c` 转换为 `int`，使两个实参类型统一为 `int`，因此也能正确调用。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="A Fill in the blanks" meta={{label: "5-1", score: 10, difficulty: 0, author: "hulanqing", org: "浙江大学"}}>
+  <Q>
+    {`
+    \`\`\`
+    #include <iostream>
+    using namespace std;
+    class IndexError{};
+    template @@[](2)
+    class ARRAY
+    {
+    	size_t m_size;
+    	T *m_ptr;
+    public:
+    	ARRAY(size_t size) : m_size(size)
+    	{
+    		m_ptr = new T[size];
+    		memset(m_ptr, 0, size*sizeof(int));
+    	}
+    	~ARRAY()
+    	{
+    		delete[] m_ptr;
+    	}
+    	T& at(int index);
+    };
+
+    template <typename T>
+    @@[](2)::at(int index)
+    {
+    	if(index<0||@@[](2))
+    	{
+    		@@[](2) IndexError();
+    	}
+    	return m_ptr[index];
+    }
+
+    int main()
+    {
+    	ARRAY<int> a(50);
+    	int i;
+    	cin >> i;
+    	@@[](2)
+        {
+    		for(int j=0;j<i;j++)
+    			a.at(i) = j;
+    	}
+    	catch(IndexError e)
+    	{
+    		return 0;
+    	}
+    	return 0;
+    }
+    \`\`\`
+
+
+    *Unplaced blanks:*
+    <Blank><typename T></Blank>
+    <Blank>T& ARRAY<T></Blank>
+    <Blank>index >= m_size</Blank>
+    <Blank>throw</Blank>
+    <Blank>try</Blank>
+    `}
+  </Q>
+  <Explanation>
+    **Note: This answer was written by AI and may not be correct.**
+    Answer: `<class T>`
+    Answer: `Array<T>`
+    Answer: `index>=m_size`
+    Answer: `throw`
+    Answer: `try`
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="有序数组（类模板）" meta={{label: "6-1", score: 10, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+  <Q>
+    实现一个类模板，它可以接受一组数据，能对数据排序，也能输出数组的内容。
+
+    每行输入的第一个数字为0，1，2或3:为0时表示输入结束； 为1时表示将输入整数，为2时表示将输入有一位小数的浮点数，为3时表示输入字符。
+
+    如果第一个数字非0，则接下来将输入一个正整数，表示即将输入的数据的数量。
+
+    从每行第三个输入开始，依次输入指定类型的数据。
+
+    ### 类模板：
+    ```cpp
+    template <class T>
+    class MyArray
+    ```
+
+
+    ### 裁判测试程序样例：
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    /* 请在这里填写答案 */
+
+    template<class T>
+    MyArray<T>::~MyArray(){ delete[] data;}
+
+    template<class T>
+    bool MyArray<T>::check(){
+        int i;
+        for(i=0;i<size-1;i++)
+            if(data[i]>data[i+1]) { cout<<"ERROR!"<<endl;return false;}
+        return true;
+    }
+    int main( )
+    {
+        MyArray<int> *pI;
+        MyArray<float> *pF;
+        MyArray<char> *pC;
+        int ty, size;
+        cin>>ty;
+        while(ty>0){
+            cin>>size;
+            switch(ty){
+                case 1: pI = new MyArray<int>(size);   pI->sort(); pI->check(); pI->display(); delete pI; break;
+                case 2: pF = new MyArray<float>(size); pF->sort(); pF->check(); pF->display(); delete pF; break;
+                case 3: pC = new MyArray<char>(size);  pC->sort(); pC->check(); pC->display(); delete pC; break;
+            }
+            cin>>ty;
+        }
+        return 0;
+    }
+
+
+    ```
+
+    ### 输入样例：
+    ```in
+    1 3 2 3 1
+    2 4 1.5 2.6 3.7 0.5
+    3 2 A a
+    0
+    ```
+
+    ### 输出样例：
+    ```out
+    1 2 3
+    0.5 1.5 2.6 3.7
+    A a
+    ```
+  </Q>
+  <A>
+    {`
+    template <class T>
+    class MyArray {
+    private:
+        T* data;
+        int size;
+    public:
+        MyArray(int s);
+        ~MyArray();
+        void sort();
+        void display();
+        bool check();
+    };
+
+    template<class T>
+    MyArray<T>::MyArray(int s) : size(s) {
+        data = new T[size];
+        for(int i = 0; i < size; i++) {
+            cin >> data[i];
+        }
+    }
+
+    template<class T>
+    void MyArray<T>::sort() {
+        for(int i = 0; i < size - 1; i++) {
+            for(int j = 0; j < size - 1 - i; j++) {
+                if(data[j] > data[j+1]) {
+                    T temp = data[j];
+                    data[j] = data[j+1];
+                    data[j+1] = temp;
+                }
+            }
+        }
+    }
+
+    template<class T>
+    void MyArray<T>::display() {
+        for(int i = 0; i < size; i++) {
+            if(i > 0) cout << " ";
+            cout << data[i];
+        }
+        cout << endl;
+    }
+    `}
+  </A>
+</PTAQuiz>
