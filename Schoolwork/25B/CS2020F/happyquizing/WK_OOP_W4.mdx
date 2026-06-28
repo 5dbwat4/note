@@ -10,7 +10,8 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
   <C>`C` 一定是类 `A` 的友元</C>
   <C>`C` 的成员函数可以访问类 `B` 的对象的任何成员</C>
   <C>`A` 的成员函数可以访问类 `B` 的对象的任何成员</C>
-  <Explanation>
+
+<Explanation>
 
 **答案：D**。友元关系不具有**传递性**。已知类 `A` 是类 `B` 的友元，则 `A` 的成员函数可以访问 `B` 的所有成员（含私有成员），因此 D 正确。
 
@@ -18,7 +19,7 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 - **B 错误**：友元关系既不对称也不传递，类 `C` 不一定是类 `A` 的友元。
 - **C 错误**：题干说的是"类 `B` 是类 `C` 的友元"，即 `B` 可访问 `C` 的成员，而非 `C` 可访问 `B` 的成员。`C` 的成员函数**不能**访问 `B` 的私有成员（除非 `C` 被显式声明为 `B` 的友元）。
 
-  </Explanation>
+</Explanation>
 </PTAQuiz>
 
 <PTAQuiz multiple-choice title="友元函数的错误描述" correct={1} meta={{label: "2-2", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
@@ -27,7 +28,7 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
   <C>友元函数只可访问类的私有成员</C>
   <C>友元函数的调用方法同一般函数</C>
   <C>友元函数可以是另一类中的成员函数</C>
-  <Explanation>
+<Explanation>
 
 **答案：B**。友元函数声明后可以访问该类的**所有成员**（包括 `private`、`protected`、`public`），而不仅仅是私有成员，因此 B 的描述是错误的。
 
@@ -35,7 +36,7 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 - **C 正确**：友元函数是普通函数（或另一类的成员函数），调用方式与一般函数相同，不需要通过对象调用。
 - **D 正确**：友元函数可以是全局函数、另一个类的成员函数，甚至可以是另一个类的全体（友元类）。
 
-  </Explanation>
+</Explanation>
 </PTAQuiz>
 
 <PTAQuiz multiple-choice title="this指针的错误说法" correct={0} meta={{label: "2-3", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
@@ -44,7 +45,7 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
   <C>成员函数内的 `this` 指针，指向成员函数所作用的对象</C>
   <C>在构造函数内部可以使用 `this` 指针</C>
   <C>在析构函数内部可以使用 `this` 指针</C>
-  <Explanation>
+<Explanation>
 
 **答案：A**。`const` 成员函数内部**可以使用** `this` 指针，只是此时 `this` 的类型变为 `const 类名* const`（指向常量的常量指针），不能通过 `this` 修改成员数据，但仍可以读取。因此 A 的说法不正确。
 
@@ -52,7 +53,7 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 - **C 正确**：构造函数内部可以使用 `this` 指针，常用于区分参数名与成员变量名（如 `this->x = x;`），或返回对象自身的引用。
 - **D 正确**：析构函数内部同样可以使用 `this` 指针，对象的生命周期尚未结束，`this` 仍然有效。
 
-  </Explanation>
+</Explanation>
 </PTAQuiz>
 
 <PTAQuiz code-completion title="Point类的声明和实现" meta={{label: "6-1", score: 10, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
