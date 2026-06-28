@@ -45,14 +45,16 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
   <C>3</C>
   <C>4</C>
   <C>3 和 4</C>
-  <Explanation>答案为 **3 和 4**（即语句3 与语句4）。  
+  <Explanation>
+  答案为 **3 和 4**（即语句3 与语句4）。  
 
 - **语句1** `AA a, b;` → 调用默认构造函数，不涉及拷贝。  
 - **语句2** `AA c(10, 20);` → 调用带参构造函数，不涉及拷贝。  
 - **语句3** `AA d(c);` → 用已有对象 `c` **初始化**新对象 `d`，调用拷贝构造函数。  
 - **语句4** `AA e = d;` → 虽然出现了 `=`，但这是**初始化**语句（`e` 正在被定义），等价于 `AA e(d);`，同样调用拷贝构造函数，而非赋值运算符。  
 
-区分关键：对象**首次创建时用另一对象初始化** → 拷贝构造函数；两个**已存在的对象间用 `=`** → 赋值运算符。</Explanation>
+区分关键：对象**首次创建时用另一对象初始化** → 拷贝构造函数；两个**已存在的对象间用 `=`** → 赋值运算符。
+</Explanation>
 </PTAQuiz>
 
 <PTAQuiz multiple-choice title="假设MyClass是一个类，则该类的拷贝初始化构造函数的声明语句为（ ）    " correct={2} meta={{label: "2-3", score: 2, difficulty: 0, author: "范鹏程", org: "内蒙古师范大学"}}>
@@ -64,12 +66,14 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
   <C>`MyClass(MyClass x);`</C>
   <C>`MyClass(MyClass &x);`</C>
   <C>`MyClass(MyClass *x);`</C>
-  <Explanation>答案为 **`MyClass(MyClass &x);`**。拷贝构造函数的标准签名形式为 `ClassName(const ClassName &obj);`。  
+  <Explanation>
+  答案为 **`MyClass(MyClass &x);`**。拷贝构造函数的标准签名形式为 `ClassName(const ClassName &obj);`。  
 
 - **A** `MyClass&(MyClass x);` → 返回引用类型，不是构造函数。  
 - **B** `MyClass(MyClass x);` → 参数按值传递，调用时会无限递归（传值本身就需要拷贝构造），编译器禁止这种写法。  
 - **C** `MyClass(MyClass &x);` → 正确，参数为同类型对象的引用（最好加上 `const`）。  
-- **D** `MyClass(MyClass *x);` → 参数为指针，不是拷贝构造函数签名。</Explanation>
+- **D** `MyClass(MyClass *x);` → 参数为指针，不是拷贝构造函数签名。
+</Explanation>
 </PTAQuiz>
 
 <PTAQuiz multiple-choice title="下列关于异常类的说法中，错误的是。   " correct={0} meta={{label: "2-4", score: 2, difficulty: 0, author: "刘莹", org: "威海职业学院"}}>
@@ -82,12 +86,14 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
   <C>C++的异常处理机制具有为抛出异常前构造的所有局部对象自动调用析构函数的能力</C>
   <C>若`catch`块采用异常类对象接收异常信息，则在抛出异常时将通过拷贝构造函数进行对象复制，异常处理完后才将两个异常对象进行析构，释放资源</C>
   <C>异常类对象抛出后，`catch`块会用类对象引用接收它以便执行相应的处理动作</C>
-  <Explanation>答案为 **A（"异常类由标准库提供，不可以自定义"）**，这是错误的说法。  
+  <Explanation>
+  答案为 **A（"异常类由标准库提供，不可以自定义"）**，这是错误的说法。  
 
 - **A** ✗ 用户**完全可以自定义**异常类，只需继承自 `std::exception` 或独立定义，与 `throw`/`catch` 配合即可。  
 - **B** ✓ 栈展开（stack unwinding）过程中，C++ 会自动调用所有已构造局部对象的析构函数，防止资源泄漏。  
 - **C** ✓ 若 `catch` 按值捕获异常对象，抛出时会调用拷贝构造函数创建副本，异常处理结束后两个对象先后析构。  
-- **D** ✓ `catch` 块常用引用接收异常（如 `catch(exception& e)`），避免不必要拷贝并支持多态。</Explanation>
+- **D** ✓ `catch` 块常用引用接收异常（如 `catch(exception& e)`），避免不必要拷贝并支持多态。
+</Explanation>
 </PTAQuiz>
 
 <PTAQuiz multiple-choice title="下列哪一个说法是错误的?   " correct={3} meta={{label: "2-5", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
@@ -100,12 +106,14 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
   <C>如果某函数有一个参数是类`A`的对象,那么该函数被调用时,类`A`的拷贝构造函数将被调用</C>
   <C>如果函数的返回值是类`A`的对象时，则函数返回时，类`A`的拷贝构造函数将被调用</C>
   <C>拷贝构造函数必须自己编写</C>
-  <Explanation>答案为 **D（"拷贝构造函数必须自己编写"）**，这是错误说法。  
+  <Explanation>
+  答案为 **D（"拷贝构造函数必须自己编写"）**，这是错误说法。  
 
 - **A** ✓ 拷贝构造函数的定义：用同类对象初始化新对象。  
 - **B** ✓ 函数参数为类对象且按值传递时，实参传给形参需要调用拷贝构造函数完成复制。  
 - **C** ✓ 函数返回值是类对象时，返回的临时对象通过拷贝构造函数从局部对象初始化（C++11 起可能用移动构造，但拷贝语义仍适用）。  
-- **D** ✗ **编译器会自动生成默认拷贝构造函数**，执行逐个成员的浅拷贝（member-wise copy）。只有需要深拷贝（如类含指针成员管理动态内存）时才需自行编写。</Explanation>
+- **D** ✗ **编译器会自动生成默认拷贝构造函数**，执行逐个成员的浅拷贝（member-wise copy）。只有需要深拷贝（如类含指针成员管理动态内存）时才需自行编写。
+</Explanation>
 </PTAQuiz>
 
 <PTAQuiz multiple-choice title="假设A是一个类的名字,下面哪段程序不会用到A的拷贝构造函数？   " correct={0} meta={{label: "2-6", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
@@ -122,14 +130,16 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
   <C>`void func( A a) { cout<<"good"<< endl; }`</C>
   <C>`A func() { A tmp; return tmp;}`</C>
   <C>`A a1; A a2(a1);`</C>
-  <Explanation>答案为 **A（`A a1,a2; a1=a2;`）**，该段程序不会用到拷贝构造函数。  
+  <Explanation>
+  答案为 **A（`A a1,a2; a1=a2;`）**，该段程序不会用到拷贝构造函数。  
 
 - **A** `A a1,a2;` → 两个对象均通过默认构造函数创建；`a1=a2;` → **已存在对象间的赋值**，调用的是赋值运算符而非拷贝构造函数。✓ 不用拷贝构造。  
 - **B** `void func(A a) { ... }` → 按值传递对象参数，形参通过拷贝构造函数从实参初始化。  
 - **C** `A func() { A tmp; return tmp; }` → 按值返回对象，临时对象通过拷贝构造函数从局部对象 `tmp` 初始化。  
 - **D** `A a1; A a2(a1);` → 显式用 `a1` 拷贝构造 `a2`，调用拷贝构造函数。  
 
-记忆要点：带 `=` 的初始化和赋值区分——等号在**定义语句**中是初始化（拷贝构造），在**已定义对象之后**是赋值。</Explanation>
+记忆要点：带 `=` 的初始化和赋值区分——等号在**定义语句**中是初始化（拷贝构造），在**已定义对象之后**是赋值。
+</Explanation>
 </PTAQuiz>
 
 <PTAQuiz multiple-choice title="如果某函数的返回值是个对象 ，则该函数被调用时，返回的对象？   " correct={0} meta={{label: "2-7", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
@@ -142,12 +152,14 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
   <C>是通过无参数的构造函数初始化的</C>
   <C>用哪个构造函数初始化，取决于函数中`return` 语句是怎么写的</C>
   <C>不需要初始化</C>
-  <Explanation>答案为 **A（"是通过拷贝构造函数初始化的"）**。  
+  <Explanation>
+  答案为 **A（"是通过拷贝构造函数初始化的"）**。  
 
 - **A** ✓ 函数按值返回对象时，C++ 创建一个临时的返回对象，该临时对象通过拷贝构造函数从函数内的局部对象构造（C++11 起可能触发移动构造，但标准语义仍属拷贝）。  
 - **B** ✗ 无参构造函数仅在对象未传入任何初始化参数时调用；返回对象是用已存在的局部对象初始化的，不会走无参构造。  
 - **C** ✗ 返回对象的初始化机制由语言规则决定（拷贝/移动构造），并非由 `return` 语句写法决定。  
-- **D** ✗ 所有对象在使用前都必须被初始化，不存在"不需要初始化"的情况。</Explanation>
+- **D** ✗ 所有对象在使用前都必须被初始化，不存在"不需要初始化"的情况。
+</Explanation>
 </PTAQuiz>
 
 <PTAQuiz fill-in-the-blank-for-programming title="点类的定义和使用" meta={{label: "5-1", score: 20, difficulty: 0, author: "GONG", org: "哈尔滨华德学院"}}>

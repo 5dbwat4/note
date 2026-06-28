@@ -139,7 +139,7 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
   </Explanation>
 </PTAQuiz>
 
-<PTAQuiz multiple-choice title="为了能出现在赋值表达式的左右两边，重载的\"[]\"运算符应定义为：" correct={1} meta={{label: "2-3", score: 2, difficulty: 0, author: "何振峰", org: "福州大学"}}>
+<PTAQuiz multiple-choice title="为了能出现在赋值表达式的左右两边，重载的[]运算符应定义为：" correct={1} meta={{label: "2-3", score: 2, difficulty: 0, author: "何振峰", org: "福州大学"}}>
   <Q>
     为了能出现在赋值表达式的左右两边，重载的"`[]`"运算符应定义为：
 
@@ -282,10 +282,8 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
   <C>
 `xv*(xv);`
 </C>
-  <C>`operator*(xv);`
-</C>
-  <C>`xv operator*(xv);`
-</C>
+  <C>`operator*(xv);`</C>
+  <C>`xv operator*(xv);`</C>
   <C>`xv operator*(xv,xv);`</C>
   <Explanation>
     正确答案是`xv operator*(xv);`。成员函数重载乘法运算符的格式为：`返回类型 operator*(参数列表);`。成员函数通过`this`指针隐式获得左操作数，因此对二元`*`运算符只需要一个显式参数（右操作数）。A缺少`operator`关键字，B缺少返回类型，D参数个数错误——成员函数不需要显式列出左操作数。
