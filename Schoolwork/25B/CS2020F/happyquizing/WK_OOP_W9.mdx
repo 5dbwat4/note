@@ -2,7 +2,7 @@
 title: "浙大26春OOP W9多态作业"
 ---
 
-import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz true-or-false title="虚函数是用virtual 关键字说明的成员函数。" correct={true} meta={{label: "1-1", score: 1, difficulty: 0, author: "何振峰", org: "福州大学"}}>
   <Q>
@@ -96,7 +96,7 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 
     C++ 标准规定，多继承时派生类构造函数中基类构造函数的调用顺序由**派生类声明时的继承列表顺序**决定，与构造函数初始化列表中的书写顺序无关。
 
-    例如：`class D : public A, public B` —— 无论 D 的构造函数初始化列表中如何排列，始终先调用 A 的构造函数，再调用 B 的构造函数。
+    例如：`class D : public A, public B` —— 无论 `D` 的构造函数初始化列表中如何排列，始终先调用 `A` 的构造函数，再调用 `B` 的构造函数。
 
     该说法正确。
   </Explanation>
@@ -211,7 +211,7 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
   <Explanation>
     **正确答案：D**
 
-    由于类 A 中声明了虚函数 `virtual f() {}`，编译器会为对象添加**虚函数表指针（`vptr`）**（通常占 4 或 8 字节）。因此 `sizeof(A) = sizeof(int) + sizeof(vptr) > sizeof(int)`，该判断不成立。
+    由于类 `A` 中声明了虚函数 `virtual f() {}`，编译器会为对象添加**虚函数表指针（`vptr`）**（通常占 4 或 8 字节）。因此 `sizeof(A) = sizeof(int) + sizeof(vptr) > sizeof(int)`，该判断不成立。
 
     - **A**：未指定访问控制，成员默认 `private`，表述正确。
     - **B**：`f()` 在类内定义，自动成为 `inline` 函数，表述正确。
@@ -240,10 +240,10 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
   <Explanation>
     **正确答案：D**
 
-    类 A 中由于 `virtual f() = 0;` 声明了纯虚函数，编译器同样会为对象添加**虚函数表指针（`vptr`）**（通常占 4 或 8 字节）。因此 `sizeof(A) > sizeof(int)`，该判断不成立。
+    类 `A` 中由于 `virtual f() = 0;` 声明了纯虚函数，编译器同样会为对象添加**虚函数表指针（`vptr`）**（通常占 4 或 8 字节）。因此 `sizeof(A) > sizeof(int)`，该判断不成立。
 
     - **A**：未指定访问控制，成员默认 `private`，表述正确。
-    - **B**：`f()` 是纯虚函数，A 为抽象类，不能创建对象，表述正确。
+    - **B**：`f()` 是纯虚函数，`A` 为抽象类，不能创建对象，表述正确。
     - **C**：`i` 确实是类 `A` 的成员，表述正确。
 
     注意：纯虚函数不意味着没有 `vptr`——编译器仍需 `vptr` 以支持动态绑定，即便纯虚函数本身没有实现。
@@ -397,173 +397,156 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz fill-in-the-blank-for-programming title="B Fill in the blanks" meta={{label: "5-1", score: 3, difficulty: 0, author: "hulanqing", org: "浙江大学"}}>
   <Q>
-    {`
-    Run the following program, the output is:   B::f()
+    Run the following program, the output is: `B::f()`
 
-    \`\`\`c++
-    #include <iostream>
-    using namespace std;
-    class A{
-    public:
-        @@[](1){ cout<<"A::f()\\n"; }
-     };
-    class B:public A{
-     public:
-    	  void f() {cout<<"B::f()\\n"; }
-     };
-    int main()
-    {
-       B b;
-       A &p @@[](1);
-       @@[](1)f();
-       return 0;
-    }
-    \`\`\`
-
-
-    *Unplaced blanks:*
-    <Blank>virtual void f()</Blank>
-    <Blank>	 = b</Blank>
-    <Blank>	 p.</Blank>
+    <PTACodeContent lang="cpp">{`#include <iostream>
+using namespace std;
+class A{
+public:
     `}
+<Blank>{`virtual void f()`}</Blank>
+{`{ cout<<"A::f()\n"; }
+ };
+class B:public A{
+ public:
+   void f() {cout<<"B::f()\n"; }
+ };
+int main()
+{
+   B b;
+   A &p `}
+<Blank>{`= b`}</Blank>
+{`;
+   `}
+<Blank>{`p.`}</Blank>
+{`f();
+   return 0;
+}`}</PTACodeContent>
   </Q>
 </PTAQuiz>
 
 <PTAQuiz fill-in-the-blank-for-programming title="包含子对象的派生类构造函数" meta={{label: "5-2", score: 2, difficulty: 0, author: "范鹏程", org: "内蒙古师范大学"}}>
   <Q>
-    {`
     根据所定义的基类，定义派生类，请填空完成程序的功能
 
-    \`\`\`c++
-    #include <iostream>
-    #include <string>
-    using namespace std;
-    class Student                              //声明基类
-     {public:                                  //公用部分
-       Student(int n,string nam)              //基类构造函数
-        {num=n;
-         name=nam;
-        }
-       void display()                           //输出基类数据成员
-        {cout<<"num:"<<num<<endl<<"name:"<<name<<endl;}
-      protected:                                //保护部分
-        int num;
-        string name;
-    };
+    <PTACodeContent lang="cpp">{`#include <iostream>
+#include <string>
+using namespace std;
+class Student
+ {public:
+   Student(int n,string nam)
+    {num=n;
+     name=nam;
+    }
+   void display()
+    {cout<<"num:"<<num<<endl<<"name:"<<name<<endl;}
+  protected:
+    int num;
+    string name;
+};
 
-    class Student1: public Student              //用public继承方式声明派生类student
-     {public:
-       @@[](2)              //派生类构造函数
-        {age=a;                                 //在此处只对派生类新增的数据成员初始化
-         addr=ad;
-        }
-       void show( )
-        {cout<<"This student is:"<<endl;
-         display();                               //输出num和name
-         cout<<"age: "<<age<<endl;
-         cout<<"address: "<<addr<<endl<<endl;
-        }
+class Student1: public Student
+ {public:
+   `}
+<Blank>{`Student1(int n, string nam, int mn, string mnam, int a, string ad): Student(n, nam), monitor(mn, mnam)`}</Blank>
+{`              //派生类构造函数
+    {age=a;
+     addr=ad;
+    }
+   void show( )
+    {cout<<"This student is:"<<endl;
+     display();
+     cout<<"age: "<<age<<endl;
+     cout<<"address: "<<addr<<endl<<endl;
+    }
 
-       void show_monitor()                        //输出子对象的数据成员
-        {cout<<endl<<"Class monitor is:"<<endl;
-         monitor.display();                       //调用基类成员函数
-        }
-       private:                                //派生类的私有数据
-        Student monitor;                       //定义子对象(班长)
-        int age;
-        string addr;
-      };
+   void show_monitor()
+    {cout<<endl<<"Class monitor is:"<<endl;
+     monitor.display();
+    }
+   private:
+    Student monitor;
+    int age;
+    string addr;
+  };
 
-    int main( )
-     {Student1 stud1(10010,"Wang-li",10001,"Li-sun",19,"115 Beijing Road,Shanghai");
-      stud1.show( );                             //输出第一个学生的数据
-      stud1.show_monitor();                       //输出子对象的数据
-      return 0;
-     }
+int main( )
+ {Student1 stud1(10010,"Wang-li",10001,"Li-sun",19,"115 Beijing Road,Shanghai");
+  stud1.show( );
+  stud1.show_monitor();
+  return 0;
+ }`}</PTACodeContent>
 
-    \`\`\`
-    ###程序输出如下
-    \`\`\`
+    ### 程序输出如下
+    ```
     This student is:
     num:10010
     name:Wang-li
     age: 19
     address: 115 Beijing Road,Shanghai
 
-
     Class monitor is:
     num:10001
     name:Li-sun
-
-    \`\`\`
-
-
-    *Unplaced blanks:*
-    <Blank>Student1(int n, string nam, int mn, string mnam, int a, string ad): Student(n, nam), monitor(mn, mnam)</Blank>
-    `}
+    ```
   </Q>
 </PTAQuiz>
 
 <PTAQuiz fill-in-the-blank-for-programming title="多层派生时的构造函数" meta={{label: "5-3", score: 5, difficulty: 0, author: "范鹏程", org: "内蒙古师范大学"}}>
   <Q>
-    {`
     根据所定义的基类，完成派生类的定义。
 
-    \`\`\`c++
-    #include <iostream>
-    #include<string>
-    using namespace std;
-    class Student
-     {public:
-       Student(int n, string nam )
-        {num=n;
-         name=nam;
-        }
-       void display()
-        {cout<<"num:"<<num<<endl;
-         cout<<"name:"<<name<<endl;
-        }
-      protected:
-        int num;
-        string name;
-    };
+    <PTACodeContent lang="cpp">{`#include <iostream>
+#include <string>
+using namespace std;
+class Student
+ {public:
+   Student(int n, string nam )
+    {num=n;
+     name=nam;
+    }
+   void display()
+    {cout<<"num:"<<num<<endl;
+     cout<<"name:"<<name<<endl;
+    }
+  protected:
+    int num;
+    string name;
+};
 
-    class Student1: public Student
-     {public:
-       @@[](2)
-        {age=a; }
-       void show( )
-        {display();
-         cout<<"age: "<<age<<endl;
-        }
-       private:
-        int age;
-      };
+class Student1: public Student
+ {public:
+   `}
+<Blank>{`Student1(int n, string nam, int a): Student(n, nam)`}</Blank>
+{`
+    {age=a; }
+   void show( )
+    {display();
+     cout<<"age: "<<age<<endl;
+    }
+   private:
+    int age;
+  };
 
-    class Student2:public Student1
-     {public:
-        @@[](3)
-        {score=s;}
-       void show_all()
-        {show();
-         cout<<"score:"<<score<<endl;
-        }
-      private:
-       int score;
-     };
-
-    int main( )
-     {Student2 stud(10010,"Li",17,89);
-      stud.show_all( );
-      return 0;
-     }
-    \`\`\`
-
-
-    *Unplaced blanks:*
-    <Blank>Student1(int n, string nam, int a): Student(n, nam)</Blank>
-    <Blank>Student2(int n, string nam, int a, int s): Student1(n, nam, a)</Blank>
+class Student2:public Student1
+ {public:
     `}
+<Blank>{`Student2(int n, string nam, int a, int s): Student1(n, nam, a)`}</Blank>
+{`
+    {score=s;}
+   void show_all()
+    {show();
+     cout<<"score:"<<score<<endl;
+    }
+  private:
+   int score;
+  };
+
+int main( )
+ {Student2 stud(10010,"Li",17,89);
+  stud.show_all( );
+  return 0;
+ }`}</PTACodeContent>
   </Q>
 </PTAQuiz>
 

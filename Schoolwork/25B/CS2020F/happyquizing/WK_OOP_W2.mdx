@@ -2,7 +2,7 @@
 title: "浙大26春OOP W2 容器"
 ---
 
-import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz multiple-choice title="vector::size()" correct={3} meta={{label: "2-1", score: 2, difficulty: 0, author: "李廷元", org: "中国民用航空飞行学院"}}>
   <Q>
@@ -20,7 +20,7 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
   <C>3</C>
   <C>4</C>
   <Explanation>
-    **答案：4**。循环执行4次（i=0,1,2,3），每次 `push_back(i+1)` 分别压入1、2、3、4，因此 `v.size()` 返回4。其他选项（1、2、3）均小于实际元素个数，不符合循环次数。
+    **答案：4**。循环执行4次（`i=0,1,2,3`），每次 `push_back(i+1)` 分别压入1、2、3、4，因此 `v.size()` 返回4。其他选项（1、2、3）均小于实际元素个数，不符合循环次数。
   </Explanation>
 </PTAQuiz>
 
@@ -55,11 +55,11 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
     ```
     读入10个字符串，则输出的 `m.size()` 为
   </Q>
-  <C>0</C>
+  <C>`0`</C>
   <C>1</C>
   <C>10</C>
   <Explanation>
-    **答案：1**。`std::map<char*, int>` 使用 `char*` 作为键，而 `char*` 的默认比较是比较**指针地址**而非字符串内容。代码中10次输入都读入同一个字符数组 `str`（其地址始终不变），因此 `m[str] = i` 每次操作的键都是同一地址，后续赋值会覆盖前一次的值。最终 map 中只有1个键值对，`m.size()` 为1。若想按字符串内容索引，应使用 `std::map<std::string, int>`。
+    **答案：1**。`std::map<char*, int>` 使用 `char*` 作为键，而 `char*` 的默认比较是比较**指针地址**而非字符串内容。代码中10次输入都读入同一个字符数组 `str`（其地址始终不变），因此 `m[str] = i` 每次操作的键都是同一地址，后续赋值会覆盖前一次的值。最终 `map` 中只有1个键值对，`m.size()` 为1。若想按字符串内容索引，应使用 `std::map<std::string, int>`。
   </Explanation>
 </PTAQuiz>
 
@@ -130,7 +130,7 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
     ```
   </Q>
   <C>语句出错</C>
-  <C>188</C>
+  <C>`188`</C>
   <C>`123a`</C>
   <C>`12310`</C>
   <Explanation>
@@ -173,106 +173,120 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz fill-in-the-blank-for-programming title="众数——习题19-1" meta={{label: "5-1", score: 10, difficulty: 0, author: "海洋饼干叔叔", org: "重庆大学"}}>
   <Q>
-    {`
-从键盘读入数量不确定的正整数，然后从中找出出现次数最多的数。操作者输入-1表示结束输入。后台测试用例确保至少输入一个正整数，且众数唯一。
+    从键盘读入数量不确定的正整数，然后从中找出出现次数最多的数。操作者输入-1表示结束输入。后台测试用例确保至少输入一个正整数，且众数唯一。
 
-请将下述程序补充完整，使其能正常运行，找出众数。
+    请将下述程序补充完整，使其能正常运行，找出众数。
 
-\\#include <iostream>\\
-\\#include <vector>\\
+    <PTACodeContent lang="cpp">{`#include <iostream>
+#include <vector>
 using namespace std;
 
-int main() {\\
-    vector<int> a;\\
-    while (true){\\
-        int i;\\
-        cin >> i;\\
-        if <Blank>(~i)</Blank>\\
-            a.push_back(i);\\
-        else\\
-            <Blank>break;</Blank>\\
+int main() {
+    vector<int> a;
+    while (true){
+        int i;
+        cin >> i;
+        if `}
+<Blank>{`(~i)`}</Blank>
+{`
+            a.push_back(i);
+        else
+            `}
+<Blank>{`break;`}</Blank>
+{`
     }
 
     int iMaxCount = 0;
     int iMode = a[0];
     for (auto x : a){
         int iCount = 0;
-        for (<Blank>auto y : a</Blank>){
+        for (`}
+<Blank>{`auto y : a`}</Blank>
+{`){
             if (x == y)
                 iCount++;
         }
 
-        if (iCount <Blank>></Blank> iMaxCount){
+        if (iCount `}
+<Blank>{`>`}</Blank>
+{` iMaxCount){
             iMaxCount = iCount;
-            <Blank>iMode =</Blank> x;
+            `}
+<Blank>{`iMode =`}</Blank>
+{` x;
         }
     }
 
     cout << "The mode is " << iMode;
     return 0;
-}
+}`}</PTACodeContent>
 
-输入示例：
+    输入示例：
 
-\`\`\`plain
-3
-2
-1
-33
-3
-3
-4
--1
-\`\`\`
+    ```plain
+    3
+    2
+    1
+    33
+    3
+    3
+    4
+    -1
+    ```
 
-输出示例：
+    输出示例：
 
-\`\`\`plain
-The mode is 3
-\`\`\`
-`}
+    ```plain
+    The mode is 3
+    ```
   </Q>
 </PTAQuiz>
 
 <PTAQuiz fill-in-the-blank-for-programming title="排队领糖——习题19-3" meta={{label: "5-2", score: 10, difficulty: 0, author: "海洋饼干叔叔", org: "重庆大学"}}>
   <Q>
-    {`
-幼稚园阿姨发糖，先到先得。请查询资料，使用队列（queue）容器模拟幼稚园小朋友Jack、Mary、Tom、Angela和Alex依次到达（入队）并依次出队领糖的过程。
+    幼稚园阿姨发糖，先到先得。请查询资料，使用队列（queue）容器模拟幼稚园小朋友Jack、Mary、Tom、Angela和Alex依次到达（入队）并依次出队领糖的过程。
 
-\`\`\`cpp
-#include <iostream>
-<Blank>#include <queue></Blank>
+    <PTACodeContent lang="cpp">{`#include <iostream>
+`}
+<Blank>{`#include &lt;queue&gt;`}</Blank>
+{`
 using namespace std;
 
 int main()
 {
-    queue<<Blank>string</Blank>> q;
+    queue<`}
+<Blank>{`string`}</Blank>
+{`> q;
     q.push("Jack");
     q.push("Mary");
     q.push("Tom");
-    q.push(<Blank>"Angela"</Blank>);
+    q.push(`}
+<Blank>{`"Angela"`}</Blank>
+{`);
     q.push("Alex");
 
     while (!q.empty()){
         string s = q.front();
-        <Blank>q.pop();</Blank>
-        cout << <Blank>s</Blank> << " get candy." << endl;
+        `}
+<Blank>{`q.pop();`}</Blank>
+{`
+        cout << `}
+<Blank>{`s`}</Blank>
+{` << " get candy." << endl;
     }
 
     return 0;
-}
-\`\`\`
+}`}</PTACodeContent>
 
-程序期望的输出：
+    程序期望的输出：
 
-\`\`\`plain
-Jack get candy.
-Mary get candy.
-Tom get candy.
-Angela get candy.
-Alex get candy.
-\`\`\`
-`}
+    ```plain
+    Jack get candy.
+    Mary get candy.
+    Tom get candy.
+    Angela get candy.
+    Alex get candy.
+    ```
   </Q>
   <Explanation>
     **Note: This answer was written by AI and may not be correct.**
@@ -382,36 +396,34 @@ vector<int> sieve(int n){
 
 <PTAQuiz programming title="括号匹配问题" meta={{label: "7-2", score: 10, difficulty: 0, author: "王宇", org: "集美大学诚毅学院"}}>
   <Q>
-    {`
-假设一个表达式或一段程序中含有三种括号：圆括号"("和")"、方括号"["和"]"、花括号"{"和"}"。试写一个程序判别给定的表达式或程序中所含括号是否正确配对出现，可以使用C++ STL解决问题。
+    假设一个表达式或一段程序中含有三种括号：圆括号"("和")"、方括号"["和"]"、花括号"{"和"}"。试写一个程序判别给定的表达式或程序中所含括号是否正确配对出现，可以使用C++ STL解决问题。
 
-### 输入格式
+    ### 输入格式
 
-输入一个只含有括号的表达式
+    输入一个只含有括号的表达式
 
-### 输出格式
+    ### 输出格式
 
-输出一个"DO NOT MATCH"或"DO MATCH"，表明正确匹配与否
+    输出一个"DO NOT MATCH"或"DO MATCH"，表明正确匹配与否
 
-### 输入样例1
-\`\`\`in
-{{{[]()}[()]}}
-\`\`\`
+    ### 输入样例1
+    ```in
+    {{{[]()}[()]}}
+    ```
 
-### 输出样例1
-\`\`\`out
-DO MATCH
-\`\`\`
+    ### 输出样例1
+    ```out
+    DO MATCH
+    ```
 
-### 输入样例2
-\`\`\`in
-{{]])
-\`\`\`
+    ### 输入样例2
+    ```in
+    {{]])
+    ```
 
-### 输出样例2
-\`\`\`out
-DO NOT MATCH
-\`\`\`
-`}
+    ### 输出样例2
+    ```out
+    DO NOT MATCH
+    ```
   </Q>
 </PTAQuiz>

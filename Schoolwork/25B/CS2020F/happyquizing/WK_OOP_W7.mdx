@@ -2,7 +2,7 @@
 title: "浙大26春OOP W7组合作业"
 ---
 
-import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz multiple-choice title="有如下类的定义：" correct={0} meta={{label: "2-1", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
   <Q>
@@ -70,13 +70,9 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz multiple-choice title="若类A的构造函数定义为 " correct={2} meta={{label: "2-3", score: 2, difficulty: 0, author: "范鹏程", org: "内蒙古师范大学"}}>
   <Q>
-    {`
     若类A的构造函数定义为
-    A(int aa=1, int bb=0) { a = aa; b = bb; }
-    则执行：A x(4);后，x.a和x.b的值分别是（ ）
-
-
-    `}
+    `A(int aa=1, int bb=0) { a = aa; b = bb; }`
+    则执行：`A x(4);`后，`x.a`和`x.b`的值分别是（ ）
   </Q>
   <C>1,0</C>
   <C>1,4</C>
@@ -99,17 +95,15 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz multiple-choice title="假设A是一个类的名字，下面程序片段，类A会调用析构函数几次？" correct={2} meta={{label: "2-4", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
   <Q>
-    {`
     假设A是一个类的名字，下面程序片段，类A会调用析构函数几次？
+    ```cpp
     int main(){
-    A \`* p = new A[2];\`
-    A \`* p2 = new A;\`
+    A * p = new A[2];
+    A * p2 = new A;
     A a;
     delete [] p;
     }
-
-
-    `}
+    ```
   </Q>
   <C>1</C>
   <C>2</C>
@@ -125,12 +119,12 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
     3. `A a;`：在栈上创建 **1 个**局部对象 `a`（调用 1 次构造函数）。
     4. `delete [] p;`：用 `delete[]` 释放数组 `p`，会对数组中**全部 2 个**对象调用析构函数 → **2 次析构**。
 
-    main 函数结束时：
+    `main` 函数结束时：
 
     - 局部对象 `a` 离开作用域，自动调用析构函数 → **1 次析构**。
     - 堆对象 `p2` 由于始终**没有 `delete p2`**，造成内存泄漏，其析构函数**不会被调用** → 0 次析构。
 
-    因此析构函数总调用次数 = 数组 2 次 + 局部对象 a 的 1 次 = **3 次**，选 C。
+    因此析构函数总调用次数 = 数组 2 次 + 局部对象 `a` 的 1 次 = **3 次**，选 C。
 
     - A `1` / B `2`：漏算了部分对象的析构（如忘记栈对象 `a` 或数组的两个元素）。
     - D `4`：错误地认为 `p2` 指向的对象也会被析构。但程序未对 `p2` 调用 `delete`，该对象不会被释放，故不应计入，正确答案是 3 而非 4。
@@ -139,35 +133,30 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz fill-in-the-blank-for-programming title="你好，构造函数的初始化列表" meta={{label: "5-1", score: 10, difficulty: 0, author: "向训文", org: "惠州学院"}}>
   <Q>
-    {`
     在构造函数中，使用初始化列表对数据成员进行初始化：
 
     样例程序：
-    \`\`\`c++
-    #include<iostream>
-    using namespace std;
-    class Point {
-    public:
-        // 构造函数，使用初始化列表对数据成员进行初始化
-        Point(int x, int y) {}
-        int getX() { return m_x; }
-        int getY() { return m_y; }
-    private:
-        int m_x, m_y;
-    };
-    int main() {
-        int x, y;
-        cin >> x >> y; // 输入点的x，y坐标
-        Point p(x, y); // 创建点对象
-        cout << p.getX() << " " << p.getY() << endl; // 输出点的坐标
-        return 0;
-    }
-    \`\`\`
 
-
-    *Unplaced blanks:*
-    <Blank>:m_x(x), m_y(y)</Blank>
-    `}
+    <PTACodeContent lang="cpp">{`#include<iostream>
+using namespace std;
+class Point {
+public:
+    // 构造函数，使用初始化列表对数据成员进行初始化
+    Point(int x, int y)`}
+<Blank>{`:m_x(x), m_y(y)`}</Blank>
+{`{}
+    int getX() { return m_x; }
+    int getY() { return m_y; }
+private:
+    int m_x, m_y;
+};
+int main() {
+    int x, y;
+    cin >> x >> y; // 输入点的x，y坐标
+    Point p(x, y); // 创建点对象
+    cout << p.getX() << " " << p.getY() << endl; // 输出点的坐标
+    return 0;
+}`}</PTACodeContent>
   </Q>
 </PTAQuiz>
 

@@ -2,29 +2,28 @@
 title: "浙大26春OOP W12模板作业"
 ---
 
-import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz true-or-false title="pair类模板的作用是将两个数据组成一个数据，用来表示一个二元组或一个元素对，两个数据可以是同一个类型也可以是不同的类型。  " correct={true} meta={{label: "1-1", score: 1, difficulty: 0, author: "刘莹", org: "威海职业学院"}}>
   <Q>
     `pair`类模板的作用是将两个数据组成一个数据，用来表示一个二元组或一个元素对，两个数据可以是同一个类型也可以是不同的类型。
   </Q>
   <Explanation>
-    正确。`pair` 类模板定义在 `<utility>` 头文件中，它将两个值（`first` 和 `second`）组合成一个单元。第一个元素和第二个元素的类型可以是相同的（如 `pair<int,int>`），也可以是不同的（如 `pair<int,string>`）。`pair` 常用于需要返回两个值的场景，比如 map 的键值对。
+    正确。`pair` 类模板定义在 `<utility>` 头文件中，它将两个值（`first` 和 `second`）组合成一个单元。第一个元素和第二个元素的类型可以是相同的（如 `pair<int,int>`），也可以是不同的（如 `pair<int,string>`）。`pair` 常用于需要返回两个值的场景，比如 `map` 的键值对。
   </Explanation>
 </PTAQuiz>
 
 <PTAQuiz multiple-choice title="现有声明：" correct={0} meta={{label: "2-1", score: 2, difficulty: 0, author: "何振峰", org: "福州大学"}}>
   <Q>
-    {`
     现有声明：
 
+    ```cpp
     template <class T>
-
     class Test{...};
+    ```
 
     则以下哪一个声明不可能正确。
 
-    `}
   </Q>
   <C>`Test a;`</C>
   <C>`Test < int> a;`</C>
@@ -296,65 +295,63 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz fill-in-the-blank-for-programming title="A Fill in the blanks" meta={{label: "5-1", score: 10, difficulty: 0, author: "hulanqing", org: "浙江大学"}}>
   <Q>
-    {`
-    \`\`\`
-    #include <iostream>
-    using namespace std;
-    class IndexError{};
-    template @@[](2)
-    class ARRAY
+    <PTACodeContent lang="cpp">{`#include <iostream>
+using namespace std;
+class IndexError{};
+template `}
+<Blank>{`&lt;typename T&gt;`}</Blank>
+{`
+class ARRAY
+{
+	size_t m_size;
+	T *m_ptr;
+public:
+	ARRAY(size_t size) : m_size(size)
+	{
+		m_ptr = new T[size];
+		memset(m_ptr, 0, size*sizeof(int));
+	}
+	~ARRAY()
+	{
+		delete[] m_ptr;
+	}
+	T& at(int index);
+};
+
+template <typename T>
+`}
+<Blank>{`T&amp; ARRAY&lt;T&gt;`}</Blank>
+{`::at(int index)
+{
+	if(index<0||`}
+<Blank>{`index >= m_size`}</Blank>
+{`)
+	{
+		`}
+<Blank>{`throw`}</Blank>
+{` IndexError();
+	}
+	return m_ptr[index];
+}
+
+int main()
+{
+	ARRAY<int> a(50);
+	int i;
+	cin >> i;
+	`}
+<Blank>{`try`}</Blank>
+{`
     {
-    	size_t m_size;
-    	T *m_ptr;
-    public:
-    	ARRAY(size_t size) : m_size(size)
-    	{
-    		m_ptr = new T[size];
-    		memset(m_ptr, 0, size*sizeof(int));
-    	}
-    	~ARRAY()
-    	{
-    		delete[] m_ptr;
-    	}
-    	T& at(int index);
-    };
-
-    template <typename T>
-    @@[](2)::at(int index)
-    {
-    	if(index<0||@@[](2))
-    	{
-    		@@[](2) IndexError();
-    	}
-    	return m_ptr[index];
-    }
-
-    int main()
-    {
-    	ARRAY<int> a(50);
-    	int i;
-    	cin >> i;
-    	@@[](2)
-        {
-    		for(int j=0;j<i;j++)
-    			a.at(i) = j;
-    	}
-    	catch(IndexError e)
-    	{
-    		return 0;
-    	}
-    	return 0;
-    }
-    \`\`\`
-
-
-    *Unplaced blanks:*
-    <Blank><typename T></Blank>
-    <Blank>T& ARRAY<T></Blank>
-    <Blank>index >= m_size</Blank>
-    <Blank>throw</Blank>
-    <Blank>try</Blank>
-    `}
+		for(int j=0;j<i;j++)
+			a.at(i) = j;
+	}
+	catch(IndexError e)
+	{
+		return 0;
+	}
+	return 0;
+}`}</PTACodeContent>
   </Q>
   <Explanation>
     **Note: This answer was written by AI and may not be correct.**

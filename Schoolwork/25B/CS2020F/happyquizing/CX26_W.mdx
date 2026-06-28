@@ -1,21 +1,22 @@
 ---
-title: "CX26_W"
+title: CX26作业
 ---
 
-import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
 
 # Assignment 001
 
 <PTAQuiz fill-in-the-blank-for-programming title="5-1 Complex I" meta={{label: "5-1", score: 2}}>
-  Adam is implementing a representation class for complex numbers. In Adam's `Complex` class design, the real and imaginary parts of a complex number are explicitly stored as the data members. Please help him to finish the job.
+  <Q>
+    Adam is implementing a representation class for complex numbers. In Adam's `Complex` class design, the real and imaginary parts of a complex number are explicitly stored as the data members. Please help him to finish the job.
 
-  Note that Adam's implementation is not the only choice for representing complex numbers. But with a suitable set of methods (a.k.a., member functions) made public, other developers could easily write stable code by leveraging the abstraction barrier of the `Complex` class.
+    Note that Adam's implementation is not the only choice for representing complex numbers. But with a suitable set of methods (a.k.a., member functions) made public, other developers could easily write stable code by leveraging the abstraction barrier of the `Complex` class.
 
-  Compared with the "Complex II" problem, you could notice that the user code is the same, although Eve implements the class differently from Adam. That means once the prototypes of the public methods (i.e., the interface) are stable, you could readily change the underlying implementation details without affecting the users of the class.
+    Compared with the "Complex II" problem, you could notice that the user code is the same, although Eve implements the class differently from Adam. That means once the prototypes of the public methods (i.e., the interface) are stable, you could readily change the underlying implementation details without affecting the users of the class.
 
-  ---
+    ---
 
-{`#include <cmath>
+    <PTACodeContent lang="cpp">{`#include <cmath>
 #include <iostream>
 
 // ------------------------------------------------------------------
@@ -31,7 +32,7 @@ public:
   double real() const { return re; }
   double imaginary() const { return im; }
   double magnitude() const { `}
-<Blank>return sqrt(re * re + im * im)</Blank>
+<Blank>{`return sqrt(re * re + im * im)`}</Blank>
 {`; }
   double angle() const { return atan2(im, re); }
 public:
@@ -46,7 +47,7 @@ public:
   {
     Complex c;
     c.re = `}
-<Blank>magnitude * cos(angle)</Blank>
+<Blank>{`magnitude * cos(angle)`}</Blank>
 {`;
     c.im = magnitude * sin(angle);
     return c;
@@ -85,7 +86,8 @@ int main()
 
   print_complex(add_complex(c1, c2));
   print_complex(multiply_complex(c1, c2));
-}`}
+}`}</PTACodeContent>
+  </Q>
 
   <Explanation>
     **Blank 1:** `return sqrt(re * re + im * im)`
@@ -95,15 +97,16 @@ int main()
 </PTAQuiz>
 
 <PTAQuiz fill-in-the-blank-for-programming title="5-2 Complex II" meta={{label: "5-2", score: 2}}>
-  Eve is implementing a representation class for complex numbers. In Eve's `Complex` class design, the magnitude and angle parts of a complex number (in the polar coordinate system) are explicitly stored as the data members. Please help her to finish the job.
+  <Q>
+    Eve is implementing a representation class for complex numbers. In Eve's `Complex` class design, the magnitude and angle parts of a complex number (in the polar coordinate system) are explicitly stored as the data members. Please help her to finish the job.
 
-  Note that Eve's implementation is not the only choice for representing complex numbers. But with a suitable set of methods (a.k.a., member functions) made public, other developers could easily write stable code by leveraging the abstraction barrier of the `Complex` class.
+    Note that Eve's implementation is not the only choice for representing complex numbers. But with a suitable set of methods (a.k.a., member functions) made public, other developers could easily write stable code by leveraging the abstraction barrier of the `Complex` class.
 
-  Compared with the "Complex I" problem, you could notice that the user code is the same, although Adam implements the class differently from Eve. That means once the prototypes of the public methods (i.e., the interface) are stable, you could readily change the underlying implementation details without affecting the users of the class.
+    Compared with the "Complex I" problem, you could notice that the user code is the same, although Adam implements the class differently from Eve. That means once the prototypes of the public methods (i.e., the interface) are stable, you could readily change the underlying implementation details without affecting the users of the class.
 
-  ---
+    ---
 
-{`#include <cmath>
+    <PTACodeContent lang="cpp">{`#include <cmath>
 #include <iostream>
 
 // ------------------------------------------------------------------
@@ -117,7 +120,7 @@ private:
   Complex() {}
 public:
   double real() const { `}
-<Blank>return mag * cos(ang)</Blank>
+<Blank>{`return mag * cos(ang)`}</Blank>
 {`; }
   double imaginary() const { return mag * sin(ang); }
   double magnitude() const { return mag; }
@@ -127,7 +130,7 @@ public:
   {
     Complex c;
     c.mag = `}
-<Blank>sqrt(real * real + imag * imag)</Blank>
+<Blank>{`sqrt(real * real + imag * imag)`}</Blank>
 {`;
     c.ang = atan2(imag, real);
     return c;
@@ -173,7 +176,8 @@ int main()
 
   print_complex(add_complex(c1, c2));
   print_complex(multiply_complex(c1, c2));
-}`}
+}`}</PTACodeContent>
+  </Q>
 
   <Explanation>
     **Blank 1:** `return mag * cos(ang)`
@@ -214,9 +218,10 @@ int main()
 # Assignment 003
 
 <PTAQuiz fill-in-the-blank-for-programming title="4-1 Please show the output of the following program." meta={{label: "4-1", score: 8}}>
-  <Q>Please show the output of the following program.</Q>
+  <Q>
+    Please show the output of the following program.
 
-{`#include <iostream>
+    <PTACodeContent lang="cpp">{`#include <iostream>
 
 struct X {
 	X() {
@@ -258,16 +263,17 @@ struct Child : public Parent {
 
 int main() {
 	Child c;
-}`}
+}`}</PTACodeContent>
 
-Line 1: <Blank>X::X()</Blank>
-Line 2: <Blank>Parent::Parent()</Blank>
-Line 3: <Blank>Y::Y()</Blank>
-Line 4: <Blank>Child::Child()</Blank>
-Line 5: <Blank>Child::~Child()</Blank>
-Line 6: <Blank>Y::~Y()</Blank>
-Line 7: <Blank>Parent::~Parent()</Blank>
-Line 8: <Blank>X::~X()</Blank>
+    Line 1: <Blank>{`X::X()`}</Blank>
+    Line 2: <Blank>{`Parent::Parent()`}</Blank>
+    Line 3: <Blank>{`Y::Y()`}</Blank>
+    Line 4: <Blank>{`Child::Child()`}</Blank>
+    Line 5: <Blank>{`Child::~Child()`}</Blank>
+    Line 6: <Blank>{`Y::~Y()`}</Blank>
+    Line 7: <Blank>{`Parent::~Parent()`}</Blank>
+    Line 8: <Blank>{`X::~X()`}</Blank>
+  </Q>
 
   <Explanation>
     **Blank 1:** `X::X()`
@@ -291,7 +297,8 @@ Line 8: <Blank>X::~X()</Blank>
 # Assignment 004
 
 <PTAQuiz fill-in-the-blank-for-programming title="虚函数与对象切片" meta={{label: "4-1", score: 2}}>
-{`#include <iostream>
+  <Q>
+    <PTACodeContent lang="cpp">{`#include <iostream>
 using namespace std;
 
 class A
@@ -336,26 +343,27 @@ int main()
   A& ra = b;
   ra.f();
 `}
-<Blank>B::f(), 3, 4</Blank>
+<Blank>{`B::f(), 3, 4`}</Blank>
 {`
   ra = a1;
 `}
-<Blank>A::operator=()</Blank>
+<Blank>{`A::operator=()`}</Blank>
 {`
   ra.f();
 `}
-<Blank>B::f(), 1, 4</Blank>
+<Blank>{`B::f(), 1, 4`}</Blank>
 {`
   A a2 = b;
 `}
-<Blank>A::A(&amp;)</Blank>
+<Blank>{`A::A(&amp;)`}</Blank>
 {`
   a2.f();
 `}
-<Blank>A::f(), 1</Blank>
+<Blank>{`A::f(), 1`}</Blank>
 {`
 }
-`}
+`}</PTACodeContent>
+  </Q>
 
   <Explanation>
     **Line 1:** `B::f(), 3, 4`
@@ -373,7 +381,8 @@ int main()
 # Assignment 005
 
 <PTAQuiz fill-in-the-blank-for-programming title="5-1 vec3" meta={{label: "5-1", score: 2}}>
-{`#include <iostream>
+  <Q>
+    <PTACodeContent lang="cpp">{`#include <iostream>
 #include <vector>
 using namespace std;
 
@@ -386,7 +395,7 @@ public:
     v[2] = z;
   }
   int operator[]`}
-<Blank>(const int &amp;index) const</Blank>
+<Blank>{`(const int &amp;index) const`}</Blank>
 {`
   {
     return v[index];
@@ -395,10 +404,10 @@ public:
   {
     for (int i = 0; i < 3; ++i)
       `}
-<Blank>v[i] += rhs[i]</Blank>
+<Blank>{`v[i] += rhs[i]`}</Blank>
 {`;
     `}
-<Blank>return *this</Blank>
+<Blank>{`return *this`}</Blank>
 {`;
   }
 private:
@@ -408,17 +417,17 @@ private:
 vec3 operator+(const vec3& v1, const vec3& v2)
 {
   return `}
-<Blank>vec3(v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2])</Blank>
+<Blank>{`vec3(v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2])`}</Blank>
 {`;
 }
 
 `}
-<Blank>ostream&amp;</Blank>
+<Blank>{`ostream&amp;`}</Blank>
 {` operator<<(ostream& out, const vec3& v)
 {
   out << '(' << v[0] << ' ' << v[1] << ' ' << v[2] << ')';
   `}
-<Blank>return out</Blank>
+<Blank>{`return out`}</Blank>
 {`;
 }
 
@@ -428,15 +437,14 @@ int main()
   vec3 v = v1 + v2;
   v += v2;
   cout << v << endl;
-}`}
+}`}</PTACodeContent>
 
-<Q>
-  The program above outputs:
+    The program above outputs:
 
-  ```
-  (9 12 15)
-  ```
-</Q>
+    ```
+    (9 12 15)
+    ```
+  </Q>
 
   <Explanation>
     **Blank 1:** `(const int &amp;index) const`
@@ -457,7 +465,7 @@ int main()
 
 <PTAQuiz fill-in-the-blank-for-programming title="Template min_elem II" meta={{label: "6-1", score: 2}}>
   <Q>
-{`#include <functional>
+    <PTACodeContent lang="cpp">{`#include <functional>
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -466,24 +474,24 @@ int main()
 
 template<class ForwardIt, class Compare>
 ForwardIt min_elem(ForwardIt first, ForwardIt last, `}
-<Blank>Compare</Blank>
+<Blank>{`Compare`}</Blank>
 {` comp)
 {
   if (first == last)
     return `}
-<Blank>last</Blank>
+<Blank>{`last`}</Blank>
 {`;
 
   ForwardIt smallest = first++;
   for (; `}
-<Blank>first != last</Blank>
+<Blank>{`first != last`}</Blank>
 {`; ++first) {
     if (comp(*first, *smallest)) {
       smallest = first;
     }
   }
   return `}
-<Blank>smallest</Blank>
+<Blank>{`smallest`}</Blank>
 {`;
 }
 
@@ -491,7 +499,7 @@ template<class ForwardIt>
 ForwardIt min_elem(ForwardIt first, ForwardIt last)
 {
   return min_elem(first, last, std::less<`}
-<Blank>typename</Blank>
+<Blank>{`typename`}</Blank>
 {` std::iterator_traits<ForwardIt>::value_type>());
 }
 
@@ -499,7 +507,7 @@ struct Student {
   int id;
   std::string name;
   bool `}
-<Blank>operator&lt;</Blank>
+<Blank>{`operator&lt;`}</Blank>
 {`(const Student& s2) const {
     return id < s2.id;
   }
@@ -521,15 +529,15 @@ int main()
   
   Student s[] = { {30, "Curry"}, {23, "Lebron"}, {35, "Durant"} };
   std::cout << "min element is: " << *min_elem(std::begin(s), std::end(s)) << std::endl;
-}`}
+}`}</PTACodeContent>
 
-The above program outputs:
+    The above program outputs:
 
-```
-min element is: 1
-min element is: 9.7
-min element is: Lebron23
-```
+    ```
+    min element is: 1
+    min element is: 9.7
+    min element is: Lebron23
+    ```
   </Q>
 
   <Explanation>
@@ -552,13 +560,12 @@ min element is: Lebron23
 <PTAQuiz fill-in-the-blank-for-programming title="Buffer" meta={{label: "7-1", score: 2}}>
   <Q>
     The struct `Buffer` is a simple container that encapsulates fixed-size arrays. Please fill in the blanks to finish its design.
-  </Q>
 
-{`#include <iostream>
+    <PTACodeContent lang="cpp">{`#include <iostream>
 #include <stdexcept>
 
 class BufferIndexError : public `}
-<Blank>std::out_of_range</Blank>
+<Blank>{`std::out_of_range`}</Blank>
 {`
 {
 private:
@@ -574,55 +581,55 @@ struct Buffer
   int size() const
   {
     `}
-<Blank>return N</Blank>
+<Blank>{`return N`}</Blank>
 {`;
   }
   bool empty() const
   {
     `}
-<Blank>return N == 0</Blank>
+<Blank>{`return N == 0`}</Blank>
 {`;
   }
   const T& operator[](int i) const
   {
     if (`}
-<Blank>i &gt;= 0 &amp;&amp; i &lt; N</Blank>
+<Blank>{`i >= 0 && i < N`}</Blank>
 {`)
       return elems[i];
     `}
-<Blank>throw</Blank>
+<Blank>{`throw`}</Blank>
 {` BufferIndexError(i);
   }
   const T& front() const
   {
     `}
-<Blank>return (*this)[0]</Blank>
+<Blank>{`return (*this)[0]`}</Blank>
 {`;
   }
   const T& back() const
   {
     `}
-<Blank>return (*this)[N - 1]</Blank>
+<Blank>{`return (*this)[N - 1]`}</Blank>
 {`;
   }
 
   `}
-<Blank>T</Blank>
+<Blank>{`T`}</Blank>
 {` elems[`}
-<Blank>N == 0 ? 1 : N</Blank>
+<Blank>{`N == 0 ? 1 : N`}</Blank>
 {`];
 };
 
 `}
-<Blank>template &lt;typename T, int N&gt;</Blank>
+<Blank>{`template &lt;typename T, int N&gt;`}</Blank>
 {`
 `}
-<Blank>std::ostream&amp;</Blank>
+<Blank>{`std::ostream&amp;`}</Blank>
 {` operator<<(std::ostream &out, const Buffer<T, N> &buf)
 {
   for (int i = 0; i < N; ++i)
     `}
-<Blank>out &lt;&lt; buf[i]</Blank>
+<Blank>{`out << buf[i]`}</Blank>
 {`;
   return out;
 }
@@ -645,7 +652,7 @@ int main()
   std::cout << letters << '\n';
 
   `}
-<Blank>try</Blank>
+<Blank>{`try`}</Blank>
 {`
   {
     int k = 0;
@@ -653,16 +660,15 @@ int main()
       std::cout << letters[k++];
   }
   `}
-<Blank>catch (const BufferIndexError&amp; ex)</Blank>
+<Blank>{`catch (const BufferIndexError&amp; ex)`}</Blank>
 {`
   {
     std::cout << "\nBuffer index is out of range: " << ex.`}
-<Blank>getIndex</Blank>
+<Blank>{`getIndex`}</Blank>
 {`() << std::endl;
   }
-}`}
+}`}</PTACodeContent>
 
-  <Q>
     The above program outputs:
 
     ```

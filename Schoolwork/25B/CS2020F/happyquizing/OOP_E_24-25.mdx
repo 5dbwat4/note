@@ -1,0 +1,1104 @@
+---
+title: 历年卷（24-25）
+---
+
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
+
+题目来源CC98
+
+## 单选题
+
+<PTAQuiz multiple-choice correct={3} title="单选题 1">
+  <Q>
+    Inline functions are avoided when _______________
+  </Q>
+
+  <C>`function` contains `static` variables</C>
+  <C>`function` has recursive calls</C>
+  <C>`function` has loops</C>
+  <C>all of the mentioned</C>
+
+  <Explanation>
+    内联函数适合短小、简单的函数。含有 `static` 局部变量、递归调用或循环时，编译器通常会避免内联，或者即使写了 `inline` 也可能不展开。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={3} title="单选题 2">
+  <Q>
+    Which is the correct statement about operator overloading?
+  </Q>
+
+  <C>Only arithmetic operators can be overloaded</C>
+  <C>Only non-arithmetic operators can be overloaded</C>
+  <C>Precedence of operators are changed after overloading</C>
+  <C>Associativity and precedence of operators does not change</C>
+
+  <Explanation>
+    运算符重载只能改变运算符作用于用户自定义类型时的行为，不能改变运算符的优先级、结合性和操作数个数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="单选题 3">
+  <Q>
+    Pick out the correct statement.
+  </Q>
+
+  <C>A `friend` function must be a member of another class</C>
+  <C>A `friend` function cannot be a member of another class</C>
+  <C>A `friend` function may or may not be a member of another class</C>
+  <C>None of the mentioned</C>
+
+  <Explanation>
+    友元函数既可以是普通的非成员函数，也可以是另一个类的成员函数。关键点是它被授权访问当前类的非公有成员。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={3} title="单选题 4">
+  <Q>
+    When is a copy constructor called?
+  </Q>
+
+  <C>When an object of the class is returned by value</C>
+  <C>When an object of the class is passed by value to a function</C>
+  <C>When an object is constructed based on another object of the same class</C>
+  <C>All of the mentioned</C>
+
+  <Explanation>
+    拷贝构造发生在用同类型对象初始化新对象时，也常出现在按值传参和按值返回中。不过现代编译器可能通过返回值优化省略某些拷贝构造调用。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={3} title="单选题 5">
+  <Q>
+    When are destructors called?
+  </Q>
+
+  <C>When a program ends</C>
+  <C>When a function ends</C>
+  <C>When a `delete` operator is used</C>
+  <C>All of the mentioned</C>
+
+  <Explanation>
+    自动对象离开作用域时调用析构函数，动态对象被 `delete` 时调用析构函数，静态存储期对象在程序结束时析构。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="单选题 6">
+  <Q>
+    What will be the output of the following C++ code?
+
+    ```cpp
+    #include <iostream>
+    #include <string>
+    using namespace std;
+
+    class Mammal {
+    public:
+        virtual void Define() {
+            cout << "I'm a Mammal\n";
+        }
+    };
+
+    class Human : public Mammal {
+    public:
+        void Define() {
+            cout << "I'm a Human\n";
+        }
+    };
+
+    class Male : public Human {
+    public:
+        void Define() {
+            cout << "I'm a Male\n";
+        }
+    };
+
+    class Female : public Human {
+    public:
+        void Define() {
+            cout << "I'm a Female\n";
+        }
+    };
+
+    int main(int argc, char const *argv[]) {
+        Mammal *M = new Mammal();
+        Male m;
+        Female f;
+        *M = m;
+        M->Define();
+        M = &m;
+        M->Define();
+        return 0;
+    }
+    ```
+  </Q>
+
+  <C>
+    ```txt
+    I'm a Male
+    I'm a Male
+    ```
+  </C>
+
+  <C>
+    ```txt
+    I'm a Male
+    I'm a Mammal
+    ```
+  </C>
+
+  <C>
+    ```txt
+    I'm a Mammal
+    I'm a Male
+    ```
+  </C>
+
+  <C>
+    ```txt
+    I'm a Mammal
+    I'm a Mammal
+    ```
+  </C>
+
+  <Explanation>
+    `*M = m` 是对象赋值，发生对象切片，`M` 指向的仍是一个 `Mammal` 对象，所以第一次虚调用输出 `Mammal`。随后 `M = &m` 让基类指针真正指向 `Male` 对象，虚函数动态绑定到 `Male::Define()`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="单选题 7">
+  <Q>
+    Which is the correct statement about pure virtual functions?
+  </Q>
+
+  <C>They must be implemented inside a base class</C>
+  <C>`pure` keyword should be used to declare a pure virtual function</C>
+  <C>Pure virtual function is implemented in derived classes</C>
+  <C>Pure virtual function cannot be implemented in derived classes</C>
+
+  <Explanation>
+    纯虚函数用 `= 0` 声明，通常要求具体派生类实现它。基类可以给纯虚函数提供定义，但这不改变其纯虚属性。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="单选题 8">
+  <Q>
+    Pick out the correct statement about the override.
+  </Q>
+
+  <C>Overriding refers to a derived class function that has the same name and signature as a base class virtual function</C>
+  <C>Overriding has different names</C>
+  <C>Overriding refers to a derived class</C>
+  <C>Overriding has different names &amp; it refers to a derived class</C>
+
+  <Explanation>
+    覆盖要求派生类函数与基类虚函数具有相同函数签名。`override` 关键字可以让编译器检查是否真的覆盖了基类虚函数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={3} title="单选题 9">
+  <Q>
+    In nested `try-catch` block, if the inner `catch` block gets executed, then_______
+  </Q>
+
+  <C>Program stops immediately</C>
+  <C>Outer `catch` block also executes</C>
+  <C>Compiler jumps to the outer `catch` block and executes remaining statements of the `main()` function</C>
+  <C>Compiler executes remaining statements of outer `try-catch` block and then the `main()` function</C>
+
+  <Explanation>
+    内层 `catch` 捕获并处理异常后，如果没有重新抛出异常，控制流会继续执行外层 `try` 块中内层 `try-catch` 后面的语句，然后再继续外层结构之后的代码。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="单选题 10">
+  <Q>
+    What does this template function indicate?
+
+    ```cpp
+    template<class T>
+    T func(T a) {
+        cout << a;
+    }
+    ```
+  </Q>
+
+  <C>A function taking a single generic parameter and returning a generic type</C>
+  <C>A function taking a single generic parameter and returning nothing</C>
+  <C>A function taking single `int` parameter and returning a generic type</C>
+  <C>A function taking a single generic parameter and returning a specific non-`void` type</C>
+
+  <Explanation>
+    原题答案按函数体没有 `return` 来理解，选择“returning nothing”。严格从函数声明看，`T func(T a)` 的返回类型是模板参数 `T`，所以这道题的表述并不严谨；若实际调用并使用返回值，会有未定义行为风险。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={3} title="单选题 11">
+  <Q>
+    The `static` data member __________________________
+  </Q>
+
+  <C>Can be accessed directly</C>
+  <C>Can be accessed with any public class name</C>
+  <C>Can only be accessed with dot operator</C>
+  <C>Can be accessed using class name if not using static member function</C>
+
+  <Explanation>
+    类的静态数据成员属于类本身。若它是可访问的，类外通常用 `ClassName::member` 访问，而不是依赖某个对象实例。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="单选题 12">
+  <Q>
+    What is the purpose of the `this` pointer in C++?
+  </Q>
+
+  <C>To refer to the current object within a member function.</C>
+  <C>To access static data members of the class.</C>
+  <C>To allocate memory dynamically for an object.</C>
+  <C>To initialize constant data members of the class.</C>
+
+  <Explanation>
+    `this` 是非静态成员函数中的隐式指针，指向当前调用该成员函数的对象。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="单选题 13">
+  <Q>
+    Which among the following is true for default arguments?
+  </Q>
+
+  <C>They are only allowed in the return type of the function declaration.</C>
+  <C>They are only allowed in the parameter list of the function declaration.</C>
+  <C>They are only allowed with the class name definition.</C>
+  <C>They are only allowed with the integer type values.</C>
+
+  <Explanation>
+    默认实参写在函数参数列表中，例如 `void f(int x = 0)`。它与返回类型、类名或特定整数类型无关。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="单选题 14">
+  <Q>
+    Which problem may arise if we use abstract class functions for polymorphism?
+  </Q>
+
+  <C>All classes are converted as abstract class</C>
+  <C>Derived class must be of abstract type</C>
+  <C>All the derived classes must implement the undefined functions</C>
+  <C>Derived classes can’t redefine the function</C>
+
+  <Explanation>
+    抽象类中的纯虚函数形成接口约束。若派生类想成为可实例化的具体类，就必须实现继承来的纯虚函数；否则它本身仍是抽象类。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="单选题 15">
+  <Q>
+    Pick the correct statement about references in C++.
+  </Q>
+
+  <C>References stores the address of variables</C>
+  <C>References and variables both have the same address</C>
+  <C>References use dereferencing operator `*` to access the value of variable it is referencing</C>
+  <C>References were also available in C</C>
+
+  <Explanation>
+    引用是对象的别名。对引用取地址得到的是被引用对象的地址；使用引用访问对象时不需要像指针那样写 `*`。
+  </Explanation>
+</PTAQuiz>
+
+## 输出填空题
+
+<PTAQuiz fill-in-the-blank title="输出填空题 1">
+  <Q>
+    What are the outputs of the following code?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class BaseError {
+    public:
+        BaseError() { cout << "BaseError" << endl; }
+    };
+
+    class FileError : public BaseError {
+    public:
+        FileError(const string& filename) { m_filename = filename; }
+        void display() { cout << "FileError: " << m_filename << endl; }
+    protected:
+        string m_filename;
+    };
+
+    void ReadFile(const string& filename) {
+        if (filename == "badfile.txt")
+            throw FileError(filename);
+        cout << "File read successfully" << endl;
+    }
+
+    void ProcessFile(const string& filename) {
+        try {
+            ReadFile(filename);
+        } catch (FileError& fe) {
+            fe.display();
+            throw;
+        }
+    }
+
+    int main() {
+        try {
+            ProcessFile("goodfile.txt");
+            ProcessFile("badfile.txt");
+        } catch (...) {
+            cout << "Main exception caught" << endl;
+        }
+        return 0;
+    }
+    ```
+  </Q>
+
+  输出第 1 行：<Blank>{`File read successfully`}</Blank>
+
+  输出第 2 行：<Blank>{`BaseError`}</Blank>
+
+  输出第 3 行：<Blank>{`FileError: badfile.txt`}</Blank>
+
+  输出第 4 行：<Blank>{`Main exception caught`}</Blank>
+
+  <Explanation>
+    读取 `goodfile.txt` 时不抛异常，先输出成功信息。读取 `badfile.txt` 时构造 `FileError`，由于它继承 `BaseError`，先构造基类并输出 `BaseError`；随后内层 `catch` 调用 `display()`，再 `throw;` 重新抛出，外层 `catch (...)` 输出最后一行。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="输出填空题 2">
+  <Q>
+    What are the outputs of the following code?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class Shape {
+    public:
+        virtual void draw() { cout << "Drawing a shape" << endl; }
+        void display() { cout << "Shape" << endl; }
+    };
+
+    class Circle : public Shape {
+    public:
+        void display() { cout << "Circle" << endl; }
+    };
+
+    class Square : public Shape {
+    public:
+        void draw() override { cout << "Drawing a square" << endl; }
+        void display() { cout << "Square" << endl; }
+    };
+
+    void render(Shape* shape) {
+        shape->draw();
+    }
+
+    int main() {
+        Circle circle;
+        Square square;
+        Shape shape;
+
+        Shape* shapes[3];
+        shapes[0] = &circle;
+        shapes[1] = &square;
+        shapes[2] = &shape;
+
+        for (int i = 0; i < 3; ++i) {
+            render(shapes[i]);
+        }
+
+        return 0;
+    }
+    ```
+  </Q>
+
+  输出第 1 行：<Blank>{`Drawing a shape`}</Blank>
+
+  输出第 2 行：<Blank>{`Drawing a square`}</Blank>
+
+  输出第 3 行：<Blank>{`Drawing a shape`}</Blank>
+
+  <Explanation>
+    `draw()` 是虚函数。`Circle` 没有覆盖 `draw()`，所以仍调用 `Shape::draw()`；`Square` 覆盖了 `draw()`；第三个元素本来就是 `Shape` 对象。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="输出填空题 3">
+  <Q>
+    What are the outputs of the following code?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    template<class T>
+    class Item {
+    public:
+        void print() { cout << "Item<T>" << endl; }
+    };
+
+    template<>
+    class Item<double> {
+    public:
+        void print() { cout << "Item<double>" << endl; }
+    };
+
+    template<>
+    class Item<bool> {
+    public:
+        void print() { cout << "Item<bool>" << endl; }
+    };
+
+    int main() {
+        Item<int> item1;
+        Item<float> item2;
+        Item<double> item3;
+
+        item1.print();
+        item2.print();
+        item3.print();
+
+        return 0;
+    }
+    ```
+  </Q>
+
+  输出第 1 行：<Blank>{`Item<T>`}</Blank>
+
+  输出第 2 行：<Blank>{`Item<T>`}</Blank>
+
+  输出第 3 行：<Blank>{`Item<double>`}</Blank>
+
+  <Explanation>
+    `Item<int>` 和 `Item<float>` 使用主模板，输出 `Item<T>`。`Item<double>` 匹配显式特化版本，因此输出 `Item<double>`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="输出填空题 4">
+  <Q>
+    What are the outputs of the following code?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class Counter {
+    public:
+        Counter() {
+            count++;
+        }
+        ~Counter() {
+            count--;
+        }
+        static int getCount() {
+            return count;
+        }
+    private:
+        static int count;
+    };
+
+    int Counter::count = 0;
+
+    void func() {
+        Counter c1;
+        cout << Counter::getCount() << endl;
+    }
+
+    int main() {
+        func();
+        cout << Counter::getCount() << endl;
+        return 0;
+    }
+    ```
+  </Q>
+
+  输出第 1 行：<Blank>{`1`}</Blank>
+
+  输出第 2 行：<Blank>{`0`}</Blank>
+
+  <Explanation>
+    进入 `func()` 后构造局部对象 `c1`，静态成员 `count` 变成 `1`。`func()` 返回时 `c1` 析构，`count` 又减回 `0`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="输出填空题 5">
+  <Q>
+    What are the outputs of the following code?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class Base {
+    public:
+        virtual void display() const {
+            cout << "Base display" << endl;
+        }
+    };
+
+    class Derived : public Base {
+    public:
+        void display() const override {
+            cout << "Derived display" << endl;
+        }
+    };
+
+    int main() {
+        Base* b = new Derived();
+        Derived* d = dynamic_cast<Derived*>(b);
+        if (d != nullptr) {
+            d->display();
+        } else {
+            cout << "Conversion failed" << endl;
+        }
+
+        double pi = 3.14159;
+        int i = static_cast<int>(pi);
+        cout << i << endl;
+
+        delete b;
+        return 0;
+    }
+    ```
+  </Q>
+
+  输出第 1 行：<Blank>{`Derived display`}</Blank>
+
+  输出第 2 行：<Blank>{`3`}</Blank>
+
+  <Explanation>
+    `Base` 有虚函数，因此可以对多态基类指针做 `dynamic_cast`。`b` 实际指向 `Derived`，转换成功并调用 `Derived::display()`。`static_cast<int>(3.14159)` 会截断小数部分，得到 `3`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="输出填空题 6">
+  <Q>
+    What are the outputs of the following code?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class Employee {
+    public:
+        Employee() {
+            cout << "Employee ctor called" << endl;
+        }
+
+        virtual ~Employee() {
+            cout << "Employee dtor called" << endl;
+        }
+
+        virtual void show() const {
+            cout << "Employee::show()" << endl;
+        }
+    };
+
+    class Manager : public Employee {
+    public:
+        Manager() {
+            cout << "Manager ctor called" << endl;
+        }
+
+        ~Manager() {
+            cout << "Manager dtor called" << endl;
+        }
+
+        void show() const override {
+            cout << "Manager::show()" << endl;
+        }
+    };
+
+    void display(Employee* b) {
+        b->show();
+    }
+
+    int main() {
+        Employee* b = new Manager();
+        display(b);
+
+        delete b;
+        return 0;
+    }
+    ```
+  </Q>
+
+  输出第 1 行：<Blank>{`Employee ctor called`}</Blank>
+
+  输出第 2 行：<Blank>{`Manager ctor called`}</Blank>
+
+  输出第 3 行：<Blank>{`Manager::show()`}</Blank>
+
+  输出第 4 行：<Blank>{`Manager dtor called`}</Blank>
+
+  输出第 5 行：<Blank>{`Employee dtor called`}</Blank>
+
+  <Explanation>
+    构造派生类对象时先构造基类，再构造派生类。`show()` 是虚函数，经基类指针调用时动态绑定到 `Manager::show()`。析构顺序与构造相反；基类析构函数是 `virtual`，所以 `delete b` 会先析构 `Manager` 再析构 `Employee`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="输出填空题 7">
+  <Q>
+    What are the outputs of the following code?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    namespace A {
+        int value = 10;
+
+        namespace B {
+            int value = 20;
+
+            int getValue() {
+                return value - A::value;
+            }
+        }
+    }
+
+    namespace C {
+        int value = 30;
+
+        int getValue() {
+            return value + A::B::getValue();
+        }
+    }
+
+    int main() {
+        cout << A::B::getValue() << endl;
+        cout << C::getValue() << endl;
+        cout << A::value + C::value << endl;
+        return 0;
+    }
+    ```
+  </Q>
+
+  输出第 1 行：<Blank>{`10`}</Blank>
+
+  输出第 2 行：<Blank>{`40`}</Blank>
+
+  输出第 3 行：<Blank>{`40`}</Blank>
+
+  <Explanation>
+    `A::B::getValue()` 中未限定的 `value` 指 `A::B::value`，所以是 `20 - 10 = 10`。`C::getValue()` 是 `30 + 10 = 40`。最后一行是 `A::value + C::value`，也就是 `10 + 30 = 40`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="输出填空题 8">
+  <Q>
+    What are the outputs of the following code?
+
+    ```cpp
+    #include <iostream>
+    #include <cstring>
+    using namespace std;
+
+    class DynamicArray {
+    public:
+        DynamicArray(int size = 0) : size(size), data(new int[size]) {
+            for (int i = 0; i < size; ++i) {
+                data[i] = i + 1;
+            }
+        }
+
+        DynamicArray(const DynamicArray& other) : size(other.size), data(new int[other.size]) {
+            for (int i = 0; i < other.size; ++i) {
+                data[i] = other.data[i];
+            }
+        }
+
+        DynamicArray& operator=(const DynamicArray& other) {
+            if (this != &other) {
+                delete[] data;
+                size = other.size;
+                data = new int[size];
+                for (int i = 0; i < size; ++i) {
+                    data[i] = other.data[i];
+                }
+            }
+            return *this;
+        }
+
+        DynamicArray operator+(const DynamicArray& other) {
+            DynamicArray result(size + other.size);
+            for (int i = 0; i < size; ++i) {
+                result.data[i] = data[i];
+            }
+            for (int i = 0; i < other.size; ++i) {
+                result.data[size + i] = other.data[i];
+            }
+            return result;
+        }
+
+        int& operator[](int index) {
+            return data[index];
+        }
+
+        friend ostream& operator<<(ostream& os, const DynamicArray& arr) {
+            for (int i = 0; i < arr.size; ++i) {
+                os << arr.data[i] << (i < arr.size - 1 ? ", " : "");
+            }
+            return os;
+        }
+
+        ~DynamicArray() {
+            delete[] data;
+        }
+
+    private:
+        int size;
+        int* data;
+    };
+
+    int main() {
+        DynamicArray arr1(3);
+        DynamicArray arr2(2);
+        DynamicArray arr3;
+
+        arr3 = arr1 + arr2;
+
+        arr3[2] = 10;
+        cout << arr3[0] << endl;
+        cout << arr3[1] << endl;
+        cout << arr3[2] << endl;
+        cout << arr3[4] << endl;
+
+        return 0;
+    }
+    ```
+  </Q>
+
+  输出第 1 行：<Blank>{`1`}</Blank>
+
+  输出第 2 行：<Blank>{`2`}</Blank>
+
+  输出第 3 行：<Blank>{`10`}</Blank>
+
+  输出第 4 行：<Blank>{`2`}</Blank>
+
+  <Explanation>
+    `arr1` 初始为 `[1, 2, 3]`，`arr2` 初始为 `[1, 2]`。`arr1 + arr2` 连接成 `[1, 2, 3, 1, 2]` 并赋给 `arr3`。随后 `arr3[2] = 10`，所以 `arr3` 变为 `[1, 2, 10, 1, 2]`。
+  </Explanation>
+</PTAQuiz>
+
+## 程序填空题
+
+<PTAQuiz fill-in-the-blank-for-programming title="程序填空题 1">
+  <Q>
+    Fill in the blanks about template partial specialization.
+
+    <PTACodeContent lang="cpp">
+{`#include <iostream>
+using namespace std;
+
+// Primary template
+template <typename T>
+class MyClass {
+public:
+    MyClass(T v): value(v) {}
+    void Display() { cout << "Primary Template: " << value << endl; }
+
+private:
+    T value;
+};
+
+template <typename T>
+class MyClass<`}
+<Blank>{`T*`}</Blank>
+{`>  // Blank 1: Declare class template for T*
+{
+public:
+    MyClass(T* v): value(`}
+<Blank>{`*v`}</Blank>
+{`), pValue(v) {}  // Blank 2: Initialize member variable
+    void DisplayPtr() { cout << "Partial Specialization: " << pValue << endl; }
+    void Display() { cout << "Partial Specialization: " << value << endl; }
+
+private:
+    T* pValue;
+    T  value;
+};
+
+int main() {
+    MyClass<int> obj1(10);
+    obj1.Display();
+
+    int value = 20;
+    MyClass<int*> obj2(`}
+<Blank>{`&value`}</Blank>
+{`);  // Blank 3: Initialize obj2 with partial specification
+    obj2.`}
+<Blank>{`Display`}</Blank>
+{`();  // Blank 4: Call the Display method for obj2
+
+    return 0;
+}`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    对指针类型做偏特化时写作 `MyClass<T*>`。构造函数参数 `v` 是 `T*`，若要保存指针指向的值，应写 `value(*v)`；创建 `MyClass<int*>` 对象时传入 `&value`；最后调用普通显示函数 `Display()` 输出保存的值。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="程序填空题 2">
+  <Q>
+    Fill in the blanks about inheritance and polymorphism.
+
+    <PTACodeContent lang="cpp">
+{`#include <iostream>
+#include <string>
+using namespace std;
+
+class Shape {
+public:
+    Shape(const std::string& name): `}
+<Blank>{`mName`}</Blank>
+{`(name) {}
+    virtual void calculateArea() {}
+    void display() const {
+        cout << mName << " area: " << mArea << endl;
+    }
+
+    `}
+<Blank>{`virtual`}</Blank>
+{` ~Shape(){
+        cout << "Destructor of Shape is called" << endl;
+    }
+
+protected:
+    float mArea;
+
+private:
+    std::string mName;
+};
+
+class Circle : `}
+<Blank>{`public`}</Blank>
+{` Shape {
+public:
+    Circle(float r): Shape("Circle"), mRadius(r) {}
+    void calculateArea() {
+        mArea = 3.14 * mRadius * mRadius;
+    }
+    ~Circle() {
+        cout << "Destructor of a subclass is called" << endl;
+    }
+private:
+    float mRadius;
+};
+
+class Square : public Shape {
+public:
+    Square(float s): Shape("Square"), mSide(s) {}
+    void calculateArea() {
+        mArea = mSide * mSide;
+    }
+private:
+    float mSide;
+};
+
+int main() {
+    `}
+<Blank>{`Shape*`}</Blank>
+{` shapes[2];
+    shapes[0] = new Circle(2.0);
+    shapes[1] = new `}
+<Blank>{`Square`}</Blank>
+{`(4.0);
+
+    for (int i = 0; i < 2; i++) {
+        shapes[i]->calculateArea();
+        shapes[i]->display();
+
+        `}
+<Blank>{`delete`}</Blank>
+{` shapes[i];
+    }
+
+    return 0;
+}`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    构造函数初始化私有成员 `mName`。通过基类指针删除派生类对象时，基类析构函数必须是 `virtual`。`Circle` 需要 `public Shape` 才能把 `Circle*` 隐式转换为 `Shape*`。数组类型应为 `Shape* shapes[2]`，第二个动态对象是 `Square`，循环末尾用 `delete` 释放动态分配的对象。
+  </Explanation>
+</PTAQuiz>
+
+## 主观题
+
+<PTAQuiz programming title="主观题：Online Support Chat System">
+  <Q>
+    We aim to design an **Online Support Chat System** that routes customer queries to appropriate support agents based on their expertise. The system follows the **Chain of Responsibility Design Pattern**, allowing queries to be processed step by step through a chain of handlers.
+
+    There are `6` classes in total in the system:
+
+    - `SupportQuery`: a class representing a customer query, with attribute `type`, such as `"Billing"`, `"Technical"`, or `"Customer Service"`.
+    - `Handler`: an abstract class representing a generic handler in the chain. It declares `SetNext(Handler* handler)` and `Handle(SupportQuery& query)`.
+    - `BaseHandler`: a class derived from `Handler` implementing default chaining behavior.
+    - `BillingHandler`: a concrete handler that processes `"Billing"` queries.
+    - `TechnicalHandler`: a concrete handler that processes `"Technical"` queries.
+    - `CustomerServiceHandler`: a concrete handler that processes `"Customer Service"` queries.
+
+    The implementation for `BaseHandler` and `BillingHandler` is as follows:
+
+    ```cpp
+    // Implements chaining logic class
+    // BaseHandler implements chaining logic
+    class BaseHandler : public Handler {
+    private:
+        Handler* nextHandler = nullptr;
+    public:
+        Handler* SetNext(Handler* handler) override {
+            nextHandler = handler;
+            return handler;
+        }
+        string Handle(SupportQuery& query) override {
+            if (nextHandler) {
+                return nextHandler->Handle(query);
+            }
+            return {};
+        }
+    };
+
+    // Concrete Handlers
+    class BillingHandler : public BaseHandler {
+    public:
+        string Handle(SupportQuery& query) override {
+            if (query.getType() == "Billing") {
+                return "BillingHandler: Handling Billing query.\n";
+            } else {
+                return BaseHandler::Handle(query);
+            }
+        }
+    };
+    ```
+
+    Your task is to implement `SupportQuery`, `Handler`, `TechnicalHandler`, and `CustomerServiceHandler`, in order to make sure that the following code works properly.
+
+    ```cpp
+    #include <iostream>
+    #include <string>
+    #include <vector>
+    using namespace std;
+
+    // Client code to test the chain
+    void ClientCode(Handler& handler, vector<SupportQuery>& queries) {
+        for (auto& query : queries) {
+            cout << "Processing query (Type: " << query.getType() << ")\n";
+            const string result = handler.Handle(query);
+            if (!result.empty()) {
+                cout << "  " << result;
+            } else {
+                cout << "  " << query.getType() << " query was left unhandled.\n";
+            }
+        }
+    }
+
+    int main() {
+        // Create handlers
+        BillingHandler* billing = new BillingHandler;
+        TechnicalHandler* technical = new TechnicalHandler;
+        CustomerServiceHandler* customerService = new CustomerServiceHandler;
+
+        // Build the chain
+        billing->SetNext(technical)->SetNext(customerService);
+
+        // Test queries
+        vector<SupportQuery> queries = {
+            SupportQuery("Billing"),
+            SupportQuery("Technical"),
+            SupportQuery("Customer Service")
+        };
+        cout << "Chain: Billing > Technical > Customer Service" << endl;
+        ClientCode(*billing, queries);
+        cout << endl;
+        cout << "Subchain: Technical > Customer Service" << endl;
+        ClientCode(*technical, queries);
+
+        // Clean up
+        delete billing;
+        delete technical;
+        delete customerService;
+        return 0;
+    }
+    ```
+
+    The output of the program will be:
+
+    ```txt
+    Chain: Billing > Technical > Customer Service
+    Processing query (Type: Billing)
+      BillingHandler: Handling Billing query.
+    Processing query (Type: Technical)
+      TechnicalHandler: Handling Technical query.
+    Processing query (Type: Customer Service)
+      CustomerServiceHandler: Handling Customer Service query.
+
+    Subchain: Technical > Customer Service
+    Processing query (Type: Billing)
+      Billing query was left unhandled.
+    Processing query (Type: Technical)
+      TechnicalHandler: Handling Technical query.
+    Processing query (Type: Customer Service)
+      CustomerServiceHandler: Handling Customer Service query.
+    ```
+  </Q>
+
+  <A>
+    One possible implementation is:
+
+    ```cpp
+    class SupportQuery {
+    private:
+        string type;
+
+    public:
+        explicit SupportQuery(const string& type) : type(type) {}
+
+        string getType() const {
+            return type;
+        }
+    };
+
+    class Handler {
+    public:
+        virtual Handler* SetNext(Handler* handler) = 0;
+        virtual string Handle(SupportQuery& query) = 0;
+        virtual ~Handler() = default;
+    };
+
+    class TechnicalHandler : public BaseHandler {
+    public:
+        string Handle(SupportQuery& query) override {
+            if (query.getType() == "Technical") {
+                return "TechnicalHandler: Handling Technical query.\n";
+            }
+            return BaseHandler::Handle(query);
+        }
+    };
+
+    class CustomerServiceHandler : public BaseHandler {
+    public:
+        string Handle(SupportQuery& query) override {
+            if (query.getType() == "Customer Service") {
+                return "CustomerServiceHandler: Handling Customer Service query.\n";
+            }
+            return BaseHandler::Handle(query);
+        }
+    };
+    ```
+
+    `SupportQuery` only needs to store and expose the query type. `Handler` supplies the polymorphic interface required by `BaseHandler` and all concrete handlers. Each concrete handler checks whether it can process the current type; if it cannot, it delegates to `BaseHandler::Handle(query)`, which forwards the request to the next handler or returns an empty string when the chain ends.
+  </A>
+</PTAQuiz>

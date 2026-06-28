@@ -2,7 +2,7 @@
 title: "浙大26春OOP W11运算符重载作业"
 ---
 
-import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz true-or-false title="多数运算符可以重载，个别运算符不能重载，运算符重载是通过函数定义实现的。" correct={true} meta={{label: "1-1", score: 1, difficulty: 0, author: "何振峰", org: "福州大学"}}>
   <Q>
@@ -51,10 +51,10 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz true-or-false title="重载operator+时，返回值的类型应当与形参类型一致。" correct={false} meta={{label: "1-6", score: 5, difficulty: 0, author: "何振峰", org: "福州大学"}}>
   <Q>
-    {`
-    重载operator+时，返回值的类型应当与形参类型一致。
-    比如以下程序中，operator+的返回值类型有错：
+    重载`operator+`时，返回值的类型应当与形参类型一致。
+    比如以下程序中，`operator+`的返回值类型有错：
 
+    ```cpp
     class A {
 
     	int x;
@@ -66,8 +66,7 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
             int operator+(const A& a1){ return x+a1.x;  }
 
     };
-
-    `}
+    ```
   </Q>
   <Explanation>
     错误。重载`operator+`时，返回值的类型**不必**与形参类型一致。题目给出的示例代码中，`int operator+(const A& a1)`返回`int`类型，而形参类型是`const A&`，这在C++语法上是完全合法的。返回类型可以根据实际需要自由设计，可以返回新对象、引用或基本类型等。
@@ -94,9 +93,9 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz true-or-false title="若重载为友元函数，函数定义格式如下：" correct={false} meta={{label: "1-9", score: 1, difficulty: 0, author: "屈巍", org: "沈阳师范大学"}}>
   <Q>
-    {`
     若重载为友元函数，函数定义格式如下：
 
+    ```cpp
     <类型>operator<运算符>（<参数列表>）
 
     {
@@ -104,7 +103,7 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
     <函数体>
 
     }
-    `}
+    ```
   </Q>
   <Explanation>
     错误。题目给出的格式缺少了友元函数的关键标识。运算符重载为友元函数时，需先在类内部使用`friend`关键字声明（如`friend 类型 operator运算符(参数列表);`），然后在类外定义函数体（定义时不需要`friend`关键字，也不需要类名限定）。题目仅给出了类外定义的格式，但未包含类内`friend`声明，因此格式不完整。此外，`<`和`>`这些尖括号在代码中只是示意，实际书写时应替换为具体的类型和运算符名称。
@@ -307,60 +306,59 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz fill-in-the-blank-for-programming title="运算符重载" meta={{label: "5-1", score: 20, difficulty: 0, author: "gong", org: "哈尔滨华德学院"}}>
   <Q>
-    {`
     圆类定义如下，重载输入、输出运算符为友元函数，重载算术减法运算符为成员函数，参考给出代码进行填空。
 
-    \`\`\`c++
-    class Circle
-    {
-    private:
-        double rad;
-        double area;
-        @@[](3) istream& operator>>(istream&in, Circle &cl);       //重载>>为Circle类的友元函数
-        friend @@[](3) operator<<(ostream&out, Circle &cl);        //重载<<为Circle类的友元函数
-    public:
-        Circle(double r=0)
-        {
-            rad=r;
-            area=3.14*r*r;
-        }
-        double @@[](3)(Circle &cl)//重载减号
-        {
-            return this->area-@@[](3);//返回两个圆的面积差
-        }
-    };
-    istream& operator>>(istream&in, Circle &cl)
-    {
-        @@[](3);   //从输入流中提取数据给圆的半径
-        cl.area=3.14*cl.rad*cl.rad;
-        return in;
-    }
-    ostream& operator<<(ostream&out, Circle &cl)
-    {
-        out<<@@[](5);    //输出圆的半径和面积，形如：rad=10 area=314
-        return out;
-    }
-
-    int main()
-    {
-        Circle c1,c2;
-        cin>>c1>>c2;
-        cout<<c1<<endl;
-        cout<<c2<<endl;
-        cout<<c2-c1<<endl;
-        return 0;
-    }
-    \`\`\`
-
-
-    *Unplaced blanks:*
-    <Blank>friend</Blank>
-    <Blank>ostream&</Blank>
-    <Blank>operator-</Blank>
-    <Blank>cl.area</Blank>
-    <Blank>in>>cl.rad</Blank>
-    <Blank>"rad="<<cl.rad<<" area="<<cl.area</Blank>
+    <PTACodeContent lang="cpp">{`class Circle
+{
+private:
+    double rad;
+    double area;
     `}
+<Blank>{`friend`}</Blank>
+{` istream& operator>>(istream&in, Circle &cl);
+    friend `}
+<Blank>{`ostream&`}</Blank>
+{` operator<<(ostream&out, Circle &cl);
+public:
+    Circle(double r=0)
+    {
+        rad=r;
+        area=3.14*r*r;
+    }
+    double `}
+<Blank>{`operator-`}</Blank>
+{`(Circle &cl)
+    {
+        return this->area-`}
+<Blank>{`cl.area`}</Blank>
+{`;
+    }
+};
+istream& operator>>(istream&in, Circle &cl)
+{
+    `}
+<Blank>{`in>>cl.rad`}</Blank>
+{`;
+    cl.area=3.14*cl.rad*cl.rad;
+    return in;
+}
+ostream& operator<<(ostream&out, Circle &cl)
+{
+    out<<`}
+<Blank>{`"rad="<<cl.rad<<" area="<<cl.area`}</Blank>
+{`;
+    return out;
+}
+
+int main()
+{
+    Circle c1,c2;
+    cin>>c1>>c2;
+    cout<<c1<<endl;
+    cout<<c2<<endl;
+    cout<<c2-c1<<endl;
+    return 0;
+}`}</PTACodeContent>
   </Q>
   <Explanation>
     **Note: This answer was written by AI and may not be correct.**

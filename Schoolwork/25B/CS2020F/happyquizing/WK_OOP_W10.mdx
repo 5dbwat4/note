@@ -2,7 +2,7 @@
 title: "浙大26春OOP W10拷贝作业"
 ---
 
-import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz true-or-false title="当用一个对象去初始化同类的另一个对象时,要调用拷贝构造函数。  " correct={true} meta={{label: "1-1", score: 2, difficulty: 0, author: "黄淑伟", org: "沈阳师范大学"}}>
   <Q>
@@ -31,7 +31,7 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz multiple-choice title="设类AA已定义，假设以下语句全部合法，哪些语句会触发调用拷贝构造函数（  ）。   " correct={3} meta={{label: "2-2", score: 2, difficulty: 0, author: "陈晓梅", org: "广东外语外贸大学"}}>
   <Q>
-    设类AA已定义，假设以下语句全部合法，哪些语句会触发调用拷贝构造函数（  ）。
+设类`AA`已定义，假设以下语句全部合法，哪些语句会触发调用拷贝构造函数（  ）。
     ```
     AA a, b; //1
     AA c(10, 20); //2
@@ -59,7 +59,7 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz multiple-choice title="假设MyClass是一个类，则该类的拷贝初始化构造函数的声明语句为（ ）    " correct={2} meta={{label: "2-3", score: 2, difficulty: 0, author: "范鹏程", org: "内蒙古师范大学"}}>
   <Q>
-    假设MyClass是一个类，则该类的拷贝初始化构造函数的声明语句为（ ）
+假设`MyClass`是一个类，则该类的拷贝初始化构造函数的声明语句为（ ）
 
   </Q>
   <C>`MyClass&(MyClass x);`</C>
@@ -164,86 +164,92 @@ import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
 
 <PTAQuiz fill-in-the-blank-for-programming title="点类的定义和使用" meta={{label: "5-1", score: 20, difficulty: 0, author: "GONG", org: "哈尔滨华德学院"}}>
   <Q>
-    {`
-    已知平面上的一点由其横纵坐标来标识。本题要求按照已给代码和注释完成一个基本的“点”类的定义（坐标均取整型数值）。并通过主函数中的点类对象完成一些简单操作，分析程序运行结果，将答案写在对应的空格中。
+    已知平面上的一点由其横纵坐标来标识。本题要求按照已给代码和注释完成一个基本的"点"类的定义（坐标均取整型数值）。并通过主函数中的点类对象完成一些简单操作，分析程序运行结果，将答案写在对应的空格中。
 
-    \`\`\`c++
-    #include <@@[](1)>
-    using namespace std;
+    <PTACodeContent lang="cpp">{`#include <`}
+<Blank>{`iostream`}</Blank>
+{`>
+using namespace std;
 
-    class Point
-    {
-    @@[](1)//访问权限设置，私有权限
-    	int x;//横坐标
-    	int y;//纵坐标
-    @@[](1)//访问权限设置，公有权限
+class Point
+{
+`}
+<Blank>{`private:`}</Blank>
+{`
+	int x;
+	int y;
+`}
+<Blank>{`public:`}</Blank>
+{`
 
-    	//以下为构造函数，用参数a,b分别为横纵坐标进行初始化
-    	@@[](2)(int a,int b)
-    	{
-    		@@[](1);
-    		@@[](1);
-    	}
+	//以下为构造函数，用参数a,b分别为横纵坐标进行初始化
+	`}
+<Blank>{`Point`}</Blank>
+{`(int a,int b)
+	{
+		`}
+<Blank>{`x=a`}</Blank>
+{`;
+		`}
+<Blank>{`y=b`}</Blank>
+{`;
+	}
 
-    	//以下为拷贝构造函数，借用对象a_point完成初始化
-    	Point(@@[](2)a_point)
-    	{
-    		x=a_point.x;
-    		y=a_point.y;
-    	}
+	//以下为拷贝构造函数，借用对象a_point完成初始化
+	Point(`}
+<Blank>{`const Point&`}</Blank>
+{`a_point)
+	{
+		x=a_point.x;
+		y=a_point.y;
+	}
 
-    	//以下为析构函数
-    	@@[](2)
-    	{
-    		cout<<"Deconstructed Point";
-    		print();
-    	}
+	//以下为析构函数
+	`}
+<Blank>{`~Point()`}</Blank>
+{`
+	{
+		cout<<"Deconstructed Point";
+		print();
+	}
 
-    	//以下为输出点的信息的函数，要求在一行中输出点的坐标信息，形如：(横坐标,纵坐标)
-    	void print()
-    	{
-    		cout<<@@[](2)<<endl;
-    	}
-    };
+	//以下为输出点的信息的函数
+	void print()
+	{
+		cout<<`}
+<Blank>{`'('<<x<<','<<y<<')'`}</Blank>
+{`<<endl;
+	}
+};
 
-
-    int main()
-    {
-    	Point b_point(0,0);
-    	b_point.print();
-    	int a,b;
-    	@@[](2)//从标准输入流中提取数值给a,b
-    	Point c_point(a,b);
-    	c_point.print();
-      @@[](1)//主函数的返回语句
-    }
-    /*设输入为10 10，则本程序的运行结果为：
-    @@[](1)
-    @@[](1)
-    @@[](1)
-    @@[](1)
-    */
-
-    \`\`\`
-
-
-    *Unplaced blanks:*
-    <Blank>iostream</Blank>
-    <Blank>private:</Blank>
-    <Blank>public:</Blank>
-    <Blank>Point</Blank>
-    <Blank>x=a</Blank>
-    <Blank>y=b</Blank>
-    <Blank>const Point&</Blank>
-    <Blank>~Point()</Blank>
-    <Blank>'('<<x<<','<<y<<')'</Blank>
-    <Blank>cin>>a>>b;</Blank>
-    <Blank>return 0;</Blank>
-    <Blank>(0,0)</Blank>
-    <Blank>(10,10)</Blank>
-    <Blank>Deconstructed Point(10,10)</Blank>
-    <Blank>Deconstructed Point(0,0)</Blank>
-    `}
+int main()
+{
+	Point b_point(0,0);
+	b_point.print();
+	int a,b;
+	`}
+<Blank>{`cin>>a>>b;`}</Blank>
+{`
+	Point c_point(a,b);
+	c_point.print();
+	`}
+<Blank>{`return 0;`}</Blank>
+{`
+}
+/*设输入为10 10，则本程序的运行结果为：
+`}
+<Blank>{`(0,0)`}</Blank>
+{`
+`}
+<Blank>{`(10,10)`}</Blank>
+{`
+`}
+<Blank>{`Deconstructed Point(10,10)`}</Blank>
+{`
+`}
+<Blank>{`Deconstructed Point(0,0)`}</Blank>
+{`
+*/`}</PTACodeContent>
   </Q>
 </PTAQuiz>
 

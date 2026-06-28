@@ -1,0 +1,952 @@
+---
+title: CX 考前模拟卷1
+---
+
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
+
+# CX26 Mock1
+
+## 选择题
+
+<PTAQuiz multiple-choice correct={2} title="R2-1">
+  <Q>
+    Which of the following C++ operators CANNOT be overloaded?
+  </Q>
+
+  <C>`+`</C>
+  <C>`==`</C>
+  <C>`::`</C>
+  <C>`[]`</C>
+
+  <Explanation>
+    `::` 是作用域解析运算符，它的含义由语言语法固定，不能重载。`+`、`==` 和 `[]` 都可以重载，其中 `operator[]` 必须作为非静态成员函数重载。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="R2-2">
+  <Q>
+    What happens if an exception is thrown in a C++ program but is never caught by any `catch` block?
+  </Q>
+
+  <C>The compiler will automatically generate a default catch block.</C>
+  <C>The program ignores the exception and executes the next line.</C>
+  <C>The program calls `std::terminate()` and aborts.</C>
+  <C>The program execution resets to the beginning of the `main()` function.</C>
+
+  <Explanation>
+    未被捕获的异常会沿调用栈继续传播。如果一直没有匹配的 `catch`，运行时会调用 `std::terminate()`，通常导致程序异常终止。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="R2-3">
+  <Q>
+    What is the primary purpose of using templates in C++?
+  </Q>
+
+  <C>To hide the implementation details from the user.</C>
+  <C>To allow functions and classes to operate with generic types.</C>
+  <C>To prevent memory leaks during runtime.</C>
+  <C>To speed up the compilation process.</C>
+
+  <Explanation>
+    模板支持泛型编程，使函数和类可以用类型参数编写，例如 `template <typename T>`。它主要解决代码复用和类型泛化问题，并不直接负责封装、内存泄漏或编译速度。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="R2-4">
+  <Q>
+    Which of the following statements is TRUE regarding static member variables?
+  </Q>
+
+  <C>Each instantiated object maintains its own distinct copy of the static variable.</C>
+  <C>They cannot be accessed using the class name and the scope resolution operator.</C>
+  <C>They must be initialized outside the class definition.</C>
+  <C>Only static member functions can modify them.</C>
+
+  <Explanation>
+    传统 C++ 中，类的非 `const` 静态数据成员通常需要在类外提供一次定义，例如 `int X::count = 0;`。静态成员属于类而不是对象，可以用 `ClassName::member` 访问；普通成员函数也能访问和修改它。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="R2-5">
+  <Q>
+    How is a pure virtual function declared in C++?
+  </Q>
+
+  <C>`virtual void func() = 0;`</C>
+  <C>`void func() = 0;`</C>
+  <C>`virtual void func() {}`</C>
+  <C>`pure virtual void func();`</C>
+
+  <Explanation>
+    纯虚函数需要同时有 `virtual` 和纯说明符 `= 0`。写成 `virtual void func() {}` 只是普通虚函数定义，不会让类成为抽象类。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="R2-6">
+  <Q>
+    When a derived class inherits from a base class using `public` inheritance, the `protected` members of the base class become _____ members of the derived class.
+  </Q>
+
+  <C>`public`</C>
+  <C>`protected`</C>
+  <C>`private`</C>
+  <C>inaccessible</C>
+
+  <Explanation>
+    `public` 继承保持基类成员的可访问级别：基类 `public` 成员在派生类中仍是 `public`，基类 `protected` 成员在派生类中仍是 `protected`，基类 `private` 成员仍不可直接访问。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="R2-7">
+  <Q>
+    Which casting operator should be used to safely downcast a base class pointer to a derived class pointer in a polymorphic class hierarchy?
+  </Q>
+
+  <C>`static_cast`</C>
+  <C>`dynamic_cast`</C>
+  <C>`reinterpret_cast`</C>
+  <C>`const_cast`</C>
+
+  <Explanation>
+    在有虚函数的多态继承体系中，`dynamic_cast` 会进行运行时类型检查。若基类指针实际不指向目标派生类对象，指针转换结果为 `nullptr`，因此适合安全向下转型。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="R2-8">
+  <Q>
+    In a C++ `class`, if no access specifier is explicitly stated, the default access level for members is:
+  </Q>
+
+  <C>`public`</C>
+  <C>`protected`</C>
+  <C>`private`</C>
+  <C>`friend`</C>
+
+  <Explanation>
+    `class` 的默认成员访问权限是 `private`；`struct` 的默认成员访问权限是 `public`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="R2-9">
+  <Q>
+    When an object of a derived class goes out of scope, what is the order of destructor execution?
+  </Q>
+
+  <C>Base class destructor is called first, followed by the Derived class destructor.</C>
+  <C>Derived class destructor is called first, followed by the Base class destructor.</C>
+  <C>Only the Derived class destructor is called.</C>
+  <C>The order is undefined in C++.</C>
+
+  <Explanation>
+    构造顺序是先基类后派生类；析构顺序相反，先执行派生类析构函数，再执行基类析构函数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="R2-10">
+  <Q>
+    Which of the following is TRUE about pass by reference in C++?
+  </Q>
+
+  <C>It creates a complete copy of the passed argument in memory.</C>
+  <C>It allows the called function to directly modify the original variable.</C>
+  <C>It requires the address-of operator `&` when calling the function.</C>
+  <C>It cannot be used with objects of a class.</C>
+
+  <Explanation>
+    非 `const` 引用参数是实参对象的别名，函数内部对引用的修改会作用到原变量。调用引用参数函数时仍写普通实参名，不需要像指针那样显式传 `&x`。
+  </Explanation>
+</PTAQuiz>
+
+## 输出填空题
+
+<PTAQuiz fill-in-the-blank title="O1 test.cpp">
+  <Q>
+    What is the output?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class Base {
+    public:
+        virtual void dummy() {}
+    };
+
+    class Derived : public Base {
+        int a;
+    };
+
+    int main() {
+        Base* b1 = new Derived();
+        Base* b2 = new Base();
+
+        Derived* d1 = dynamic_cast<Derived*>(b1);
+        Derived* d2 = dynamic_cast<Derived*>(b2);
+        cout << (d1 != NULL) << (d2 != NULL);
+
+        delete b1;
+        delete b2;
+
+        return 0;
+    }
+    ```
+  </Q>
+
+  Output: <Blank>{`10`}</Blank>
+
+  <Explanation>
+    `Base` 有虚函数，是多态类型。`b1` 实际指向 `Derived`，所以 `dynamic_cast<Derived*>(b1)` 成功，`d1 != NULL` 为 `1`。`b2` 实际指向 `Base`，向下转型失败，`d2` 为 `NULL`，第二个布尔值输出 `0`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="O2 test2.cpp">
+  <Q>
+    What is the output?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class Base {
+    public:
+        Base() { cout << "B"; }
+        virtual ~Base() { cout << "~B"; }
+    };
+
+    class Derived : public Base {
+    public:
+        Derived() { cout << "D"; }
+        ~Derived() { cout << "~D"; }
+    };
+
+    int main() {
+        Base* p = new Derived();
+        delete p;
+        return 0;
+    }
+    ```
+  </Q>
+
+  Output: <Blank>{`BD~D~B`}</Blank>
+
+  <Explanation>
+    构造 `Derived` 对象时先构造 `Base`，输出 `B`，再构造 `Derived`，输出 `D`。`Base` 析构函数是虚函数，通过 `Base*` 删除派生对象时先调用 `Derived::~Derived()`，再调用 `Base::~Base()`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="O3 test3.cpp">
+  <Q>
+    What is the output?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class Test {
+    public:
+        static int count;
+        Test() { count++; }
+    };
+
+    int Test::count = 0;
+
+    int main() {
+        Test t1;
+        Test t2;
+        cout << Test::count;
+        return 0;
+    }
+    ```
+  </Q>
+
+  Output: <Blank>{`2`}</Blank>
+
+  <Explanation>
+    `count` 是所有 `Test` 对象共享的静态成员。构造 `t1` 和 `t2` 各执行一次 `count++`，最终输出 `2`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="O4 test4.cpp">
+  <Q>
+    What is the output?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    template <typename T>
+    void func(T a) {
+        cout << "T";
+    }
+
+    template <>
+    void func(int a) {
+        cout << "Int";
+    }
+
+    int main() {
+        func(1.5);
+        func(5);
+        return 0;
+    }
+    ```
+  </Q>
+
+  Output: <Blank>{`TInt`}</Blank>
+
+  <Explanation>
+    `1.5` 是 `double`，没有对应显式特化，调用主模板输出 `T`。`5` 是 `int`，匹配 `func<int>` 的显式特化，输出 `Int`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="O5 test5.cpp">
+  <Q>
+    What is the output?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    void test(int x) {
+        try {
+            if (x == 0) throw "Zero";
+            if (x == 1) throw 1;
+            cout << "OK";
+        } catch (int e) {
+            cout << "Int";
+        } catch (...) {
+            cout << "Other";
+        }
+    }
+
+    int main() {
+        test(1);
+        test(0);
+        return 0;
+    }
+    ```
+  </Q>
+
+  Output: <Blank>{`IntOther`}</Blank>
+
+  <Explanation>
+    `test(1)` 抛出整数 `1`，匹配 `catch (int e)`，输出 `Int`。`test(0)` 抛出字符串字面量，不能匹配 `int`，由 `catch (...)` 捕获，输出 `Other`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="O6 virtual dispatch">
+  <Q>
+    What is the output?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class Base {
+    public:
+        virtual void print() { cout << "Base"; }
+        virtual ~Base() {}
+    };
+
+    class Derived : public Base {
+    public:
+        void print() { cout << "Derived"; }
+    };
+
+    int main() {
+        Base* p = new Derived();
+        p->print();
+        delete p;
+        return 0;
+    }
+    ```
+  </Q>
+
+  Output: <Blank>{`Derived`}</Blank>
+
+  <Explanation>
+    `print()` 是虚函数，`p` 虽然是 `Base*`，但实际指向 `Derived` 对象，因此虚调用动态绑定到 `Derived::print()`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="O7 non-virtual destructor order for stack object">
+  <Q>
+    What is the output?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class A {
+    public:
+        A() { cout << "A"; }
+        ~A() { cout << "~A"; }
+    };
+
+    class B : public A {
+    public:
+        B() { cout << "B"; }
+        ~B() { cout << "~B"; }
+    };
+
+    int main() {
+        { B obj; }
+        return 0;
+    }
+    ```
+  </Q>
+
+  Output: <Blank>{`AB~B~A`}</Blank>
+
+  <Explanation>
+    `obj` 是栈上的完整 `B` 对象，不涉及通过基类指针删除，所以析构函数是否虚无关。构造顺序为 `A` 后 `B`，析构顺序为 `B` 后 `A`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="O8 reference parameter">
+  <Q>
+    What is the output?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    void process(int &a, int b) {
+        a += 2;
+        b += 2;
+    }
+
+    int main() {
+        int x = 5, y = 5;
+        process(x, y);
+        cout << x << " " << y << endl;
+        return 0;
+    }
+    ```
+  </Q>
+
+  Output: <Blank>{`7 5`}</Blank>
+
+  <Explanation>
+    参数 `a` 是引用，绑定到 `x`，所以 `a += 2` 会把 `x` 改为 `7`。参数 `b` 是按值传递，只修改局部副本，`y` 仍为 `5`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="O9 copy constructor and assignment">
+  <Q>
+    What is the output?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class Demo {
+    public:
+        Demo() { cout << "D"; }
+        Demo(const Demo& d) { cout << "C"; }
+        Demo& operator=(const Demo& d) {
+            cout << "A";
+            return *this;
+        }
+    };
+
+    int main() {
+        Demo d1;
+        Demo d2 = d1;
+        Demo d3;
+        d3 = d1;
+        return 0;
+    }
+    ```
+  </Q>
+
+  Output: <Blank>{`DCDA`}</Blank>
+
+  <Explanation>
+    `Demo d1;` 调用默认构造，输出 `D`。`Demo d2 = d1;` 是拷贝初始化，调用拷贝构造，输出 `C`。`Demo d3;` 再输出 `D`。`d3 = d1;` 是赋值，不是构造，调用 `operator=` 输出 `A`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="O10 prefix and postfix ++">
+  <Q>
+    What is the output?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class Counter {
+        int val;
+    public:
+        Counter(int v) : val(v) {}
+        Counter& operator++() {
+            val++;
+            return *this;
+        }
+        Counter operator++(int) {
+            Counter temp = *this;
+            val++;
+            return temp;
+        }
+        void print() const { cout << val; }
+    };
+
+    int main() {
+        Counter c(5);
+        (c++).print();
+        (++c).print();
+        return 0;
+    }
+    ```
+  </Q>
+
+  Output: <Blank>{`57`}</Blank>
+
+  <Explanation>
+    后置 `c++` 返回递增前的临时对象，所以 `(c++).print()` 输出 `5`，随后 `c` 变为 `6`。前置 `++c` 先递增再返回自身，`c` 变为 `7`，因此输出 `7`。
+  </Explanation>
+</PTAQuiz>
+
+## 程序填空题
+
+<PTAQuiz fill-in-the-blank-for-programming title="B1 MyString">
+  <Q>
+    Complete the implementation of `MyString`.
+
+    <PTACodeContent lang="cpp">
+{`#include <cstring>
+#include <iostream>
+#include <stdexcept>
+using namespace std;
+
+class MyString {
+private:
+    char* m_data;
+    size_t m_size;
+public:
+    MyString(const char* str = NULL) {
+        if (`}
+<Blank>{`str == NULL`}</Blank>
+{`) {
+            m_data = new char[1];
+            *m_data = '\\0';
+            m_size = 0;
+        } else {
+            m_size = strlen(str);
+            m_data = `}
+<Blank>{`new char[m_size + 1]`}</Blank>
+{`;
+            strcpy(m_data, str);
+        }
+    }
+
+    MyString(const MyString& other) {
+        m_size = other.m_size;
+        m_data = new char[m_size + 1];
+        `}
+<Blank>{`strcpy(m_data, other.m_data)`}</Blank>
+{`;
+    }
+
+    MyString& operator=(const MyString& other) {
+        if (this != `}
+<Blank>{`&other`}</Blank>
+{`) {
+            delete[] m_data;
+            m_size = other.m_size;
+            m_data = new char[m_size + 1];
+            strcpy(m_data, other.m_data);
+        }
+        return `}
+<Blank>{`*this`}</Blank>
+{`;
+    }
+
+    ~MyString() {
+        `}
+<Blank>{`delete[] m_data`}</Blank>
+{`;
+    }
+
+    void insert(size_t pos, char c) {
+        if (`}
+<Blank>{`pos > m_size`}</Blank>
+{`) {
+            `}
+<Blank>{`throw`}</Blank>
+{` std::out_of_range("Position out of bounds");
+        }
+        char* newData = new char[m_size + 2];
+        strncpy(newData, m_data, pos);
+        newData[pos] = c;
+        strcpy(newData + pos + 1, m_data + pos);
+        delete[] m_data;
+        m_data = newData;
+        m_size++;
+    }
+
+    void print() const {
+        if (m_data) cout << m_data << endl;
+    }
+};
+
+int main() {
+    try {
+        MyString s1("OOP");
+        MyString s2 = s1;
+        MyString s3;
+        s3 = s2;
+
+        s3.insert(3, '!');
+        s3.print();
+
+        s3 = s3;
+
+        s3.insert(10, '?');
+    } catch (const std::exception& e) {
+        cout << "Exception: " << e.what() << endl;
+    }
+    return 0;
+}`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    这题考查三法则和动态字符数组管理。构造空字符串时要分配 `'\0'` 空间；非空字符串需要 `m_size + 1` 保存结尾空字符。拷贝构造和赋值运算符都要深拷贝字符串内容，赋值时先用 `this != &other` 处理自赋值。析构函数释放 `new[]` 得到的数组。`insert` 允许在末尾插入，因此只有 `pos > m_size` 才越界，越界时用 `throw std::out_of_range(...)` 抛异常。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="B2 SharedPtr">
+  <Q>
+    Complete the implementation of `SharedPtr`.
+
+    <PTACodeContent lang="cpp">
+{`#include <iostream>
+using namespace std;
+
+template <typename T>
+class SharedPtr {
+private:
+    T* ptr;
+    int* ref_count;
+public:
+    SharedPtr(T* p = NULL) : ptr(p) {
+        if (p) {
+            ref_count = `}
+<Blank>{`new int(1)`}</Blank>
+{`;
+        } else {
+            ref_count = `}
+<Blank>{`NULL`}</Blank>
+{`;
+        }
+    }
+
+    SharedPtr(const SharedPtr<T>& other) {
+        ptr = other.ptr;
+        ref_count = other.ref_count;
+        if (ref_count) {
+            `}
+<Blank>{`++(*ref_count)`}</Blank>
+{`;
+        }
+    }
+
+    ~SharedPtr() {
+        if (ref_count) {
+            `}
+<Blank>{`--(*ref_count)`}</Blank>
+{`;
+            if (*ref_count == 0) {
+                delete ptr;
+                `}
+<Blank>{`delete ref_count`}</Blank>
+{`;
+            }
+        }
+    }
+
+    T& operator*() {
+        return `}
+<Blank>{`*ptr`}</Blank>
+{`;
+    }
+
+    T* operator->() {
+        return `}
+<Blank>{`ptr`}</Blank>
+{`;
+    }
+};
+
+struct Node {
+    int value;
+    Node(int v) : value(v) {
+        cout << "Node(" << value << ") created. ";
+    }
+    ~Node() {
+        cout << "Node(" << value << ") destroyed. ";
+    }
+};
+
+int main() {
+    SharedPtr<Node> sp1(new Node(42));
+    {
+        SharedPtr<Node> sp2 = sp1;
+        cout << "Value: " << sp2->value << ". ";
+    }
+
+    cout << "Still alive: " << (*sp1).value << ". ";
+    return 0;
+}`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    `SharedPtr` 需要让多个对象共享同一个裸指针和引用计数。初始持有对象时计数为 `1`；拷贝构造共享 `ptr` 与 `ref_count`，并递增计数。析构时先递减计数，减到 `0` 才释放对象和计数器。`operator*` 返回被管理对象引用，`operator->` 返回原始指针，以支持 `(*sp).value` 和 `sp->value` 两种访问形式。
+  </Explanation>
+</PTAQuiz>
+
+## 应用题
+
+<PTAQuiz programming title="A1 Abstract Factory Maze Game">
+  <Q>
+    We are designing a Maze Game using the **Abstract Factory** pattern. This design pattern allows us to switch between different maze themes, such as a Standard Maze, an Enchanted Maze, or a Dungeon Maze, without changing the core maze-building logic.
+
+    Read the following framework code:
+
+    ```cpp
+    #include <iostream>
+    #include <vector>
+    using namespace std;
+
+    enum Direction { North, South, East, West };
+
+    class MapSite {
+    public:
+        virtual void Enter() = 0;
+        virtual ~MapSite() {}
+    };
+
+    class Room : public MapSite {
+    protected:
+        int _roomNumber;
+        MapSite* _sides[4];
+    public:
+        Room(int n) : _roomNumber(n) {
+            for (int i = 0; i < 4; ++i)
+                _sides[i] = NULL;
+        }
+        void SetSide(Direction d, MapSite* s) { _sides[d] = s; }
+        MapSite* GetSide(Direction d) const { return _sides[d]; }
+        virtual void Enter() {
+            cout << "Enter Standard Room " << _roomNumber << endl;
+        }
+    };
+
+    class Door : public MapSite {
+    protected:
+        Room* _room1;
+        Room* _room2;
+    public:
+        Door(Room* r1, Room* r2) : _room1(r1), _room2(r2) {}
+        virtual void Enter() {
+            cout << "Open a Standard Door" << endl;
+        }
+    };
+
+    class Maze {
+        vector<Room*> _rooms;
+        vector<Door*> _doors;
+    public:
+        void AddRoom(Room* r) { _rooms.push_back(r); }
+        void AddDoor(Door* d) { _doors.push_back(d); }
+
+        size_t GetRoomCount() const { return _rooms.size(); }
+        Room* GetRoom(size_t index) const {
+            if (index < _rooms.size()) return _rooms[index];
+            return NULL;
+        }
+
+        ~Maze() {
+            for (size_t i = 0; i < _rooms.size(); ++i) {
+                delete _rooms[i];
+            }
+            for (size_t i = 0; i < _doors.size(); ++i) {
+                delete _doors[i];
+            }
+        }
+    };
+
+    class MazeFactory {
+    public:
+        virtual Maze* MakeMaze() const { return new Maze(); }
+        virtual Room* MakeRoom(int n) const { return new Room(n); }
+        virtual Door* MakeDoor(Room* r1, Room* r2) const { return new Door(r1, r2); }
+        virtual ~MazeFactory() {}
+    };
+    ```
+
+    Requirements:
+
+    - Implement the Enchanted theme:
+      - `EnchantedRoom` inherits from `Room`; override `Enter()` to print `Enter Enchanted Room <number> (Shining with blue magic aura)`.
+      - `EnchantedDoor` inherits from `Door`; override `Enter()` to print `Open a Magic Door (Whispering a glowing incantation)`.
+      - `EnchantedMazeFactory` inherits from `MazeFactory`; override `MakeRoom` and `MakeDoor`.
+    - Implement the Dungeon theme:
+      - `DungeonRoom` inherits from `Room`; override `Enter()` to print `Enter Dungeon Room <number> (Cold, damp and dark)`.
+      - `DungeonDoor` inherits from `Door`; override `Enter()` to print `Open a Heavy Iron Door (Creaking loudly with rust)`.
+      - `DungeonMazeFactory` inherits from `MazeFactory`; override `MakeRoom` and `MakeDoor`.
+    - Implement the client:
+      - Design a class `MazeGame`.
+      - Implement `Maze* CreateMaze(MazeFactory& factory)`.
+      - Use the provided factory to create a maze, create Room `1` and Room `2`, create a door between them, set the door to the correct sides of the two rooms, add both rooms and the door to the maze, and return the created maze pointer.
+
+    Test code:
+
+    ```cpp
+    void SimulateGamePlay(Maze* maze, const char* themeName) {
+        cout << "\n=== Simulating Gameplay for: [ " << themeName << " ] ===" << endl;
+        if (maze == NULL || maze->GetRoomCount() == 0) return;
+
+        Room* currentRoom = maze->GetRoom(0);
+        currentRoom->Enter();
+
+        cout << "Action: Player moves East..." << endl;
+        MapSite* eastSide = currentRoom->GetSide(East);
+        if (eastSide != NULL) {
+            eastSide->Enter();
+        }
+
+        Room* nextRoom = maze->GetRoom(1);
+        if (nextRoom != NULL) {
+            nextRoom->Enter();
+        }
+    }
+
+    int main() {
+        MazeGame game;
+
+        EnchantedMazeFactory enchantedFactory;
+        Maze* enchantedMaze = game.CreateMaze(enchantedFactory);
+        SimulateGamePlay(enchantedMaze, "Enchanted Magic Theme");
+
+        DungeonMazeFactory dungeonFactory;
+        Maze* dungeonMaze = game.CreateMaze(dungeonFactory);
+        SimulateGamePlay(dungeonMaze, "Dungeon Iron Theme");
+
+        delete enchantedMaze;
+        delete dungeonMaze;
+
+        cout << "\n=== Test Finished Successfully. ===" << endl;
+        return 0;
+    }
+    ```
+
+    Expected output:
+
+    ```txt
+    === Simulating Gameplay for: [ Enchanted Magic Theme ] ===
+    Enter Enchanted Room 1 (Shining with blue magic aura)
+    Action: Player moves East...
+    Open a Magic Door (Whispering a glowing incantation)
+    Enter Enchanted Room 2 (Shining with blue magic aura)
+
+    === Simulating Gameplay for: [ Dungeon Iron Theme ] ===
+    Enter Dungeon Room 1 (Cold, damp and dark)
+    Action: Player moves East...
+    Open a Heavy Iron Door (Creaking loudly with rust)
+    Enter Dungeon Room 2 (Cold, damp and dark)
+
+    === Test Finished Successfully. ===
+    ```
+  </Q>
+
+  <A>
+    One possible implementation is:
+
+    ```cpp
+    class EnchantedRoom : public Room {
+    public:
+        EnchantedRoom(int n) : Room(n) {}
+
+        void Enter() override {
+            cout << "Enter Enchanted Room " << _roomNumber
+                 << " (Shining with blue magic aura)" << endl;
+        }
+    };
+
+    class EnchantedDoor : public Door {
+    public:
+        EnchantedDoor(Room* r1, Room* r2) : Door(r1, r2) {}
+
+        void Enter() override {
+            cout << "Open a Magic Door (Whispering a glowing incantation)" << endl;
+        }
+    };
+
+    class EnchantedMazeFactory : public MazeFactory {
+    public:
+        Room* MakeRoom(int n) const override {
+            return new EnchantedRoom(n);
+        }
+
+        Door* MakeDoor(Room* r1, Room* r2) const override {
+            return new EnchantedDoor(r1, r2);
+        }
+    };
+
+    class DungeonRoom : public Room {
+    public:
+        DungeonRoom(int n) : Room(n) {}
+
+        void Enter() override {
+            cout << "Enter Dungeon Room " << _roomNumber
+                 << " (Cold, damp and dark)" << endl;
+        }
+    };
+
+    class DungeonDoor : public Door {
+    public:
+        DungeonDoor(Room* r1, Room* r2) : Door(r1, r2) {}
+
+        void Enter() override {
+            cout << "Open a Heavy Iron Door (Creaking loudly with rust)" << endl;
+        }
+    };
+
+    class DungeonMazeFactory : public MazeFactory {
+    public:
+        Room* MakeRoom(int n) const override {
+            return new DungeonRoom(n);
+        }
+
+        Door* MakeDoor(Room* r1, Room* r2) const override {
+            return new DungeonDoor(r1, r2);
+        }
+    };
+
+    class MazeGame {
+    public:
+        Maze* CreateMaze(MazeFactory& factory) {
+            Maze* maze = factory.MakeMaze();
+            Room* r1 = factory.MakeRoom(1);
+            Room* r2 = factory.MakeRoom(2);
+            Door* door = factory.MakeDoor(r1, r2);
+
+            r1->SetSide(East, door);
+            r2->SetSide(West, door);
+
+            maze->AddRoom(r1);
+            maze->AddRoom(r2);
+            maze->AddDoor(door);
+
+            return maze;
+        }
+    };
+    ```
+
+    解析：抽象工厂模式的关键是 `MazeGame::CreateMaze` 只依赖 `MazeFactory` 抽象接口，而不直接写死 `new EnchantedRoom` 或 `new DungeonRoom`。当传入 `EnchantedMazeFactory` 时，创建出来的是魔法主题组件；当传入 `DungeonMazeFactory` 时，创建出来的是地牢主题组件。`Room` 和 `Door` 都通过虚函数 `Enter()` 实现运行时多态，因此测试代码可以通过 `Room*`、`MapSite*` 调用到具体主题类的行为。
+  </A>
+</PTAQuiz>

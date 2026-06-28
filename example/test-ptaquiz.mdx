@@ -2,7 +2,7 @@
 title: PTAQuiz
 ---
 
-import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
 
 # PTAQuiz
 
@@ -18,7 +18,7 @@ below.
 ## Import
 
 ```js
-import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
 ```
 
 ## Props
@@ -53,6 +53,8 @@ No other `PTAQuiz` attributes are part of the API.
 - `A`: reference answer body for `multiple-file`, `programming`, `subjective`,
   and `code-completion`.
 - `Blank`: fillable answer span for fill-in-the-blank types.
+- `PTACodeContent`: highlighted code content with inline `Blank` support for
+  `fill-in-the-blank-for-programming`.
 - `Explanation`: optional explanation. For answer-checking types, it can be
   expanded after answering; wrong answers open it by default.
 
@@ -129,24 +131,36 @@ click a blank to reveal the answer inside the blank in green.
 
 ## Programming Fill In The Blank
 
-`fill-in-the-blank-for-programming` reuses the fill-in-the-blank behavior, but
-the body is rendered in a monospace layout with preserved whitespace. This is
-intended for escaped code pasted directly into the component body.
+`fill-in-the-blank-for-programming` reuses the fill-in-the-blank behavior.
+Use `PTACodeContent` when code highlighting is needed. The plain text around
+`Blank` should be written with MDX template-string expressions so whitespace,
+newlines, and indentation are preserved.
 
 ````html
 <PTAQuiz fill-in-the-blank-for-programming>
-{`#include &lt;iostream&gt;
+  <Q>
+    Complete the code.
+
+    <PTACodeContent lang="cpp">{`#include <iostream>
 using namespace std;
 
 int main() {
   int x = `}
 <Blank>42</Blank>
 {`;
-  cout &lt;&lt; x &lt;&lt; endl;
+  cout << x << endl;
   return 0;
 }`}
+    </PTACodeContent>
+  </Q>
 </PTAQuiz>
 ````
+
+IMPORTANT：建议使用
+```
+<Blank>{`cout << x`}</Blank>
+```
+这种写法，将要填写的东西左右包裹上花括号和backtick来避免HTML转义
 
 ## Solution Reveal Types
 
@@ -239,20 +253,26 @@ the question and provides a `Show answer` / `Hide answer` toggle for `A`.
 </PTAQuiz>
 
 <PTAQuiz fill-in-the-blank-for-programming title="Programming blank example">
-{`#include &lt;iostream&gt;
+  <Q>
+    Fill in the missing expression.
+
+    <PTACodeContent lang="cpp">
+    {`#include <iostream>
 using namespace std;
 
 int main() {
   int x = `}
 <Blank>42</Blank>
 {`;
-  cout &lt;&lt; x &lt;&lt; endl;
+  cout << x << endl;
   return 0;
 }`}
+    </PTACodeContent>
+  </Q>
 
   <Explanation>
-    This variant keeps the body in a monospace layout while reusing the normal
-    blank checking and answer-peek behavior.
+    `PTACodeContent` highlights the complete answer-filled source first, then
+    replaces each answer range with the interactive blank.
   </Explanation>
 </PTAQuiz>
 

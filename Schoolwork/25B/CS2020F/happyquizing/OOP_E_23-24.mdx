@@ -1,0 +1,985 @@
+---
+title: 历年卷（23-24）
+---
+
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
+
+# OOP E 23-24
+
+## 单选题
+
+<PTAQuiz multiple-choice correct={2} title="单选题 1">
+  <Q>
+    Copy constructor is a constructor which  ________
+  </Q>
+
+  <C>Creates an object by copying values from another object of another class</C>
+  <C>Creates an object by copying values from any other object of same class</C>
+  <C>Creates an object by initializing it with another previously created object of same class</C>
+  <C>Creates an object by copying values from first object created for that class</C>
+
+  <Explanation>
+    拷贝构造函数用于用同类已有对象初始化一个新对象，典型形式是 `ClassName(const ClassName& other)`。选项 `B` 说的是“任意同类对象的值”，但没有突出“初始化新对象”这一构造语义。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="单选题 2">
+  <Q>
+    In multi-level inheritance, with all inheritance being `public`, the public members of parent/superclass will ________
+  </Q>
+
+  <C>Will continue to get inherited subsequently</C>
+  <C>Will not be available to be called outside class</C>
+  <C>Will not be inherited after one subclass inheritance</C>
+  <C>Will not be able to allocated with any memory space</C>
+
+  <Explanation>
+    `public` 继承会保持基类 `public` 成员在派生类中的 `public` 可访问性。因此在多层 `public` 继承中，这些成员会继续向后继承。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={3} title="单选题 3">
+  <Q>
+    Which code below fails compilation?
+  </Q>
+
+  <C>
+    ```cpp
+    struct U {};
+    struct V : public U {};
+    struct W : public U {};
+    int main()
+    {
+      U * p = new V;
+      W * q = static_cast<W*>(p);
+      return q == nullptr;
+    }
+    ```
+  </C>
+
+  <C>
+    ```cpp
+    struct U { virtual void foo() {} };
+    struct V : public U {};
+    struct W {};
+    int main()
+    {
+      U * p = new V;
+      W * q = dynamic_cast<W*>(p);
+      return q == nullptr;
+    }
+    ```
+  </C>
+
+  <C>
+    ```cpp
+    struct U { virtual void foo() {} };
+    struct V : public U {};
+    struct W : public U {};
+    int main()
+    {
+      U * p = new V;
+      W * q = dynamic_cast<W*>(p);
+      return q == nullptr;
+    }
+    ```
+  </C>
+
+  <C>
+    ```cpp
+    struct U {};
+    struct V : public U {};
+    struct W {};
+    int main()
+    {
+      U * p = new V;
+      W * q = static_cast<W*>(p);
+      return q == nullptr;
+    }
+    ```
+  </C>
+
+  <Explanation>
+    `static_cast` 可以把基类指针转换为其派生类指针，所以选项 `A` 能通过编译，虽然运行时对象实际不是 `W`，使用该指针会有风险。`dynamic_cast` 的源类型 `U` 在 `B` 和 `C` 中是多态类型，因此这类运行时检查能通过编译，不匹配时结果为 `nullptr`。选项 `D` 中 `W` 与 `U` 没有继承关系，`static_cast<W*>(p)` 不合法。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="单选题 4">
+  <Q>
+    If programmer has defined parameterized constructor only, then ________
+  </Q>
+
+  <C>Default constructor will not be created by the compiler implicitly</C>
+  <C>Default constructor will not be created but called at runtime</C>
+  <C>Default constructor will be created by the compiler implicitly</C>
+  <C>Compile time error</C>
+
+  <Explanation>
+    只要用户声明了任意构造函数，编译器就不会再隐式生成默认构造函数。若仍需要无参构造，需要显式声明，例如 `ClassName() = default;`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={3} title="单选题 5">
+  <Q>
+    Which of the following operator cannot be used to overload when that function is declared as `friend` function?
+  </Q>
+
+  <C>`||`</C>
+  <C>`==`</C>
+  <C>`-=`</C>
+  <C>`[]`</C>
+
+  <Explanation>
+    `operator[]` 必须重载为非静态成员函数，不能写成普通非成员函数或友元函数。`||`、`==`、`-=` 可以用非成员友元形式重载，虽然其中一些更常见的写法是成员函数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="单选题 6">
+  <Q>
+    If a class has default constructor defined in `private` access, and one-parameter constructor in `protected` mode, how will it be possible to create instance of object?
+  </Q>
+
+  <C>Directly create the object in the subclass</C>
+  <C>Define a constructor in `public` access with different signature</C>
+  <C>Directly create the object in `main()` function</C>
+  <C>Not possible</C>
+
+  <Explanation>
+    类外代码不能调用 `private` 默认构造函数，也不能调用 `protected` 构造函数。若要允许外部创建对象，类需要提供一个可访问的 `public` 构造函数或工厂接口。按选项，最直接的是定义一个不同签名的 `public` 构造函数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="单选题 7">
+  <Q>
+    Which programming paradigm below is not well supported in C++?
+  </Q>
+
+  <C>Object-oriented programming</C>
+  <C>Procedural programming</C>
+  <C>Declarative programming</C>
+  <C>Generic programming</C>
+
+  <Explanation>
+    C++ 原生支持过程式、面向对象和泛型编程。声明式编程不是 C++ 的主要设计范式，只能通过库或特定风格局部实现。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="单选题 8">
+  <Q>
+    Which statement below is not a requirement for an object-oriented programming language?
+  </Q>
+
+  <C>Objects have an associated type, namely class.</C>
+  <C>Types or classes may inherit attributes from supertypes or superclasses.</C>
+  <C>It uses algorithms as its fundamental logical building blocks.</C>
+  <C>It supports objects that are data abstractions with an interface of named operations and a hidden local state.</C>
+
+  <Explanation>
+    面向对象强调对象、类、封装、接口、状态和继承等概念。“以算法为基本逻辑构件”更接近过程式编程，而不是面向对象语言的必要条件。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="单选题 9">
+  <Q>
+    Which among the following is multiple inheritance?
+  </Q>
+
+  <C>
+    ```cpp
+    class student { };
+    class stream { };
+    class topper { };
+    ```
+  </C>
+
+  <C>
+    ```cpp
+    class student {
+     public:
+      int marks;
+    } s;
+    class stream {
+      int total;
+    };
+    class topper : public student, public stream { };
+    ```
+  </C>
+
+  <C>
+    ```cpp
+    class student {
+      int marks;
+    };
+    class stream { };
+    class topper : public student { };
+    ```
+  </C>
+
+  <C>
+    ```cpp
+    class student {
+      int marks;
+    };
+    class stream : public student { };
+    ```
+  </C>
+
+  <Explanation>
+    多重继承指一个派生类同时直接继承多个基类。选项 `B` 中 `topper` 同时继承 `student` 和 `stream`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="单选题 10">
+  <Q>
+    How many times is the destructor of class `A` called during execution?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class A {
+     public:
+      A() { cout << "A()" << endl; }
+      ~A() { cout << "~A()" << endl; }
+    };
+
+    void foo(A a) {
+      A arr[5];
+      A *p = new A[3];
+      throw p;
+    }
+
+    int main()
+    {
+      try {
+        A a;
+        foo(a);
+      } catch (A *p) {
+        delete[] p;
+        cout << "catched" << endl;
+      }
+    }
+    ```
+  </Q>
+
+  <C>`5`</C>
+  <C>`7`</C>
+  <C>`10`</C>
+  <C>`3`</C>
+
+  <Explanation>
+    `main` 中的局部对象 `a` 析构 `1` 次；`foo(a)` 的按值参数 `a` 析构 `1` 次；`foo` 中局部数组 `arr[5]` 在异常传播时析构 `5` 次；捕获到动态数组指针后 `delete[] p` 析构 `3` 次。合计 `1 + 1 + 5 + 3 = 10`。
+  </Explanation>
+</PTAQuiz>
+
+## 结果填空题
+
+<PTAQuiz fill-in-the-blank title="结果填空题 1">
+  <Q>
+    What is the output of the following code?
+
+    ```cpp
+    #include <iostream>
+    #include <string>
+    #include <cstdlib>
+    using namespace std;
+
+    void func(int a, int b)
+    {
+      if (b < 1) {
+        throw b;
+      }
+      else {
+        cout << "Product of " << a << " and " << b << " is: " << a*b << endl;
+      }
+    }
+
+    int main()
+    {
+      try
+      {
+        try
+        {
+          func(5, -1);
+        }
+        catch (int b)
+        {
+          if (b == 0)
+            throw "value of b is zero\n";
+          else
+            throw "value of b is less than zero\n";
+        }
+      }
+      catch (const char* e)
+      {
+        cout << e;
+      }
+    }
+    ```
+  </Q>
+
+  Line 1: <Blank>{`value of b is less than zero`}</Blank>
+
+  <Explanation>
+    `func(5, -1)` 中 `b < 1`，所以抛出整数 `-1`。内层 `catch (int b)` 捕获它，因为 `b != 0`，重新抛出字符串 `"value of b is less than zero\n"`。外层 `catch (const char* e)` 输出该字符串。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="结果填空题 2">
+  <Q>
+    The output of the code below is:
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class AnyError
+    {
+    public:
+        AnyError() {  }
+    };
+
+    class RangeError : public AnyError
+    {
+    public:
+        RangeError(int ID) { m_ID = ID; }
+        void print() { cout << "ID:" << m_ID << endl; }
+    protected:
+        int m_ID;
+    };
+
+    void FuncA(int ID)
+    {
+        if (ID > 8)
+            throw RangeError(ID);
+        cout << "FuncA" << endl;
+    }
+
+    void FuncB()
+    {
+        try
+        {
+            FuncA(4);
+            FuncA(10);
+        }
+        catch (RangeError& re)
+        {
+            cout << "FuncB" << endl;
+            re.print();
+            throw AnyError();
+        }
+    }
+
+    int main()
+    {
+        try {
+            FuncB();
+        }
+        catch (...)
+        {
+            cout << "Main" << endl;
+        }
+        return 0;
+    }
+    ```
+  </Q>
+
+  The first line is: <Blank>{`FuncA`}</Blank>
+
+  The second line is: <Blank>{`FuncB`}</Blank>
+
+  The third line is: <Blank>{`ID:10`}</Blank>
+
+  The fourth line is: <Blank>{`Main`}</Blank>
+
+  <Explanation>
+    `FuncA(4)` 正常执行并输出 `FuncA`。`FuncA(10)` 抛出 `RangeError(10)`，被 `FuncB` 捕获后先输出 `FuncB`，再由 `re.print()` 输出 `ID:10`，随后抛出 `AnyError`，被 `main` 中的 `catch (...)` 捕获并输出 `Main`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="结果填空题 3">
+  <Q>
+    The output of this program should be:
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    template <class T>
+    class A {
+
+    public:
+        A() { }
+        void print() const
+        {
+            cout << "A<T>" << endl;
+        }
+    };
+
+    template <>
+    class A<double> {
+        double a1, a2, a3;
+    public:
+        A() {}
+        void print() const
+        {
+            cout << "A<double>" << endl;
+            return;
+        }
+    };
+
+    template <>
+    class A<int> {
+        double a1, a2, a3;
+    public:
+        A() {}
+        void print() const
+        {
+            cout << "A<int>" << endl;
+            return;
+        }
+    };
+
+    int main()
+    {
+        A<double> t1;
+        A<char>  t2;
+        A<int> t3;
+        t1.print();
+        t2.print();
+        t3.print();
+    }
+    ```
+  </Q>
+
+  Line 1: <Blank>{`A<double>`}</Blank>
+
+  Line 2: <Blank>{`A<T>`}</Blank>
+
+  Line 3: <Blank>{`A<int>`}</Blank>
+
+  <Explanation>
+    `A<double>` 和 `A<int>` 分别匹配显式特化版本。`A<char>` 没有特化版本，因此使用主模板，输出 `A<T>`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="结果填空题 4">
+  <Q>
+    What is the output of the following code?
+
+    ```cpp
+    #include <iostream>
+    #include <string>
+    using namespace std;
+
+    class WeirdString
+    {
+     public:
+      WeirdString() = default;
+      WeirdString& operator++() {
+        s += "Hey";
+        return *this;
+      }
+      WeirdString operator++(int) {
+        WeirdString old = *this;
+        s += "Ho";
+        return old;
+      }
+      WeirdString& operator+=(const WeirdString& rhs) {
+        s += ("Ha" + rhs.str());
+        return *this;
+      }
+      string str() const { return s; }
+     private:
+      string s;
+    };
+
+    int main()
+    {
+      WeirdString w;
+      WeirdString t = w++;
+      ++(w += (t++));
+      cout << w.str() << endl;
+    }
+    ```
+  </Q>
+
+  Line 1: <Blank>{`HoHaHey`}</Blank>
+
+  <Explanation>
+    `t = w++` 使用后置 `++`，先返回旧值给 `t`，再把 `w` 改为 `"Ho"`。表达式 `t++` 返回旧的空字符串对象，同时把 `t` 改为 `"Ho"`；`w += old_t` 会追加 `"Ha" + ""`，所以 `w` 变为 `"HoHa"`。最后前置 `++` 给 `w` 追加 `"Hey"`，得到 `"HoHaHey"`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="结果填空题 5">
+  <Q>
+    Content of header file `h1.h`:
+
+    ```cpp
+    // h1.h
+    #include <iostream>
+    using namespace std;
+    namespace A {
+      int func(int a) {
+        cout << "using namespace A";
+        return 2*a;
+      }
+    }
+    ```
+
+    Content of header file `h2.h`:
+
+    ```cpp
+    // h2.h
+    #include <iostream>
+    using namespace std;
+    namespace B {
+      float func(float a) {
+        cout << "using namespace B";
+        return 2*a;
+      }
+    }
+    ```
+
+    Content of `program.cpp`:
+
+    ```cpp
+    #include <iostream>
+    #include <string>
+    #include "h1.h"
+    #include "h2.h"
+
+    using namespace std;
+    using namespace A;
+    using namespace B;
+
+    int main(int argc, char const *argv[]) {
+      int a = 10;
+      float b = 10.0;
+      cout << func(a) << endl;
+      cout << func(b);
+      return 0;
+    }
+    ```
+  </Q>
+
+  Line 1: <Blank>{`using namespace A20`}</Blank>
+
+  Line 2: <Blank>{`using namespace B20`}</Blank>
+
+  <Explanation>
+    `func(a)` 中 `a` 是 `int`，选择 `A::func(int)`；函数内部先输出 `"using namespace A"`，再返回 `20` 给外层 `cout` 输出。`func(b)` 中 `b` 是 `float`，选择 `B::func(float)`，默认格式下 `20.0f` 输出为 `20`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="结果填空题 6">
+  <Q>
+    What will be the output of the following code?
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+
+    class C1
+    {
+    public:
+        C1() {
+            cout << "$C1()$";
+        }
+        C1(const C1& a) {
+            cout << "$C1(const C1&)$";
+        }
+        virtual ~C1() {
+            cout << "$~C1()$";
+        }
+    };
+
+    class C2 : public C1
+    {
+    public:
+        C2() {
+            cout << "$C2()$";
+        }
+        ~C2() {
+            cout << "$~C2()$";
+        }
+    };
+
+    int main()
+    {
+        C2* pC2 = new C2();
+        cout << endl;
+        {
+            C1 a = *pC2;
+            cout << endl;
+        }
+        C1* pC1 = pC2;
+        delete pC1;
+        cout << endl;
+    }
+    ```
+  </Q>
+
+  Line 1: <Blank>{`$C1()$$C2()$`}</Blank>
+
+  Line 2: <Blank>{`$C1(const C1&)$`}</Blank>
+
+  Line 3: <Blank>{`$~C1()$$~C2()$$~C1()$`}</Blank>
+
+  <Explanation>
+    `new C2()` 先构造基类 `C1`，再构造派生类 `C2`。`C1 a = *pC2` 发生对象切片，只拷贝出一个 `C1` 对象，输出拷贝构造信息；该块结束时局部对象 `a` 析构，输出 `$~C1()$`。之后 `pC1` 指向原来的 `C2` 对象，因为 `C1` 析构函数是 `virtual`，`delete pC1` 会先调用 `C2` 析构，再调用 `C1` 析构。
+  </Explanation>
+</PTAQuiz>
+
+## 程序填空题
+
+<PTAQuiz fill-in-the-blank-for-programming title="程序填空题 1">
+  <Q>
+    `Array` is a template that implements a dynamically expandable array. `next` is used to link to the next block of the array. Fill in the blanks to complete the code.
+
+    <PTACodeContent lang="cpp">
+{`#include <iostream>
+using namespace std;
+
+template <typename T>
+class Array {
+public:
+    Array() {
+        data = new T[BLK_SIZE];
+        next = `}
+<Blank>{`NULL`}</Blank>
+{`;
+     }
+    ~Array() {
+        delete [] data;
+        delete next;
+     }
+    T& operator[](int i);
+    void iterate(void (*f)(T&));
+private:
+    `}
+<Blank>{`T`}</Blank>
+{` *data; // data of type T
+    static const int BLK_SIZE = 32; // fixed block size
+    `}
+<Blank>{`Array<T>`}</Blank>
+{` *next;  // the next array block
+};
+
+template <typename T>
+T& `}
+<Blank>{`Array<T>::`}</Blank>
+{`operator[](int i) {
+    if (i < BLK_SIZE) {
+        return `}
+<Blank>{`data[i]`}</Blank>
+{`;
+     } else {
+        if (next == NULL) {
+            next = new `}
+<Blank>{`Array<T>`}</Blank>
+{`;
+         }
+        return (*next)[i - BLK_SIZE];
+    }
+}
+
+template <typename T>
+void `}
+<Blank>{`Array<T>::`}</Blank>
+{`iterate(void (*f)(T&)) {
+    for (int i = 0; i < BLK_SIZE; i++) {
+        f(data[i]);
+    }
+    if (next != NULL) {
+        next->`}
+<Blank>{`iterate(f)`}</Blank>
+{`;
+    }
+}
+
+int main()
+{
+    Array`}
+<Blank>{`<int>`}</Blank>
+{` a;
+    int size = 100;
+    cin >> size;
+    for (int i = 0; i < size; i++) {
+        a[i] = i;
+    }
+    a.iterate([](int &x) { cout << x << endl; });
+}`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    每个 `Array<T>` 块保存一个 `T` 数组和指向下一个 `Array<T>` 块的指针。构造时把 `next` 初始化为空，访问下标超过 `BLK_SIZE` 时延迟创建下一个块。类模板成员函数在类外定义时需要写作用域限定 `Array<T>::`。最后 `Array<int> a;` 表示实例化整数数组。现代 C++ 中 `nullptr` 也可替代这里的 `NULL`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="程序填空题 2">
+  <Q>
+    The function `inner_product` computes the inner product, namely sum of products, between the elements in the range `[first1, last1)` and those in the same-size range beginning at `first2`. Fill in the blanks to finish the implementation.
+
+    <PTACodeContent lang="cpp">
+{`#include <functional>
+#include <iostream>
+#include <vector>
+
+`}
+<Blank>{`template`}</Blank>
+{` <class InputIt1, class InputIt2, class T, class BinaryOp1, class BinaryOp2>
+T inner_product(InputIt1 first1, InputIt1 last1, InputIt2 first2, T init, `}
+<Blank>{`BinaryOp1`}</Blank>
+{` op1, `}
+<Blank>{`BinaryOp2`}</Blank>
+{` op2)
+{
+  while (first1 != last1)
+  {
+    init = `}
+<Blank>{`op1`}</Blank>
+{`(init, op2(`}
+<Blank>{`*first1, *first2`}</Blank>
+{`));
+    ++first1;
+    `}
+<Blank>{`++first2`}</Blank>
+{`;
+  }
+  return init;
+}
+
+int main()
+{
+  std::vector<int> a{0, 1, 2, 3, 4};
+  std::vector<int> b{5, 4, 2, 3, 1};
+  int r1 = inner_product(a.begin(), a.end(), b.begin(), 0, std::plus<>(), std::multiplies<>());
+  std::cout << "Inner product of a and b: " << r1 << '\\n';
+
+  int r2 = inner_product(a.begin(), a.end(), b.begin(), 0, std::plus<>(), std::equal_to<>());
+  std::cout << "Number of pairwise matches between a and b: " <<  r2 << '\\n';
+}`}
+    </PTACodeContent>
+
+    Required output:
+
+    ```txt
+    Inner product of a and b: 21
+    Number of pairwise matches between a and b: 2
+    ```
+  </Q>
+
+  <Explanation>
+    函数本身是函数模板，所以开头是 `template <...>`。`op1` 用于把当前累计值和本轮结果合并，`op2` 用于处理两个序列当前元素，因此核心更新式是 `init = op1(init, op2(*first1, *first2));`。每轮循环后两个输入迭代器都要向后移动。
+  </Explanation>
+</PTAQuiz>
+
+## 主观题
+
+<PTAQuiz programming title="主观题：Shape Document">
+  <Q>
+    The class hierarchy in this program design task contains an abstract base class `shape`, and concrete shape classes such as `Rectangle`, `Ellipse`, and `Circle`. The shapes are contained in `CShapeDocument`, and are read from a file using `parse(ifstream& ifs)`.
+
+    The text stored in the file to describe shapes in a document is like:
+
+    ```txt
+    Rectangle left-bottom 1.0 1.0 W&H 10.0 20.0
+    Circle center 10.0 10 radius 5.0
+    Ellipse center 9.0 9.0 radius 10.0 30.0
+    ```
+
+    Suppose the following texts are stored in `D:\shape.txt`:
+
+    ```txt
+    Rectangle left-bottom 20.0 50.0 W&H 20.0 40.0
+    Circle center 8.0 8.0 radius 7.0
+    Ellipse center 5.0 5.0 radius 10.0 2.0
+    ```
+
+    Please read the implementation of `CShapeDocument` and `main` function and implement the required shape classes, such as `Rectangle`, `Ellipse` and `Circle`, such that the shapes are parsed from the file and stored in a `CShapeDocument` object.
+
+    ```cpp
+    #include <iostream>
+    #include <fstream>
+    #include <vector>
+    using namespace std;
+
+    class shape
+    {
+    public:
+        virtual ~shape() {}
+
+        virtual void draw() = 0;
+        virtual bool parseattribute(ifstream &ifs) = 0;
+    };
+
+    class Rectangle : public shape
+    {
+        // TODO
+    };
+
+    class Circle : public shape
+    {
+        // TODO
+    };
+
+    class Ellipse : public shape
+    {
+        // TODO
+    };
+
+    class CShapeDocument
+    {
+    public:
+        CShapeDocument() {}
+        ~CShapeDocument();
+    public:
+        void draw();
+        void parse(ifstream& ifs);
+    private:
+        std::vector<shape*> m_vShape;
+    };
+
+    CShapeDocument::~CShapeDocument()
+    {
+        std::vector<shape*>::iterator itShape;
+
+        for (itShape = m_vShape.begin(); itShape != m_vShape.end(); itShape++)
+            delete *itShape;
+    }
+
+    void CShapeDocument::draw()
+    {
+        std::vector<shape*>::iterator itShape;
+
+        for (itShape = m_vShape.begin(); itShape != m_vShape.end(); itShape++)
+            (*itShape)->draw();
+    }
+
+    template<class X>
+    void parseattribute(ifstream& ifs, std::vector<shape*> &vShape)
+    {
+        shape* pX = new X();
+        if (!pX->parseattribute(ifs))
+        {
+            delete pX;
+            return;
+        }
+        vShape.push_back(pX);
+    }
+
+    void CShapeDocument::parse(ifstream &ifs)
+    {
+        std::string str;
+
+        while (1)
+        {
+            str = "";
+            ifs >> str;
+            if (str == "Rectangle")
+                parseattribute<Rectangle>(ifs, m_vShape);
+            else if (str == "Circle")
+                parseattribute<Circle>(ifs, m_vShape);
+            else if (str == "Ellipse")
+                parseattribute<Ellipse>(ifs, m_vShape);
+            else
+                break;
+        }
+    }
+
+    int main()
+    {
+        std::ifstream ifs("D:\\shape.txt");
+        CShapeDocument shapedoc;
+        shapedoc.parse(ifs);
+        shapedoc.draw();
+    }
+    ```
+
+    The output of the program is as follows:
+
+    ```txt
+    Rectangle 20 50 W&H 20 40
+    Circle 8 8 radius 7
+    Ellipse 5 5 radius 10 2
+    ```
+  </Q>
+
+  <A>
+    One possible implementation is:
+
+    ```cpp
+    class Rectangle : public shape
+    {
+    public:
+        bool parseattribute(ifstream& ifs) override
+        {
+            return static_cast<bool>(ifs >> positionLabel >> x >> y >> sizeLabel >> width >> height);
+        }
+
+        void draw() override
+        {
+            cout << "Rectangle " << x << " " << y << " "
+                 << sizeLabel << " " << width << " " << height << endl;
+        }
+
+    private:
+        string positionLabel;
+        string sizeLabel;
+        double x = 0;
+        double y = 0;
+        double width = 0;
+        double height = 0;
+    };
+
+    class Circle : public shape
+    {
+    public:
+        bool parseattribute(ifstream& ifs) override
+        {
+            return static_cast<bool>(ifs >> centerLabel >> x >> y >> radiusLabel >> radius);
+        }
+
+        void draw() override
+        {
+            cout << "Circle " << x << " " << y << " "
+                 << radiusLabel << " " << radius << endl;
+        }
+
+    private:
+        string centerLabel;
+        string radiusLabel;
+        double x = 0;
+        double y = 0;
+        double radius = 0;
+    };
+
+    class Ellipse : public shape
+    {
+    public:
+        bool parseattribute(ifstream& ifs) override
+        {
+            return static_cast<bool>(ifs >> centerLabel >> x >> y >> radiusLabel >> radiusX >> radiusY);
+        }
+
+        void draw() override
+        {
+            cout << "Ellipse " << x << " " << y << " "
+                 << radiusLabel << " " << radiusX << " " << radiusY << endl;
+        }
+
+    private:
+        string centerLabel;
+        string radiusLabel;
+        double x = 0;
+        double y = 0;
+        double radiusX = 0;
+        double radiusY = 0;
+    };
+    ```
+
+    Each concrete shape class implements the same two virtual functions. `parseattribute()` consumes exactly the tokens that follow the shape type in the input file, stores the numeric attributes, and reports whether parsing succeeded. `draw()` prints the stored data in the format required by the sample output. Since `CShapeDocument` stores `shape*`, the virtual functions provide the polymorphic behavior needed for parsing and drawing different shapes through the base interface.
+  </A>
+</PTAQuiz>
