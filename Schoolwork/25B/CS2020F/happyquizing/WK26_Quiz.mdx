@@ -1,0 +1,1591 @@
+---
+title: WK26 课前小测合集
+---
+
+import { PTAQuiz, Q, C, A, Blank, Explanation } from "@md-comp/ptaquiz";
+
+## W2课前小测
+
+<PTAQuiz multiple-choice correct={2} title="W2课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    Given two string variables `strA = "apple"` and `strB = "banana"`, which of the following operations will result in a string `"applebanana"`?
+  </Q>
+
+  <C>
+    `strA - strB`
+  </C>
+
+  <C>
+    `strA * strB`
+  </C>
+
+  <C>
+    `strA + strB`
+  </C>
+
+  <C>
+    `strA / strB`
+  </C>
+
+  <Explanation>
+    According to the text, for string variables, the `+` operator can be used for concatenation. So, `strA + strB` will concatenate the two strings and result in `"applebanana"`. The other operators (`-`, `*`, `/`) are not defined for string concatenation in the context of the given text.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="W2课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    If you have a string variable `s = "programming"` and you want to change the first character to `'P'`, which code snippet should you use?
+  </Q>
+
+  <C>
+    `s[1] = 'P';`
+  </C>
+
+  <C>
+    `s(0) = 'P';`
+  </C>
+
+  <C>
+    `s[0] = 'P';`
+  </C>
+
+  <C>
+    `s{0} = 'P';`
+  </C>
+
+  <Explanation>
+    The text states that a string can be used as an array. In C++, array indices start from 0. So, to change the first character of the string `s`, we use `s[0] = 'P'`. The other options either use incorrect indexing (`s[1]`) or incorrect syntax (`s(0)` and `s{0}`).
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="W2课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    You have a string variable `str = "hello"` and a pointer `ps` to this string. How do you call the `length()` function using the pointer?
+  </Q>
+
+  <C>
+    `*ps.length();`
+  </C>
+
+  <C>
+    `ps.length();`
+  </C>
+
+  <C>
+    `ps->length();`
+  </C>
+
+  <C>
+    `&ps.length();`
+  </C>
+
+  <Explanation>
+    The text mentions that when using a pointer to an object, the `->` operator is used to call a function of the object. So, to call the `length()` function using the pointer `ps`, we use `ps->length()`. The `*` operator is used to get the object, and the `&` operator is used to get the address, neither of which is appropriate here. Also, `ps.length()` is incorrect syntax for a pointer.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W2课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    Suppose you have two string variables `strX` and `strY`, and you want to assign the value of `strY` to `strX`. Which statement is correct?
+  </Q>
+
+  <C>
+    `strX == strY;`
+  </C>
+
+  <C>
+    `strX = strY;`
+  </C>
+
+  <C>
+    `strX & strY;`
+  </C>
+
+  <C>
+    strX + strY;
+  </C>
+
+  <Explanation>
+    The text shows that for string variables, the `=` operator is used for assignment. So, to assign the value of `strY` to `strX`, we use `strX = strY`. The `==` operator is for comparison, the `&` operator is used to get the address, and the `+` operator is for concatenation, so the other options are incorrect.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="W2课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    If you want to read a whole line of input into a string variable named `line`, which code should you use?
+  </Q>
+
+  <C>
+    `cin >> line;`
+  </C>
+
+  <C>
+    `cout << line;`
+  </C>
+
+  <C>
+    `getline(cin, line);`
+  </C>
+
+  <C>
+    `line = cin;`
+  </C>
+
+  <Explanation>
+    The text clearly states that to read a whole line of input into a string variable, we use the `getline(cin, line_var)` function. The `cin >> line;` reads input until a whitespace, `cout << line;` is used for output, and `line = cin;` is incorrect syntax for reading input, so the other options are wrong.
+  </Explanation>
+</PTAQuiz>
+
+## W3课前小测
+
+<PTAQuiz multiple-choice correct={1} title="W3课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    You have a list of integers `lst` and you want to remove all elements that are divisible by 3. Which of the following code snippets would achieve this?
+  </Q>
+
+  <C>
+    `for (auto it = lst.begin(); it != lst.end(); ++it) { if (*it % 3 == 0) lst.erase(it); }`
+  </C>
+
+  <C>
+    `auto it = lst.begin(); while (it != lst.end()) { if (*it % 3 == 0) it = lst.erase(it); else ++it; }`
+  </C>
+
+  <C>
+    `for (int i = 0; i < lst.size(); i++) { if (lst[i] % 3 == 0) lst.erase(i); }`
+  </C>
+
+  <C>
+    `for (auto it = lst.end(); it != lst.begin(); --it) { if (*it % 3 == 0) lst.erase(it); }`
+  </C>
+
+  <Explanation>
+    The text mentions that when using `erase` on a list iterator, we need to use the return value of `erase` to advance the iterator to avoid invalidating the iterator. Option B correctly uses a `while` loop and assigns the return value of `lst.erase(it)` to `it` when an element divisible by 3 is found. Option A does not handle the iterator correctly after erasing an element, which may lead to undefined behavior. Option C tries to use an index to access elements in a list, but lists do not support random access using indices. Option D iterates from the end to the beginning incorrectly and also does not handle the iterator properly after erasing an element.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W3课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    You have a map `m` of type `map<string, int>` and you want to check if the key `'apple'` exists in the map. If it does, you want to print its value; otherwise, you want to print `'Not found'`. Which of the following code snippets would you use?
+  </Q>
+
+  <C>
+    `if (m['apple'] != 0) cout << m['apple']; else cout << 'Not found';`
+  </C>
+
+  <C>
+    `if (m.count('apple')) cout << m['apple']; else cout << 'Not found';`
+  </C>
+
+  <C>
+    `if (m.find('apple') == m.end()) cout << m['apple']; else cout << 'Not found';`
+  </C>
+
+  <C>
+    `if (m.empty('apple')) cout << m['apple']; else cout << 'Not found';`
+  </C>
+
+  <Explanation>
+    The text shows that to check if a key exists in a map, we can use the `count` function. If `count` returns a non-zero value, it means the key exists. Option B correctly uses `m.count('apple')` to check if the key `'apple'` exists and then prints the value if it does or `'Not found'` otherwise. Option A uses the subscript operator `[]`, which will insert a new element with a default value if the key does not exist, so it is not a reliable way to check for the existence of a key. Option C has the logic reversed; if `m.find('apple') == m.end()`, it means the key was not found, but it tries to print the value anyway. Option D uses `m.empty('apple')` which is an incorrect usage as `empty` does not take a key as an argument and is used to check if the entire map is empty.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W3课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    You have a vector `v` of integers and you want to print all elements in reverse order. Which of the following code snippets would you use?
+  </Q>
+
+  <C>
+    `for (int i = 0; i < v.size(); i++) cout << v[v.size() - i - 1] << ' ';`
+  </C>
+
+  <C>
+    `for (auto it = v.begin(); it != v.end(); ++it) cout << *it << ' ';`
+  </C>
+
+  <C>
+    `for (int i = v.size(); i > 0; i--) cout << v[i] << ' ';`
+  </C>
+
+  <C>
+    `for (auto it = v.end(); it != v.begin(); --it) cout << *it << ' ';`
+  </C>
+
+  <Explanation>
+    To print a vector in reverse order, we need to access elements from the last to the first. Option A uses an integer loop counter `i` and accesses elements using `v[v.size() - i - 1]`, which correctly iterates through the vector in reverse order. Option B prints the elements in the normal order from the beginning to the end. Option C has an off-by-one error as it starts with `i = v.size()`, which is out of bounds for the vector. Option D tries to iterate from the end to the beginning, but the iterator `it` is initially set to `v.end()` which is one past the last element, and the loop condition and decrement are not handled correctly.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W3课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    You have a list `L` of strings and you want to insert a new string `'new_str'` in alphabetical order. Which of the following code snippets would you use?
+  </Q>
+
+  <C>
+    `auto it = L.begin(); while (it != L.end() && *it < 'new_str') ++it; L.insert(it, 'new_str');`
+  </C>
+
+  <C>
+    `auto it = L.end(); while (it != L.begin() && *it > 'new_str') --it; L.insert(it, 'new_str');`
+  </C>
+
+  <C>
+    `for (auto it = L.begin(); it != L.end(); ++it) { if (*it > 'new_str') L.insert(it, 'new_str'); break; }`
+  </C>
+
+  <C>
+    `L.push_back('new_str'); L.sort();`
+  </C>
+
+  <Explanation>
+    The text shows an example of inserting an element in a list in sorted order. Option A correctly iterates through the list using an iterator `it` until it finds the correct position where the new string should be inserted (i.e., where the current element is greater than or equal to the new string) and then inserts the new string at that position. Option B tries to iterate from the end to the beginning, which is not the correct way to insert in alphabetical order. Option C has a logical error as the `break` statement will cause the loop to stop after the first comparison, and it may not find the correct position. Option D inserts the new string at the end and then sorts the entire list, which is not the most efficient way if we want to insert in sorted order one by one.
+  </Explanation>
+</PTAQuiz>
+
+## W4课前小测
+
+<PTAQuiz multiple-choice correct={1} title="W4课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    在C++中，标准头文件结构为什么要使用`#ifndef`、`#define`和`#endif`？
+  </Q>
+
+  <C>
+    为了提高头文件的编译速度
+  </C>
+
+  <C>
+    为了防止头文件被重复包含，避免编译错误
+  </C>
+
+  <C>
+    为了让头文件的内容更加清晰易读
+  </C>
+
+  <C>
+    为了在头文件中定义全局变量
+  </C>
+
+  <Explanation>
+    根据文本，标准头文件结构使用`#ifndef`、`#define`和`#endif`可以防止头文件被重复包含。如果头文件被重复包含，可能会导致编译错误。因此，选项"为了防止头文件被重复包含，避免编译错误"正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="W4课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    为什么在C++中，类的声明和成员函数的原型要放在头文件中，而成员函数的定义要放在源文件中？
+  </Q>
+
+  <C>
+    为了让编译器能同时处理多个文件，提高编译效率
+  </C>
+
+  <C>
+    因为头文件只能包含声明，源文件只能包含定义
+  </C>
+
+  <C>
+    这样做可以将接口（头文件）和实现（源文件）分离，便于代码的维护和复用
+  </C>
+
+  <C>
+    为了让代码看起来更整齐
+  </C>
+
+  <Explanation>
+    根据文本内容，在C++中，类的声明和成员函数的原型放在头文件中，成员函数的定义放在源文件中，是为了将接口和实现分离。头文件作为接口，是代码使用者和开发者之间的契约，编译器会强制要求在使用结构和函数之前进行声明；而源文件包含函数的具体实现。这种分离方式便于代码的维护和复用，所以选项"这样做可以将接口（头文件）和实现（源文件）分离，便于代码的维护和复用"正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W4课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    构造函数的作用是什么？
+  </Q>
+
+  <C>
+    构造函数用于在对象销毁时进行清理工作
+  </C>
+
+  <C>
+    构造函数用于创建对象时自动进行初始化，确保对象在使用前具有正确的初始值
+  </C>
+
+  <C>
+    构造函数用于定义对象的类型
+  </C>
+
+  <C>
+    构造函数用于调用其他成员函数
+  </C>
+
+  <Explanation>
+    文本中提到，如果一个类有构造函数，编译器会在对象创建时自动调用该构造函数，在客户端程序员接触到对象之前完成初始化工作。构造函数的名称与类名相同，并且可以有参数来指定对象的初始化值。因此，构造函数的作用是在创建对象时自动进行初始化，确保对象在使用前具有正确的初始值，选项"构造函数用于创建对象时自动进行初始化，确保对象在使用前具有正确的初始值"正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W4课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    为什么成员函数中可以使用`this`指针？
+  </Q>
+
+  <C>
+    `this`指针是一个全局变量，可以在任何地方使用
+  </C>
+
+  <C>
+    `this`指针是成员函数的隐藏参数，指向调用该函数的对象，在成员函数内部可以直接使用
+  </C>
+
+  <C>
+    `this`指针是编译器自动创建的，用于区分不同的对象
+  </C>
+
+  <C>
+    `this`指针是为了在成员函数中调用其他成员函数而存在的
+  </C>
+
+  <Explanation>
+    根据文本，`this`是所有成员函数的隐藏参数，其类型为类的类型。在成员函数内部，可以使用`this`作为指向调用该函数的对象的指针。它是成员函数的自然局部变量，不能被定义，但可以直接使用。所以选项"`this`指针是成员函数的隐藏参数，指向调用该函数的对象，在成员函数内部可以直接使用"正确。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="W4课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    默认构造函数的特点是什么？
+  </Q>
+
+  <C>
+    默认构造函数不能有参数
+  </C>
+
+  <C>
+    默认构造函数是在类没有任何构造函数时，由编译器自动创建的
+  </C>
+
+  <C>
+    默认构造函数是可以在没有参数的情况下被调用的构造函数
+  </C>
+
+  <C>
+    默认构造函数的名称与类名不同
+  </C>
+
+  <Explanation>
+    文本中明确指出，默认构造函数是可以在没有参数的情况下被调用的构造函数。如果类中没有构造函数，编译器会自动创建一个默认构造函数；但如果类中有构造函数，编译器不会自动创建默认构造函数。构造函数的名称与类名相同。因此，选项"默认构造函数是可以在没有参数的情况下被调用的构造函数"正确。
+  </Explanation>
+</PTAQuiz>
+
+## W5课前小测
+
+<PTAQuiz multiple-choice correct={1} title="W5课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What does the `private` keyword mean in the context of class members?
+  </Q>
+
+  <C>
+    All member declarations that follow are available to everyone.
+  </C>
+
+  <C>
+    No one can access that member except inside function members of that type.
+  </C>
+
+  <C>
+    It explicitly grants access to a function that isn’t a member of the structure.
+  </C>
+
+  <C>
+    It means the member has a global scope and can be accessed from anywhere.
+  </C>
+
+  <Explanation>
+    The text states that 'The `private` keyword means that no one can access that member except inside function members of that type.' This directly supports option B as the correct answer. Option A describes the `public` keyword, option C describes the `friend` concept, and option D is an incorrect interpretation of the `private` keyword.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="W5课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What is the difference between a `class` and a `struct` in terms of access control?
+  </Q>
+
+  <C>
+    A `class` defaults to `public`, while a `struct` defaults to `private`.
+  </C>
+
+  <C>
+    Both `class` and `struct` default to `public`.
+  </C>
+
+  <C>
+    A `class` defaults to `private`, while a `struct` defaults to `public`.
+  </C>
+
+  <C>
+    Both `class` and `struct` default to `private`.
+  </C>
+
+  <Explanation>
+    The text mentions that `class` defaults to `private` and `struct` defaults to `public`. This clearly indicates that option C is the correct answer. Options A, B, and D do not align with the information provided in the text.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W5课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What is the lifetime of a local variable?
+  </Q>
+
+  <C>
+    It persists only for the period that a constructor or method executes.
+  </C>
+
+  <C>
+    It lasts as long as the object lasts.
+  </C>
+
+  <C>
+    It has a global lifetime, starting before `main()` and ending after `main()` exits.
+  </C>
+
+  <C>
+    It is constructed once and destroyed on exit from the program.
+  </C>
+
+  <Explanation>
+    The text states that 'Formal parameters and local variables persist only for the period that a constructor or method executes.' This supports option A as the correct answer. Option B describes the lifetime of a field, option C describes the lifetime of a global variable, and option D describes the lifetime of a `static` object.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W5课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What does a `static` member function mean in C++?
+  </Q>
+
+  <C>
+    It has an implicit receiver (`this`) and can access all member variables.
+  </C>
+
+  <C>
+    It is shared by instances, can only access `static` member variables, and has no implicit receiver (`this`).
+  </C>
+
+  <C>
+    It is a function with internal linkage and can be dynamically overridden.
+  </C>
+
+  <C>
+    It is a function that is called only once during the program execution.
+  </C>
+
+  <Explanation>
+    The text explains that 'Static member functions have no implicit receiver (`this`)' and 'can access only static member variables (or other globals)'. Also, it mentions that they are shared by instances. This makes option B the correct answer. Option A is incorrect because `static` member functions have no implicit receiver. Option C is wrong as `static` member functions can't be dynamically overridden. Option D is not an accurate description of `static` member functions.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W5课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    When is the constructor of a global object called?
+  </Q>
+
+  <C>
+    When the object is first accessed in the program.
+  </C>
+
+  <C>
+    Before `main()` is entered.
+  </C>
+
+  <C>
+    At the end of the program execution.
+  </C>
+
+  <C>
+    When the function containing the object definition is called.
+  </C>
+
+  <Explanation>
+    The text states that 'Constructors are called before `main()` is entered' for global objects. This indicates that option B is the correct answer. Option A, C, and D do not match the information provided in the text about the constructor call time of global objects.
+  </Explanation>
+</PTAQuiz>
+
+## W6 课前小测
+
+<PTAQuiz multiple-choice correct={2} title="W6 课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    What is the main difference between a reference and a pointer in C++?
+  </Q>
+
+  <C>
+    References can be null, while pointers cannot.
+  </C>
+
+  <C>
+    References are independent of existing variables, while pointers are aliases for variables.
+  </C>
+
+  <C>
+    References can't change to a new `address` location, while pointers can.
+  </C>
+
+  <C>
+    References can change to point to a different address, while pointers cannot.
+  </C>
+
+  <Explanation>
+    The text states that references can't be null, are dependent on an existing variable (they are an alias for a variable), and can't change to a new `address` location. On the other hand, pointers can be set to null, are independent of existing objects, and can change to point to a different address. So, the correct answer is that references can't change to a new `address` location, while pointers can.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="W6 课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    Which of the following statements about right-value references is correct?
+  </Q>
+
+  <C>
+    A right-value reference can be initialized by a left-value.
+  </C>
+
+  <C>
+    Once a right-value reference is initialized, it remains a right-value.
+  </C>
+
+  <C>
+    A right-value reference can extend the lifetime of a right-value.
+  </C>
+
+  <C>
+    A right-value reference can be declared without initialization.
+  </C>
+
+  <Explanation>
+    The text mentions that a right-value reference is used to reference a right-value. By declaring a right-value reference, the right-value's lifetime can be extended to be the same as the right-value reference variable. It also states that a right-value reference cannot be initialized by a left-value, and both left-value and right-value references must be initialized immediately. Once a right-value reference is initialized, it becomes a left-value that can be assigned. So, the correct answer is that a right-value reference can extend the lifetime of a right-value.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W6 课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    What is the purpose of using `const` in C++?
+  </Q>
+
+  <C>
+    To make a variable `mutable`.
+  </C>
+
+  <C>
+    To declare a variable with a constant value that cannot be changed.
+  </C>
+
+  <C>
+    To allow a variable to be assigned a new value at any time.
+  </C>
+
+  <C>
+    To make a variable have external linkage by default.
+  </C>
+
+  <Explanation>
+    The text clearly states that `const` declares a variable to have a constant value. For example, `const int x = 123; x = 27; // illegal! x++; // illegal!`. Also, a `const` in C++ defaults to internal linkage. So, the purpose of using `const` is to declare a variable with a constant value that cannot be changed.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="W6 课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    What is the role of a `const` member function in a class?
+  </Q>
+
+  <C>
+    It can modify the object's data members.
+  </C>
+
+  <C>
+    It can call non-`const` member functions.
+  </C>
+
+  <C>
+    It cannot modify the object's data members and is safe for `const` objects.
+  </C>
+
+  <C>
+    It can only be called by non-`const` objects.
+  </C>
+
+  <Explanation>
+    The text explains that `const` member functions cannot modify their objects. For example, in the `Date` class, the `get_day() const` function cannot modify the `day` data member or call non-`const` member functions. Function members that do not modify data should be `const` member functions and are safe for `const` objects. So, the role of a `const` member function is that it cannot modify the object's data members and is safe for `const` objects.
+  </Explanation>
+</PTAQuiz>
+
+## W7课前小测
+
+<PTAQuiz multiple-choice correct={0} title="W7课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    What is the main purpose of using delegating constructors?
+  </Q>
+
+  <C>
+    To reduce code duplication in overloaded constructors
+  </C>
+
+  <C>
+    To increase the number of constructors in a class
+  </C>
+
+  <C>
+    To make the constructor calls more complex
+  </C>
+
+  <C>
+    To avoid using initialization lists
+  </C>
+
+  <Explanation>
+    The text mentions that 'If more than one version of the overloaded constructor has to do the same thing inside the constructor, obviously code duplication is a prominent sign of bad design.' Delegating constructors are used to address this issue by reducing code duplication, so the correct answer is 'To reduce code duplication in overloaded constructors'.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W7课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    What is a key property of default arguments?
+  </Q>
+
+  <C>
+    They are defined in the function head
+  </C>
+
+  <C>
+    They are declared in the prototype and the compiler inserts them if no value is provided in the function call
+  </C>
+
+  <C>
+    They can be added from left to right in the argument list
+  </C>
+
+  <C>
+    They cannot be used in constructors
+  </C>
+
+  <Explanation>
+    The text states that 'A default argument is a value given in the declaration that the compiler automatically inserts if you don’t provide a value in the function call.' Also, it mentions that defaults must be added from right to left. And it's clear that default arguments can be used in constructors. So the correct answer is 'They are declared in the prototype and the compiler inserts them if no value is provided in the function call'.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W7课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    What is the main advantage of using inline functions?
+  </Q>
+
+  <C>
+    They always reduce the code size
+  </C>
+
+  <C>
+    They eliminate the overhead of function calls
+  </C>
+
+  <C>
+    They can be used for recursive functions
+  </C>
+
+  <C>
+    They don't need to be declared in the header file
+  </C>
+
+  <Explanation>
+    The text says that 'An inline function is to be expanded in place, like a preprocessor macro, so the overhead of the function call is eliminated.' It also mentions that inline functions may expand the code size, cannot be used for recursive functions, and their bodies should be put in the header file. So the correct answer is 'They eliminate the overhead of function calls'.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W7课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    What is the key difference between a delegating constructor and a target constructor?
+  </Q>
+
+  <C>
+    A delegating constructor can have other members initialized in its own initialization list, while a target constructor cannot
+  </C>
+
+  <C>
+    The execution of the target constructor precedes that of the delegating constructor
+  </C>
+
+  <C>
+    A target constructor can delegate to another constructor, while a delegating constructor cannot
+  </C>
+
+  <C>
+    A delegating constructor is always `private`, while a target constructor is always `public`
+  </C>
+
+  <Explanation>
+    The text clearly states that 'The execution of the target constructor precedes that of the delegate constructor.' This is the key difference between the two types of constructors.
+  </Explanation>
+</PTAQuiz>
+
+## W8 课前小测
+
+<PTAQuiz multiple-choice correct={1} title="W8 课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What does the concept of 'composition' in object-oriented programming refer to?
+  </Q>
+
+  <C>
+    It refers to the relationship where one class inherits from another.
+  </C>
+
+  <C>
+    It refers to the relationship where one class `has-a` instance of another class as a member variable.
+  </C>
+
+  <C>
+    It refers to the process of modularizing code into separate files.
+  </C>
+
+  <C>
+    It refers to the use of namespaces to avoid name clashes.
+  </C>
+
+  <Explanation>
+    The correct answer is 'It refers to the relationship where one class `has-a` instance of another class as a member variable.' This aligns with the text, which explains that composition involves constructing new objects using existing ones and describes it as a `has-a` relationship (slide 2).
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W8 课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    Which statement best describes the difference between 'fully' and 'by reference' inclusion in composition?
+  </Q>
+
+  <C>
+    'Fully' means the object is part of the parent object, while 'by reference' means it exists elsewhere and is referenced.
+  </C>
+
+  <C>
+    'Fully' indicates the object is destroyed manually, whereas 'by reference' means automatic destruction.
+  </C>
+
+  <C>
+    'Fully' and 'by reference' both imply that constructors are called automatically.
+  </C>
+
+  <C>
+    'By reference' means the object is embedded within the parent object, while 'fully' implies referencing an external object.
+  </C>
+
+  <Explanation>
+    The correct answer is 'Fully means the object is part of the parent object, while by reference means it exists elsewhere and is referenced.' This is explained in slide 9, where 'fully' indicates the object is part of the current object, while 'by reference' means the object exists externally and must be initialized/destroyed manually.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W8 课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What happens if you do not provide arguments for embedded objects in the constructor initialization list?
+  </Q>
+
+  <C>
+    The default constructor for the embedded object will be called automatically if it exists.
+  </C>
+
+  <C>
+    The program will throw a runtime error.
+  </C>
+
+  <C>
+    The embedded object will remain uninitialized until explicitly assigned.
+  </C>
+
+  <C>
+    The destructor for the embedded object will be called instead.
+  </C>
+
+  <Explanation>
+    The correct answer is 'The default constructor for the embedded object will be called automatically if it exists.' This is explained in slide 6, which states that if no arguments are supplied, the default constructor will be invoked if available.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W8 课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    Why might embedded objects typically be declared `private` in a class?
+  </Q>
+
+  <C>
+    To allow full access to their `public` interface from outside the class
+  </C>
+
+  <C>
+    Because they are considered part of the underlying implementation details
+  </C>
+
+  <C>
+    To ensure that the constructors and destructors are called automatically
+  </C>
+
+  <C>
+    Private objects cannot be initialized or destroyed automatically
+  </C>
+
+  <Explanation>
+    The text states that embedded objects are often made `private` because they are part of the underlying implementation and not intended to expose the entire `public` interface of the subobject.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W8 课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    How does an initializer list differ from assignment inside a constructor's body?
+  </Q>
+
+  <C>
+    Initializer lists perform assignments after the constructor has been called
+  </C>
+
+  <C>
+    Initializer lists initialize members before the constructor body executes
+  </C>
+
+  <C>
+    Assignment inside the constructor's body initializes `const` members
+  </C>
+
+  <C>
+    There is no difference; both perform the same function
+  </C>
+
+  <Explanation>
+    The text specifies that initializer lists initialize members before the constructor body executes, whereas assignment occurs inside the constructor. This distinction is important for understanding how objects are constructed.
+  </Explanation>
+</PTAQuiz>
+
+## W9课前小测
+
+<PTAQuiz multiple-choice correct={0} title="W9课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    What does inheritance in Object-Oriented Programming allow a class to do?
+  </Q>
+
+  <C>
+    It allows a class to define its behavior as a superset of another class.
+  </C>
+
+  <C>
+    It allows a class to completely replace another class's behavior.
+  </C>
+
+  <C>
+    It allows a class to only reuse `private` data from another class.
+  </C>
+
+  <C>
+    It allows a class to hide all member functions from another class.
+  </C>
+
+  <Explanation>
+    Inheritance enables one class to be defined as an extension of another, allowing it to inherit and extend the behavior or implementation of the parent class. This is explained in slide 4 of the text: 'The ability to define the behavior or implementation of one class as a superset of another class.'
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W9课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    What advantage does using inheritance provide when designing classes like CD and DVD?
+  </Q>
+
+  <C>
+    It avoids code duplication and makes maintenance easier.
+  </C>
+
+  <C>
+    It increases the amount of code needed for each new class.
+  </C>
+
+  <C>
+    It prevents any changes to the superclass once subclasses are created.
+  </C>
+
+  <C>
+    It ensures that subclasses cannot add their own attributes.
+  </C>
+
+  <Explanation>
+    Using inheritance helps avoid code duplication by allowing common attributes and methods to be placed in a superclass, which can then be extended by subclasses. This is discussed in slide 23: 'Advantages of inheritance: Avoiding code duplication, Code reuse, Easier maintenance, Extendibility.'
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W9课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    Which of the following statements about member access in C++ inheritance is correct?
+  </Q>
+
+  <C>
+    `Private` member variables of the base class are not accessible directly in the derived class but are still present within it.
+  </C>
+
+  <C>
+    `Private` member variables of the base class are fully accessible in the derived class.
+  </C>
+
+  <C>
+    `Protected` members of the base class are not accessible in the derived class.
+  </C>
+
+  <C>
+    `Static` members of the base class lose their class-wide property in the derived class.
+  </C>
+
+  <Explanation>
+    Slide 27 explains that `private` member variables of the base class are not accessible directly in the derived class but are still present within it. The derived class must use `public` or `protected` member functions of the base class to interact with these `private` variables.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W9课前小测" meta={{"points":"25.0"}}>
+  <Q>
+    What does the term `Is-A` relationship refer to in the context of inheritance?
+  </Q>
+
+  <C>
+    It refers to the relationship where one class inherits from another, indicating a subtype relationship.
+  </C>
+
+  <C>
+    It describes a situation where two classes share the same interface but have no connection.
+  </C>
+
+  <C>
+    It indicates that two classes are completely unrelated.
+  </C>
+
+  <C>
+    It means that one class can be composed of multiple instances of another class.
+  </C>
+
+  <Explanation>
+    The correct answer is that the `Is-A` relationship refers to the situation where one class inherits from another, indicating a subtype relationship. This aligns with the explanation provided in the text regarding class relationships.
+  </Explanation>
+</PTAQuiz>
+
+## W10课前小测
+
+<PTAQuiz multiple-choice correct={0} title="W10课前小测" meta={{"points":"33.0"}}>
+  <Q>
+    What does subtyping allow in object-oriented programming?
+  </Q>
+
+  <C>
+    It allows objects of subclasses to be used where objects of supertypes are required.
+  </C>
+
+  <C>
+    It restricts objects of subclasses from being used where objects of supertypes are required.
+  </C>
+
+  <C>
+    It prevents any conversion between different types of objects.
+  </C>
+
+  <C>
+    It forces all subclasses to redefine their parent class methods.
+  </C>
+
+  <Explanation>
+    Subtyping allows objects of subclasses to be used where objects of supertypes are required. This is referred to as substitution and is described in the text under '2 Subclasses and subtyping'.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W10课前小测" meta={{"points":"34.0"}}>
+  <Q>
+    Which statement best describes upcasting in the context of polymorphism?
+  </Q>
+
+  <C>
+    Upcasting involves converting a base class reference or pointer to a derived class reference or pointer.
+  </C>
+
+  <C>
+    Upcasting is the act of converting from a derived class reference or pointer to a base class reference or pointer.
+  </C>
+
+  <C>
+    Upcasting refers to the process of slicing off the extra features of a subclass when assigning it to a superclass variable.
+  </C>
+
+  <C>
+    Upcasting is the dynamic binding of functions at runtime.
+  </C>
+
+  <Explanation>
+    The correct description of upcasting is that it converts a derived class reference or pointer to a base class reference or pointer, as explained in sections `6 Up-casting` and `7 Upcasting`.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W10课前小测" meta={{"points":"33.0"}}>
+  <Q>
+    What happens when an overridden function calls its base class version using `Base::func()` inside `Derived::func()`?
+  </Q>
+
+  <C>
+    It creates a compile-time error because you cannot call the base class function from a derived class.
+  </C>
+
+  <C>
+    It calls the base class version of the function, allowing reuse of existing functionality.
+  </C>
+
+  <C>
+    It overrides the base class function completely, making the base class version inaccessible.
+  </C>
+
+  <C>
+    It causes a runtime exception due to conflicting function definitions.
+  </C>
+
+  <Explanation>
+    When an overridden function uses `Base::func()` inside `Derived::func()`, it calls the base class version of the function, enabling reuse of existing functionality, as described in section `31 Calls up the chain`.
+  </Explanation>
+</PTAQuiz>
+
+## W11 课前小测
+
+<PTAQuiz multiple-choice correct={0} title="W11 课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What happens during dynamic binding in polymorphism?
+  </Q>
+
+  <C>
+    Dynamic binding ensures that the function of the actual object type is called at runtime.
+  </C>
+
+  <C>
+    Dynamic binding calls the function based on the `static` type of the variable.
+  </C>
+
+  <C>
+    Dynamic binding prevents overriding of `virtual` functions in derived classes.
+  </C>
+
+  <C>
+    Dynamic binding only applies to non-`virtual` functions in C++.
+  </C>
+
+  <Explanation>
+    The correct answer is 'Dynamic binding ensures that the function of the actual object type is called at runtime.' This corresponds to the text's explanation of dynamic binding: 'call the function of the object.' The incorrect options either confuse dynamic binding with `static` binding or make incorrect claims about its scope.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W11 课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    Why should destructors be declared as `virtual` in a class hierarchy?
+  </Q>
+
+  <C>
+    To ensure that the destructor of the most derived class is called when deleting an object through a base class pointer.
+  </C>
+
+  <C>
+    `Virtual` destructors prevent any derived class from having its own destructor.
+  </C>
+
+  <C>
+    Declaring destructors as `virtual` slows down program execution unnecessarily.
+  </C>
+
+  <C>
+    `Virtual` destructors are required for all classes regardless of inheritance.
+  </C>
+
+  <Explanation>
+    The correct answer is 'To ensure that the destructor of the most derived class is called when deleting an object through a base class pointer.' This matches the text's explanation: 'If `Shape::~Shape()` were not `virtual`, only `Shape::~Shape()` will be invoked!' The incorrect options either misrepresent or contradict the purpose of virtual destructors.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W11 课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What defines an abstract class in C++ as per the text?
+  </Q>
+
+  <C>
+    An abstract class contains one or more pure `virtual` functions and cannot be instantiated directly.
+  </C>
+
+  <C>
+    An abstract class is any class that inherits from another class.
+  </C>
+
+  <C>
+    An abstract class must have all its member functions implemented in the same class.
+  </C>
+
+  <C>
+    Abstract classes are always concrete and can be instantiated freely.
+  </C>
+
+  <Explanation>
+    The correct answer is 'An abstract class contains one or more pure `virtual` functions and cannot be instantiated directly.' This aligns with the text's definition: 'An abstract base class has pure `virtual` functions... Abstract base classes cannot be instantiated.' The incorrect options either confuse or contradict the nature of abstract classes.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W11 课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    Which of the following best describes when a copy constructor is called?
+  </Q>
+
+  <C>
+    During initialization, such as `Person baby_b = baby_a`;
+  </C>
+
+  <C>
+    Only when returning objects from functions.
+  </C>
+
+  <C>
+    When passing objects by reference to functions.
+  </C>
+
+  <C>
+    Whenever an object is destroyed.
+  </C>
+
+  <Explanation>
+    The correct answer is 'During initialization, such as `Person baby_b = baby_a`;'. This is explained in slide 10 of the text where it mentions that the copy constructor is used during initialization like `Person baby_b = baby_a` and `Person baby_c(baby_a)`.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W11 课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What happens if a class contains pointers and no custom copy constructor is provided?
+  </Q>
+
+  <C>
+    The default copy constructor will perform a shallow copy, potentially causing issues with shared data.
+  </C>
+
+  <C>
+    The compiler will automatically generate a deep copy constructor.
+  </C>
+
+  <C>
+    The program will fail to compile.
+  </C>
+
+  <C>
+    Pointers are ignored during copying.
+  </C>
+
+  <Explanation>
+    The correct answer is 'The default copy constructor will perform a shallow copy, potentially causing issues with shared data.' This is discussed in slides 23-24 which explain that when there are pointer members, a shallow copy can lead to harmful situations unless a custom deep copy constructor is implemented.
+  </Explanation>
+</PTAQuiz>
+
+## W12课前小测
+
+<PTAQuiz multiple-choice correct={0} title="W12课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What is the primary reason for implementing a custom copy constructor in C++?
+  </Q>
+
+  <C>
+    To ensure that all member variables are copied correctly, especially when dealing with pointers.
+  </C>
+
+  <C>
+    To increase the performance of the program by avoiding any form of copying.
+  </C>
+
+  <C>
+    To allow the compiler to automatically generate more efficient code.
+  </C>
+
+  <C>
+    To prevent the creation of any temporary objects during function calls.
+  </C>
+
+  <Explanation>
+    A custom copy constructor is necessary when dealing with pointers or complex data structures. The default copy constructor performs a shallow copy, which can lead to issues such as shared data or dangling pointers. A deep copy ensures each object has its own independent copy of the data. This is explained in section 23 浅拷贝vs深拷贝.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W12课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    Which of the following best describes the purpose of a move constructor in C++11?
+  </Q>
+
+  <C>
+    To create a new object by stealing resources from an existing object without copying them.
+  </C>
+
+  <C>
+    To copy all member variables from one object to another using deep copying.
+  </C>
+
+  <C>
+    To provide a mechanism for converting left values into right values.
+  </C>
+
+  <C>
+    To initialize an object with default values if no arguments are provided.
+  </C>
+
+  <Explanation>
+    A move constructor transfers ownership of resources (such as dynamically allocated memory) from one object to another without performing a full copy. This reduces overhead and improves efficiency. Referenced in section 25 移动语义.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W12课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    In C++, what does the function `std::move` do?
+  </Q>
+
+  <C>
+    It converts a left value into a right value reference, enabling the use of move semantics.
+  </C>
+
+  <C>
+    It moves the contents of one container to another without changing ownership.
+  </C>
+
+  <C>
+    It deletes the original object after moving its contents to another object.
+  </C>
+
+  <C>
+    It swaps the contents of two objects without modifying their references.
+  </C>
+
+  <Explanation>
+    The function `std::move` is used to explicitly convert a left value into an rvalue reference, allowing the use of move semantics. This is described in section 30 `std::move()`.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W12课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What is required when overloading binary operators as member functions in C++?
+  </Q>
+
+  <C>
+    They must have two arguments.
+  </C>
+
+  <C>
+    They require only one argument because the object on which the method is called is implicitly passed as the first argument.
+  </C>
+
+  <C>
+    They must be declared as `static`.
+  </C>
+
+  <C>
+    They must return a reference to the calling object.
+  </C>
+
+  <Explanation>
+    When overloading binary operators as member functions, they require only one explicit argument because the object on which the method is called is implicitly passed as the first argument. This is explained in the section `Member Functions`.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W12课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    How does C++ distinguish between prefix and postfix forms of increment/decrement operators?
+  </Q>
+
+  <C>
+    By using different keywords for prefix and postfix forms.
+  </C>
+
+  <C>
+    Postfix forms take an `int` argument, even though it is not used.
+  </C>
+
+  <C>
+    Prefix forms require the operator to be a member function, while postfix forms do not.
+  </C>
+
+  <C>
+    By requiring the user to explicitly specify whether the prefix or postfix form is being used.
+  </C>
+
+  <Explanation>
+    C++ distinguishes between prefix and postfix forms of increment/decrement operators by having postfix forms take an `int` argument, which the compiler passes as `0` but does not use. This is described in the section `operators ++ and --`.
+  </Explanation>
+</PTAQuiz>
+
+## W13课前小测
+
+<PTAQuiz multiple-choice correct={1} title="W13课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What is the purpose of defining a stream extractor in C++?
+  </Q>
+
+  <C>
+    To allow objects to be written to an output stream.
+  </C>
+
+  <C>
+    To define how objects are read from an input stream.
+  </C>
+
+  <C>
+    To prevent implicit type conversions.
+  </C>
+
+  <C>
+    To create manipulators for output streams.
+  </C>
+
+  <Explanation>
+    The correct answer is 'To define how objects are read from an input stream.' This is explained in the text, where it mentions that a stream extractor is a 2-argument free function with the first argument being an `istream&` and the second being a reference to a value. The function returns an `istream&` for chaining purposes.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W13课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    Which of the following best describes the behavior of the compiler when no assignment operator is provided?
+  </Q>
+
+  <C>
+    It will generate an assignment operator performing memberwise assignment.
+  </C>
+
+  <C>
+    It will not generate any assignment operator, leading to compile-time errors.
+  </C>
+
+  <C>
+    It will generate an assignment operator that prevents self-assignment.
+  </C>
+
+  <C>
+    It will generate an assignment operator that performs deep copy only.
+  </C>
+
+  <Explanation>
+    The correct answer is 'It will generate an assignment operator performing memberwise assignment.' The text explicitly states that if you don't provide an assignment operator, the compiler will automatically create one that performs memberwise assignment.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W13课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What does the keyword `explicit` do when used with constructors in C++?
+  </Q>
+
+  <C>
+    Prevents implicit conversions using single-argument constructors.
+  </C>
+
+  <C>
+    Allows implicit type conversions using multi-argument constructors.
+  </C>
+
+  <C>
+    Ensures all constructors are called explicitly.
+  </C>
+
+  <C>
+    Forces all conversions to be explicit regardless of constructor type.
+  </C>
+
+  <Explanation>
+    The correct answer is 'Prevents implicit conversions using single-argument constructors.' The text explains that by declaring a constructor as `explicit`, it prevents implicit conversions like in the example `PathName(abc)` being valid but `xyz = abc` becoming an error.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W13课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What is the primary benefit of using templates in object-oriented programming according to the text?
+  </Q>
+
+  <C>
+    Templates require a common base class for all types.
+  </C>
+
+  <C>
+    Templates allow code reuse by parameterizing types in class or function definitions.
+  </C>
+
+  <C>
+    Templates make untyped lists more type-safe.
+  </C>
+
+  <C>
+    Templates clone code, preserving type-safety but making it harder to manage.
+  </C>
+
+  <Explanation>
+    The correct answer is 'Templates allow code reuse by parameterizing types in class or function definitions.' This aligns with the text which states that templates are used for generic programming and reusing source code by using types as parameters in class or function definitions.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="W13课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    Which of the following best describes how template instantiation works?
+  </Q>
+
+  <C>
+    A declaration is generated from a template class/function and template arguments by substituting types into the template.
+  </C>
+
+  <C>
+    Template instantiation applies conversion operations to match types.
+  </C>
+
+  <C>
+    Template instantiation uses implicit conversions to determine the correct type.
+  </C>
+
+  <C>
+    Template instantiation only occurs when explicit types are provided.
+  </C>
+
+  <Explanation>
+    The correct answer is 'A declaration is generated from a template class/function and template arguments by substituting types into the template.' This matches the explanation in the text about how types are substituted into the template during instantiation.
+  </Explanation>
+</PTAQuiz>
+
+## W14课前小测
+
+<PTAQuiz multiple-choice correct={1} title="W14课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What does the text suggest about the placement of template definitions and declarations?
+  </Q>
+
+  <C>
+    Template definitions should always be placed in a separate source file.
+  </C>
+
+  <C>
+    Template definitions and declarations should generally be placed in the header file.
+  </C>
+
+  <C>
+    Declarations should be avoided in header files to reduce code duplication.
+  </C>
+
+  <C>
+    Templates should not include `static` members or `friend`.
+  </C>
+
+  <Explanation>
+    The correct answer is: 'Template definitions and declarations should generally be placed in the header file.' The text explicitly mentions this practice to avoid issues with multiple definitions.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W14课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    Based on the text, which statement accurately reflects the relationship between templates and inheritance?
+  </Q>
+
+  <C>
+    Templates cannot inherit from non-template classes.
+  </C>
+
+  <C>
+    Templates can inherit from both non-template and template classes, and non-template classes can inherit from templates.
+  </C>
+
+  <C>
+    Non-template classes cannot inherit from templates.
+  </C>
+
+  <C>
+    Templates can only inherit from other templates.
+  </C>
+
+  <Explanation>
+    The correct answer is: 'Templates can inherit from both non-template and template classes, and non-template classes can inherit from templates.' This is clearly explained in the section on templates and inheritance in the text.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W14课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    Which of the following best describes what happens when an exception is thrown but not caught in the caller's scope?
+  </Q>
+
+  <C>
+    The program continues execution normally without interruption.
+  </C>
+
+  <C>
+    The exception propagates back through the call chain until it is handled or the program terminates.
+  </C>
+
+  <C>
+    The function returns a default value automatically.
+  </C>
+
+  <C>
+    The program immediately exits with an error code.
+  </C>
+
+  <Explanation>
+    When an exception is thrown and not caught in the current scope, control propagates back to the first handler for that exception, following the call chain (slide 20). If no handler exists, the program may terminate.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W14课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    What does the `catch (...)` block in C++ catch according to the text?
+  </Q>
+
+  <C>
+    Only exceptions derived from a base class.
+  </C>
+
+  <C>
+    All types of exceptions, regardless of their type.
+  </C>
+
+  <C>
+    Specific exceptions defined in the try block.
+  </C>
+
+  <C>
+    Exceptions that are explicitly re-raised using `throw;`.
+  </C>
+
+  <Explanation>
+    The `catch (...)` block catches all exceptions, regardless of their specific type. This is useful when the caller doesn't care about the particulars of the exception (slide 18).
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={1} title="W14课前小测" meta={{"points":"20.0"}}>
+  <Q>
+    In the context of exception handling, what does the `throw;` statement inside a catch block do?
+  </Q>
+
+  <C>
+    It throws a new exception unrelated to the current one.
+  </C>
+
+  <C>
+    It re-throws the same exception being handled.
+  </C>
+
+  <C>
+    It ignores the exception and continues normal execution.
+  </C>
+
+  <C>
+    It creates a diagnostic message for the exception.
+  </C>
+
+  <Explanation>
+    The `throw;` statement inside a catch block re-throws the same exception that is currently being handled. This allows the exception to propagate further up the call stack if necessary (slide 20).
+  </Explanation>
+</PTAQuiz>
+
+## W15课前小测
+
+<PTAQuiz fill-in-the-blank title="W15课前小测" meta={{"points":"100.0"}}>
+  On a 64-bit machine, what is the output of the code below: <Blank>8</Blank>
+  ```cpp
+  #include <iostream>
+  using namespace std;
+  
+  class Nothing {
+  public:
+  	Nothing() {}
+  	virtual ~Nothing() {}
+  };
+  
+  class NoNothing : public Nothing {
+  };
+  
+  int main() {
+  	cout << sizeof(NoNothing) << endl;
+  }
+  ```
+  
+
+</PTAQuiz>
+
