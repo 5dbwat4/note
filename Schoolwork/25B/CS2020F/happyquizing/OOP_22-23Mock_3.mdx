@@ -1,0 +1,161 @@
+---
+title: "OOP 22-23 Mock 3"
+---
+
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
+
+# OOP 22-23 Mock 3
+
+## 填空题
+
+<PTAQuiz fill-in-the-blank title="4-1">
+  <Q>
+    write the output of the code below.
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+    int& f(int &i )
+    {
+        i += 10;
+        return i ;
+    }
+    int main()
+    {
+        int k = 0;
+        int& m = f(k);
+        cout << k << "#";
+        f(m)++;
+        cout << k << endl;
+        return 0;
+    }
+    ```
+
+  </Q>
+
+  Output: <Blank>{`10#21`}</Blank>
+  <Explanation>
+    `f(k)` 通过引用把 `k` 加 `10` 并返回 `k` 的引用，所以第一次输出 `10#`。`m` 也是 `k` 的引用，`f(m)` 再把 `k` 加到 `20`，随后后置 `++` 又把它变成 `21`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-2">
+  <Q>
+    write the output of the code below.
+
+    
+
+    :
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+    
+    class counter{
+    private:
+        int value;
+    public: 
+        counter():value(0) {}
+        counter& operator++();  
+        int operator++(int);    
+        void reset()
+        {
+            value = 0;
+        }
+        operator int() const  
+        {
+            return value;
+        }    
+    };
+    
+    counter& counter::operator++()    
+    {     
+        if (3 == value)
+              value = 0;
+        else
+            value += 1;
+        return *this;
+    }
+    
+    int counter::operator++(int) 
+    {        
+        int t = value;
+        if (3 == value)
+             value = 0;
+        else
+            value += 1;
+        return t;
+    }
+    
+    int main()
+    {
+        counter a;   
+        while (++a)  
+             cout << "***\n";
+        cout << a << endl;
+        while (a++)  
+             cout << "***\n";
+        cout << a << endl;
+        return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`***`}</Blank>
+
+  Line 2: <Blank>{`***`}</Blank>
+
+  Line 3: <Blank>{`***`}</Blank>
+
+  Line 4: <Blank>{`0`}</Blank>
+
+  Line 5: <Blank>{`1`}</Blank>
+
+  <Explanation>
+    前置 `++a` 先改变对象再转换为 `int` 判断，依次得到 `1,2,3,0`，所以循环打印三行 `***` 后输出 `0`。随后 `a++` 是后置递增，判断使用旧值 `0`，循环体不执行，但对象值被改为 `1`，最后输出 `1`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-3">
+  <Q>
+    write the output of the code below.
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+    
+    class Sample{
+        friend long fun(Sample s);  
+    public:
+        Sample(long a)
+        { 
+            x = a;
+        }    
+    private:
+        long x; 
+    };     
+    long fun(Sample s)
+    {
+        if (s.x < 2) return 1; 
+        return s.x * fun(Sample(s.x-1));  
+    }
+    int main()
+    {
+        int sum = 0; 
+        for(int i=0;i<6;i++)
+        {
+           sum += fun(Sample(i));
+        }
+        cout << sum;
+        return 0;
+    }
+    ```
+
+  </Q>
+
+  Output: <Blank>{`154`}</Blank>
+  <Explanation>
+    `fun` 实际计算阶乘：`x < 2` 时为 `1`，否则为 `x * fun(x-1)`。循环累加 `0! + 1! + 2! + 3! + 4! + 5! = 1 + 1 + 2 + 6 + 24 + 120 = 154`。
+  </Explanation>
+</PTAQuiz>

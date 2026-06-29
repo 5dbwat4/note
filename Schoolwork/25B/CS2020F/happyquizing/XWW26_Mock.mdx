@@ -1,0 +1,2461 @@
+---
+title: 面向对象2025-2026春夏考前练习（XWW26）
+---
+
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
+
+
+## 面向对象2025-2026春夏考前练习1
+
+<PTAQuiz true-or-false correct={true} title="1-1 函数的参数个数和类型都相同，只是返回值不同，这不是重载函数。" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "1", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    函数的参数个数和类型都相同，只是返回值不同，这不是重载函数。
+  </Q>
+
+  <Explanation>
+    Overloading must be distinguished by the parameter list. A difference in return type alone is not overloading, so the statement is true. The exported submitted answer was not used.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false correct={true} title="1-2 重载函数可以带有默认值参数，但是要注意二义性。" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "1", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    重载函数可以带有默认值参数，但是要注意二义性。
+  </Q>
+
+  <Explanation>
+    Default arguments are allowed in overloaded functions, but they can make a call ambiguous if more than one overload remains viable.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-1 对象之间的相互作用和通信是通过消息。（ ）不是消息的组成部分。" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "2", "author": "王秀 (福州大学)"}}>
+  <Q>
+    对象之间的相互作用和通信是通过消息。（ ）不是消息的组成部分。
+  </Q>
+
+  <C>接受消息的对象</C>
+  <C>要执行的函数的名字</C>
+  <C>要执行的函数的内部结构</C>
+  <C>函数需要的参数</C>
+
+  <Explanation>
+    A message identifies the receiver, the operation to invoke, and arguments. The internal structure of the function is implementation detail.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={3} title="2-2 （ ）不是面向对象程序设计的主要特征。" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "2", "author": "王秀 (福州大学)"}}>
+  <Q>
+    （ ）不是面向对象程序设计的主要特征。
+  </Q>
+
+  <C>封装</C>
+  <C>继承</C>
+  <C>多态</C>
+  <C>结构</C>
+
+  <Explanation>
+    Encapsulation, inheritance, and polymorphism are the standard OOP features; structure is not one of them.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-3 对定义重载函数的下列要求中，（ ）是错误的。" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "2", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    对定义重载函数的下列要求中，（ ）是错误的。
+  </Q>
+
+  <C>要求参数的个数不同</C>
+  <C>要求参数中至少有一个类型不同</C>
+  <C>要求函数的返回值不同</C>
+  <C>要求参数个数相同时，参数类型不同</C>
+
+  <Explanation>
+    Overloads are selected by parameter lists, not by return type alone. The submitted answer A in one export was wrong; the correct choice is C.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-4 下列叙述中，不正确的是（ ）。" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "2", "author": "余春艳 (浙江大学)"}}>
+  <Q>
+    下列叙述中，不正确的是（ ）。
+  </Q>
+
+  <C>构造函数必须和类同名</C>
+  <C>构造函数和析构函数都没有返回值</C>
+  <C>析构函数中不能加代码</C>
+  <C>析构函数不能带参数</C>
+
+  <Explanation>
+    A destructor can contain code, for example to release resources. It just has no return type and no parameters.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-5 在下面类声明中，关于生成对象不正确的是（ ）。" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "2", "author": "余春艳 (浙江大学)"}}>
+  <Q>
+    在下面类声明中，关于生成对象不正确的是（ ）。
+
+    ```cpp
+    class point
+    {
+    public:
+        int x;
+        int y;
+        point(int a, int b) { x = a; y = b; }
+    };
+    ```
+  </Q>
+
+  <C>`point p(10,2);`</C>
+  <C>`point *p=new    point(1,2);`</C>
+  <C>`point *p=new point[2];`</C>
+  <C>`point *p[2]={new point(1,2), new  point(3,4)};`</C>
+
+  <Explanation>
+    The class has no default constructor. `new point[2]` would need to default-construct two elements, so it is invalid.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-6 下列运算符中，（ ）运算符不能重载。" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "2", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    下列运算符中，（ ）运算符不能重载。
+  </Q>
+
+  <C>`＆＆`</C>
+  <C>`[ ]`</C>
+  <C>`::`</C>
+  <C>`<<`</C>
+
+  <Explanation>
+    The scope-resolution operator `::` cannot be overloaded. The other listed operators can be overloaded for class types.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="2-7 在下列关键字中,用以说明类中公有成员的是（ ）。" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "2", "author": "余春艳 (福州大学)"}}>
+  <Q>
+    在下列关键字中,用以说明类中公有成员的是（ ）。
+  </Q>
+
+  <C>`public`</C>
+  <C>`private`</C>
+  <C>`protected`</C>
+  <C>`friend`</C>
+
+  <Explanation>
+    `public` declares public members. `private` and `protected` are other access levels; `friend` grants access.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={3} title="2-9 关于 C++与 C 语言关系的描述中，（ ）是错误的。" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "2", "author": "王秀 (福州大学)"}}>
+  <Q>
+    关于 C++与 C 语言关系的描述中，（ ）是错误的。
+  </Q>
+
+  <C>C 语言是 C++语言的一个子集</C>
+  <C>C 语言与 C++语言是兼容的</C>
+  <C>C++语言对 C 语言进行了一些改进</C>
+  <C>C++语言和 C 语言都是面向对象的</C>
+
+  <Explanation>
+    C++ extends and is partly compatible with C, but C is not an object-oriented language.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="2-10 每个 C++程序中都必须包含有这样一个函数，该函数的函数名为（ ）。" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "2", "author": "王秀 (福州大学)"}}>
+  <Q>
+    每个 C++程序中都必须包含有这样一个函数，该函数的函数名为（ ）。
+  </Q>
+
+  <C>`main`</C>
+  <C>`MAIN`</C>
+  <C>`Name`</C>
+  <C>`function`</C>
+
+  <Explanation>
+    The required entry function name is `main`; C++ is case-sensitive.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-11 下列函数中，（ ）不能重载。" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "2", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    下列函数中，（ ）不能重载。
+  </Q>
+
+  <C>成员函数</C>
+  <C>非成员函数</C>
+  <C>析构函数</C>
+  <C>构造函数</C>
+
+  <Explanation>
+    Destructors cannot be overloaded because they take no parameters. Constructors and ordinary functions can be overloaded.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="2-12 下列对重载函数的描述中，（ ）是错误的。" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "2", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    下列对重载函数的描述中，（ ）是错误的。
+  </Q>
+
+  <C>重载函数中不允许使用默认参数</C>
+  <C>重载函数中编译根据参数表进行选择</C>
+  <C>不要使用重载函数来描述毫无相干的函数</C>
+  <C>构造函数重载将会给初始化带来多种方式</C>
+
+  <Explanation>
+    Default arguments are allowed in overloads, but the resulting calls must still be unambiguous.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-13 有关类和对象的说法下列不正确的有（ ）。" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "2", "author": "余春艳 (浙江大学)"}}>
+  <Q>
+    有关类和对象的说法下列不正确的有（ ）。
+  </Q>
+
+  <C>对象是类的一个实例</C>
+  <C>任何一个对象只能属于一个具体的类</C>
+  <C>一个类只能有一个对象</C>
+  <C>类与对象和关系与数据类型和变量的关系相似</C>
+
+  <Explanation>
+    A class can have many objects. An object is an instance of a class.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-1 CAT's Copy" meta={{"source": "面向对象2025-2026春夏考前练习1", "points": "10", "author": "余春艳 (福州大学)"}}>
+  <Q>
+    阅读下面的程序，完成其中复制构造函数的代码。
+
+    <PTACodeContent lang="cpp">
+      {`#include <iostream>
+      using namespace std;
+      class CAT
+      {     public:
+                 CAT();
+                 CAT(const CAT&);
+                ~CAT();
+                int GetAge() const { return *itsAge; }
+                void SetAge(int age){ *itsAge=age; }
+            protected:
+                int* itsAge;
+      };
+      CAT::CAT()
+      {    itsAge=new int;
+           *itsAge =5;
+      }
+      CAT::CAT(const CAT& c)
+      {
+      `}
+      <Blank>{`itsAge = new int`}</Blank>
+      {`; 
+      `}
+      <Blank>{`*itsAge= *(c.itsAge)`}</Blank>
+      {`; 
+      }
+      CAT::~CAT()
+      {     delete itsAge;   }`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    The copy constructor must allocate a new `int` and copy the pointed-to value, otherwise two objects would share and delete the same storage.
+  </Explanation>
+</PTAQuiz>
+
+## 面向对象2025-2026春夏考前练习2
+
+<PTAQuiz fill-in-the-blank title="4-1 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习2", "points": "3", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include<iostream>
+    using namespace std;
+
+    class INCREMENT 
+    {
+    public:
+       INCREMENT( int v = 0, int i = 1 ); 
+       void addIncrement() 
+       { 
+          v += increment; 
+       } 
+       void print() const; 
+       int get() const
+       {
+    	   return v;
+       }
+    private:
+       int v;
+       const int increment; 
+    }; 
+
+    INCREMENT::INCREMENT( int v, int i ) : v( v ), increment( i )    
+    { 
+    } 
+
+    void INCREMENT::print() const
+    {
+       cout << v << endl;
+    } 
+    int main()
+    {
+       INCREMENT value( 1, 2);
+       value.print();
+
+       for ( int j = 1; j <= 2; j++ ) 
+       {
+          value.addIncrement();
+          value.print();
+       } 
+       return 0;
+    }
+    ```
+
+    One for each line:
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+  Line 2: <Blank>{`3`}</Blank>
+  Line 3: <Blank>{`5`}</Blank>
+
+  <Explanation>
+    `value` starts at 1 and `increment` is 2, so the three printed values are 1, 3, and 5.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-2 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习2", "points": "4", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include<iostream>
+    using namespace std;
+    class TEST
+    { 
+        int num; 
+    public:
+        TEST( int num=0); 
+        void increment( ) ;
+        ~TEST( );
+    }; 
+    TEST::TEST(int num) : num(num)
+    {
+        cout << num  << endl; 
+    } 
+    void TEST::increment() 
+    {
+    	num++;
+    }
+    TEST::~TEST( )
+    {
+        cout << num  << endl;
+    } 
+    int main( ) 
+    {
+    	TEST array[2]; 
+    	array[0].increment();
+    	array[1].increment();
+    	return 0;
+    }
+    ```
+
+    One for each line:
+  </Q>
+
+  Line 1: <Blank>{`0`}</Blank>
+  Line 2: <Blank>{`0`}</Blank>
+  Line 3: <Blank>{`1`}</Blank>
+  Line 4: <Blank>{`1`}</Blank>
+
+  <Explanation>
+    The two array elements are default-constructed first, printing 0 and 0. Destruction happens in reverse order, and both objects have been incremented to 1.
+  </Explanation>
+</PTAQuiz>
+
+## 面向对象2025-2026春夏考前练习3
+
+<PTAQuiz fill-in-the-blank title="4-1 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习3", "points": "2", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include <iostream>
+    using namespace std;
+    int& f(int &i )
+    {
+        i += 10;
+        return i ;
+    }
+    int main()
+    {
+        int k = 0;
+        int& m = f(k);
+    	cout << k << "#";
+        f(m)++;
+    	cout << k << endl;
+    	return 0;
+    }
+    ```
+  </Q>
+
+  Output: <Blank>{`10#21`}</Blank>
+
+  <Explanation>
+    `m` is a reference to `k`. The first call makes `k` 10. The second call adds 10, then the returned reference is post-incremented, so `k` becomes 21.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-2 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习3", "points": "5", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include <iostream>
+    using namespace std;
+
+    class counter{
+    private:
+    	int value;
+    public: 
+    	counter():value(0) {}
+    	counter& operator++();  
+    	int operator++(int);	
+    	void reset()
+    	{
+    	    value = 0;
+    	}
+    	operator int() const  
+    	{
+    	    return value;
+    	}	
+    };
+
+    counter& counter::operator++()	
+    { 	
+    	if (3 == value)
+          	value = 0;
+    	else
+    	    value += 1;
+    	return *this;
+    }
+
+    int counter::operator++(int) 
+    {		
+    	int t = value;
+    	if (3 == value)
+         	value = 0;
+    	else
+    	    value += 1;
+    	return t;
+    }
+
+    int main()
+    {
+    	counter a;   
+    	while (++a)  
+    	     cout << "***\n";
+    	cout << a << endl;
+    	while (a++)  
+    	     cout << "***\n";
+    	cout << a << endl;
+    	return 0;
+    }
+    ```
+
+    One for each line:
+  </Q>
+
+  Line 1: <Blank>{`***`}</Blank>
+  Line 2: <Blank>{`***`}</Blank>
+  Line 3: <Blank>{`***`}</Blank>
+  Line 4: <Blank>{`0`}</Blank>
+  Line 5: <Blank>{`1`}</Blank>
+
+  <Explanation>
+    Prefix increment prints three stars while values are 1, 2, and 3, then wraps to 0. Postfix increment tests the old value 0, so the second loop body is skipped, but the stored value becomes 1.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-3 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习3", "points": "1", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include <iostream>
+    using namespace std;
+
+    class Sample{
+        friend long fun(Sample s);  
+    public:
+    	Sample(long a)
+    	{ 
+    	    x = a;
+    	}    
+    private:
+    	long x; 
+    };     
+    long fun(Sample s)
+    {
+        if (s.x < 2) return 1; 
+        return s.x * fun(Sample(s.x-1));  
+    }
+    int main()
+    {
+        int sum = 0; 
+        for(int i=0;i<6;i++)
+    	{
+    	   sum += fun(Sample(i));
+    	}
+    	cout << sum;
+    	return 0;
+    }
+    ```
+  </Q>
+
+  Output: <Blank>{`154`}</Blank>
+
+  <Explanation>
+    `fun` computes factorials with `0!` and `1!` both returning 1. The sum through 5 is 154.
+  </Explanation>
+</PTAQuiz>
+
+## 面向对象2025-2026春夏考前练习4
+
+<PTAQuiz fill-in-the-blank title="4-1 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习4", "points": "5", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+
+    ```
+    #include <iostream>
+    #include <string>
+    using namespace std ;
+
+    class Testing
+    {
+    private:
+    	string words; 
+    	int number ;
+    public:
+    	Testing(const string & s = "Testing")
+    	{
+    		words = s ;
+    		number = words.length();
+    		if (words.compare("Testing")==0)
+    			cout << 1;
+    		else if (words.compare("Heap1")==0)
+    			cout << 2;
+    		else
+    			cout << 3;
+    	}
+    	~Testing()
+    	{
+    		cout << 0;
+    	}
+    	void show() const
+    	{
+    		cout << number;
+    	}
+    };
+    int main()
+    {
+    	Testing *pc1 , *pc2;
+    	pc1 = new Testing ;          //1
+    	pc2 = new Testing("Heap1");  //2
+    	pc1->show();   //3
+    	delete pc1 ;   //4
+    	delete pc2 ;   //5
+    	return 0;
+    }
+    ```
+  </Q>
+
+  Output at `//1`: <Blank>{`1`}</Blank>
+  Output at `//2`: <Blank>{`2`}</Blank>
+  Output at `//3`: <Blank>{`7`}</Blank>
+  Output at `//4`: <Blank>{`0`}</Blank>
+  Output at `//5`: <Blank>{`0`}</Blank>
+
+  <Explanation>
+    The two constructors output 1 and 2, `show()` prints the length 7, and the two deletes call destructors printing 0 and 0.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-2 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习4", "points": "3", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include<iostream>
+    #include<string>
+    using namespace std;
+
+    class Pet {
+    public:
+    	virtual string speak() const { return "pet!"; }
+    };
+    class Dog : public Pet {
+    public:
+    	string speak() const { return "dog!"; }
+    };
+    int main() {
+    	Dog ralph;
+    	Pet* p1 = &ralph;
+    	Pet& p2 = ralph;
+    	Pet p3;
+    	cout << p1->speak() <<endl;
+    	cout << p2.speak() << endl;
+    	cout << p3.speak() << endl;
+    	return 0;
+    }
+    ```
+  </Q>
+
+  Line 1: <Blank>{`dog!`}</Blank>
+  Line 2: <Blank>{`dog!`}</Blank>
+  Line 3: <Blank>{`pet!`}</Blank>
+
+  <Explanation>
+    `speak()` is virtual. A base pointer and reference bound to a `Dog` call `Dog::speak()`, while a real `Pet` object calls `Pet::speak()`.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-3 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习4", "points": "3", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include<iostream>
+    using namespace std;
+
+    class INCREMENT 
+    {
+    public:
+       INCREMENT( int v = 0, int i = 1 ); 
+       void addIncrement() 
+       { 
+          v += increment; 
+       } 
+       void print() const; 
+       int get() const
+       {
+    	   return v;
+       }
+    private:
+       int v;
+       const int increment; 
+    }; 
+
+    INCREMENT::INCREMENT( int v, int i ) : v( v ), increment( i )    
+    { 
+    } 
+
+    void INCREMENT::print() const
+    {
+       cout << v << endl;
+    } 
+    int main()
+    {
+       INCREMENT value( 1, 2);
+       value.print();
+
+       for ( int j = 1; j <= 2; j++ ) 
+       {
+          value.addIncrement();
+          value.print();
+       } 
+       return 0;
+    }
+    ```
+
+    One for each line:
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+  Line 2: <Blank>{`3`}</Blank>
+  Line 3: <Blank>{`5`}</Blank>
+
+  <Explanation>
+    `value` starts at 1 and `increment` is 2, so the three printed values are 1, 3, and 5.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-4 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习4", "points": "5", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include<iostream>
+    using namespace std;
+
+    enum NOTE { middleC, Csharp, Cflat }; 
+    class Instrument {
+    public:
+      virtual void play(NOTE) const = 0;
+      virtual char* what() const = 0;
+      virtual void adjust(int) = 0;
+    };
+
+    class Wind : public Instrument {
+    public:
+      void play(NOTE) const {
+        cout << 1 << endl;
+      }
+      char* what() const { return "Wind"; }
+      void adjust(int) {}
+    };
+
+    class Percussion : public Instrument {
+    public:
+      void play(NOTE) const {
+        cout << 2 << endl;
+      }
+      char* what() const { return "Percussion"; }
+      void adjust(int) {}
+    };
+
+    class Stringed : public Instrument {
+    public:
+      void play(NOTE) const {
+        cout << 3 << endl;
+      }
+      char* what() const { return "Stringed"; }
+      void adjust(int) {}
+    };
+
+    class Brass : public Wind {
+    public:
+      void play(NOTE) const {
+        cout << 11 << endl;
+      }
+      char* what() const { return "Brass"; }
+    };
+
+    class Woodwind : public Wind {
+    public:
+      void play(NOTE) const {
+        cout << 12 << endl;
+      }
+      char* what() const { return "Woodwind"; }
+    };
+
+    void tune(Instrument& i) {
+      i.play(middleC);
+    }
+
+    void f(Instrument& i) { i.adjust(1); }
+
+    int main() {
+      Wind flute;
+      Percussion drum;
+      Stringed violin;
+      Brass flugelhorn;
+      Woodwind recorder;
+      tune(flute);
+      tune(drum);
+      tune(violin);
+      tune(flugelhorn);
+      tune(recorder);
+      f(flugelhorn);
+      return 0;
+    }
+    ```
+
+    One for each line:
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+  Line 2: <Blank>{`2`}</Blank>
+  Line 3: <Blank>{`3`}</Blank>
+  Line 4: <Blank>{`11`}</Blank>
+  Line 5: <Blank>{`12`}</Blank>
+
+  <Explanation>
+    `play` is virtual, so `tune` dispatches according to the dynamic type. `adjust` has no output.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-5 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习4", "points": "4", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include<iostream>
+    using namespace std;
+    class TEST
+    { 
+        int num; 
+    public:
+        TEST( int num=0); 
+        void increment( ) ;
+        ~TEST( );
+    }; 
+    TEST::TEST(int num) : num(num)
+    {
+        cout << num  << endl; 
+    } 
+    void TEST::increment() 
+    {
+    	num++;
+    }
+    TEST::~TEST( )
+    {
+        cout << num  << endl;
+    } 
+    int main( ) 
+    {
+    	TEST array[2]; 
+    	array[0].increment();
+    	array[1].increment();
+    	return 0;
+    }
+    ```
+
+    One for each line:
+  </Q>
+
+  Line 1: <Blank>{`0`}</Blank>
+  Line 2: <Blank>{`0`}</Blank>
+  Line 3: <Blank>{`1`}</Blank>
+  Line 4: <Blank>{`1`}</Blank>
+
+  <Explanation>
+    The two array elements are default-constructed first, printing 0 and 0. Destruction happens in reverse order, and both objects have been incremented to 1.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-6 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习4", "points": "3", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include<iostream>
+    using namespace std;
+    class Base{
+    protected:
+        int x;
+    public:
+        Base(int b=0): x(b) { }
+        virtual void display() const {cout << x << endl;}
+    };
+    class Derived: public Base{
+        int y;
+    public:
+        Derived(int d=0): y(d) { }
+        void display() {cout << x << "," << y << endl;}
+    };
+    int main()
+    {
+      Base b(1);
+      Derived d(2);
+      Base *p = &d;
+      b.display();
+      d.display();
+      p->display();
+      return 0;
+    }
+    ```
+
+    One for each line:
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+  Line 2: <Blank>{`0,2`}</Blank>
+  Line 3: <Blank>{`0`}</Blank>
+
+  <Explanation>
+    `Derived(int d)` does not initialize the `Base` subobject with `d`, so `x` is 0. Also, `Derived::display()` is not `const`, so it does not override `Base::display() const`; the base pointer calls the base version.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-1 B Fill in the blanks" meta={{"source": "面向对象2025-2026春夏考前练习4", "points": "3", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    Run the following program, the output is:   B::f()
+
+    <PTACodeContent lang="cpp">
+      {`#include <iostream>
+      using namespace std;
+      class A{ 
+      public: 
+          `}
+      <Blank>{`virtual void f()`}</Blank>
+      {`{ cout<<"A::f()\\n"; } 
+       }; 
+      class B:public A{ 
+       public:
+      	  void f() {cout<<"B::f()\\n"; } 
+       }; 
+      int main() 
+      { 
+         B b;
+         A &p `}
+      <Blank>{`=b`}</Blank>
+      {`;
+         `}
+      <Blank>{`p.`}</Blank>
+      {`f(); 
+         return 0;
+      }`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    `A::f` must be virtual. Then `A& p = b; p.f();` dynamically dispatches to `B::f()`.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-3 C Fill in the blanks" meta={{"source": "面向对象2025-2026春夏考前练习4", "points": "15", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    Run the following program, Enter: 1, the output is:   
+    S1 == S2
+                                               HfLLO
+                                               HFLLO
+
+    <PTACodeContent lang="cpp">
+      {`#include <iostream>
+      using namespace std;
+      class ERROR{};
+      class STRING
+      {
+         char *m_pStr;
+         int m_len;
+      public:
+         STRING(char *str=NULL){
+            if (str != NULL) {   
+        	     m_len = strlen(str);
+      	     m_pStr = `}
+      <Blank>{`new char[m_len+1]`}</Blank>
+      {`;  
+      	     strcpy(`}
+      <Blank>{`m_pStr,str`}</Blank>
+      {`);   
+            }
+            else {
+      	     m_len = 0;
+      	     m_pStr = NULL;
+            }
+         }  
+         `}
+      <Blank>{`STRING&`}</Blank>
+      {` operator=(char *str)  
+         {
+            `}
+      <Blank>{`delete[]`}</Blank>
+      {` m_pStr ;   
+            m_len = strlen(str)+1;
+            m_pStr = new char[m_len]; 
+            strcpy(`}
+      <Blank>{`m_pStr,str`}</Blank>
+      {`); 
+            return `}
+      <Blank>{`*this`}</Blank>
+      {`;  
+         }
+       
+         bool operator==(STRING str) `}
+      <Blank>{`const`}</Blank>
+      {`
+         {
+            return (`}
+      <Blank>{`strcmp`}</Blank>
+      {`(m_pStr, str.m_pStr)== 0);  
+         }
+         char operator [] (int i) `}
+      <Blank>{`const`}</Blank>
+      {`
+         {
+            if (i<m_len && i>=0) return m_pStr[i];
+            throw `}
+      <Blank>{`ERROR()`}</Blank>
+      {`;
+         }
+         char& operator[](int i) `}
+      <Blank>{``}</Blank>
+      {`
+         { 
+      	   if (i<m_len && i>=0) return m_pStr[i];
+      	   ERROR e;
+      	   `}
+      <Blank>{`throw e`}</Blank>
+      {`;  
+         }
+        `}
+      <Blank>{`friend`}</Blank>
+      {` ostream& operator<<(ostream& out ,STRING s); 
+      };
+      ostream& operator<<(ostream& out ,STRING s)     
+      {
+         out << s.m_pStr;
+         return out;  
+      }
+
+      int main()
+      {
+         STRING s1,s2("HeLLO");
+         int i;
+         cin >> i;
+         s1 = s2;
+         if (s1 == s2) cout << "S1 == S2\\n";
+         s1[1] = s1[1] + 1;
+         cout << s1 << endl;;
+
+         `}
+      <Blank>{`try`}</Blank>
+      {`{  
+             if(s1[i]>='a' && s1[i]<='z') s1[i] =  s1[i] - 32;
+      	   cout << s1 << endl;
+         }
+         `}
+      <Blank>{`catch`}</Blank>
+      {`(   ERROR& e)  
+         {
+            cout << "upperbound overflow";
+         }
+         return 0;
+      }`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    The string class allocates and copies a character buffer, compares with `strcmp`, uses a const subscript overload for reading, leaves the writable subscript overload unqualified, and throws/catches `ERROR`.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-4 A Fill in the blanks" meta={{"source": "面向对象2025-2026春夏考前练习4", "points": "10", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+
+
+    <PTACodeContent lang="cpp">
+      {`#include <iostream>
+      using namespace std;
+      class IndexError{};
+      template `}
+      <Blank>{`<typename T>`}</Blank>
+      {`
+      class ARRAY
+      {
+      	size_t m_size;
+      	T *m_ptr;
+      public:
+      	ARRAY(size_t size) : m_size(size)
+      	{	
+      		m_ptr = new T[size];	
+      		memset(m_ptr, 0, size*sizeof(int));
+      	}
+      	~ARRAY()
+      	{	
+      		delete[] m_ptr;	
+      	}
+      	T& at(int index);
+      };
+
+      template <typename T>
+      `}
+      <Blank>{`T&ARRAY<T>`}</Blank>
+      {`::at(int index)  
+      {
+      	if(index<0||`}
+      <Blank>{`index>=m_size`}</Blank>
+      {`)  
+      	{
+      		`}
+      <Blank>{`throw`}</Blank>
+      {` IndexError();  
+      	}
+      	return m_ptr[index];
+      }
+
+      int main()
+      {
+      	ARRAY<int> a(50);
+      	int i;
+      	cin >> i;
+      	`}
+      <Blank>{`try`}</Blank>
+      {`  
+          {
+      		for(int j=0;j<i;j++)
+      			a.at(i) = j;
+      	}
+      	catch(IndexError e)
+      	{
+      		return 0;
+      	}
+      	return 0;
+      }`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    Use a type parameter in the class template, define `ARRAY<T>::at` with return type `T&`, throw on out-of-range access, and wrap the checked code in `try`.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-5 D Fill in the blanks" meta={{"source": "面向对象2025-2026春夏考前练习4", "points": "10", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    Run the following program, Enter: 1, the output is:  55 34 21 13 8 5 3 2 1 1
+
+    <PTACodeContent lang="cpp">
+      {`#include <iostream>
+      using namespace std;
+
+      enum ERROR{UnderFlow,OverFlow};
+      template<typename T>
+      class StackTemplate {
+      	enum { ssize = 100 };
+      	T stack[ssize];
+      	int top;
+      public:
+      	StackTemplate() : top(0) {}
+      	void push(const T& i) {
+      		if (top >= ssize)  `}
+      <Blank>{`throw OverFlow`}</Blank>
+      {`;
+      		stack[top++] = i;
+      	}
+      	T pop() {
+      		if (`}
+      <Blank>{`top <= 0`}</Blank>
+      {`) throw UnderFlow;
+      		return `}
+      <Blank>{`stack[--top]`}</Blank>
+      {`;
+      	}
+      	int size() const
+      	{ return top; }
+      };
+      int fibonacci(int n);
+
+      int main() {
+      	`}
+      <Blank>{`try`}</Blank>
+      {` {
+      		`}
+      <Blank>{`StackTemplate<int>`}</Blank>
+      {` is;
+      		for(int i = 0; i < 20; i++)
+      			is.push(fibonacci(i));
+      		for(int k = 0; k < 20; k++)
+      			cout << is.pop() << "\\t";
+      	}
+      	catch( ERROR e ) {
+      		switch(`}
+      <Blank>{`e`}</Blank>
+      {`)
+      		{
+      		case OverFlow:
+      			exit;
+      		case UnderFlow:
+      			exit;
+      		}
+      	}
+      	catch(...)
+      	{
+      		exit;
+      	}
+      	return 0;
+      }
+
+      int fibonacci(int n) 
+      {
+      	`}
+      <Blank>{`const`}</Blank>
+      {` int sz = 100;
+      	int i;
+      	static int f[sz]; 
+      	if (n >= sz) `}
+      <Blank>{`throw OverFlow`}</Blank>
+      {`;
+      	   f[0] = f[1] = 1;
+      	for(i = 0; i < sz; i++)
+      		if(f[i] == 0) break;
+      	while(i <= n) {
+      		`}
+      <Blank>{`f[i]`}</Blank>
+      {` = f[i-1] + f[i-2];
+      		i++;
+      	}
+      	return `}
+      <Blank>{`f[n]`}</Blank>
+      {`;
+      }
+      `}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    The stack throws on overflow or underflow, `pop()` returns `stack[--top]`, and Fibonacci memoization fills `f[i]` and returns `f[n]`. The original problem text says the output has 10 values, but the shown loops use `< 20`, so the displayed expected output is inconsistent with the code.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz code-completion title="6-2 表彰优秀学生（多态）" meta={{"source": "面向对象2025-2026春夏考前练习4", "points": "20", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    学期结束，班主任决定表彰一批学生，已知该班学生数在6至50人之间，有三类学生：普通生，特招运动员，学科专长生，其中学科专长生不超过5人。
+
+    主函数根据输入的信息，相应建立`GroupA`, `GroupB`, `GroupC`类对象。
+
+    `GroupA`类是普通生，有2门课程的成绩（均为不超过100的非负整数）；
+
+    `GroupB`类是特招运动员，有2门课程的成绩（均为不超过100的非负整数），1次运动会的表现分，表现分有：A、B、C、D共4等。
+
+    `GroupC`类是学科专长生，有5门课程的成绩（均为不超过100的非负整数）。
+
+    表彰人员至少符合以下3个条件中的一个：
+
+    （1）2门课程平均分在普通生和特招运动员中，名列第一者。
+
+    a.该平均分称为获奖线。
+
+    b.存在成绩并列时，则全部表彰，例如某次考试有2人并列第1，则他们全部表彰。
+
+
+    （2）5门课程平均分达到或超过获奖线90%的学科专长生，给予表彰。
+
+    （3）2门课程平均分达到或超过获奖线70%的特招运动员，如果其运动会表现分为A，给予表彰。
+
+    输入格式：每个测试用例占一行，第一项为类型，1为普通生，2为特招运动员，3为学科专长生, 输入0表示输入的结束。第二项是学号，第三项是姓名。对于普通生来说，共输入5项，第4、5项是课程成绩。对于特招运动员来说，共输入6项，第4、5项是课程成绩，第6项是运动会表现。对于学科专长生来说，共输入8项，第4、5、6、7、8项是课程成绩。
+
+    输出时，打印要表彰的学生的学号和姓名。(输出顺序与要表彰学生的输入前后次序一致)
+
+    ### 函数接口定义：
+    ```cpp
+    以Student为基类，构建GroupA, GroupB和GroupC三个类
+    ```
+
+
+
+    ### 裁判测试程序样例：
+    ```cpp
+    #include<iostream>
+    #include <string>
+    using namespace std;
+
+    /* 请在这里填写答案 */
+
+    int main()
+    {
+        const int Size=50;
+        string num, name;
+        int i,ty,s1,s2,s3,s4,s5;
+        char gs;
+        Student *pS[Size];
+        int count=0;
+        for(i=0;i<Size;i++){
+            cin>>ty;
+            if(ty==0) break;
+            cin>>num>>name>>s1>>s2;
+            switch(ty){
+                 case 1:pS[count++]=new GroupA(num, name, s1, s2); break;
+                 case 2:cin>>gs; pS[count++]=new GroupB(num, name, s1,s2, gs); break;
+                 case 3:cin>>s3>>s4>>s5; pS[count++]=new GroupC(num, name, s1,s2,s3,s4,s5); break;
+            }			
+        }
+        for(i=0;i<count;i++) {
+            pS[i]->display();
+            delete pS[i];
+        }
+        return 0;
+    }
+
+    ```
+
+    ### 输入样例：
+    ```txt
+    1 001 AAAA 96 80
+    2 009 BBB 82 75 A
+    1 007 CC 100 99
+    3 012 CCCC 97 95 90 99 93
+    1 003 DDD 62 50
+    1 022 ABCE 78 92
+    2 010 FFF 45 40 A
+    3 019 AAA 93 97 94 82 80
+    0
+    ```
+
+    ### 输出样例：
+    ```txt
+    009 BBB
+    007 CC
+    012 CCCC
+    ```
+  </Q>
+
+  <A>
+    ```cpp
+    class Student {
+    protected:
+        string num;
+        string name;
+    public:
+        Student(const string& n, const string& nm) : num(n), name(nm) {}
+        virtual ~Student() {}
+        virtual void display() = 0;
+    };
+
+    class GroupA : public Student {
+    protected:
+        int s1, s2;
+        double avg2() const { return (s1 + s2) / 2.0; }
+    public:
+        static double awardLine;
+        GroupA(const string& n, const string& nm, int a, int b) : Student(n, nm), s1(a), s2(b) { if (avg2() > awardLine) awardLine = avg2(); }
+        void display() override { if (avg2() == awardLine) cout << num << " " << name << endl; }
+    };
+
+    double GroupA::awardLine = 0;
+
+    class GroupB : public GroupA {
+        char grade;
+    public:
+        GroupB(const string& n, const string& nm, int a, int b, char g) : GroupA(n, nm, a, b), grade(g) {}
+        void display() override {
+            double avg = avg2();
+            if (avg == awardLine || (avg >= awardLine * 0.7 && grade == 'A')) cout << num << " " << name << endl;
+        }
+    };
+
+    class GroupC : public Student {
+        int s1, s2, s3, s4, s5;
+        double avg5() const { return (s1 + s2 + s3 + s4 + s5) / 5.0; }
+    public:
+        GroupC(const string& n, const string& nm, int a, int b, int c, int d, int e) : Student(n, nm), s1(a), s2(b), s3(c), s4(d), s5(e) {}
+        void display() override { if (avg5() >= GroupA::awardLine * 0.9) cout << num << " " << name << endl; }
+    };
+    ```
+  </A>
+
+  <Explanation>
+    Maintain the award line as the maximum two-course average among GroupA and GroupB while constructing objects. Since display happens after all input is read, each object can compare against the final line. The base destructor is virtual because objects are deleted through `Student*`.
+  </Explanation>
+</PTAQuiz>
+
+## 面向对象2025-2026春夏考前练习5
+
+<PTAQuiz fill-in-the-blank title="4-1 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习5", "points": "3", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include<iostream>
+    using namespace std;
+
+    class INCREMENT 
+    {
+    public:
+       INCREMENT( int v = 0, int i = 1 ); 
+       void addIncrement() 
+       { 
+          v += increment; 
+       } 
+       void print() const; 
+       int get() const
+       {
+    	   return v;
+       }
+    private:
+       int v;
+       const int increment; 
+    }; 
+
+    INCREMENT::INCREMENT( int v, int i ) : v( v ), increment( i )    
+    { 
+    } 
+
+    void INCREMENT::print() const
+    {
+       cout << v << endl;
+    } 
+    int main()
+    {
+       INCREMENT value( 1, 2);
+       value.print();
+
+       for ( int j = 1; j <= 2; j++ ) 
+       {
+          value.addIncrement();
+          value.print();
+       } 
+       return 0;
+    }
+    ```
+
+    One for each line:
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+  Line 2: <Blank>{`3`}</Blank>
+  Line 3: <Blank>{`5`}</Blank>
+
+  <Explanation>
+    `value` starts at 1 and `increment` is 2, so the three printed values are 1, 3, and 5.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-2 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习5", "points": "4", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include<iostream>
+    using namespace std;
+    class TEST
+    { 
+        int num; 
+    public:
+        TEST( int num=0); 
+        void increment( ) ;
+        ~TEST( );
+    }; 
+    TEST::TEST(int num) : num(num)
+    {
+        cout << num  << endl; 
+    } 
+    void TEST::increment() 
+    {
+    	num++;
+    }
+    TEST::~TEST( )
+    {
+        cout << num  << endl;
+    } 
+    int main( ) 
+    {
+    	TEST array[2]; 
+    	array[0].increment();
+    	array[1].increment();
+    	return 0;
+    }
+    ```
+
+    One for each line:
+  </Q>
+
+  Line 1: <Blank>{`0`}</Blank>
+  Line 2: <Blank>{`0`}</Blank>
+  Line 3: <Blank>{`1`}</Blank>
+  Line 4: <Blank>{`1`}</Blank>
+
+  <Explanation>
+    The two array elements are default-constructed first, printing 0 and 0. Destruction happens in reverse order, and both objects have been incremented to 1.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-3 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习5", "points": "3", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include<iostream>
+    using namespace std;
+    class Base{
+    protected:
+        int x;
+    public:
+        Base(int b=0): x(b) { }
+        virtual void display() const {cout << x << endl;}
+    };
+    class Derived: public Base{
+        int y;
+    public:
+        Derived(int d=0): y(d) { }
+        void display() {cout << x << "," << y << endl;}
+    };
+    int main()
+    {
+      Base b(1);
+      Derived d(2);
+      Base *p = &d;
+      b.display();
+      d.display();
+      p->display();
+      return 0;
+    }
+    ```
+
+    One for each line:
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+  Line 2: <Blank>{`0,2`}</Blank>
+  Line 3: <Blank>{`0`}</Blank>
+
+  <Explanation>
+    `Derived(int d)` does not initialize the `Base` subobject with `d`, so `x` is 0. Also, `Derived::display()` is not `const`, so it does not override `Base::display() const`; the base pointer calls the base version.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-4 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习5", "points": "5", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include<iostream>
+    using namespace std;
+
+    enum NOTE { middleC, Csharp, Cflat }; 
+    class Instrument {
+    public:
+      virtual void play(NOTE) const = 0;
+      virtual char* what() const = 0;
+      virtual void adjust(int) = 0;
+    };
+
+    class Wind : public Instrument {
+    public:
+      void play(NOTE) const {
+        cout << 1 << endl;
+      }
+      char* what() const { return "Wind"; }
+      void adjust(int) {}
+    };
+
+    class Percussion : public Instrument {
+    public:
+      void play(NOTE) const {
+        cout << 2 << endl;
+      }
+      char* what() const { return "Percussion"; }
+      void adjust(int) {}
+    };
+
+    class Stringed : public Instrument {
+    public:
+      void play(NOTE) const {
+        cout << 3 << endl;
+      }
+      char* what() const { return "Stringed"; }
+      void adjust(int) {}
+    };
+
+    class Brass : public Wind {
+    public:
+      void play(NOTE) const {
+        cout << 11 << endl;
+      }
+      char* what() const { return "Brass"; }
+    };
+
+    class Woodwind : public Wind {
+    public:
+      void play(NOTE) const {
+        cout << 12 << endl;
+      }
+      char* what() const { return "Woodwind"; }
+    };
+
+    void tune(Instrument& i) {
+      i.play(middleC);
+    }
+
+    void f(Instrument& i) { i.adjust(1); }
+
+    int main() {
+      Wind flute;
+      Percussion drum;
+      Stringed violin;
+      Brass flugelhorn;
+      Woodwind recorder;
+      tune(flute);
+      tune(drum);
+      tune(violin);
+      tune(flugelhorn);
+      tune(recorder);
+      f(flugelhorn);
+      return 0;
+    }
+    ```
+
+    One for each line:
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+  Line 2: <Blank>{`2`}</Blank>
+  Line 3: <Blank>{`3`}</Blank>
+  Line 4: <Blank>{`11`}</Blank>
+  Line 5: <Blank>{`12`}</Blank>
+
+  <Explanation>
+    `play` is virtual, so `tune` dispatches according to the dynamic type. `adjust` has no output.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-5 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习5", "points": "2", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include<iostream>
+    using namespace std;
+    class A{   
+    public:
+    	A& operator=(const A& r)
+    	{
+    		cout << 1 << endl;
+    		return *this;
+    	}
+    };
+    class B{   
+    public:
+    	B& operator=(const B& r)
+    	{
+    		cout << 2 << endl;
+    		return *this;
+    	}
+    };
+    class C{
+    private:
+    	B b;
+    	A a;
+    	int c;
+    };
+
+    int main()
+    {
+    	C m,n;
+    	m = n;
+    	return 0;
+    }
+    ```
+
+    One for each line:
+  </Q>
+
+  Line 1: <Blank>{`2`}</Blank>
+  Line 2: <Blank>{`1`}</Blank>
+
+  <Explanation>
+    The implicitly generated assignment operator assigns members in declaration order: `B b` first, then `A a`, so the output is 2 then 1.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-6 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习5", "points": "2", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include <iostream>  
+    using namespace std;
+    class MYCLASS{
+    public:
+        MYCLASS(int x):val(x){}
+        void print() const
+        {
+            cout << val << endl;
+    	}
+    	void print()
+        {
+            cout << val << endl;
+    	}
+    private:
+        int val;
+    }; 
+    int main()
+    {
+       MYCLASS ob1(1);
+       const MYCLASS ob2(2);
+       ob2.print();
+       ob1.print();
+       return 0;
+    }
+    ```
+
+    One for each line.
+    line 1:   line 2:
+  </Q>
+
+  Line 1: <Blank>{`2`}</Blank>
+  Line 2: <Blank>{`1`}</Blank>
+
+  <Explanation>
+    The const object calls the const overload and prints 2; the non-const object calls the non-const overload and prints 1.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-7 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习5", "points": "5", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include <iostream>
+    using namespace std;
+
+    class counter{
+    private:
+    	int value;
+    public: 
+    	counter():value(0) {}
+    	counter& operator++();  
+    	int operator++(int);	
+    	void reset()
+    	{
+    	    value = 0;
+    	}
+    	operator int() const  
+    	{
+    	    return value;
+    	}	
+    };
+
+    counter& counter::operator++()	
+    { 	
+    	if (3 == value)
+          	value = 0;
+    	else
+    	    value += 1;
+    	return *this;
+    }
+
+    int counter::operator++(int) 
+    {		
+    	int t = value;
+    	if (3 == value)
+         	value = 0;
+    	else
+    	    value += 1;
+    	return t;
+    }
+
+    int main()
+    {
+    	counter a;   
+    	while (++a)  
+    	     cout << "***\n";
+    	cout << a << endl;
+    	while (a++)  
+    	     cout << "***\n";
+    	cout << a << endl;
+    	return 0;
+    }
+    ```
+
+    One for each line:
+  </Q>
+
+  Line 1: <Blank>{`***`}</Blank>
+  Line 2: <Blank>{`***`}</Blank>
+  Line 3: <Blank>{`***`}</Blank>
+  Line 4: <Blank>{`0`}</Blank>
+  Line 5: <Blank>{`1`}</Blank>
+
+  <Explanation>
+    Prefix increment prints three stars while values are 1, 2, and 3, then wraps to 0. Postfix increment tests the old value 0, so the second loop body is skipped, but the stored value becomes 1.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-8 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习5", "points": "2", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include <iostream>
+    using namespace std;
+    int& f(int &i )
+    {
+        i += 10;
+        return i ;
+    }
+    int main()
+    {
+        int k = 0;
+        int& m = f(k);
+    	cout << k << "#";
+        f(m)++;
+    	cout << k << endl;
+    	return 0;
+    }
+    ```
+  </Q>
+
+  Output: <Blank>{`10#21`}</Blank>
+
+  <Explanation>
+    `m` is a reference to `k`. The first call makes `k` 10. The second call adds 10, then the returned reference is post-incremented, so `k` becomes 21.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-9 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习5", "points": "1", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+    ```
+    #include <iostream>
+    using namespace std;
+
+    class Sample{
+        friend long fun(Sample s);  
+    public:
+    	Sample(long a)
+    	{ 
+    	    x = a;
+    	}    
+    private:
+    	long x; 
+    };     
+    long fun(Sample s)
+    {
+        if (s.x < 2) return 1; 
+        return s.x * fun(Sample(s.x-1));  
+    }
+    int main()
+    {
+        int sum = 0; 
+        for(int i=0;i<6;i++)
+    	{
+    	   sum += fun(Sample(i));
+    	}
+    	cout << sum;
+    	return 0;
+    }
+    ```
+  </Q>
+
+  Output: <Blank>{`154`}</Blank>
+
+  <Explanation>
+    `fun` computes factorials with `0!` and `1!` both returning 1. The sum through 5 is 154.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-10 write the output of the code below." meta={{"source": "面向对象2025-2026春夏考前练习5", "points": "5", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    write the output of the code below.
+
+    ```
+    #include <iostream>
+    #include <string>
+    using namespace std ;
+
+    class Testing
+    {
+    private:
+    	string words; 
+    	int number ;
+    public:
+    	Testing(const string & s = "Testing")
+    	{
+    		words = s ;
+    		number = words.length();
+    		if (words.compare("Testing")==0)
+    			cout << 1;
+    		else if (words.compare("Heap1")==0)
+    			cout << 2;
+    		else
+    			cout << 3;
+    	}
+    	~Testing()
+    	{
+    		cout << 0;
+    	}
+    	void show() const
+    	{
+    		cout << number;
+    	}
+    };
+    int main()
+    {
+    	Testing *pc1 , *pc2;
+    	pc1 = new Testing ;          //1
+    	pc2 = new Testing("Heap1");  //2
+    	pc1->show();   //3
+    	delete pc1 ;   //4
+    	delete pc2 ;   //5
+    	return 0;
+    }
+    ```
+  </Q>
+
+  Output at `//1`: <Blank>{`1`}</Blank>
+  Output at `//2`: <Blank>{`2`}</Blank>
+  Output at `//3`: <Blank>{`7`}</Blank>
+  Output at `//4`: <Blank>{`0`}</Blank>
+  Output at `//5`: <Blank>{`0`}</Blank>
+
+  <Explanation>
+    The two constructors output 1 and 2, `show()` prints the length 7, and the two deletes call destructors printing 0 and 0.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-1 D Fill in the blanks" meta={{"source": "面向对象2025-2026春夏考前练习5", "points": "10", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    Run the following program, Enter: 1, the output is:  55 34 21 13 8 5 3 2 1 1
+
+    <PTACodeContent lang="cpp">
+      {`#include <iostream>
+      using namespace std;
+
+      enum ERROR{UnderFlow,OverFlow};
+      template<typename T>
+      class StackTemplate {
+      	enum { ssize = 100 };
+      	T stack[ssize];
+      	int top;
+      public:
+      	StackTemplate() : top(0) {}
+      	void push(const T& i) {
+      		if (top >= ssize)  `}
+      <Blank>{`throw OverFlow`}</Blank>
+      {`;
+      		stack[top++] = i;
+      	}
+      	T pop() {
+      		if (`}
+      <Blank>{`top <= 0`}</Blank>
+      {`) throw UnderFlow;
+      		return `}
+      <Blank>{`stack[--top]`}</Blank>
+      {`;
+      	}
+      	int size() const
+      	{ return top; }
+      };
+      int fibonacci(int n);
+
+      int main() {
+      	`}
+      <Blank>{`try`}</Blank>
+      {` {
+      		`}
+      <Blank>{`StackTemplate<int>`}</Blank>
+      {` is;
+      		for(int i = 0; i < 20; i++)
+      			is.push(fibonacci(i));
+      		for(int k = 0; k < 20; k++)
+      			cout << is.pop() << "\\t";
+      	}
+      	catch( ERROR e ) {
+      		switch(`}
+      <Blank>{`e`}</Blank>
+      {`)
+      		{
+      		case OverFlow:
+      			exit;
+      		case UnderFlow:
+      			exit;
+      		}
+      	}
+      	catch(...)
+      	{
+      		exit;
+      	}
+      	return 0;
+      }
+
+      int fibonacci(int n) 
+      {
+      	`}
+      <Blank>{`const`}</Blank>
+      {` int sz = 100;
+      	int i;
+      	static int f[sz]; 
+      	if (n >= sz) `}
+      <Blank>{`throw OverFlow`}</Blank>
+      {`;
+      	   f[0] = f[1] = 1;
+      	for(i = 0; i < sz; i++)
+      		if(f[i] == 0) break;
+      	while(i <= n) {
+      		`}
+      <Blank>{`f[i]`}</Blank>
+      {` = f[i-1] + f[i-2];
+      		i++;
+      	}
+      	return `}
+      <Blank>{`f[n]`}</Blank>
+      {`;
+      }
+      `}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    The stack throws on overflow or underflow, `pop()` returns `stack[--top]`, and Fibonacci memoization fills `f[i]` and returns `f[n]`. The original problem text says the output has 10 values, but the shown loops use `< 20`, so the displayed expected output is inconsistent with the code.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-2 B Fill in the blanks" meta={{"source": "面向对象2025-2026春夏考前练习5", "points": "3", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    Run the following program, the output is:   B::f()
+
+    <PTACodeContent lang="cpp">
+      {`#include <iostream>
+      using namespace std;
+      class A{ 
+      public: 
+          `}
+      <Blank>{`virtual void f()`}</Blank>
+      {`{ cout<<"A::f()\\n"; } 
+       }; 
+      class B:public A{ 
+       public:
+      	  void f() {cout<<"B::f()\\n"; } 
+       }; 
+      int main() 
+      { 
+         B b;
+         A &p `}
+      <Blank>{`=b`}</Blank>
+      {`;
+         `}
+      <Blank>{`p.`}</Blank>
+      {`f(); 
+         return 0;
+      }`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    `A::f` must be virtual. Then `A& p = b; p.f();` dynamically dispatches to `B::f()`.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-3 A Fill in the blanks" meta={{"source": "面向对象2025-2026春夏考前练习5", "points": "10", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+
+
+    <PTACodeContent lang="cpp">
+      {`#include <iostream>
+      using namespace std;
+      class IndexError{};
+      template `}
+      <Blank>{`<typename T>`}</Blank>
+      {`
+      class ARRAY
+      {
+      	size_t m_size;
+      	T *m_ptr;
+      public:
+      	ARRAY(size_t size) : m_size(size)
+      	{	
+      		m_ptr = new T[size];	
+      		memset(m_ptr, 0, size*sizeof(int));
+      	}
+      	~ARRAY()
+      	{	
+      		delete[] m_ptr;	
+      	}
+      	T& at(int index);
+      };
+
+      template <typename T>
+      `}
+      <Blank>{`T&ARRAY<T>`}</Blank>
+      {`::at(int index)  
+      {
+      	if(index<0||`}
+      <Blank>{`index>=m_size`}</Blank>
+      {`)  
+      	{
+      		`}
+      <Blank>{`throw`}</Blank>
+      {` IndexError();  
+      	}
+      	return m_ptr[index];
+      }
+
+      int main()
+      {
+      	ARRAY<int> a(50);
+      	int i;
+      	cin >> i;
+      	`}
+      <Blank>{`try`}</Blank>
+      {`  
+          {
+      		for(int j=0;j<i;j++)
+      			a.at(i) = j;
+      	}
+      	catch(IndexError e)
+      	{
+      		return 0;
+      	}
+      	return 0;
+      }`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    Use a type parameter in the class template, define `ARRAY<T>::at` with return type `T&`, throw on out-of-range access, and wrap the checked code in `try`.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-4 C Fill in the blanks" meta={{"source": "面向对象2025-2026春夏考前练习5", "points": "15", "author": "hulanqing (浙江大学)"}}>
+  <Q>
+    Run the following program, Enter: 1, the output is:   
+    S1 == S2
+                                               HfLLO
+                                               HFLLO
+
+    <PTACodeContent lang="cpp">
+      {`#include <iostream>
+      using namespace std;
+      class ERROR{};
+      class STRING
+      {
+         char *m_pStr;
+         int m_len;
+      public:
+         STRING(char *str=NULL){
+            if (str != NULL) {   
+        	     m_len = strlen(str);
+      	     m_pStr = `}
+      <Blank>{`new char[m_len+1]`}</Blank>
+      {`;  
+      	     strcpy(`}
+      <Blank>{`m_pStr,str`}</Blank>
+      {`);   
+            }
+            else {
+      	     m_len = 0;
+      	     m_pStr = NULL;
+            }
+         }  
+         `}
+      <Blank>{`STRING&`}</Blank>
+      {` operator=(char *str)  
+         {
+            `}
+      <Blank>{`delete[]`}</Blank>
+      {` m_pStr ;   
+            m_len = strlen(str)+1;
+            m_pStr = new char[m_len]; 
+            strcpy(`}
+      <Blank>{`m_pStr,str`}</Blank>
+      {`); 
+            return `}
+      <Blank>{`*this`}</Blank>
+      {`;  
+         }
+       
+         bool operator==(STRING str) `}
+      <Blank>{`const`}</Blank>
+      {`
+         {
+            return (`}
+      <Blank>{`strcmp`}</Blank>
+      {`(m_pStr, str.m_pStr)== 0);  
+         }
+         char operator [] (int i) `}
+      <Blank>{`const`}</Blank>
+      {`
+         {
+            if (i<m_len && i>=0) return m_pStr[i];
+            throw `}
+      <Blank>{`ERROR()`}</Blank>
+      {`;
+         }
+         char& operator[](int i) `}
+      <Blank>{``}</Blank>
+      {`
+         { 
+      	   if (i<m_len && i>=0) return m_pStr[i];
+      	   ERROR e;
+      	   `}
+      <Blank>{`throw e`}</Blank>
+      {`;  
+         }
+        `}
+      <Blank>{`friend`}</Blank>
+      {` ostream& operator<<(ostream& out ,STRING s); 
+      };
+      ostream& operator<<(ostream& out ,STRING s)     
+      {
+         out << s.m_pStr;
+         return out;  
+      }
+
+      int main()
+      {
+         STRING s1,s2("HeLLO");
+         int i;
+         cin >> i;
+         s1 = s2;
+         if (s1 == s2) cout << "S1 == S2\\n";
+         s1[1] = s1[1] + 1;
+         cout << s1 << endl;;
+
+         `}
+      <Blank>{`try`}</Blank>
+      {`{  
+             if(s1[i]>='a' && s1[i]<='z') s1[i] =  s1[i] - 32;
+      	   cout << s1 << endl;
+         }
+         `}
+      <Blank>{`catch`}</Blank>
+      {`(   ERROR& e)  
+         {
+            cout << "upperbound overflow";
+         }
+         return 0;
+      }`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    The string class allocates and copies a character buffer, compares with `strcmp`, uses a const subscript overload for reading, leaves the writable subscript overload unqualified, and throws/catches `ERROR`.
+  </Explanation>
+</PTAQuiz>
+
+## 面向对象2025-2026春夏考前练习6
+
+<PTAQuiz true-or-false correct={true} title="1-1 对单目运算符重载为友元函数时，可以说明一个形参。而重载为成员函数时，不能显式说明形参。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "1", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    对单目运算符重载为友元函数时，可以说明一个形参。而重载为成员函数时，不能显式说明形参。
+  </Q>
+
+  <Explanation>
+    A unary operator overloaded as a friend function has one explicit operand parameter. As a member function, the operand is the implicit object parameter `this`.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false correct={true} title="1-2 虚函数是用virtual 关键字说明的成员函数。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "1", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    虚函数是用`virtual` 关键字说明的成员函数。
+  </Q>
+
+  <Explanation>
+    A virtual function is a member function declared with `virtual`, and derived classes can override it for dynamic dispatch.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false correct={true} title="1-3 使用提取符(<<)可以输出各种基本数据类型的变量的值，也可以输出指针值。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "1", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    使用提取符(`<<`)可以输出各种基本数据类型的变量的值，也可以输出指针值。
+  </Q>
+
+  <Explanation>
+    The wording calls `<<` an extraction operator, but in output streams it is the insertion operator. The intended claim about outputting basic values and pointer values is true.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false correct={true} title="1-4 因为静态成员函数不能是虚函数，所以它们不能实现多态。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "1", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    因为静态成员函数不能是虚函数，所以它们不能实现多态。
+  </Q>
+
+  <Explanation>
+    Static member functions have no `this` pointer and cannot be virtual, so they do not participate in runtime polymorphism.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false correct={false} title="1-5 重载operator+时，返回值的类型应当与形参类型一致。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "1", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    重载`operator+`时，返回值的类型应当与形参类型一致。
+    比如以下程序中，`operator+`的返回值类型有错：
+
+    ```cpp
+    class A {
+
+    	int x;
+
+     public:
+
+     	A(int t=0):x(t){	 }
+
+            int operator+(const A& a1){ return x+a1.x;  }
+
+    };
+    ```
+  </Q>
+
+  <Explanation>
+    An overloaded operator is not required to return the same type as its parameter. Returning `int` from this `operator+` is legal.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-1 对象之间的相互作用和通信是通过消息。（ ）不是消息的组成部分。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "2", "author": "王秀 (福州大学)"}}>
+  <Q>
+    对象之间的相互作用和通信是通过消息。（ ）不是消息的组成部分。
+  </Q>
+
+  <C>接受消息的对象</C>
+  <C>要执行的函数的名字</C>
+  <C>要执行的函数的内部结构</C>
+  <C>函数需要的参数</C>
+
+  <Explanation>
+    A message identifies the receiver, the operation to invoke, and arguments. The internal structure of the function is implementation detail.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={3} title="2-2 （ ）不是面向对象程序设计的主要特征。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "2", "author": "王秀 (福州大学)"}}>
+  <Q>
+    （ ）不是面向对象程序设计的主要特征。
+  </Q>
+
+  <C>封装</C>
+  <C>继承</C>
+  <C>多态</C>
+  <C>结构</C>
+
+  <Explanation>
+    Encapsulation, inheritance, and polymorphism are the standard OOP features; structure is not one of them.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-3 对定义重载函数的下列要求中，（ ）是错误的。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "2", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    对定义重载函数的下列要求中，（ ）是错误的。
+  </Q>
+
+  <C>要求参数的个数不同</C>
+  <C>要求参数中至少有一个类型不同</C>
+  <C>要求函数的返回值不同</C>
+  <C>要求参数个数相同时，参数类型不同</C>
+
+  <Explanation>
+    Overloads are selected by parameter lists, not by return type alone. The submitted answer A in one export was wrong; the correct choice is C.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={3} title="2-4 关于动态绑定的下列描述中，（ ）是错误的。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "2", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    关于动态绑定的下列描述中，（ ）是错误的。
+  </Q>
+
+  <C>动态绑定是以虚函数为基础的</C>
+  <C>动态绑定在运行时确定所调用的函数代码</C>
+  <C>动态绑定调用函数操作是通过指向对象的指针或对象引用来实现的</C>
+  <C>动态绑定是在编译时确定操作函数的</C>
+
+  <Explanation>
+    Dynamic binding is resolved at run time through virtual functions, usually via a base pointer or reference.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-5 关于虚函数的描述中，（ ）是正确的。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "2", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    关于虚函数的描述中，（ ）是正确的。
+  </Q>
+
+  <C>虚函数是一个`static` 类型的成员函数</C>
+  <C>虚函数是一个非成员函数</C>
+  <C>基类中说明了虚函数后，派生类中与其对应的函数可不必说明为虚函数</C>
+  <C>派生类的虚函数与基类的虚函数具有不同的参数个数和类型</C>
+
+  <Explanation>
+    Once a base member function is virtual, a same-signature derived override remains virtual even if `virtual` is omitted.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-6 下列叙述中，不正确的是（ ）。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "2", "author": "余春艳 (浙江大学)"}}>
+  <Q>
+    下列叙述中，不正确的是（ ）。
+  </Q>
+
+  <C>构造函数必须和类同名</C>
+  <C>构造函数和析构函数都没有返回值</C>
+  <C>析构函数中不能加代码</C>
+  <C>析构函数不能带参数</C>
+
+  <Explanation>
+    A destructor can contain code, for example to release resources. It just has no return type and no parameters.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-7 在下面类声明中，关于生成对象不正确的是（ ）。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "2", "author": "余春艳 (浙江大学)"}}>
+  <Q>
+    在下面类声明中，关于生成对象不正确的是（ ）。
+
+    ```cpp
+    class point
+    {
+    public:
+        int x;
+        int y;
+        point(int a, int b) { x = a; y = b; }
+    };
+    ```
+  </Q>
+
+  <C>`point p(10,2);`</C>
+  <C>`point *p=new    point(1,2);`</C>
+  <C>`point *p=new point[2];`</C>
+  <C>`point *p[2]={new point(1,2), new  point(3,4)};`</C>
+
+  <Explanation>
+    The class has no default constructor. `new point[2]` would need to default-construct two elements, so it is invalid.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-8 下列运算符中，（ ）运算符不能重载。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "2", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    下列运算符中，（ ）运算符不能重载。
+  </Q>
+
+  <C>`＆＆`</C>
+  <C>`[ ]`</C>
+  <C>`::`</C>
+  <C>`<<`</C>
+
+  <Explanation>
+    The scope-resolution operator `::` cannot be overloaded. The other listed operators can be overloaded for class types.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-9 关于纯虚函数和抽象类的描述中，（ ）是错误的。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "2", "author": "何振峰 (福州大学)"}}>
+  <Q>
+    关于纯虚函数和抽象类的描述中，（ ）是错误的。
+  </Q>
+
+  <C>纯虚函数是一种特殊的虚函数，它没有具体的实现</C>
+  <C>抽象类是指具有纯虚函数的类</C>
+  <C>一个基类中说明有纯虚函数，该基类的派生类一定不再是抽象类</C>
+  <C>抽象类只能作为基类来使用，其纯虚函数的实现由派生类给出</C>
+
+  <Explanation>
+    A derived class remains abstract if it does not implement all inherited pure virtual functions.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="2-10 在下列关键字中,用以说明类中公有成员的是（ ）。" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "2", "author": "余春艳 (福州大学)"}}>
+  <Q>
+    在下列关键字中,用以说明类中公有成员的是（ ）。
+  </Q>
+
+  <C>`public`</C>
+  <C>`private`</C>
+  <C>`protected`</C>
+  <C>`friend`</C>
+
+  <Explanation>
+    `public` declares public members. `private` and `protected` are other access levels; `friend` grants access.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-1 输出字符串1" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "10", "author": "王从银 (吉首大学)"}}>
+  <Q>
+    打印“Hello World!”，占一行。
+
+    <PTACodeContent lang="cpp">
+      {`#include <iostream>
+      using namespace std;
+      int main()
+      {
+          cout<<"`}
+      <Blank>{`Hello World!`}</Blank>
+      {`"<<endl;
+          return 0;
+      }`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    The blank is just the string literal content `Hello World!`.
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-2 CAT's Copy" meta={{"source": "面向对象2025-2026春夏考前练习6", "points": "10", "author": "余春艳 (福州大学)"}}>
+  <Q>
+    阅读下面的程序，完成其中复制构造函数的代码。
+
+    <PTACodeContent lang="cpp">
+      {`#include <iostream>
+      using namespace std;
+      class CAT
+      {     public:
+                 CAT();
+                 CAT(const CAT&);
+                ~CAT();
+                int GetAge() const { return *itsAge; }
+                void SetAge(int age){ *itsAge=age; }
+            protected:
+                int* itsAge;
+      };
+      CAT::CAT()
+      {    itsAge=new int;
+           *itsAge =5;
+      }
+      CAT::CAT(const CAT& c)
+      {
+      `}
+      <Blank>{`itsAge = new int`}</Blank>
+      {`; 
+      `}
+      <Blank>{`*itsAge= *(c.itsAge)`}</Blank>
+      {`; 
+      }
+      CAT::~CAT()
+      {     delete itsAge;   }`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    The copy constructor must allocate a new `int` and copy the pointed-to value, otherwise two objects would share and delete the same storage.
+  </Explanation>
+</PTAQuiz>

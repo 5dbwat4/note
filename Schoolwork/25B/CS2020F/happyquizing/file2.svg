@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="959" height="489" viewBox="0 0 959 489">
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#111" />
+    </marker>
+  </defs>
+  <style>
+    svg { background: #fff; }
+    rect, line, polygon, polyline { fill: #fff; stroke: #102846; stroke-width: 2; vector-effect: non-scaling-stroke; }
+    line, polyline { stroke: #111; fill: none; }
+    text { font-family: Arial, Helvetica, sans-serif; fill: #222; dominant-baseline: alphabetic; }
+  </style>
+  <rect x="45.0" y="7.0" width="297.0" height="226.0" />
+  <text x="193.5" y="35.0" font-size="20" text-anchor="middle" xml:space="preserve">Shape</text>
+  <line x1="45.0" y1="50.0" x2="342.0" y2="50.0" />
+  <line x1="45.0" y1="174.0" x2="342.0" y2="174.0" />
+  <text x="52.0" y="72.0" font-size="17" text-anchor="start" xml:space="preserve">public:</text>
+  <text x="52.0" y="96.0" font-size="17" text-anchor="start" xml:space="preserve">  Shape(float cx, float cy);</text>
+  <text x="52.0" y="120.0" font-size="17" text-anchor="start" xml:space="preserve">  virtual ~Shape() {};</text>
+  <text x="52.0" y="144.0" font-size="16" text-anchor="start" xml:space="preserve">  virtual render(DrawContext *pDC) = 0;</text>
+  <text x="52.0" y="168.0" font-size="17" text-anchor="start" xml:space="preserve">  ...</text>
+  <text x="52.0" y="192.0" font-size="17" text-anchor="start" xml:space="preserve">private:</text>
+  <text x="52.0" y="216.0" font-size="17" text-anchor="start" xml:space="preserve">  float m_cx, m_cy;</text>
+  <rect x="562.0" y="28.0" width="277.0" height="196.0" />
+  <text x="700.5" y="56.0" font-size="20" text-anchor="middle" xml:space="preserve">DrawContext</text>
+  <line x1="562.0" y1="71.0" x2="839.0" y2="71.0" />
+  <text x="569.0" y="93.0" font-size="17" text-anchor="start" xml:space="preserve">public:</text>
+  <text x="569.0" y="117.0" font-size="16" text-anchor="start" xml:space="preserve">  virtual void rect(float cx, float cy,</text>
+  <text x="569.0" y="141.0" font-size="17" text-anchor="start" xml:space="preserve">      float hw, float hh) = 0;</text>
+  <text x="569.0" y="165.0" font-size="16" text-anchor="start" xml:space="preserve">  virtual void circle(float cx, float cy,</text>
+  <text x="569.0" y="189.0" font-size="17" text-anchor="start" xml:space="preserve">      float r) = 0;</text>
+  <rect x="13.0" y="361.0" width="157.0" height="121.0" />
+  <text x="91.5" y="389.0" font-size="20" text-anchor="middle" xml:space="preserve">Rectangle</text>
+  <line x1="13.0" y1="404.0" x2="170.0" y2="404.0" />
+  <text x="20.0" y="426.0" font-size="17" text-anchor="start" xml:space="preserve">...</text>
+  <rect x="231.0" y="361.0" width="158.0" height="121.0" />
+  <text x="310.0" y="389.0" font-size="20" text-anchor="middle" xml:space="preserve">Circle</text>
+  <line x1="231.0" y1="404.0" x2="389.0" y2="404.0" />
+  <text x="238.0" y="426.0" font-size="17" text-anchor="start" xml:space="preserve">...</text>
+  <rect x="438.0" y="354.0" width="157.0" height="119.0" />
+  <text x="516.5" y="382.0" font-size="20" text-anchor="middle" xml:space="preserve">WindowsImpl</text>
+  <line x1="438.0" y1="390.0" x2="595.0" y2="390.0" />
+  <text x="445.0" y="412.0" font-size="17" text-anchor="start" xml:space="preserve">...</text>
+  <rect x="619.0" y="354.0" width="158.0" height="119.0" />
+  <text x="698.0" y="382.0" font-size="20" text-anchor="middle" xml:space="preserve">MacintoshImpl</text>
+  <line x1="619.0" y1="390.0" x2="777.0" y2="390.0" />
+  <text x="626.0" y="412.0" font-size="17" text-anchor="start" xml:space="preserve">...</text>
+  <rect x="796.0" y="354.0" width="157.0" height="119.0" />
+  <text x="874.5" y="382.0" font-size="20" text-anchor="middle" xml:space="preserve">XWindowsImpl</text>
+  <line x1="796.0" y1="390.0" x2="953.0" y2="390.0" />
+  <text x="803.0" y="412.0" font-size="17" text-anchor="start" xml:space="preserve">...</text>
+  <polygon points="342.0,80.0 353.0,69.0 364.0,80.0 353.0,91.0" />
+  <line x1="364.0" y1="80.0" x2="562.0" y2="80.0" marker-end="url(#arrow)" />
+  <line x1="193.5" y1="233.0" x2="193.5" y2="292.0" />
+  <polygon points="193.5,292.0 180.5,317.0 206.5,317.0" />
+  <line x1="91.5" y1="317.0" x2="310.0" y2="317.0" />
+  <line x1="91.5" y1="317.0" x2="91.5" y2="361.0" />
+  <line x1="310.0" y1="317.0" x2="310.0" y2="361.0" />
+  <line x1="700.5" y1="224.0" x2="700.5" y2="285.0" />
+  <polygon points="700.5,285.0 687.5,310.0 713.5,310.0" />
+  <line x1="516.5" y1="310.0" x2="874.5" y2="310.0" />
+  <line x1="516.5" y1="310.0" x2="516.5" y2="354.0" />
+  <line x1="698.0" y1="310.0" x2="698.0" y2="354.0" />
+  <line x1="874.5" y1="310.0" x2="874.5" y2="354.0" />
+</svg>

@@ -1,0 +1,939 @@
+---
+title: "OOP 22-23 Mock 5"
+---
+
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
+
+# OOP 22-23 Mock 5
+
+## 填空题
+
+<PTAQuiz fill-in-the-blank title="4-1">
+  <Q>
+    write the output of the code below.
+
+    
+
+    :
+
+    ```cpp
+    #include<iostream>
+    using namespace std;
+    
+    class INCREMENT 
+    {
+    public:
+       INCREMENT( int v = 0, int i = 1 ); 
+       void addIncrement() 
+       { 
+          v += increment; 
+       } 
+       void print() const; 
+       int get() const
+       {
+           return v;
+       }
+    private:
+       int v;
+       const int increment; 
+    }; 
+    
+    INCREMENT::INCREMENT( int v, int i ) : v( v ), increment( i )    
+    { 
+    } 
+    
+    void INCREMENT::print() const
+    {
+       cout << v << endl;
+    } 
+    int main()
+    {
+       INCREMENT value( 1, 2);
+       value.print();
+    
+       for ( int j = 1; j <= 2; j++ ) 
+       {
+          value.addIncrement();
+          value.print();
+       } 
+       return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+
+  Line 2: <Blank>{`3`}</Blank>
+
+  Line 3: <Blank>{`5`}</Blank>
+
+  <Explanation>
+    构造 `INCREMENT value(1, 2)` 后，`v` 初值为 `1`，常量成员 `increment` 为 `2`。先输出初值 `1`，循环两次分别执行 `v += 2`，所以后两行是 `3` 和 `5`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-2">
+  <Q>
+    write the output of the code below.
+
+    
+
+    :
+
+    ```cpp
+    #include<iostream>
+    using namespace std;
+    class TEST
+    { 
+        int num; 
+    public:
+        TEST( int num=0); 
+        void increment( ) ;
+        ~TEST( );
+    }; 
+    TEST::TEST(int num) : num(num)
+    {
+        cout << num  << endl; 
+    } 
+    void TEST::increment() 
+    {
+        num++;
+    }
+    TEST::~TEST( )
+    {
+        cout << num  << endl;
+    } 
+    int main( ) 
+    {
+        TEST array[2]; 
+        array[0].increment();
+        array[1].increment();
+        return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`0`}</Blank>
+
+  Line 2: <Blank>{`0`}</Blank>
+
+  Line 3: <Blank>{`1`}</Blank>
+
+  Line 4: <Blank>{`1`}</Blank>
+
+  <Explanation>
+    数组 `TEST array[2]` 会顺序默认构造两个元素，构造函数各输出一次初值 `0`。两个元素随后都执行 `increment()` 变成 `1`；函数结束时数组元素按逆序析构，所以又输出两个 `1`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-3">
+  <Q>
+    write the output of the code below.
+
+    
+
+    :
+
+    ```cpp
+    #include<iostream>
+    using namespace std;
+    class Base{
+    protected:
+        int x;
+    public:
+        Base(int b=0): x(b) { }
+        virtual void display() const {cout << x << endl;}
+    };
+    class Derived: public Base{
+        int y;
+    public:
+        Derived(int d=0): y(d) { }
+        void display() {cout << x << "," << y << endl;}
+    };
+    int main()
+    {
+      Base b(1);
+      Derived d(2);
+      Base *p = &d;
+      b.display();
+      d.display();
+      p->display();
+      return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+
+  Line 2: <Blank>{`0,2`}</Blank>
+
+  Line 3: <Blank>{`0`}</Blank>
+
+  <Explanation>
+    `Base b(1)` 输出 `1`。`Derived d(2)` 没有显式调用 `Base(int)`，因此基类子对象 `x` 默认是 `0`，派生类成员 `y` 是 `2`。`Derived::display()` 缺少 `const`，没有覆盖 `Base::display() const`，所以经 `Base*` 调用时仍输出基类的 `0`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-4">
+  <Q>
+    write the output of the code below.
+
+    
+
+    :
+
+    ```cpp
+    #include<iostream>
+    using namespace std;
+    
+    enum NOTE { middleC, Csharp, Cflat }; 
+    class Instrument {
+    public:
+      virtual void play(NOTE) const = 0;
+      virtual char* what() const = 0;
+      virtual void adjust(int) = 0;
+    };
+    
+    class Wind : public Instrument {
+    public:
+      void play(NOTE) const {
+        cout << 1 << endl;
+      }
+      char* what() const { return "Wind"; }
+      void adjust(int) {}
+    };
+    
+    class Percussion : public Instrument {
+    public:
+      void play(NOTE) const {
+        cout << 2 << endl;
+      }
+      char* what() const { return "Percussion"; }
+      void adjust(int) {}
+    };
+    
+    class Stringed : public Instrument {
+    public:
+      void play(NOTE) const {
+        cout << 3 << endl;
+      }
+      char* what() const { return "Stringed"; }
+      void adjust(int) {}
+    };
+    
+    class Brass : public Wind {
+    public:
+      void play(NOTE) const {
+        cout << 11 << endl;
+      }
+      char* what() const { return "Brass"; }
+    };
+    
+    class Woodwind : public Wind {
+    public:
+      void play(NOTE) const {
+        cout << 12 << endl;
+      }
+      char* what() const { return "Woodwind"; }
+    };
+    
+    void tune(Instrument& i) {
+      i.play(middleC);
+    }
+    
+    void f(Instrument& i) { i.adjust(1); }
+    
+    int main() {
+      Wind flute;
+      Percussion drum;
+      Stringed violin;
+      Brass flugelhorn;
+      Woodwind recorder;
+      tune(flute);
+      tune(drum);
+      tune(violin);
+      tune(flugelhorn);
+      tune(recorder);
+      f(flugelhorn);
+      return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+
+  Line 2: <Blank>{`2`}</Blank>
+
+  Line 3: <Blank>{`3`}</Blank>
+
+  Line 4: <Blank>{`11`}</Blank>
+
+  Line 5: <Blank>{`12`}</Blank>
+
+  <Explanation>
+    `tune` 接收 `Instrument&` 并调用虚函数 `play`，因此根据实际对象类型动态绑定：`Wind`、`Percussion`、`Stringed`、`Brass`、`Woodwind` 分别输出 `1`、`2`、`3`、`11`、`12`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-5">
+  <Q>
+    write the output of the code below.
+
+    
+
+    :
+
+    ```cpp
+    #include<iostream>
+    using namespace std;
+    class A{   
+    public:
+        A& operator=(const A& r)
+        {
+            cout << 1 << endl;
+            return *this;
+        }
+    };
+    class B{   
+    public:
+        B& operator=(const B& r)
+        {
+            cout << 2 << endl;
+            return *this;
+        }
+    };
+    class C{
+    private:
+        B b;
+        A a;
+        int c;
+    };
+    
+    int main()
+    {
+        C m,n;
+        m = n;
+        return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`2`}</Blank>
+
+  Line 2: <Blank>{`1`}</Blank>
+
+  <Explanation>
+    `C` 没有自定义赋值运算符，编译器生成的默认赋值会按成员声明顺序逐个赋值。`C` 中先声明 `B b`，再声明 `A a`，所以先调用 `B::operator=` 输出 `2`，再调用 `A::operator=` 输出 `1`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-6">
+  <Q>
+    write the output of the code below.
+
+    ```cpp
+    #include <iostream>  
+    using namespace std;
+    class MYCLASS{
+    public:
+        MYCLASS(int x):val(x){}
+        void print() const
+        {
+            cout << val << endl;
+        }
+        void print()
+        {
+            cout << val << endl;
+        }
+    private:
+        int val;
+    }; 
+    int main()
+    {
+       MYCLASS ob1(1);
+       const MYCLASS ob2(2);
+       ob2.print();
+       ob1.print();
+       return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`2`}</Blank>
+
+  Line 2: <Blank>{`1`}</Blank>
+
+  <Explanation>
+    `ob2` 是 `const MYCLASS`，只能调用 `const` 版本的 `print()`，输出 `2`。`ob1` 是普通对象，调用非 `const` 版本，输出 `1`。两个函数体输出格式相同，但重载选择不同。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-7">
+  <Q>
+    write the output of the code below.
+
+    
+
+    :
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+    
+    class counter{
+    private:
+        int value;
+    public: 
+        counter():value(0) {}
+        counter& operator++();  
+        int operator++(int);    
+        void reset()
+        {
+            value = 0;
+        }
+        operator int() const  
+        {
+            return value;
+        }    
+    };
+    
+    counter& counter::operator++()    
+    {     
+        if (3 == value)
+              value = 0;
+        else
+            value += 1;
+        return *this;
+    }
+    
+    int counter::operator++(int) 
+    {        
+        int t = value;
+        if (3 == value)
+             value = 0;
+        else
+            value += 1;
+        return t;
+    }
+    
+    int main()
+    {
+        counter a;   
+        while (++a)  
+             cout << "***\n";
+        cout << a << endl;
+        while (a++)  
+             cout << "***\n";
+        cout << a << endl;
+        return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`***`}</Blank>
+
+  Line 2: <Blank>{`***`}</Blank>
+
+  Line 3: <Blank>{`***`}</Blank>
+
+  Line 4: <Blank>{`0`}</Blank>
+
+  Line 5: <Blank>{`1`}</Blank>
+
+  <Explanation>
+    前置 `++a` 先改变对象再转换为 `int` 判断，依次得到 `1,2,3,0`，所以循环打印三行 `***` 后输出 `0`。随后 `a++` 是后置递增，判断使用旧值 `0`，循环体不执行，但对象值被改为 `1`，最后输出 `1`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-8">
+  <Q>
+    write the output of the code below.
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+    int& f(int &i )
+    {
+        i += 10;
+        return i ;
+    }
+    int main()
+    {
+        int k = 0;
+        int& m = f(k);
+        cout << k << "#";
+        f(m)++;
+        cout << k << endl;
+        return 0;
+    }
+    ```
+
+  </Q>
+
+  Output: <Blank>{`10#21`}</Blank>
+  <Explanation>
+    `f(k)` 通过引用把 `k` 加 `10` 并返回 `k` 的引用，所以第一次输出 `10#`。`m` 也是 `k` 的引用，`f(m)` 再把 `k` 加到 `20`，随后后置 `++` 又把它变成 `21`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-9">
+  <Q>
+    write the output of the code below.
+
+    ```cpp
+    #include <iostream>
+    using namespace std;
+    
+    class Sample{
+        friend long fun(Sample s);  
+    public:
+        Sample(long a)
+        { 
+            x = a;
+        }    
+    private:
+        long x; 
+    };     
+    long fun(Sample s)
+    {
+        if (s.x < 2) return 1; 
+        return s.x * fun(Sample(s.x-1));  
+    }
+    int main()
+    {
+        int sum = 0; 
+        for(int i=0;i<6;i++)
+        {
+           sum += fun(Sample(i));
+        }
+        cout << sum;
+        return 0;
+    }
+    ```
+
+  </Q>
+
+  Output: <Blank>{`154`}</Blank>
+  <Explanation>
+    `fun` 实际计算阶乘：`x < 2` 时为 `1`，否则为 `x * fun(x-1)`。循环累加 `0! + 1! + 2! + 3! + 4! + 5! = 1 + 1 + 2 + 6 + 24 + 120 = 154`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-10">
+  <Q>
+    write the output of the code below.
+
+    
+
+    1.the output at //1 is
+
+    
+
+    2.the output at //2 is
+
+    
+
+    3.the output at //3 is
+
+    
+
+    4.the output at //4 is
+
+    
+
+    5.the output at //5 is
+
+    ```cpp
+    #include <iostream>
+    #include <string>
+    using namespace std ;
+    
+    class Testing
+    {
+    private:
+        string words; 
+        int number ;
+    public:
+        Testing(const string & s = "Testing")
+        {
+            words = s ;
+            number = words.length();
+            if (words.compare("Testing")==0)
+                cout << 1;
+            else if (words.compare("Heap1")==0)
+                cout << 2;
+            else
+                cout << 3;
+        }
+        ~Testing()
+        {
+            cout << 0;
+        }
+        void show() const
+        {
+            cout << number;
+        }
+    };
+    int main()
+    {
+        Testing *pc1 , *pc2;
+        pc1 = new Testing ;          //1
+        pc2 = new Testing("Heap1");  //2
+        pc1->show();   //3
+        delete pc1 ;   //4
+        delete pc2 ;   //5
+        return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+
+  Line 2: <Blank>{`2`}</Blank>
+
+  Line 3: <Blank>{`7`}</Blank>
+
+  Line 4: <Blank>{`0`}</Blank>
+
+  Line 5: <Blank>{`0`}</Blank>
+
+  <Explanation>
+    默认构造 `Testing` 时字符串为 `Testing`，构造函数输出 `1`；构造 `Heap1` 时输出 `2`。`pc1->show()` 输出字符串长度 `7`。两个 `delete` 分别调用析构函数，每次输出 `0`。
+  </Explanation>
+</PTAQuiz>
+
+
+## 程序填空题
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-1">
+  <Q>
+    Run the following program, Enter: 1, the output is: 55 34 21 13 8 5 3 2 1 1
+
+    <PTACodeContent lang="cpp">
+{`#include <iostream>
+using namespace std;
+
+enum ERROR{UnderFlow,OverFlow};
+template<typename T>
+class StackTemplate {
+    enum { ssize = 100 };
+    T stack[ssize];
+    int top;
+public:
+    StackTemplate() : top(0) {}
+    void push(const T& i) {
+        if (top >= ssize)  `}
+<Blank>{`throw OverFlow`}</Blank>
+{`;
+        stack[top++] = i;
+    }
+    T pop() {
+        if (`}
+<Blank>{`top <= 0`}</Blank>
+{`) throw UnderFlow;
+        return `}
+<Blank>{`stack[--top]`}</Blank>
+{`;
+    }
+    int size() const
+    { return top; }
+};
+int fibonacci(int n);
+
+int main() {
+    `}
+<Blank>{`try`}</Blank>
+{` {
+        `}
+<Blank>{`StackTemplate<int>`}</Blank>
+{` is;
+        for(int i = 0; i < 20; i++)
+            is.push(fibonacci(i));
+        for(int k = 0; k < 20; k++)
+            cout << is.pop() << "\\t";
+    }
+    catch( ERROR e ) {
+        switch(`}
+<Blank>{`e`}</Blank>
+{`)
+        {
+        case OverFlow:
+            exit;
+        case UnderFlow:
+            exit;
+        }
+    }
+    catch(...)
+    {
+        exit;
+    }
+    return 0;
+}
+
+int fibonacci(int n) 
+{
+    `}
+<Blank>{`const`}</Blank>
+{` int sz = 100;
+    int i;
+    static int f[sz]; 
+    if (n >= sz) `}
+<Blank>{`throw OverFlow`}</Blank>
+{`;
+       f[0] = f[1] = 1;
+    for(i = 0; i < sz; i++)
+        if(f[i] == 0) break;
+    while(i <= n) {
+        `}
+<Blank>{`f[i]`}</Blank>
+{` = f[i-1] + f[i-2];
+        i++;
+    }
+    return `}
+<Blank>{`f[n]`}</Blank>
+{`;
+}
+`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    栈模板题要求用异常处理上下溢：满栈时抛 `OverFlow`，空栈时抛 `UnderFlow`。`pop` 先递减 `top` 再返回栈顶元素，因此输出 Fibonacci 数列时会按后进先出的逆序打印。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-2">
+  <Q>
+    Run the following program, the output is: B::f()
+
+    <PTACodeContent lang="cpp">
+{`#include <iostream>
+using namespace std;
+class A{ 
+public: 
+    `}
+<Blank>{`virtual void f()`}</Blank>
+{`{ cout<<"A::f()\\n"; } 
+ }; 
+class B:public A{ 
+ public:
+      void f() {cout<<"B::f()\\n"; } 
+ }; 
+int main() 
+{ 
+   B b;
+   A &p `}
+<Blank>{`=b`}</Blank>
+{`;
+   `}
+<Blank>{`p.`}</Blank>
+{`f(); 
+   return 0;
+}
+`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    要通过基类引用调用派生类实现，基类函数必须声明为 `virtual`。`A &p = b;` 让引用绑定到 `B` 对象，`p.f()` 经虚函数机制动态绑定到 `B::f()`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-3">
+  <Q>
+    <PTACodeContent lang="cpp">
+{`#include <iostream>
+using namespace std;
+class IndexError{};
+template `}
+<Blank>{`<typename T>`}</Blank>
+{`
+class ARRAY
+{
+    size_t m_size;
+    T *m_ptr;
+public:
+    ARRAY(size_t size) : m_size(size)
+    {    
+        m_ptr = new T[size];    
+        memset(m_ptr, 0, size*sizeof(int));
+    }
+    ~ARRAY()
+    {    
+        delete[] m_ptr;    
+    }
+    T& at(int index);
+};
+
+template <typename T>
+`}
+<Blank>{`T&ARRAY<T>`}</Blank>
+{`::at(int index)  
+{
+    if(index<0||`}
+<Blank>{`index>=m_size`}</Blank>
+{`)  
+    {
+        `}
+<Blank>{`throw`}</Blank>
+{` IndexError();  
+    }
+    return m_ptr[index];
+}
+
+int main()
+{
+    ARRAY<int> a(50);
+    int i;
+    cin >> i;
+    `}
+<Blank>{`try`}</Blank>
+{`  
+    {
+        for(int j=0;j<i;j++)
+            a.at(i) = j;
+    }
+    catch(IndexError e)
+    {
+        return 0;
+    }
+    return 0;
+}
+`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    这是类模板成员函数类外定义题。模板头应为 `template <typename T>`，成员函数返回类型和作用域为 `T& ARRAY<T>::at`，越界条件是 `index < 0 || index >= m_size`，越界时 `throw IndexError()`，调用处用 `try-catch` 处理。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-4">
+  <Q>
+    Run the following program, Enter: 1, the output is:
+
+    S1 == S2
+
+    HfLLO
+
+    HFLLO
+
+    <PTACodeContent lang="cpp">
+{`#include <iostream>
+using namespace std;
+class ERROR{};
+class STRING
+{
+   char *m_pStr;
+   int m_len;
+public:
+   STRING(char *str=NULL){
+      if (str != NULL) {   
+           m_len = strlen(str);
+         m_pStr = `}
+<Blank>{`new char[m_len+1]`}</Blank>
+{`;  
+         strcpy(`}
+<Blank>{`m_pStr,str`}</Blank>
+{`);   
+      }
+      else {
+         m_len = 0;
+         m_pStr = NULL;
+      }
+   }  
+   `}
+<Blank>{`STRING&`}</Blank>
+{` operator=(char *str)  
+   {
+      `}
+<Blank>{`delete[]`}</Blank>
+{` m_pStr ;   
+      m_len = strlen(str)+1;
+      m_pStr = new char[m_len]; 
+      strcpy(`}
+<Blank>{`m_pStr,str`}</Blank>
+{`); 
+      return `}
+<Blank>{`*this`}</Blank>
+{`;  
+   }
+ 
+   bool operator==(STRING str) `}
+<Blank>{`const`}</Blank>
+{`
+   {
+      return (`}
+<Blank>{`strcmp`}</Blank>
+{`(m_pStr, str.m_pStr)== 0);  
+   }
+   char operator [] (int i) `}
+<Blank>{`const`}</Blank>
+{`
+   {
+      if (i<m_len && i>=0) return m_pStr[i];
+      throw `}
+<Blank>{`ERROR()`}</Blank>
+{`;
+   }
+   char& operator[](int i) `}
+<Blank>{``}</Blank>
+{`
+   { 
+       if (i<m_len && i>=0) return m_pStr[i];
+       ERROR e;
+       `}
+<Blank>{`throw e`}</Blank>
+{`;  
+   }
+  `}
+<Blank>{`friend`}</Blank>
+{` ostream& operator<<(ostream& out ,STRING s); 
+};
+ostream& operator<<(ostream& out ,STRING s)     
+{
+   out << s.m_pStr;
+   return out;  
+}
+
+int main()
+{
+   STRING s1,s2("HeLLO");
+   int i;
+   cin >> i;
+   s1 = s2;
+   if (s1 == s2) cout << "S1 == S2\\n";
+   s1[1] = s1[1] + 1;
+   cout << s1 << endl;;
+
+   `}
+<Blank>{`try`}</Blank>
+{`{  
+       if(s1[i]>='a' && s1[i]<='z') s1[i] =  s1[i] - 32;
+       cout << s1 << endl;
+   }
+   `}
+<Blank>{`catch`}</Blank>
+{`(   ERROR& e)  
+   {
+      cout << "upperbound overflow";
+   }
+   return 0;
+}
+`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    `STRING` 题综合考查动态字符数组、赋值运算符、下标运算符、友元输出和异常处理。分配空间要包含结尾空字符；赋值返回 `*this`；`const` 下标返回字符值，非 `const` 下标返回引用以便修改；越界时抛出并捕获 `ERROR`。
+    其中空答案表示该位置不需要写任何额外限定符或语句。
+  </Explanation>
+</PTAQuiz>

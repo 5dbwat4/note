@@ -1,0 +1,129 @@
+---
+title: "OOP 22-23 Mock 2"
+---
+
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
+
+# OOP 22-23 Mock 2
+
+## 填空题
+
+<PTAQuiz fill-in-the-blank title="4-1">
+  <Q>
+    write the output of the code below.
+
+    
+
+    :
+
+    ```cpp
+    #include<iostream>
+    using namespace std;
+    
+    class INCREMENT 
+    {
+    public:
+       INCREMENT( int v = 0, int i = 1 ); 
+       void addIncrement() 
+       { 
+          v += increment; 
+       } 
+       void print() const; 
+       int get() const
+       {
+           return v;
+       }
+    private:
+       int v;
+       const int increment; 
+    }; 
+    
+    INCREMENT::INCREMENT( int v, int i ) : v( v ), increment( i )    
+    { 
+    } 
+    
+    void INCREMENT::print() const
+    {
+       cout << v << endl;
+    } 
+    int main()
+    {
+       INCREMENT value( 1, 2);
+       value.print();
+    
+       for ( int j = 1; j <= 2; j++ ) 
+       {
+          value.addIncrement();
+          value.print();
+       } 
+       return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+
+  Line 2: <Blank>{`3`}</Blank>
+
+  Line 3: <Blank>{`5`}</Blank>
+
+  <Explanation>
+    构造 `INCREMENT value(1, 2)` 后，`v` 初值为 `1`，常量成员 `increment` 为 `2`。先输出初值 `1`，循环两次分别执行 `v += 2`，所以后两行是 `3` 和 `5`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-2">
+  <Q>
+    write the output of the code below.
+
+    
+
+    :
+
+    ```cpp
+    #include<iostream>
+    using namespace std;
+    class TEST
+    { 
+        int num; 
+    public:
+        TEST( int num=0); 
+        void increment( ) ;
+        ~TEST( );
+    }; 
+    TEST::TEST(int num) : num(num)
+    {
+        cout << num  << endl; 
+    } 
+    void TEST::increment() 
+    {
+        num++;
+    }
+    TEST::~TEST( )
+    {
+        cout << num  << endl;
+    } 
+    int main( ) 
+    {
+        TEST array[2]; 
+        array[0].increment();
+        array[1].increment();
+        return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`0`}</Blank>
+
+  Line 2: <Blank>{`0`}</Blank>
+
+  Line 3: <Blank>{`1`}</Blank>
+
+  Line 4: <Blank>{`1`}</Blank>
+
+  <Explanation>
+    数组 `TEST array[2]` 会顺序默认构造两个元素，构造函数各输出一次初值 `0`。两个元素随后都执行 `increment()` 变成 `1`；函数结束时数组元素按逆序析构，所以又输出两个 `1`。
+  </Explanation>
+</PTAQuiz>

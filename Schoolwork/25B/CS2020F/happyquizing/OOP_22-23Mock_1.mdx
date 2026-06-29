@@ -1,0 +1,393 @@
+---
+title: "OOP 22-23 Mock 1"
+---
+
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
+
+# OOP 22-23 Mock 1
+
+## 判断题
+
+<PTAQuiz true-or-false correct={true} title="1-1">
+  <Q>
+    对单目运算符重载为友元函数时，可以说明一个形参。而重载为成员函数时，不能显式说明形参。
+  </Q>
+
+  <Explanation>
+    单目运算符作为成员函数重载时，左操作数就是当前对象 `*this`，因此不显式写参数；作为友元或普通非成员函数时，需要一个形参表示操作数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false correct={true} title="1-2">
+  <Q>
+    虚函数是用`virtual` 关键字说明的成员函数。
+  </Q>
+
+  <Explanation>
+    虚函数是在类中用 `virtual` 声明的成员函数，用于通过基类指针或引用实现运行时多态。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false correct={true} title="1-3">
+  <Q>
+    使用提取符(&lt;&lt;)可以输出各种基本数据类型的变量的值，也可以输出指针值。
+  </Q>
+
+  <Explanation>
+    题干把 `<<` 称为“提取符”不严谨，`<<` 通常是插入运算符；但它确实可以输出基本类型值和指针值。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false correct={true} title="1-4">
+  <Q>
+    因为静态成员函数不能是虚函数，所以它们不能实现多态。
+  </Q>
+
+  <Explanation>
+    静态成员函数没有 `this` 指针，不能是虚函数；C++ 的动态多态依赖虚函数机制，因此静态成员函数本身不能实现运行时多态。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz true-or-false correct={false} title="1-5">
+  <Q>
+    重载`operator+`时，返回值的类型应当与形参类型一致。
+
+    比如以下程序中，`operator+`的返回值类型有错：
+
+    ```cpp
+    class A {
+        int x;
+    public:
+        A(int t=0):x(t){ }
+        int operator+(const A& a1){ return x+a1.x; }
+    };
+    ```
+  </Q>
+
+  <Explanation>
+    `operator+` 的返回类型不必须和形参类型一致。示例中返回 `int` 表示把两个 `A` 对象内部的 `x` 相加，这在语法上是允许的。
+  </Explanation>
+</PTAQuiz>
+
+
+## 单选题
+
+<PTAQuiz multiple-choice correct={2} title="2-1">
+  <Q>
+    对象之间的相互作用和通信是通过消息。（ ）不是消息的组成部分。
+  </Q>
+
+  <C>
+    接受消息的对象
+  </C>
+
+  <C>
+    要执行的函数的名字
+  </C>
+
+  <C>
+    要执行的函数的内部结构
+  </C>
+
+  <C>
+    函数需要的参数
+  </C>
+
+  <Explanation>
+    面向对象中的消息通常包括接收对象、要调用的操作名以及参数；函数内部结构属于实现细节，不是消息本身的一部分。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={3} title="2-2">
+  <Q>
+    （ ）不是面向对象程序设计的主要特征。
+  </Q>
+
+  <C>
+    封装
+  </C>
+
+  <C>
+    继承
+  </C>
+
+  <C>
+    多态
+  </C>
+
+  <C>
+    结构
+  </C>
+
+  <Explanation>
+    面向对象的主要特征通常是封装、继承和多态；“结构”不是这一组核心特征。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-3">
+  <Q>
+    对定义重载函数的下列要求中，（ ）是错误的。
+  </Q>
+
+  <C>
+    要求参数的个数不同
+  </C>
+
+  <C>
+    要求参数中至少有一个类型不同
+  </C>
+
+  <C>
+    要求函数的返回值不同
+  </C>
+
+  <C>
+    要求参数个数相同时，参数类型不同
+  </C>
+
+  <Explanation>
+    函数重载要求参数列表不同，不能只靠返回值类型不同来区分两个重载函数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={3} title="2-4">
+  <Q>
+    关于动态绑定的下列描述中，（ ）是错误的。
+  </Q>
+
+  <C>
+    动态绑定是以虚函数为基础的
+  </C>
+
+  <C>
+    动态绑定在运行时确定所调用的函数代码
+  </C>
+
+  <C>
+    动态绑定调用函数操作是通过指向对象的指针或对象引用来实现的
+  </C>
+
+  <C>
+    动态绑定是在编译时确定操作函数的
+  </C>
+
+  <Explanation>
+    动态绑定依赖虚函数，通过基类指针或引用在运行时决定调用哪个实现；“编译时确定”描述的是静态绑定。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-5">
+  <Q>
+    关于虚函数的描述中，（ ）是正确的。
+  </Q>
+
+  <C>
+     虚函数是一个`static` 类型的成员函数
+  </C>
+
+  <C>
+    虚函数是一个非成员函数
+  </C>
+
+  <C>
+    基类中说明了虚函数后，派生类中与其对应的函数可不必说明为虚函数
+  </C>
+
+  <C>
+    派生类的虚函数与基类的虚函数具有不同的参数个数和类型
+  </C>
+
+  <Explanation>
+    基类函数一旦声明为虚函数，派生类中同签名函数即使不再写 `virtual` 也仍然是虚函数。虚函数不是 `static` 成员，也不是非成员函数。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-6">
+  <Q>
+    下列叙述中，不正确的是（ ）。
+  </Q>
+
+  <C>
+    构造函数必须和类同名
+  </C>
+
+  <C>
+    构造函数和析构函数都没有返回值
+  </C>
+
+  <C>
+    析构函数中不能加代码
+  </C>
+
+  <C>
+    析构函数不能带参数
+  </C>
+
+  <Explanation>
+    正确选项是 `C`：析构函数中不能加代码。该选项符合 C++ 面向对象或语法规则，其余选项与定义不符。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-7">
+  <Q>
+    在下面类声明中，关于生成对象不正确的是（ ）。
+
+    ```cpp
+    class point
+    { public:
+    int x;
+    int y;
+    point(int a,int b) {x=a;y=b;}
+    };
+    ```
+  </Q>
+
+  <C>`point p(10,2);`</C>
+
+  <C>`point *p=new point(1,2);`</C>
+
+  <C>`point *p=new point[2];`</C>
+
+  <C>`point *p[2]={new point(1,2), new point(3,4)};`</C>
+
+  <Explanation>
+     类 `point` 只定义了带两个参数的构造函数，没有默认构造函数，因此 `new point[2]` 需要默认构造数组元素，会编译失败。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-8">
+  <Q>
+    下列运算符中，（ ）运算符不能重载。
+  </Q>
+
+  <C>`&&`</C>
+
+  <C>`[]`</C>
+
+  <C>`::`</C>
+
+  <C>`<<`</C>
+
+  <Explanation>
+    `::` 是作用域解析运算符，不能重载；`&&`、`[]`、`<<` 都可以在符合规则的情况下重载。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={2} title="2-9">
+  <Q>
+    关于纯虚函数和抽象类的描述中，（ ）是错误的。
+  </Q>
+
+  <C>
+    纯虚函数是一种特殊的虚函数，它没有具体的实现
+  </C>
+
+  <C>
+    抽象类是指具有纯虚函数的类
+  </C>
+
+  <C>
+    一个基类中说明有纯虚函数，该基类的派生类一定不再是抽象类
+  </C>
+
+  <C>
+    抽象类只能作为基类来使用，其纯虚函数的实现由派生类给出
+  </C>
+
+  <Explanation>
+    派生类只有实现了继承来的所有纯虚函数后才不再是抽象类；否则派生类仍然是抽象类。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz multiple-choice correct={0} title="2-10">
+  <Q>
+    在下列关键字中,用以说明类中公有成员的是（ ）。
+  </Q>
+
+  <C>
+    public
+  </C>
+
+  <C>
+    private
+  </C>
+
+  <C>
+    protected
+  </C>
+
+  <C>
+    friend
+  </C>
+
+  <Explanation>
+    `public` 用于声明类的公有成员，`private` 和 `protected` 分别表示私有和保护访问，`friend` 是友元声明。
+  </Explanation>
+</PTAQuiz>
+
+
+## 程序填空题
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-1">
+  <Q>
+    打印“Hello World!”，占一行。
+
+    <PTACodeContent lang="cpp">
+{`#include <iostream>
+using namespace std;
+int main()
+{
+    cout<<"`}
+<Blank>{`Hello World!`}</Blank>
+{`"<<endl;
+    return 0;
+}
+`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    空格位于字符串字面量内部，题目要求输出一行 `Hello World!`，因此补入该字符串内容即可。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-2">
+  <Q>
+    阅读下面的程序，完成其中复制构造函数的代码。
+
+    <PTACodeContent lang="cpp">
+{`#include <iostream>
+using namespace std;
+class CAT
+{     public:
+           CAT();
+           CAT(const CAT&);
+          ~CAT();
+          int GetAge() const { return *itsAge; }
+          void SetAge(int age){ *itsAge=age; }
+      protected:
+          int* itsAge;
+};
+CAT::CAT()
+{    itsAge=new int;
+     *itsAge =5;
+}
+CAT::CAT(const CAT& c)
+{
+`}
+<Blank>{`itsAge = new int`}</Blank>
+{`; 
+`}
+<Blank>{`*itsAge= *(c.itsAge)`}</Blank>
+{`; 
+}
+CAT::~CAT()
+{     delete itsAge;   }
+`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    复制构造函数必须做深拷贝：先为当前对象重新分配一个 `int`，再把源对象指针指向的值复制过来。若只复制指针，会导致两个对象共享同一块内存并在析构时重复释放。
+  </Explanation>
+</PTAQuiz>

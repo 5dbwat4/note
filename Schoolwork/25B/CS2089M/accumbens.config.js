@@ -1,4 +1,4 @@
 export default {
-    "entries":["iundex.mdx"],
+    "entries":["index.mdx"],
     "name":"数据库系统"
 }                       

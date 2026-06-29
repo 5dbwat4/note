@@ -1,0 +1,914 @@
+---
+title: "OOP 22-23 Mock 4"
+---
+
+import { PTAQuiz, Q, C, A, Blank, PTACodeContent, Explanation } from "@md-comp/ptaquiz";
+
+# OOP 22-23 Mock 4
+
+## 填空题
+
+<PTAQuiz fill-in-the-blank title="4-1">
+  <Q>
+    write the output of the code below.
+
+    
+
+    1.the output at //1 is
+
+    
+
+    2.the output at //2 is
+
+    
+
+    3.the output at //3 is
+
+    
+
+    4.the output at //4 is
+
+    
+
+    5.the output at //5 is
+
+    ```cpp
+    #include <iostream>
+    #include <string>
+    using namespace std ;
+    
+    class Testing
+    {
+    private:
+        string words; 
+        int number ;
+    public:
+        Testing(const string & s = "Testing")
+        {
+            words = s ;
+            number = words.length();
+            if (words.compare("Testing")==0)
+                cout << 1;
+            else if (words.compare("Heap1")==0)
+                cout << 2;
+            else
+                cout << 3;
+        }
+        ~Testing()
+        {
+            cout << 0;
+        }
+        void show() const
+        {
+            cout << number;
+        }
+    };
+    int main()
+    {
+        Testing *pc1 , *pc2;
+        pc1 = new Testing ;          //1
+        pc2 = new Testing("Heap1");  //2
+        pc1->show();   //3
+        delete pc1 ;   //4
+        delete pc2 ;   //5
+        return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+
+  Line 2: <Blank>{`2`}</Blank>
+
+  Line 3: <Blank>{`7`}</Blank>
+
+  Line 4: <Blank>{`0`}</Blank>
+
+  Line 5: <Blank>{`0`}</Blank>
+
+  <Explanation>
+    默认构造 `Testing` 时字符串为 `Testing`，构造函数输出 `1`；构造 `Heap1` 时输出 `2`。`pc1->show()` 输出字符串长度 `7`。两个 `delete` 分别调用析构函数，每次输出 `0`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-2">
+  <Q>
+    write the output of the code below.
+
+    ```cpp
+    #include<iostream>
+    #include<string>
+    using namespace std;
+    
+    class Pet {
+    public:
+        virtual string speak() const { return "pet!"; }
+    };
+    class Dog : public Pet {
+    public:
+        string speak() const { return "dog!"; }
+    };
+    int main() {
+        Dog ralph;
+        Pet* p1 = &ralph;
+        Pet& p2 = ralph;
+        Pet p3;
+        cout << p1->speak() <<endl;
+        cout << p2.speak() << endl;
+        cout << p3.speak() << endl;
+        return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`dog!`}</Blank>
+
+  Line 2: <Blank>{`dog!`}</Blank>
+
+  Line 3: <Blank>{`pet!`}</Blank>
+
+  <Explanation>
+    `speak()` 是虚函数。`p1` 指针和 `p2` 引用都绑定到 `Dog` 对象，动态绑定到 `Dog::speak()`；`p3` 是独立的 `Pet` 对象，调用 `Pet::speak()`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-3">
+  <Q>
+    write the output of the code below.
+
+    
+
+    :
+
+    ```cpp
+    #include<iostream>
+    using namespace std;
+    
+    class INCREMENT 
+    {
+    public:
+       INCREMENT( int v = 0, int i = 1 ); 
+       void addIncrement() 
+       { 
+          v += increment; 
+       } 
+       void print() const; 
+       int get() const
+       {
+           return v;
+       }
+    private:
+       int v;
+       const int increment; 
+    }; 
+    
+    INCREMENT::INCREMENT( int v, int i ) : v( v ), increment( i )    
+    { 
+    } 
+    
+    void INCREMENT::print() const
+    {
+       cout << v << endl;
+    } 
+    int main()
+    {
+       INCREMENT value( 1, 2);
+       value.print();
+    
+       for ( int j = 1; j <= 2; j++ ) 
+       {
+          value.addIncrement();
+          value.print();
+       } 
+       return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+
+  Line 2: <Blank>{`3`}</Blank>
+
+  Line 3: <Blank>{`5`}</Blank>
+
+  <Explanation>
+    构造 `INCREMENT value(1, 2)` 后，`v` 初值为 `1`，常量成员 `increment` 为 `2`。先输出初值 `1`，循环两次分别执行 `v += 2`，所以后两行是 `3` 和 `5`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-4">
+  <Q>
+    write the output of the code below.
+
+    
+
+    :
+
+    ```cpp
+    #include<iostream>
+    using namespace std;
+    
+    enum NOTE { middleC, Csharp, Cflat }; 
+    class Instrument {
+    public:
+      virtual void play(NOTE) const = 0;
+      virtual char* what() const = 0;
+      virtual void adjust(int) = 0;
+    };
+    
+    class Wind : public Instrument {
+    public:
+      void play(NOTE) const {
+        cout << 1 << endl;
+      }
+      char* what() const { return "Wind"; }
+      void adjust(int) {}
+    };
+    
+    class Percussion : public Instrument {
+    public:
+      void play(NOTE) const {
+        cout << 2 << endl;
+      }
+      char* what() const { return "Percussion"; }
+      void adjust(int) {}
+    };
+    
+    class Stringed : public Instrument {
+    public:
+      void play(NOTE) const {
+        cout << 3 << endl;
+      }
+      char* what() const { return "Stringed"; }
+      void adjust(int) {}
+    };
+    
+    class Brass : public Wind {
+    public:
+      void play(NOTE) const {
+        cout << 11 << endl;
+      }
+      char* what() const { return "Brass"; }
+    };
+    
+    class Woodwind : public Wind {
+    public:
+      void play(NOTE) const {
+        cout << 12 << endl;
+      }
+      char* what() const { return "Woodwind"; }
+    };
+    
+    void tune(Instrument& i) {
+      i.play(middleC);
+    }
+    
+    void f(Instrument& i) { i.adjust(1); }
+    
+    int main() {
+      Wind flute;
+      Percussion drum;
+      Stringed violin;
+      Brass flugelhorn;
+      Woodwind recorder;
+      tune(flute);
+      tune(drum);
+      tune(violin);
+      tune(flugelhorn);
+      tune(recorder);
+      f(flugelhorn);
+      return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+
+  Line 2: <Blank>{`2`}</Blank>
+
+  Line 3: <Blank>{`3`}</Blank>
+
+  Line 4: <Blank>{`11`}</Blank>
+
+  Line 5: <Blank>{`12`}</Blank>
+
+  <Explanation>
+    `tune` 接收 `Instrument&` 并调用虚函数 `play`，因此根据实际对象类型动态绑定：`Wind`、`Percussion`、`Stringed`、`Brass`、`Woodwind` 分别输出 `1`、`2`、`3`、`11`、`12`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-5">
+  <Q>
+    write the output of the code below.
+
+    
+
+    :
+
+    ```cpp
+    #include<iostream>
+    using namespace std;
+    class TEST
+    { 
+        int num; 
+    public:
+        TEST( int num=0); 
+        void increment( ) ;
+        ~TEST( );
+    }; 
+    TEST::TEST(int num) : num(num)
+    {
+        cout << num  << endl; 
+    } 
+    void TEST::increment() 
+    {
+        num++;
+    }
+    TEST::~TEST( )
+    {
+        cout << num  << endl;
+    } 
+    int main( ) 
+    {
+        TEST array[2]; 
+        array[0].increment();
+        array[1].increment();
+        return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`0`}</Blank>
+
+  Line 2: <Blank>{`0`}</Blank>
+
+  Line 3: <Blank>{`1`}</Blank>
+
+  Line 4: <Blank>{`1`}</Blank>
+
+  <Explanation>
+    数组 `TEST array[2]` 会顺序默认构造两个元素，构造函数各输出一次初值 `0`。两个元素随后都执行 `increment()` 变成 `1`；函数结束时数组元素按逆序析构，所以又输出两个 `1`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank title="4-6">
+  <Q>
+    write the output of the code below.
+
+    
+
+    :
+
+    ```cpp
+    #include<iostream>
+    using namespace std;
+    class Base{
+    protected:
+        int x;
+    public:
+        Base(int b=0): x(b) { }
+        virtual void display() const {cout << x << endl;}
+    };
+    class Derived: public Base{
+        int y;
+    public:
+        Derived(int d=0): y(d) { }
+        void display() {cout << x << "," << y << endl;}
+    };
+    int main()
+    {
+      Base b(1);
+      Derived d(2);
+      Base *p = &d;
+      b.display();
+      d.display();
+      p->display();
+      return 0;
+    }
+    ```
+
+  </Q>
+
+  Line 1: <Blank>{`1`}</Blank>
+
+  Line 2: <Blank>{`0,2`}</Blank>
+
+  Line 3: <Blank>{`0`}</Blank>
+
+  <Explanation>
+    `Base b(1)` 输出 `1`。`Derived d(2)` 没有显式调用 `Base(int)`，因此基类子对象 `x` 默认是 `0`，派生类成员 `y` 是 `2`。`Derived::display()` 缺少 `const`，没有覆盖 `Base::display() const`，所以经 `Base*` 调用时仍输出基类的 `0`。
+  </Explanation>
+</PTAQuiz>
+
+
+## 程序填空题
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-1">
+  <Q>
+    Run the following program, the output is: B::f()
+
+    <PTACodeContent lang="cpp">
+{`#include <iostream>
+using namespace std;
+class A{ 
+public: 
+    `}
+<Blank>{`virtual void f()`}</Blank>
+{`{ cout<<"A::f()\\n"; } 
+ }; 
+class B:public A{ 
+ public:
+      void f() {cout<<"B::f()\\n"; } 
+ }; 
+int main() 
+{ 
+   B b;
+   A &p `}
+<Blank>{`=b`}</Blank>
+{`;
+   `}
+<Blank>{`p.`}</Blank>
+{`f(); 
+   return 0;
+}
+`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    要通过基类引用调用派生类实现，基类函数必须声明为 `virtual`。`A &p = b;` 让引用绑定到 `B` 对象，`p.f()` 经虚函数机制动态绑定到 `B::f()`。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-3">
+  <Q>
+    Run the following program, Enter: 1, the output is:
+
+    S1 == S2
+
+    HfLLO
+
+    HFLLO
+
+    <PTACodeContent lang="cpp">
+{`#include <iostream>
+using namespace std;
+class ERROR{};
+class STRING
+{
+   char *m_pStr;
+   int m_len;
+public:
+   STRING(char *str=NULL){
+      if (str != NULL) {   
+           m_len = strlen(str);
+         m_pStr = `}
+<Blank>{`new char[m_len+1]`}</Blank>
+{`;  
+         strcpy(`}
+<Blank>{`m_pStr,str`}</Blank>
+{`);   
+      }
+      else {
+         m_len = 0;
+         m_pStr = NULL;
+      }
+   }  
+   `}
+<Blank>{`STRING&`}</Blank>
+{` operator=(char *str)  
+   {
+      `}
+<Blank>{`delete[]`}</Blank>
+{` m_pStr ;   
+      m_len = strlen(str)+1;
+      m_pStr = new char[m_len]; 
+      strcpy(`}
+<Blank>{`m_pStr,str`}</Blank>
+{`); 
+      return `}
+<Blank>{`*this`}</Blank>
+{`;  
+   }
+ 
+   bool operator==(STRING str) `}
+<Blank>{`const`}</Blank>
+{`
+   {
+      return (`}
+<Blank>{`strcmp`}</Blank>
+{`(m_pStr, str.m_pStr)== 0);  
+   }
+   char operator [] (int i) `}
+<Blank>{`const`}</Blank>
+{`
+   {
+      if (i<m_len && i>=0) return m_pStr[i];
+      throw `}
+<Blank>{`ERROR()`}</Blank>
+{`;
+   }
+   char& operator[](int i) `}
+<Blank>{``}</Blank>
+{`
+   { 
+       if (i<m_len && i>=0) return m_pStr[i];
+       ERROR e;
+       `}
+<Blank>{`throw e`}</Blank>
+{`;  
+   }
+  `}
+<Blank>{`friend`}</Blank>
+{` ostream& operator<<(ostream& out ,STRING s); 
+};
+ostream& operator<<(ostream& out ,STRING s)     
+{
+   out << s.m_pStr;
+   return out;  
+}
+
+int main()
+{
+   STRING s1,s2("HeLLO");
+   int i;
+   cin >> i;
+   s1 = s2;
+   if (s1 == s2) cout << "S1 == S2\\n";
+   s1[1] = s1[1] + 1;
+   cout << s1 << endl;;
+
+   `}
+<Blank>{`try`}</Blank>
+{`{  
+       if(s1[i]>='a' && s1[i]<='z') s1[i] =  s1[i] - 32;
+       cout << s1 << endl;
+   }
+   `}
+<Blank>{`catch`}</Blank>
+{`(   ERROR& e)  
+   {
+      cout << "upperbound overflow";
+   }
+   return 0;
+}
+`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    `STRING` 题综合考查动态字符数组、赋值运算符、下标运算符、友元输出和异常处理。分配空间要包含结尾空字符；赋值返回 `*this`；`const` 下标返回字符值，非 `const` 下标返回引用以便修改；越界时抛出并捕获 `ERROR`。
+    其中空答案表示该位置不需要写任何额外限定符或语句。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-4">
+  <Q>
+    <PTACodeContent lang="cpp">
+{`#include <iostream>
+using namespace std;
+class IndexError{};
+template `}
+<Blank>{`<typename T>`}</Blank>
+{`
+class ARRAY
+{
+    size_t m_size;
+    T *m_ptr;
+public:
+    ARRAY(size_t size) : m_size(size)
+    {    
+        m_ptr = new T[size];    
+        memset(m_ptr, 0, size*sizeof(int));
+    }
+    ~ARRAY()
+    {    
+        delete[] m_ptr;    
+    }
+    T& at(int index);
+};
+
+template <typename T>
+`}
+<Blank>{`T&ARRAY<T>`}</Blank>
+{`::at(int index)  
+{
+    if(index<0||`}
+<Blank>{`index>=m_size`}</Blank>
+{`)  
+    {
+        `}
+<Blank>{`throw`}</Blank>
+{` IndexError();  
+    }
+    return m_ptr[index];
+}
+
+int main()
+{
+    ARRAY<int> a(50);
+    int i;
+    cin >> i;
+    `}
+<Blank>{`try`}</Blank>
+{`  
+    {
+        for(int j=0;j<i;j++)
+            a.at(i) = j;
+    }
+    catch(IndexError e)
+    {
+        return 0;
+    }
+    return 0;
+}
+`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    这是类模板成员函数类外定义题。模板头应为 `template <typename T>`，成员函数返回类型和作用域为 `T& ARRAY<T>::at`，越界条件是 `index < 0 || index >= m_size`，越界时 `throw IndexError()`，调用处用 `try-catch` 处理。
+  </Explanation>
+</PTAQuiz>
+
+<PTAQuiz fill-in-the-blank-for-programming title="5-5">
+  <Q>
+    Run the following program, Enter: 1, the output is: 55 34 21 13 8 5 3 2 1 1
+
+    <PTACodeContent lang="cpp">
+{`#include <iostream>
+using namespace std;
+
+enum ERROR{UnderFlow,OverFlow};
+template<typename T>
+class StackTemplate {
+    enum { ssize = 100 };
+    T stack[ssize];
+    int top;
+public:
+    StackTemplate() : top(0) {}
+    void push(const T& i) {
+        if (top >= ssize)  `}
+<Blank>{`throw OverFlow`}</Blank>
+{`;
+        stack[top++] = i;
+    }
+    T pop() {
+        if (`}
+<Blank>{`top <= 0`}</Blank>
+{`) throw UnderFlow;
+        return `}
+<Blank>{`stack[--top]`}</Blank>
+{`;
+    }
+    int size() const
+    { return top; }
+};
+int fibonacci(int n);
+
+int main() {
+    `}
+<Blank>{`try`}</Blank>
+{` {
+        `}
+<Blank>{`StackTemplate<int>`}</Blank>
+{` is;
+        for(int i = 0; i < 20; i++)
+            is.push(fibonacci(i));
+        for(int k = 0; k < 20; k++)
+            cout << is.pop() << "\\t";
+    }
+    catch( ERROR e ) {
+        switch(`}
+<Blank>{`e`}</Blank>
+{`)
+        {
+        case OverFlow:
+            exit;
+        case UnderFlow:
+            exit;
+        }
+    }
+    catch(...)
+    {
+        exit;
+    }
+    return 0;
+}
+
+int fibonacci(int n) 
+{
+    `}
+<Blank>{`const`}</Blank>
+{` int sz = 100;
+    int i;
+    static int f[sz]; 
+    if (n >= sz) `}
+<Blank>{`throw OverFlow`}</Blank>
+{`;
+       f[0] = f[1] = 1;
+    for(i = 0; i < sz; i++)
+        if(f[i] == 0) break;
+    while(i <= n) {
+        `}
+<Blank>{`f[i]`}</Blank>
+{` = f[i-1] + f[i-2];
+        i++;
+    }
+    return `}
+<Blank>{`f[n]`}</Blank>
+{`;
+}
+`}
+    </PTACodeContent>
+  </Q>
+
+  <Explanation>
+    栈模板题要求用异常处理上下溢：满栈时抛 `OverFlow`，空栈时抛 `UnderFlow`。`pop` 先递减 `top` 再返回栈顶元素，因此输出 Fibonacci 数列时会按后进先出的逆序打印。
+  </Explanation>
+</PTAQuiz>
+
+
+## 函数题
+
+<PTAQuiz programming title="6-2 表彰优秀学生（多态）">
+  <Q>
+    学期结束，班主任决定表彰一批学生，已知该班学生数在6至50人之间，有三类学生：普通生，特招运动员，学科专长生，其中学科专长生不超过5人。
+    
+    主函数根据输入的信息，相应建立`GroupA`, `GroupB`, `GroupC`类对象。
+    
+    `GroupA`类是普通生，有2门课程的成绩（均为不超过100的非负整数）；
+    
+    `GroupB`类是特招运动员，有2门课程的成绩（均为不超过100的非负整数），1次运动会的表现分，表现分有：`A`、`B`、`C`、`D`共4等。
+    
+    `GroupC`类是学科专长生，有5门课程的成绩（均为不超过100的非负整数）。
+    
+    表彰人员至少符合以下3个条件中的一个：
+    
+    （1）2门课程平均分在普通生和特招运动员中，名列第一者。
+    
+    a.该平均分称为获奖线。
+    
+    b.存在成绩并列时，则全部表彰，例如某次考试有2人并列第1，则他们全部表彰。
+    
+    （2）5门课程平均分达到或超过获奖线90%的学科专长生，给予表彰。
+    
+    （3）2门课程平均分达到或超过获奖线70%的特招运动员，如果其运动会表现分为`A`，给予表彰。
+    
+    输入格式：每个测试用例占一行，第一项为类型，1为普通生，2为特招运动员，3为学科专长生, 输入0表示输入的结束。第二项是学号，第三项是姓名。对于普通生来说，共输入5项，第4、5项是课程成绩。对于特招运动员来说，共输入6项，第4、5项是课程成绩，第6项是运动会表现。对于学科专长生来说，共输入8项，第4、5、6、7、8项是课程成绩。
+    
+    输出时，打印要表彰的学生的学号和姓名。(输出顺序与要表彰学生的输入前后次序一致)
+    
+    ### 函数接口定义：
+    
+    ```cpp
+    以Student为基类，构建GroupA, GroupB和GroupC三个类
+    ```
+    
+    ### 裁判测试程序样例：
+    
+    ```cpp
+    #include<iostream>
+    #include <string>
+    using namespace std;
+    
+    /* 请在这里填写答案 */
+    
+    int main()
+    {
+    const int Size=50;
+    string num, name;
+    int i,ty,s1,s2,s3,s4,s5;
+    char gs;
+    Student *pS[Size];
+    int count=0;
+    for(i=0;i<Size;i++){
+    cin>>ty;
+    if(ty==0) break;
+    cin>>num>>name>>s1>>s2;
+    switch(ty){
+    case 1:pS[count++]=new GroupA(num, name, s1, s2); break;
+    case 2:cin>>gs; pS[count++]=new GroupB(num, name, s1,s2, gs); break;
+    case 3:cin>>s3>>s4>>s5; pS[count++]=new GroupC(num, name, s1,s2,s3,s4,s5); break;
+    }
+    }
+    for(i=0;i<count;i++) {
+    pS[i]->display();
+    delete pS[i];
+    }
+    return 0;
+    }
+    ```
+    
+    ### 输入样例：
+    
+    ```cpp
+    1 001 AAAA 96 80
+    2 009 BBB 82 75 A
+    1 007 CC 100 99
+    3 012 CCCC 97 95 90 99 93
+    1 003 DDD 62 50
+    1 022 ABCE 78 92
+    2 010 FFF 45 40 A
+    3 019 AAA 93 97 94 82 80
+    0
+    ```
+    
+    ### 输出样例：
+    
+    ```cpp
+    009 BBB
+    007 CC
+    012 CCCC
+    ```
+  </Q>
+
+  <A>
+    ```cpp
+    class Student {
+    protected:
+        string num;
+        string name;
+        static double awardLine;
+    
+    public:
+        Student(const string& n, const string& nm) : num(n), name(nm) {}
+        virtual ~Student() {}
+    
+        virtual bool excellent() const = 0;
+    
+        void display() const {
+            if (excellent()) {
+                cout << num << " " << name << endl;
+            }
+        }
+    };
+    
+    double Student::awardLine = 0;
+    
+    class GroupA : public Student {
+    protected:
+        int s1;
+        int s2;
+    
+    public:
+        GroupA(const string& n, const string& nm, int a, int b)
+            : Student(n, nm), s1(a), s2(b) {
+            double avg = (s1 + s2) / 2.0;
+            if (avg > awardLine) awardLine = avg;
+        }
+    
+        bool excellent() const override {
+            return (s1 + s2) / 2.0 == awardLine;
+        }
+    };
+    
+    class GroupB : public Student {
+    private:
+        int s1;
+        int s2;
+        char grade;
+    
+    public:
+        GroupB(const string& n, const string& nm, int a, int b, char g)
+            : Student(n, nm), s1(a), s2(b), grade(g) {
+            double avg = (s1 + s2) / 2.0;
+            if (avg > awardLine) awardLine = avg;
+        }
+    
+        bool excellent() const override {
+            double avg = (s1 + s2) / 2.0;
+            return avg == awardLine || (grade == 'A' && avg >= awardLine * 0.7);
+        }
+    };
+    
+    class GroupC : public Student {
+    private:
+        int score[5];
+    
+    public:
+        GroupC(const string& n, const string& nm, int a, int b, int c, int d, int e)
+            : Student(n, nm) {
+            score[0] = a;
+            score[1] = b;
+            score[2] = c;
+            score[3] = d;
+            score[4] = e;
+        }
+    
+        bool excellent() const override {
+            int sum = 0;
+            for (int i = 0; i < 5; ++i) sum += score[i];
+            return sum / 5.0 >= awardLine * 0.9;
+        }
+    };
+    ```
+
+    解析：基类 `Student` 保存学号和姓名，并用静态成员 `awardLine` 记录普通生和特招运动员两门课平均分的最高值。`GroupA` 与 `GroupB` 构造时更新获奖线；最终统一调用虚函数 `excellent()` 判断是否表彰。`GroupC` 用五门课平均分与 `awardLine * 0.9` 比较，`GroupB` 还额外判断运动会表现为 `A` 且两门课平均分达到获奖线 `70%` 的情况。
+  </A>
+</PTAQuiz>
