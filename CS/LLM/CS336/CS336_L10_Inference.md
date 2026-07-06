@@ -1,3 +1,7 @@
+---
+title: "Lecture 10: Inference"
+---
+
 # Lecture 10: Inference / 第十讲：推理
 
 ## 1. Introduction: Why Inference Matters / 引言：推理为何重要

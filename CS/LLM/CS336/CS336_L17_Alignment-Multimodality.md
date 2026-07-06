@@ -1,3 +1,7 @@
+---
+title: "Lecture 17: Alignment & Multimodality"
+---
+
 # Lecture 17: Alignment & Multimodality / 第十七讲：对齐与多模态
 
 ---

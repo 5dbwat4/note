@@ -1,3 +1,7 @@
+---
+title: "Lecture 15: Mid/Post-Training"
+---
+
 # Lecture 15: Mid/Post-Training / 第十五讲：中训练与后训练
 
 ---

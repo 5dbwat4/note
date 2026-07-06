@@ -1,3 +1,7 @@
+---
+title: "Lecture 7: Parallelism"
+---
+
 # Lecture 7: Parallelism / 第七讲：并行
 
 ## Introduction / 引言

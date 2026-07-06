@@ -1,5 +1,8 @@
-# Stanford CS336: Language Modeling from Scratch — Guest Lecture by Dan Fu
-# 斯坦福 CS336：从零开始的语言建模 —— Dan Fu 客座讲座
+---
+title: "Guest Lecture: Dan Fu"
+---
+
+# Stanford CS336: Language Modeling from Scratch — Guest Lecture by Dan Fu / 斯坦福 CS336：从零开始的语言建模 —— Dan Fu 客座讲座
 
 **Spring 2026 / 2026 春季**
 

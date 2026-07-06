@@ -1,3 +1,7 @@
+---
+title: "Lecture 3: Architectures"
+---
+
 # Lecture 3: Architectures – Everything You Didn't Want to Know / 第三讲：架构——你不想知道的一切
 
 ## 1. Introduction and Philosophy / 引言与哲学

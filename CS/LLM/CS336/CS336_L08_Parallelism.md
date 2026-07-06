@@ -1,3 +1,7 @@
+---
+title: "Lecture 8: Parallelism"
+---
+
 # Lecture 8: Parallelism / 第八讲：并行
 
 ## 1. Introduction: Why Parallelism? / 一、引言：为什么需要并行？

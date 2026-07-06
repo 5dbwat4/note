@@ -1,3 +1,7 @@
+---
+title: "Lecture 4: Attention Alternatives, Mixture of Experts"
+---
+
 # Lecture 4: Attention Alternatives and Mixture of Experts / 第四讲：注意力替代方案与混合专家
 
 ## 1. Introduction / 引言

@@ -1,3 +1,7 @@
+---
+title: "Lecture 6: Kernels, Triton, XLA"
+---
+
 # Lecture 6: Kernels, Triton, XLA / 第六讲：核函数、Triton、XLA
 
 ---

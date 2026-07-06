@@ -1,5 +1,8 @@
-# CS336 Lecture 1: Overview, Tokenization
-## CS336 第一讲：课程概述与分词（Tokenization）
+---
+title: "Lecture 1: Overview, Tokenization"
+---
+
+# Lecture 1: Overview, Tokenization / 第一讲：课程概述与分词（Tokenization）
 
 ---
 

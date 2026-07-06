@@ -1,3 +1,7 @@
+---
+title: "Lecture 16: Post-Training — RLVR"
+---
+
 # Lecture 16: Post-Training — RLVR (Reinforcement Learning from Verifiable Rewards) / 第十六讲：后训练——可验证奖励的强化学习
 
 ## 1. Introduction: Why RLVR? / 引言：为什么需要RLVR？

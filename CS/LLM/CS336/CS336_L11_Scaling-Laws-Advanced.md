@@ -1,3 +1,7 @@
+---
+title: "Lecture 11: Scaling Laws — Advanced Details"
+---
+
 # Lecture 11: Scaling Laws — Advanced Details / 第十一讲：缩放定律——进阶细节
 
 ---

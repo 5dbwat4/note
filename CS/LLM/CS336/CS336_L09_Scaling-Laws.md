@@ -1,3 +1,7 @@
+---
+title: "Lecture 9: Scaling Laws"
+---
+
 # Lecture 9: Scaling Laws / 第9讲：缩放定律
 
 ## 1. Introduction and Motivation / 引言与动机

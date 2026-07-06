@@ -1,3 +1,7 @@
+---
+title: "Lecture 2: PyTorch (einops)"
+---
+
 # Lecture 2: PyTorch (einops) / 第二讲：PyTorch (einops)
 
 ## 1. Opening Announcements / 开场通告
