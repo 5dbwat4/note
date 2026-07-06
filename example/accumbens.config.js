@@ -1,10 +1,11 @@
+import { autoContentFiles } from "#accumbens/config";
 
 export default {
     "dir":import.meta.url,
     "path":{
         "default":true,
     },
-    "entries":"auto",
+    "entries":autoContentFiles(),
     "name":"example",
     "show":false,
 }

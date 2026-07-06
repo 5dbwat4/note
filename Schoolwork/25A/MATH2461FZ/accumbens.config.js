@@ -1,3 +1,4 @@
+import { autoContentFiles } from "#accumbens/config";
 export default {
     "dir":import.meta.url,
     "path":{
@@ -7,6 +8,6 @@ export default {
         "subcategories":[
         "./HW"
     ],
-    "entries":'auto',
+    "entries":autoContentFiles(),
     "name":"概率论和数理统计"
 }   

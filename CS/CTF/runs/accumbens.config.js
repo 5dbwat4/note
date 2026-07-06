@@ -1,5 +1,6 @@
+import { autoContentFiles } from "#accumbens/config";
 export default {
-    "entries":"auto",
+    "entries":autoContentFiles(),
     "name":"CTF Runs",
     "show":true,
 }

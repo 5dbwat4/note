@@ -2,7 +2,7 @@ export default {
     name:"CS",
     "subcategories":[
         "./CTF",
-        "./d2l.ai",
+        "./LLM",
         "./GAMES101-rev",
         "./Quant",
         "./ddia",

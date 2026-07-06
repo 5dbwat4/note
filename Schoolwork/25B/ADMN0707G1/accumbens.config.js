@@ -1,4 +1,5 @@
+import { autoContentFiles } from "#accumbens/config";
 export default {
-    "entries":'auto',
+    "entries":autoContentFiles(),
     "name":"创新创业实践启蒙"
 }                       

@@ -1,4 +1,5 @@
+import { autoContentFiles } from "#accumbens/config";
 export default {
-    "entries":'auto',
+    "entries":autoContentFiles(),
     "name":"中国改革开放史"
 }                       

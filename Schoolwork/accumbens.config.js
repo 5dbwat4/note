@@ -1,3 +1,4 @@
+import { autoContentFiles } from "#accumbens/config";
 
 import fs from 'fs';
 import path from 'path';
@@ -46,5 +47,5 @@ export default {
         // ...phy,
         // ...other,
     // ],
-    "entries":"auto"
+    "entries":autoContentFiles()
 }

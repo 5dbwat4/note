@@ -1,6 +1,10 @@
 import { autoContentFiles } from "#accumbens/config";
 export default {
     "entries":autoContentFiles(),
-    "name":"普通物理学实验I",
-    "shown":true,
+    "name":"LLM",
+    "show":true,
+        "subcategories":[
+        "./CS336",
+        "./d2l.ai"
+    ],
 }
