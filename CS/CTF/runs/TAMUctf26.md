@@ -1,3 +1,7 @@
+---
+title: TAMUctf 2026
+---
+
 # bad-apple
 
 AI Solveable

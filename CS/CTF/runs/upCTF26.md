@@ -1,3 +1,7 @@
+---
+title: upCTF 2026
+---
+
 ## [Misc] Jailed (AI solveable)
 
 题面：

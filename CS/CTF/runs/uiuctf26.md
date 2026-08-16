@@ -1,3 +1,7 @@
+---
+title: uiuCTF 2026
+---
+
 cooperated with AAA.
 
 

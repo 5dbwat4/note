@@ -1,3 +1,7 @@
+---
+title: Lexington Informatics Tournament CTF 2026
+---
+
 https://lit.lhsmathcs.org/ctf/challenges/
 
 感觉会被Agent碾压过去……
