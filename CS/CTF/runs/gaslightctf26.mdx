@@ -1,0 +1,305 @@
+# Sanity Check
+
+```
+gaslightCTF{w3lc0me_2_g4sl1ghtCTF!}
+```
+
+# jsbox
+
+```
+> blackbox.toString()
+blackbox.toString()
+'nice try'
+```
+
+```
+> Function.toString.call(blackbox)
+Function.toString.call(blackbox)
+'function blackbox(flag) {\n' +
+  '  const FLAG = "gaslightCTF{n4t1v3_c0d3_0r_n4t1v3_fl4g?_89f7c7f640b3}";\n' +
+  '\n' +
+  '  if (typeof flag !== "string") {\n' +
+  '    throw new TypeError("flag must be a string");\n' +
+  '  }\n' +
+  '\n' +
+  '  let ok = FLAG.length === flag.length;\n' +
+  '\n' +
+  '  // "secure comparison"\n' +
+  '  for (let i = 0; i < 10_000_000; i++) {\n' +
+  '    if (FLAG[i % FLAG.length] !== flag[i % flag.length]) {\n' +
+  '      ok = false;\n' +
+  '    }\n' +
+  '  }\n' +
+  '\n' +
+  '  return ok;\n' +
+  '}'
+>
+```
+
+# biscuit
+
+```py
+def mint(username: str) -> str:
+    builder = BiscuitBuilder(
+        f"""
+        user("{username}");
+        check if user($u), $u.length() > 0;
+        """,
+    )
+    if username == "webmaster":
+        builder.add_fact(Fact('role("admin")'))
+    return builder.build(root.private_key).to_base64()
+```
+
+inject into datalog.
+
+
+```
+gaslightCTF{d3f1nit3ly_a_cak3_f0r_l3g4l_r34s0n5_2a70876ceab1}
+```
+
+
+# Where the dream starts 1
+
+Decrypted with shift 3 (i.e., K=3): caesarreallylikedashiftofthree
+
+# affine-hill
+
+<details>
+
+<summary>Solved by deepseek-v4-flash-0731</summary>
+
+
+## Challenge Description
+
+> Many classical ciphers are inherently vulnerable to known-plaintext attacks. Unfortunately, your obstinate friend claimed that his original Affine-Hill Cipher, inspired by the Affine Cipher and Hill Cipher, is invulnerable to such attacks. He posed a challenge to anyone that claims he's wrong.
+>
+> Can you break his cipher by recovering the keywords?
+
+We are given `encrypt.py` (the encryption script) and `output.txt` (the padded plaintext and two ciphertexts produced with two different keys). The task is to recover both keywords.
+
+**Flag / Answer:**
+```
+Keyword 1: kn0wn-pl41nt3xt-4tt4
+Keyword 2: cks-4r3-sup3r-s1mpl3
+```
+
+Together the two keywords read: `kn0wn-pl41nt3xt-4tt4cks-4r3-sup3r-s1mpl3` → **"known-plaintext-attacks-are-super-simple"**
+
+---
+
+## Source Analysis
+
+The encryption script uses a 37-character alphabet:
+
+```python
+alphabet = "abcdefghijklmnopqrstuvwxyz0123456789-"   # l = 37
+```
+
+The keyword is 20 characters: the first 16 characters form the 4×4 **key matrix K** (row by row), and the last 4 characters form the **affine shift vector b**:
+
+```python
+K = Matrix([list(map(lambda x : alphabet.index(x), keyword[:-m][m*i:m*(i+1)])) for i in range(m)])
+b = Matrix(list(map(lambda x : alphabet.index(x), keyword[-m:]))).T
+```
+
+The encryption is per 4-character block. The plaintext is split into column vectors which are transposed to row vectors, then:
+
+```python
+ct_vec = list((pt_vec * K + b) % l)
+```
+
+i.e. for each block:
+
+```
+ct = pt · K + b  (mod 37)
+```
+
+where `pt`, `ct` are **row vectors** of length 4 over `Z_37`. This is a classical **Affine Cipher** over the vector space `(Z_37)^4`.
+
+### Note on the padding bug
+
+`enc_affine_hill(pt, m, ...)` pads the plaintext to a multiple of `m`, but then iterates only `for i in range(n//m)` where `n = len(pt)` (the unpadded length). Since the plaintext is 57 characters, `57 // 4 = 14` — only the **first 56 characters** of the padded plaintext are actually encrypted, not all 64. This is merely a quirk; we just drop the last ("it--") block.
+
+---
+
+## The Attack
+
+Because the plaintext is fully known, we have known-plaintext-ciphertext pairs: 14 pairs `(pt_i, ct_i)`, one per block.
+
+### Step 1 — Eliminate `b` using differences
+
+Pick block 0 as reference. For any other block `i`:
+
+```
+ct_i − ct_0 = (pt_i − pt_0) · K   (mod 37)
+```
+
+The unknown `b` cancels out, leaving a linear equation in `K` alone.
+
+### Step 2 — Solve for `K`
+
+Collect `m = 4` blocks whose difference vectors `(pt_i − pt_0)` are linearly independent over `Z_37`. Stack them as rows of `D_pt` and the corresponding ciphertext differences as rows of `D_ct`:
+
+```
+D_ct = D_pt · K   (mod 37)
+```
+
+Since `D_pt` is invertible mod 37:
+
+```
+K = D_pt⁻¹ · D_ct   (mod 37)
+```
+
+### Step 3 — Solve for `b`
+
+Plug `K` back into the equation for block 0:
+
+```
+b = ct_0 − pt_0 · K   (mod 37)
+```
+
+### Step 4 — Recover the keywords
+
+Map each matrix entry back to its alphabet character (`K` row by row, then `b`):
+
+- `K1 = [[10,13,26,22],[13,36,15,11],[30,27,13,19],[29,23,19,36]]`, `b1 = [30,19,19,30]` → `kn0wn-pl41nt3xt-4tt4`
+- `K2 = [[2,10,18,36],[30,17,29,36],[18,20,15,29],[17,36,18,27]]`, `b2 = [12,15,11,29]` → `cks-4r3-sup3r-s1mpl3`
+
+---
+
+## Verification
+
+Re-encrypting the plaintext with the recovered keys reproduces both ciphertexts byte for byte:
+
+```
+Ciphertext with key 1: x3etd0vgd7z9v6bld4ba7p94s0acp-bvfjjfywypdkzuwsgah4shanrdaop4  ✓
+Ciphertext with key 2: odbewk453xyc3210-mlqxley8loydmzgy0k6ok4i9qjcwx42om5au1-hqqkr ✓
+```
+
+---
+
+## Solution Code
+
+```python
+from sympy import Matrix
+
+alphabet = "abcdefghijklmnopqrstuvwxyz0123456789-"
+l = 37
+m = 4
+
+padded = "b3w4reofbugs1ntheab0vec0de-ih4ve0nlyprov3ditc0rrectnottr13dit---"
+ct1 = "x3etd0vgd7z9v6bld4ba7p94s0acp-bvfjjfywypdkzuwsgah4shanrdaop4"
+ct2 = "odbewk453xyc3210-mlqxley8loydmzgy0k6ok4i9qjcwx42om5au1-hqqkr"
+
+n_enc = 56  # only n//m = 57//4 = 14 blocks are actually encrypted
+
+def to_vec(block):
+    return [alphabet.index(c) for c in block]
+
+def solve(ct):
+    pts  = [Matrix(to_vec(b)) for b in [padded[i:i+m] for i in range(0, n_enc, m)]]
+    cts  = [Matrix(to_vec(b)) for b in [ct[i:i+m] for i in range(0, n_enc, m)]]
+    pt0, ct0 = pts[0], cts[0]
+    used = []
+    for i in range(1, len(pts)):
+        rows = [(pts[j] - pt0).T for j in used + [i]]
+        if len(rows) < m:
+            used.append(i); continue
+        if Matrix(rows).det() % l != 0:
+            used.append(i)
+            if len(used) == m:
+                break
+    D_pt = Matrix([(pts[j] - pt0).T for j in used])
+    D_ct = Matrix([(cts[j] - ct0).T for j in used])
+    K = (D_pt.inv_mod(l) * D_ct) % l
+    b = (ct0.T - pt0.T * K) % l
+    return K, b.T
+
+def keyword(K, b):
+    s = ''.join(alphabet[K[r, c]] for r in range(m) for c in range(m))
+    s += ''.join(alphabet[b[c, 0]] for c in range(m))
+    return s
+
+for name, ct in [("key 1", ct1), ("key 2", ct2)]:
+    K, b = solve(ct)
+    print(name, "->", keyword(K, b))
+```
+
+Output:
+```
+key 1 -> kn0wn-pl41nt3xt-4tt4
+key 2 -> cks-4r3-sup3r-s1mpl3
+```
+
+</details>
+
+kn0wn-pl41nt3xt-4tt4cks-4r3-sup3r-s1mpl3
+
+# Where the dream starts 2
+
+## Challenge Description
+
+> Musicians transpose keys regularly. Cryptanalysts transpose columns regularly.
+>
+> Keylength: key of cipher in *Where the dream starts 1*
+> Keyword: `ascii_lowercase[:keylength]`
+
+## Step 1: Recover the key from crypto1
+
+The hint tells us the key length comes from the cipher key used in `crypto1`
+("Where the dream starts 1"). In `crypto1/encrypt.py` we see a Caesar shift:
+
+```python
+ct.append((x + K) % 26)
+```
+
+The ciphertext is `fdhvduuhdoobolnhgdvkliwriwkuhh`. Brute-forcing all 26 shifts
+reveals the plaintext at shift `K = 3`:
+
+```
+caesarreallylikedashiftofthree
+```
+
+i.e. *"caesar really liked a shift of three"*, so the key is **3**.
+
+## Step 2: Derive the transposition keyword
+
+- `keylength = 3`
+- `keyword = ascii_lowercase[:3] = "abc"`
+
+The alphabetically ordered keyword "abc" means columns are read in order 0, 1, 2.
+
+## Step 3: Decrypt the columnar transposition
+
+Ciphertext (`crypto3/output.txt`, length 57):
+
+```
+T aiglhTtn0-t-yf-4}hfgsaitFrss2hk--fteel  sgC{4p3-330gl!o
+```
+
+Since `57 = 19 × 3`, the grid is `19` rows × `3` columns with no ragged last row.
+To decrypt, split the ciphertext into 3 columns of 19 characters and interleave
+them row by row:
+
+```python
+ct = 'T aiglhTtn0-t-yf-4}hfgsaitFrss2hk--fteel  sgC{4p3-330gl!o'
+K, rows = 3, len(ct) // 3
+cols = [ct[i*rows:(i+1)*rows] for i in range(K)]
+pt = ''.join(cols[c][r] for r in range(rows) for c in range(K))
+print(pt)
+```
+
+Result:
+
+```
+The flag is gaslightCTF{tr4nsp0s3-2-th3-k3y-0f-g-fl4t!}eo
+```
+
+(the trailing `eo` is padding added to fill the rectangle).
+
+## Flag
+
+```
+gaslightCTF{tr4nsp0s3-2-th3-k3y-0f-g-fl4t!}
+```

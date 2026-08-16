@@ -714,7 +714,15 @@ Decoding yields the flag: `scriptCTF{n0t_s0_h4rd_4ft3r_4ll}`
 
 路边AI想半天纠缠不出来，然后我问他“Have you REALLY tried inf”然后就出来了。
 
+偷一下题目：
 
+```py
+import random, time
+inp = input().strip()
+assert all([(x in "67") for x in list(inp)])
+num = float(inp)  
+print('wrong' if num < 67676767 or 676767676767676767%(6767676767676767676767676767/num) == 676767.67 or random.randint(676767676767, 6767676767676767676)%num or num > 6767676767676767 or num//676767*676767==num or pow(67,67)//67676767676767==num or num+676767==67676767676767 else 'scriptCTF{fakeflag6767}')
+```
 
 <details>
 
