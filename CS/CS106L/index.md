@@ -1,19 +1,37 @@
 ---
 title: "CS106L - Introduction to Programming in C++"
+createAt: 2026/8/27
 ---
 
-1. [Welcome!](./L1)
-2. [Types & Structs](./L2)
+<link-card title="CS106L: Introduction to Programming in C++" url="https://wwwweb.stanford.edu/class/cs106l/" />
+
+> Stanford CS106L 2026Spring 全部 17 讲课件的逐页转写。由 [pdf2md.py](./pdf2md.py)（PyMuPDF 渲染 + 视觉 LLM）从 slides PDF 生成，每页含完整文字、代码块与图表描述。
+>
+> 每讲另有按学术讲义体整理的中文逐字稿，见 [speech/](./speech/) 目录（列表中「讲稿」链接）。
+>
+> 旧版手写笔记（仅 L1–L6）见 [legacy-version](./legacy-version/index.md)。
+
+1. [Welcome](./output/2026Spring-01-Welcome.md) · [讲稿](./speech/2026Spring-01-Welcome.md)
+2. [Types & Structs](./output/2026Spring-02-TypesAndStructs.md) · [讲稿](./speech/2026Spring-02-TypesAndStructs.md)
    - `auto`: https://en.cppreference.com/w/cpp/language/auto.html
-3. [Initialization & References](./L3)
+3. [Initialization & References](./output/2026Spring-03-InitializationAndReferences.md) · [讲稿](./speech/2026Spring-03-InitializationAndReferences.md)
    - Initialization: https://en.cppreference.com/w/cpp/language/initialization.html
    - References: https://en.cppreference.com/w/cpp/language/reference.html
    - cv (`const` and `volatile`) type qualifiers: https://en.cppreference.com/w/cpp/language/cv.html
-4. [Streams](./L4)
+4. [Streams](./output/2026Spring-04-Streams.md) · [讲稿](./speech/2026Spring-04-Streams.md)
    - `std::stringstream`: https://en.cppreference.com/w/cpp/io/basic_stringstream
-   - `istream`, `ostream`, `cin`, `getline`
-5. [Containers](./L5)
+5. [Containers](./output/2026Spring-05-Containers.md) · [讲稿](./speech/2026Spring-05-Containers.md)
    - `std::vector`: https://en.cppreference.com/w/cpp/container/vector
    - `std::map`: https://en.cppreference.com/w/cpp/container/map
-   - `for (const auto& elem : vec)` `for (const auto& [key, value] : map)`.
-
+6. [Iterators](./output/2026Spring-06-Iterators.md) · [讲稿](./speech/2026Spring-06-Iterators.md)
+7. [Classes](./output/2026Spring-07-Classes.md) · [讲稿](./speech/2026Spring-07-Classes.md)
+8. [Inheritance](./output/2026Spring-08-Inheritance.md) · [讲稿](./speech/2026Spring-08-Inheritance.md)
+9. [Template Classes](./output/2026Spring-09-TemplateClasses.md) · [讲稿](./speech/2026Spring-09-TemplateClasses.md)
+10. [Template Functions](./output/2026Spring-10-TemplateFunctions.md) · [讲稿](./speech/2026Spring-10-TemplateFunctions.md)
+11. [Lambdas & Functors](./output/2026Spring-11-LambdasAndFunctors.md) · [讲稿](./speech/2026Spring-11-LambdasAndFunctors.md)
+12. [Operator Overloading](./output/2026Spring-12-OperatorOverloading.md) · [讲稿](./speech/2026Spring-12-OperatorOverloading.md)
+13. [Special Member Functions](./output/2026Spring-13-SpecialMemberFunctions.md) · [讲稿](./speech/2026Spring-13-SpecialMemberFunctions.md)
+14. [Move Semantics](./output/2026Spring-14-MoveSemantics.md) · [讲稿](./speech/2026Spring-14-MoveSemantics.md)
+15. [std::optional & Type Safety](./output/2026Spring-15-Optional&TypeSafety.md) · [讲稿](./speech/2026Spring-15-Optional&TypeSafety.md)
+16. [RAII, Smart Pointers & Building Projects](./output/2026Spring-16-RAII-SmartPointers.md) · [讲稿](./speech/2026Spring-16-RAII-SmartPointers.md)
+17. [The C++ Iceberg](./output/2026Spring-17-Optional-Lecture.md) · [讲稿](./speech/2026Spring-17-Optional-Lecture.md)

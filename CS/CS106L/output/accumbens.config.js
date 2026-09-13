@@ -1,10 +1,6 @@
 import { autoContentFiles } from "#accumbens/config";
 export default {
     "entries":autoContentFiles(),
-    "subcategories":[
-        "./output",
-        "./legacy-version"
-    ],
-    "name":"CS106L",
+    "name":"2026Spring Transcripts",
     "show":true,
 }
