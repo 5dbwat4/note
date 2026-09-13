@@ -1,0 +1,36 @@
+---
+title: AIGC Warning
+---
+
+import AIGCWarning from "@md-comp/AIGC-Warning.vue";
+
+# AIGC Warning
+
+Alert-style notice marking AI-generated content, built on `n-alert`. The icon
+comes from `material-symbols-light` and changes with the level.
+
+## uncensored (default, red)
+
+Fully AI generated, no review.
+
+<AIGCWarning />
+
+```mdx
+<AIGCWarning /> {/* same as aigcLevel="uncensored" */}
+```
+
+## generated (orange)
+
+<AIGCWarning aigcLevel="generated" />
+
+## assisted (blue)
+
+<AIGCWarning aigcLevel="assisted" />
+
+## Unknown level falls back to red
+
+<AIGCWarning aigcLevel="whatever" />
+
+## Custom message via children
+
+<AIGCWarning aigcLevel="generated">本文由 AI 生成，请自行核实关键信息。</AIGCWarning>

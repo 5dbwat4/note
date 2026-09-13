@@ -5,11 +5,8 @@ createAt: 2026/8/27
 
 <link-card title="CS106L: Introduction to Programming in C++" url="https://wwwweb.stanford.edu/class/cs106l/" />
 
-> Stanford CS106L 2026Spring 全部 17 讲课件的逐页转写。由 [pdf2md.py](./pdf2md.py)（PyMuPDF 渲染 + 视觉 LLM）从 slides PDF 生成，每页含完整文字、代码块与图表描述。
->
-> 每讲另有按学术讲义体整理的中文逐字稿，见 [speech/](./speech/) 目录（列表中「讲稿」链接）。
->
-> 旧版手写笔记（仅 L1–L6）见 [legacy-version](./legacy-version/index.md)。
+
+> 旧版手写笔记（仅 L1–L6）见 [legacy-version](./legacy-version/)。
 
 1. [Welcome](./output/2026Spring-01-Welcome.md) · [讲稿](./speech/2026Spring-01-Welcome.md)
 2. [Types & Structs](./output/2026Spring-02-TypesAndStructs.md) · [讲稿](./speech/2026Spring-02-TypesAndStructs.md)

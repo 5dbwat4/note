@@ -1,0 +1,42 @@
+---
+title: Attachment Card
+---
+
+import AttachmentCard from "@md-comp/attachment-card.vue";
+
+# Attachment Card
+
+File attachment card. The badge icon and color are picked automatically from
+the file extension (all icons are `material-symbols-light`). Clicking the card
+downloads the file; the eye button opens it in a new tab.
+
+Test files live in `/public/attachments/` and are served same-origin.
+
+## PDF (numeric size, auto formatted)
+
+<AttachmentCard name="sample.pdf" path="/attachments/sample.pdf" size={608} />
+
+```mdx
+<AttachmentCard name="sample.pdf" path="/attachments/sample.pdf" size={608} />
+```
+
+## Plain text file
+
+<AttachmentCard name="meeting-notes.txt" path="/attachments/meeting-notes.txt" size={1943} />
+
+## CSV, preview disabled, string size
+
+<AttachmentCard name="grades.csv" path="/attachments/grades.csv" size="100 B" preview={false} />
+
+```mdx
+<AttachmentCard name="grades.csv" path="/attachments/grades.csv" size="100 B" preview={false} />
+```
+
+## Other badge types
+
+Cards below point at the sample PDF on purpose — they only demonstrate how
+badges change with the *displayed* file name's extension.
+
+<AttachmentCard name="archive.zip" path="/attachments/sample.pdf" size="1.88MB" />
+<AttachmentCard name="photo.png" path="/attachments/sample.pdf" size="1.88MB" />
+<AttachmentCard name="unknown.dat" path="/attachments/sample.pdf" size="1.88MB" />

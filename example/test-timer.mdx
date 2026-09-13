@@ -1,0 +1,45 @@
+---
+title: Timer
+---
+
+import Timer from "@md-comp/timer.vue";
+
+# Timer
+
+Rolling-digit countdown card. Pass an end date via `target`; recolor via
+`color` / `textColor`; rename units via `labels` (comma separated).
+
+## Default (amber, English labels)
+
+<Timer target="2027-01-01T00:00:00+08:00" />
+
+```mdx
+<Timer target="2027-01-01T00:00:00+08:00" />
+```
+
+## Rolling digits (live)
+
+This one ends two minutes after the page is rendered, so the seconds digits
+—and soon the minutes— keep rolling while you watch:
+
+<Timer target={new Date(Date.now() + 2 * 60 * 1000).toISOString()} />
+
+## Custom color + Chinese labels
+
+<Timer target="2027-01-01T00:00:00+08:00" color="#7c3aed" labels="天,时,分,秒" />
+
+```mdx
+<Timer target="2027-01-01T00:00:00+08:00" color="#7c3aed" labels="天,时,分,秒" />
+```
+
+## Custom digit color
+
+<Timer target="2027-01-01T00:00:00+08:00" color="#0f766e" textColor="#fde68a" />
+
+## Expired target clamps to zero
+
+<Timer target="2000-01-01T00:00:00+08:00" />
+
+## Invalid target renders a placeholder
+
+<Timer target="not-a-date" />
