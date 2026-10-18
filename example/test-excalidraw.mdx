@@ -1,0 +1,175 @@
+---
+title: Excalidraw
+---
+
+import Excalidraw from "@md-comp/Excalidraw.vue";
+import diagramUrl from "./example.excalidraw?url";
+
+export const payload = {
+  elements: [
+    {
+      id: "rect",
+      type: "rectangle",
+      x: 40,
+      y: 40,
+      width: 220,
+      height: 110,
+      angle: 0,
+      strokeColor: "#1971c2",
+      backgroundColor: "#a5d8ff",
+      fillStyle: "solid",
+      strokeWidth: 2,
+      strokeStyle: "solid",
+      roughness: 1,
+      opacity: 100,
+      groupIds: [],
+      frameId: null,
+      index: "a0",
+      roundness: { type: 3 },
+      seed: 1,
+      version: 1,
+      versionNonce: 1,
+      isDeleted: false,
+      boundElements: null,
+      updated: 1,
+      link: null,
+      locked: false,
+    },
+    {
+      id: "text",
+      type: "text",
+      x: 80,
+      y: 78,
+      width: 140,
+      height: 25,
+      angle: 0,
+      strokeColor: "#1e1e1e",
+      backgroundColor: "transparent",
+      fillStyle: "solid",
+      strokeWidth: 2,
+      strokeStyle: "solid",
+      roughness: 1,
+      opacity: 100,
+      groupIds: [],
+      frameId: null,
+      index: "a1",
+      roundness: null,
+      seed: 2,
+      version: 1,
+      versionNonce: 2,
+      isDeleted: false,
+      boundElements: null,
+      updated: 1,
+      link: null,
+      locked: false,
+      text: "Hello, Excalidraw!",
+      fontSize: 20,
+      fontFamily: 1,
+      textAlign: "left",
+      verticalAlign: "top",
+      containerId: null,
+      originalText: "Hello, Excalidraw!",
+      lineHeight: 1.25,
+      autoResize: true,
+    },
+    {
+      id: "arrow",
+      type: "arrow",
+      x: 260,
+      y: 95,
+      width: 120,
+      height: 0,
+      angle: 0,
+      strokeColor: "#1e1e1e",
+      backgroundColor: "transparent",
+      fillStyle: "solid",
+      strokeWidth: 2,
+      strokeStyle: "solid",
+      roughness: 1,
+      opacity: 100,
+      groupIds: [],
+      frameId: null,
+      index: "a2",
+      roundness: { type: 2 },
+      seed: 3,
+      version: 1,
+      versionNonce: 3,
+      isDeleted: false,
+      boundElements: null,
+      updated: 1,
+      link: null,
+      locked: false,
+      points: [
+        [0, 0],
+        [120, 0],
+      ],
+      lastCommittedPoint: null,
+      startBinding: null,
+      endBinding: null,
+      startArrowhead: null,
+      endArrowhead: "arrow",
+    },
+  ],
+  appState: {
+    gridSize: null,
+  },
+  files: {},
+};
+
+# Excalidraw
+
+Embed an [Excalidraw](https://excalidraw.com) board. The component accepts
+either an inline `payload` or a `src` URL pointing at a `.excalidraw` / JSON
+file. `payload` wins when both are supplied.
+
+The board is transparent by default (set `appState.viewBackgroundColor` to
+override), view-only with the top toolbar hidden (`hideToolbar={false}` keeps
+it), and automatically zoomed to fit its content with `padding` (default
+`40`) px of breathing room.
+
+## Inline payload
+
+<Excalidraw payload={payload} height="360px" />
+
+```mdx
+<Excalidraw payload={payload} height="360px" />
+```
+
+## Loaded from src
+
+The diagram file is imported as a URL with Vite's `?url` suffix, so no
+`public/` directory is needed:
+
+```mdx
+import diagramUrl from "./example.excalidraw?url";
+
+<Excalidraw src={diagramUrl} height="420px" />
+```
+
+<Excalidraw src={diagramUrl} height="420px" />
+
+## View only
+
+Boards are view-only by default (`viewMode` defaults to `true`):
+
+<Excalidraw src={diagramUrl} height="420px" />
+
+```mdx
+<Excalidraw src={diagramUrl} height="420px" />
+```
+
+## Editable
+
+<Excalidraw src={diagramUrl} height="420px" viewMode={false} />
+
+```mdx
+<Excalidraw src={diagramUrl} height="420px" viewMode={false} />
+```
+
+## More padding when fitting
+
+<Excalidraw src={diagramUrl} height="420px" padding={96} />
+
+```mdx
+<Excalidraw src={diagramUrl} height="420px" padding={96} />
+```
