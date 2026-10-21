@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1158" viewBox="0 0 900 1158">
+  <rect x="0.5" y="0.5" width="899" height="1157" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <g font-family="'Microsoft YaHei','Noto Sans SC',sans-serif">
+    <text x="24" y="42" font-size="16" font-weight="700" fill="#1f2937">句子：the acting is great but the plot is boring and predictable</text>
+    <text x="24" y="64" font-size="14" fill="#6b7280">P(pos) = 0.0000</text>
+    <text x="24" y="87" font-size="12" fill="#6b7280">词</text>
+    <text x="330" y="87" font-size="12" fill="#6b7280" text-anchor="end">删除后 P(pos)</text>
+    <text x="440" y="87" font-size="12" fill="#6b7280" text-anchor="end">贡献</text>
+    <line x1="24" y1="96" x2="876" y2="96" stroke="#d0d7de" stroke-width="1"/>
+    <line x1="620" y1="96" x2="620" y2="360" stroke="#adb5bd" stroke-width="1"/>
+    <text x="24" y="113.0" font-size="14" fill="#24292f">the</text>
+    <text x="330" y="113.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="113.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+    <rect x="24" y="120" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="137.0" font-size="14" fill="#24292f">acting</text>
+    <text x="330" y="137.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="137.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+    <text x="24" y="161.0" font-size="14" fill="#24292f">is</text>
+    <text x="330" y="161.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="161.0" font-size="14" fill="#6b7280" text-anchor="end">+0.0000</text>
+    <rect x="24" y="168" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="185.0" font-size="14" fill="#24292f">great</text>
+    <text x="330" y="185.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="185.0" font-size="14" fill="#6b7280" text-anchor="end">+0.0000</text>
+    <text x="24" y="209.0" font-size="14" fill="#24292f">but</text>
+    <text x="330" y="209.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="209.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+    <rect x="24" y="216" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="233.0" font-size="14" fill="#24292f">the</text>
+    <text x="330" y="233.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="233.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+    <text x="24" y="257.0" font-size="14" fill="#24292f">plot</text>
+    <text x="330" y="257.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="257.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+    <rect x="24" y="264" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="281.0" font-size="14" fill="#24292f">is</text>
+    <text x="330" y="281.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="281.0" font-size="14" fill="#6b7280" text-anchor="end">+0.0000</text>
+    <text x="24" y="305.0" font-size="14" fill="#24292f">boring</text>
+    <text x="330" y="305.0" font-size="14" fill="#24292f" text-anchor="end">0.2328</text>
+    <text x="440" y="305.0" font-size="14" fill="#e03131" text-anchor="end">-0.2328</text>
+    <rect x="580.42" y="294.0" width="39.58" height="12" rx="2" fill="#e03131" opacity="0.82"/>
+    <rect x="24" y="312" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="329.0" font-size="14" fill="#24292f">and</text>
+    <text x="330" y="329.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="329.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+    <text x="24" y="353.0" font-size="14" fill="#24292f">predictable</text>
+    <text x="330" y="353.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="353.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+    <text x="24" y="396" font-size="16" font-weight="700" fill="#1f2937">句子：the plot is boring and predictable but the acting is great</text>
+    <text x="24" y="418" font-size="14" fill="#6b7280">P(pos) = 0.0000</text>
+    <text x="24" y="441" font-size="12" fill="#6b7280">词</text>
+    <text x="330" y="441" font-size="12" fill="#6b7280" text-anchor="end">删除后 P(pos)</text>
+    <text x="440" y="441" font-size="12" fill="#6b7280" text-anchor="end">贡献</text>
+    <line x1="24" y1="450" x2="876" y2="450" stroke="#d0d7de" stroke-width="1"/>
+    <line x1="620" y1="450" x2="620" y2="714" stroke="#adb5bd" stroke-width="1"/>
+    <text x="24" y="467.0" font-size="14" fill="#24292f">the</text>
+    <text x="330" y="467.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="467.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+    <rect x="24" y="474" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="491.0" font-size="14" fill="#24292f">plot</text>
+    <text x="330" y="491.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="491.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+    <text x="24" y="515.0" font-size="14" fill="#24292f">is</text>
+    <text x="330" y="515.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="515.0" font-size="14" fill="#6b7280" text-anchor="end">+0.0000</text>
+    <rect x="24" y="522" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="539.0" font-size="14" fill="#24292f">boring</text>
+    <text x="330" y="539.0" font-size="14" fill="#24292f" text-anchor="end">0.0046</text>
+    <text x="440" y="539.0" font-size="14" fill="#e03131" text-anchor="end">-0.0046</text>
+    <rect x="618.00" y="528.0" width="2.00" height="12" rx="2" fill="#e03131" opacity="0.82"/>
+    <text x="24" y="563.0" font-size="14" fill="#24292f">and</text>
+    <text x="330" y="563.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="563.0" font-size="14" fill="#6b7280" text-anchor="end">+0.0000</text>
+    <rect x="24" y="570" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="587.0" font-size="14" fill="#24292f">predictable</text>
+    <text x="330" y="587.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="587.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+    <text x="24" y="611.0" font-size="14" fill="#24292f">but</text>
+    <text x="330" y="611.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="611.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+    <rect x="24" y="618" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="635.0" font-size="14" fill="#24292f">the</text>
+    <text x="330" y="635.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="635.0" font-size="14" fill="#6b7280" text-anchor="end">+0.0000</text>
+    <text x="24" y="659.0" font-size="14" fill="#24292f">acting</text>
+    <text x="330" y="659.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="659.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+    <rect x="24" y="666" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="683.0" font-size="14" fill="#24292f">is</text>
+    <text x="330" y="683.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="683.0" font-size="14" fill="#6b7280" text-anchor="end">+0.0000</text>
+    <text x="24" y="707.0" font-size="14" fill="#24292f">great</text>
+    <text x="330" y="707.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="707.0" font-size="14" fill="#6b7280" text-anchor="end">+0.0000</text>
+    <text x="24" y="750" font-size="16" font-weight="700" fill="#1f2937">句子：not bad</text>
+    <text x="24" y="772" font-size="14" fill="#6b7280">P(pos) = 0.1121</text>
+    <text x="24" y="795" font-size="12" fill="#6b7280">词</text>
+    <text x="330" y="795" font-size="12" fill="#6b7280" text-anchor="end">删除后 P(pos)</text>
+    <text x="440" y="795" font-size="12" fill="#6b7280" text-anchor="end">贡献</text>
+    <line x1="24" y1="804" x2="876" y2="804" stroke="#d0d7de" stroke-width="1"/>
+    <line x1="620" y1="804" x2="620" y2="852" stroke="#adb5bd" stroke-width="1"/>
+    <text x="24" y="821.0" font-size="14" fill="#24292f">not</text>
+    <text x="330" y="821.0" font-size="14" fill="#24292f" text-anchor="end">0.0455</text>
+    <text x="440" y="821.0" font-size="14" fill="#2f9e44" text-anchor="end">+0.0666</text>
+    <rect x="620" y="810.0" width="14.65" height="12" rx="2" fill="#2f9e44" opacity="0.82"/>
+    <rect x="24" y="828" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="845.0" font-size="14" fill="#24292f">bad</text>
+    <text x="330" y="845.0" font-size="14" fill="#24292f" text-anchor="end">0.4791</text>
+    <text x="440" y="845.0" font-size="14" fill="#e03131" text-anchor="end">-0.3670</text>
+    <rect x="557.61" y="834.0" width="62.39" height="12" rx="2" fill="#e03131" opacity="0.82"/>
+    <text x="24" y="888" font-size="16" font-weight="700" fill="#1f2937">句子：what a great way to waste two hours</text>
+    <text x="24" y="910" font-size="14" fill="#6b7280">P(pos) = 0.0000</text>
+    <text x="24" y="933" font-size="12" fill="#6b7280">词</text>
+    <text x="330" y="933" font-size="12" fill="#6b7280" text-anchor="end">删除后 P(pos)</text>
+    <text x="440" y="933" font-size="12" fill="#6b7280" text-anchor="end">贡献</text>
+    <line x1="24" y1="942" x2="876" y2="942" stroke="#d0d7de" stroke-width="1"/>
+    <line x1="620" y1="942" x2="620" y2="1134" stroke="#adb5bd" stroke-width="1"/>
+    <text x="24" y="959.0" font-size="14" fill="#24292f">what</text>
+    <text x="330" y="959.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="959.0" font-size="14" fill="#6b7280" text-anchor="end">+0.0000</text>
+    <rect x="24" y="966" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="983.0" font-size="14" fill="#24292f">a</text>
+    <text x="330" y="983.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="983.0" font-size="14" fill="#6b7280" text-anchor="end">+0.0000</text>
+    <text x="24" y="1007.0" font-size="14" fill="#24292f">great</text>
+    <text x="330" y="1007.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="1007.0" font-size="14" fill="#6b7280" text-anchor="end">+0.0000</text>
+    <rect x="24" y="1014" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="1031.0" font-size="14" fill="#24292f">way</text>
+    <text x="330" y="1031.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="1031.0" font-size="14" fill="#6b7280" text-anchor="end">+0.0000</text>
+    <text x="24" y="1055.0" font-size="14" fill="#24292f">to</text>
+    <text x="330" y="1055.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="1055.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+    <rect x="24" y="1062" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="1079.0" font-size="14" fill="#24292f">waste</text>
+    <text x="330" y="1079.0" font-size="14" fill="#24292f" text-anchor="end">0.9898</text>
+    <text x="440" y="1079.0" font-size="14" fill="#e03131" text-anchor="end">-0.9898</text>
+    <rect x="451.73" y="1068.0" width="168.27" height="12" rx="2" fill="#e03131" opacity="0.82"/>
+    <text x="24" y="1103.0" font-size="14" fill="#24292f">two</text>
+    <text x="330" y="1103.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="1103.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+    <rect x="24" y="1110" width="852" height="24" fill="#fafbfc"/>
+    <text x="24" y="1127.0" font-size="14" fill="#24292f">hours</text>
+    <text x="330" y="1127.0" font-size="14" fill="#24292f" text-anchor="end">0.0000</text>
+    <text x="440" y="1127.0" font-size="14" fill="#6b7280" text-anchor="end">-0.0000</text>
+  </g>
+</svg>

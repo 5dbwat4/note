@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1460 870" width="1460" height="870" font-family="'Microsoft YaHei','Noto Sans SC',sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a9eed"/>
+    </marker>
+  </defs>
+
+  <rect width="1460" height="870" fill="#ffffff"/>
+
+  <!-- 左侧主干 -->
+  <rect x="110" y="120" width="260" height="70" rx="10" fill="#e7f5ff" stroke="#4dabf7" stroke-width="2"/>
+  <text x="240" y="151" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">输入 Input</text>
+  <text x="240" y="177" text-anchor="middle" font-size="15" fill="#6b7280">(B, 51) 词索引</text>
+
+  <rect x="110" y="215" width="260" height="64" rx="10" fill="#e7f5ff" stroke="#4dabf7" stroke-width="2"/>
+  <text x="240" y="244" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">ExpandDims</text>
+  <text x="240" y="270" text-anchor="middle" font-size="15" fill="#6b7280">(B, 1, 51)</text>
+
+  <rect x="110" y="305" width="260" height="86" rx="10" fill="#e7f5ff" stroke="#4dabf7" stroke-width="2"/>
+  <text x="240" y="344" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">Embedding</text>
+  <text x="240" y="371" text-anchor="middle" font-size="15" fill="#6b7280">(B, 1, 51, 40)</text>
+
+  <!-- 三个卷积分支 -->
+  <rect x="450" y="455" width="300" height="66" rx="10" fill="#fff4e6" stroke="#f08c00" stroke-width="2"/>
+  <text x="600" y="483" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">Conv2d  h=3, 96 filters + ReLU</text>
+  <text x="600" y="507" text-anchor="middle" font-size="15" fill="#6b7280">(B, 96, 51, 3)</text>
+
+  <rect x="450" y="535" width="300" height="66" rx="10" fill="#fff4e6" stroke="#f08c00" stroke-width="2"/>
+  <text x="600" y="563" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">Conv2d  h=4, 96 filters + ReLU</text>
+  <text x="600" y="587" text-anchor="middle" font-size="15" fill="#6b7280">(B, 96, 50, 3)</text>
+
+  <rect x="450" y="615" width="300" height="66" rx="10" fill="#fff4e6" stroke="#f08c00" stroke-width="2"/>
+  <text x="600" y="643" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">Conv2d  h=5, 96 filters + ReLU</text>
+  <text x="600" y="667" text-anchor="middle" font-size="15" fill="#6b7280">(B, 96, 49, 3)</text>
+
+  <!-- 池化 -->
+  <rect x="790" y="455" width="300" height="66" rx="10" fill="#ebfbee" stroke="#40c057" stroke-width="2"/>
+  <text x="940" y="483" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">MaxPool2d + ReduceMax</text>
+  <text x="940" y="507" text-anchor="middle" font-size="15" fill="#6b7280">(B, 96, 3, 3) → (B, 96)</text>
+
+  <rect x="790" y="535" width="300" height="66" rx="10" fill="#ebfbee" stroke="#40c057" stroke-width="2"/>
+  <text x="940" y="563" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">MaxPool2d + ReduceMax</text>
+  <text x="940" y="587" text-anchor="middle" font-size="15" fill="#6b7280">(B, 96, 3, 3) → (B, 96)</text>
+
+  <rect x="790" y="615" width="300" height="66" rx="10" fill="#ebfbee" stroke="#40c057" stroke-width="2"/>
+  <text x="940" y="643" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">MaxPool2d + ReduceMax</text>
+  <text x="940" y="667" text-anchor="middle" font-size="15" fill="#6b7280">(B, 96, 3, 3) → (B, 96)</text>
+
+  <!-- 右侧 -->
+  <rect x="1130" y="520" width="250" height="110" rx="10" fill="#f3f0ff" stroke="#7950f2" stroke-width="2"/>
+  <text x="1255" y="567" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">Concat</text>
+  <text x="1255" y="593" text-anchor="middle" font-size="15" fill="#6b7280">(B, 288)</text>
+
+  <rect x="1130" y="665" width="250" height="90" rx="10" fill="#f3f0ff" stroke="#7950f2" stroke-width="2"/>
+  <text x="1255" y="702" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">Dropout p=0.36</text>
+  <text x="1255" y="728" text-anchor="middle" font-size="15" fill="#6b7280">(B, 288)</text>
+
+  <rect x="1130" y="790" width="250" height="64" rx="10" fill="#fff5f5" stroke="#fa5252" stroke-width="2"/>
+  <text x="1255" y="817" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">Dense 288→2 + Softmax</text>
+  <text x="1255" y="841" text-anchor="middle" font-size="15" fill="#6b7280">(B, 2)</text>
+
+  <!-- 竖向主干箭头 -->
+  <g stroke="#4a9eed" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <line x1="240" y1="190" x2="240" y2="215"/>
+    <line x1="240" y1="279" x2="240" y2="305"/>
+  </g>
+
+  <!-- Embedding -> 三个卷积分支：先竖直，再横向分叉 -->
+  <g stroke="#4a9eed" stroke-width="2" fill="none">
+    <line x1="240" y1="391" x2="240" y2="648"/>
+  </g>
+  <g stroke="#4a9eed" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <line x1="240" y1="488" x2="450" y2="488"/>
+    <line x1="240" y1="568" x2="450" y2="568"/>
+    <line x1="240" y1="648" x2="450" y2="648"/>
+  </g>
+
+  <!-- Conv -> MaxPool -->
+  <g stroke="#4a9eed" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <line x1="750" y1="488" x2="790" y2="488"/>
+    <line x1="750" y1="568" x2="790" y2="568"/>
+    <line x1="750" y1="648" x2="790" y2="648"/>
+  </g>
+
+  <!-- 三个 MaxPool 汇合到 Concat -->
+  <g stroke="#4a9eed" stroke-width="2" fill="none">
+    <line x1="1090" y1="488" x2="1110" y2="488"/>
+    <line x1="1090" y1="568" x2="1110" y2="568"/>
+    <line x1="1090" y1="648" x2="1110" y2="648"/>
+    <line x1="1110" y1="488" x2="1110" y2="648"/>
+  </g>
+  <g stroke="#4a9eed" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <line x1="1110" y1="575" x2="1130" y2="575"/>
+  </g>
+
+  <!-- Concat -> Dropout -> Dense -->
+  <g stroke="#4a9eed" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <line x1="1255" y1="630" x2="1255" y2="665"/>
+    <line x1="1255" y1="755" x2="1255" y2="790"/>
+  </g>
+</svg>
