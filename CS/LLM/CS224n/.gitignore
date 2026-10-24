@@ -1,0 +1,15 @@
+# Ignore everything that is NOT a deliverable.
+# Intended tracked content: Lxx_*.md (bilingual transcripts) and index.md
+
+# Local translation pipeline / helper scripts (connects to personal AI provider config)
+_translate.py
+_*.py
+
+# Raw subtitle transcripts and intermediate generation artifacts
+*.txt
+*.done
+*.tmp
+*.log
+
+
+workspace/
