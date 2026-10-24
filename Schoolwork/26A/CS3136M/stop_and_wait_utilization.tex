@@ -1,0 +1,57 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[margin=1in]{geometry}
+
+\begin{document}
+
+For \textbf{stop-and-wait}, utilization is the fraction of each send--ACK cycle spent transmitting a data frame:
+\[
+U=\frac{T_{\text{frame}}}{T_{\text{frame}}+2T_{\text{prop}}+T_{\text{ACK}}},
+\qquad T_{\text{frame}}=\frac{\text{Frame size}}{\text{Data rate}}.
+\]
+
+Assume no errors or processing delays, and negligible ACK transmission time unless specified.
+
+\textbf{1. Short link, negligible ACK size}
+
+\[
+T_{\text{frame}}=\frac{4000}{10\times10^6}
+=400\,\mu s
+\]
+
+\[
+U=\frac{400}{400+2(5)}
+=\boxed{97.56\%}
+\]
+
+\textbf{2. Short link, 100-bit ACK}
+
+Assuming the ACK uses the same 10 Mbps rate:
+
+\[
+T_{\text{ACK}}=\frac{100}{10\times10^6}=10\,\mu s
+\]
+
+\[
+U=\frac{400}{400+2(5)+10}
+=\boxed{95.24\%}
+\]
+
+\textbf{3. Satellite link, negligible ACK size}
+
+The given \(270\text{ ms}\) is the \textbf{one-way} propagation delay.
+
+\[
+T_{\text{frame}}=\frac{4000}{56\times10^3}
+\approx71.43\text{ ms}
+\]
+
+\[
+U=\frac{71.43}{71.43+2(270)}
+=\boxed{11.68\%}
+\]
+
+The satellite link has low utilization because the sender spends most of each cycle waiting for the acknowledgment.
+
+\end{document}

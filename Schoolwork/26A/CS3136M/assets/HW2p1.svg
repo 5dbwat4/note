@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 200" width="100%" height="100%">
+  <!-- Background color -->
+  <rect width="100%" height="100%" fill="#e8e8e8" />
+
+  <style>
+    .text-main {
+      font-family: 'Arial', 'Helvetica', sans-serif;
+      font-weight: bold;
+      font-size: 23px;
+      fill: #3a3a3a;
+    }
+    .text-label {
+      font-family: 'Arial', 'Helvetica', sans-serif;
+      font-weight: normal;
+      font-size: 20px;
+      fill: #3a3a3a;
+    }
+  </style>
+
+  <!-- Left Column (a) -->
+  <g class="text-main">
+    <text x="35" y="48">A: 00011011</text>
+    <text x="35" y="88">B: 00101110</text>
+    <text x="35" y="128">C: 01011100</text>
+    <text x="35" y="168">D: 01000010</text>
+  </g>
+  
+  <!-- Label (a) -->
+  <text x="120" y="192" class="text-label">(a)</text>
+
+  <!-- Right Column (b) -->
+  <g class="text-main">
+    <text x="355" y="48">A: (-1 -1 -1 +1 +1 -1 +1 +1)</text>
+    <text x="355" y="88">B: (-1 -1 +1 -1 +1 +1 +1 -1)</text>
+    <text x="355" y="128">C: (-1 +1 -1 +1 +1 +1 -1 -1)</text>
+    <text x="355" y="168">D: (-1 +1 -1 -1 -1 -1 +1 -1)</text>
+  </g>
+
+  <!-- Label (b) -->
+  <text x="500" y="192" class="text-label">(b)</text>
+</svg>

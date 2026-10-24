@@ -1,0 +1,23 @@
+\documentclass[UTF8,11pt,a4paper]{ctexart}
+\usepackage[margin=25mm]{geometry}
+\pagestyle{empty}
+
+\begin{document}
+
+\noindent\textbf{题目 1：}4B/5B、曼彻斯特编码的效率各为多少？
+
+\noindent\textbf{解答：}4B/5B 编码将每 4 个数据比特映射为 5 个编码比特，因此编码效率为 $4/5=80\%$。曼彻斯特编码把每个数据比特表示为两个信号码元，因此编码效率为 $1/2=50\%$。
+
+\medskip
+
+\noindent\textbf{题目 2：}在快速以太网中，如果数据传输率要达到 $100\,\mathrm{Mb/s}$，采用以上两种编码，各需要多少波特率？
+
+\noindent\textbf{解答：}波特率等于数据传输率除以编码效率。采用 4B/5B 编码时，所需波特率为 $100/(4/5)=125\,\mathrm{MBd}$；采用曼彻斯特编码时，所需波特率为 $100/(1/2)=200\,\mathrm{MBd}$。
+
+\medskip
+
+\noindent\textbf{题目 3：}由此可以推出什么？
+
+\noindent\textbf{解答：}在数据传输率相同时，编码效率越高，所需波特率越低。
+
+\end{document}
