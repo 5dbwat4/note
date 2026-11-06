@@ -106,7 +106,7 @@ $$
 - **Warmup**：训练刚开始时参数是随机的，Adam 的二阶矩估计 $v_t$ 只基于很少几步，偏差和方差都大，再加上注意力 softmax 容易饱和，此时用大学习率容易发散。线性 warmup 让模型先在小步长下找到一个较平坦的区域。
 - **衰减**：训练后期需要减小步长，让参数在极小值附近收敛，并降低梯度噪声。反平方根衰减比较平缓，比指数衰减更适合 Transformer 这类需要训练较长时间的模型。
 
-实验手册原来的配置是 $w=8000,\ s_d=16000$，但 notebook 总共只有 8,850 步，学习率在训练结束时还没升到峰值（见图 2-1）。notebook 把它改成了 800/1200，与训练步数相匹配。
+实验手册原来的配置是 $w=8000,\ s_d=16000$，但 notebook 总共只有 8,850 步，学习率在训练结束时还没升到峰值。notebook 把它改成了 800/1200，与训练步数相匹配。
 
 ![图 2-1 学习率调度曲线](lr_schedule.png)
 
@@ -149,8 +149,6 @@ $p_n$ 为 n-gram 修正精确率，$r$ 和 $c$ 分别为参考译文和系统输
 **（2）模型结构**
 
 <Excalidraw src={transformerUrl} height="760px" />
-
-*图 2-3：本实验 Transformer（base）结构。注意交叉注意力实际使用的掩码，详见 2.3（4）和 3.6。*
 
 **（3）训练一步（TransformerTrainOneStepCell）**
 
@@ -437,7 +435,7 @@ I. 《自然语言处理》机器翻译实验手册.
 7. Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016). *Rethinking the Inception Architecture for Computer Vision*. In IEEE Conference on Computer Vision and Pattern Recognition (CVPR 2016), pp. 2818–2826.
 8. Papineni, K., Roukos, S., Ward, T., & Zhu, W.-J. (2002). *BLEU: a Method for Automatic Evaluation of Machine Translation*. In Annual Meeting of the Association for Computational Linguistics (ACL 2002), pp. 311–318.
 9. Wu, Y., Schuster, M., Chen, Z., et al. (2016). *Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation*. arXiv:1609.08144.
-10. Press, O., & Wolf, L. (2017). *Using the Output Embedding to Improve Language Models*. In Conference of the European Chapter of the Association for Computational Linguistics (EACL 2017), pp. 157–163. arXiv:1608.05859.
+10. Press, O., & Wolf, L. (2017). *Using the Output Embedding to Improve Language Models*. In Proceedings of the 15th Conference of the European Chapter of the Association for Computational Linguistics: Volume 2, Short Papers (EACL 2017), pp. 157–163. arXiv:1608.05859.
 11. Micikevicius, P., Narang, S., Alben, J., Diamos, G., Elsen, E., Garcia, D., Ginsburg, B., Houston, M., Kuchaiev, O., Venkatesh, G., & Wu, H. (2018). *Mixed Precision Training*. In International Conference on Learning Representations (ICLR 2018). arXiv:1710.03740.
 12. Glorot, X., & Bengio, Y. (2010). *Understanding the Difficulty of Training Deep Feedforward Neural Networks*. In International Conference on Artificial Intelligence and Statistics (AISTATS 2010), pp. 249–256.
 13. MindSpore. *MindSpore Documentation*. https://www.mindspore.cn/docs/
